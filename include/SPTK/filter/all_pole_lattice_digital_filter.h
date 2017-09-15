@@ -45,8 +45,7 @@
 #ifndef SPTK_FILTER_ALL_POLE_LATTICE_DIGITAL_FILTER_H_
 #define SPTK_FILTER_ALL_POLE_LATTICE_DIGITAL_FILTER_H_
 
-#include <algorithm>  // std::fill
-#include <vector>     // std::vector
+#include <vector>  // std::vector
 
 #include "SPTK/utils/sptk_utils.h"
 

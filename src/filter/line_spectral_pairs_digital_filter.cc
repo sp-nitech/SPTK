@@ -44,8 +44,9 @@
 
 #include "SPTK/filter/line_spectral_pairs_digital_filter.h"
 
-#include <cmath>    // std::cos
-#include <cstddef>  // std::size_t
+#include <algorithm>  // std::fill
+#include <cmath>      // std::cos
+#include <cstddef>    // std::size_t
 
 namespace sptk {
 

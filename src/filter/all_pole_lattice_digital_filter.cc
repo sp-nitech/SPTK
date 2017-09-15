@@ -44,7 +44,8 @@
 
 #include "SPTK/filter/all_pole_lattice_digital_filter.h"
 
-#include <cstddef>  // std::size_t
+#include <algorithm>  // std::fill
+#include <cstddef>    // std::size_t
 
 namespace sptk {
 

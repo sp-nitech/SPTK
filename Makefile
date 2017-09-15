@@ -75,5 +75,9 @@ $(OBJECTS): $(BUILDDIR)/%.o : $(SOURCEDIR)/%.cc
 	mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ -c $<
 
+format:
+	clang-format -i $(wildcard $(SOURCEDIR)/*/*.cc)
+	clang-format -i	$(wildcard $(INCLUDEDIR)/SPTK/*/*.h)
+
 clean:
 	rm -rf $(BUILDDIR) $(TARGET)

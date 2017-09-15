@@ -45,8 +45,7 @@
 #ifndef SPTK_FILTER_LINE_SPECTRAL_PAIRS_DIGITAL_FILTER_H_
 #define SPTK_FILTER_LINE_SPECTRAL_PAIRS_DIGITAL_FILTER_H_
 
-#include <algorithm>  // std::fill
-#include <vector>     // std::vector
+#include <vector>  // std::vector
 
 #include "SPTK/utils/sptk_utils.h"
 
