@@ -42,8 +42,8 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_FILTER_ALL_ZERO_DIGITAL_FILTER_H_
-#define SPTK_FILTER_ALL_ZERO_DIGITAL_FILTER_H_
+#ifndef SPTK_FILTER_LINE_SPECTRAL_PAIRS_DIGITAL_FILTER_H_
+#define SPTK_FILTER_LINE_SPECTRAL_PAIRS_DIGITAL_FILTER_H_
 
 #include <algorithm>  // std::fill
 #include <vector>     // std::vector
@@ -52,7 +52,7 @@
 
 namespace sptk {
 
-class AllZeroDigitalFilter {
+class LineSpectralPairsDigitalFilter {
  public:
   class StoredSignals {
    public:
@@ -66,37 +66,33 @@ class AllZeroDigitalFilter {
 
    private:
     //
-    std::vector<double> signals_;
+    std::vector<double> signals1_;
 
     //
-    friend class AllZeroDigitalFilter;
+    std::vector<double> signals2_;
+
+    //
+    friend class LineSpectralPairsDigitalFilter;
 
     //
     DISALLOW_COPY_AND_ASSIGN(StoredSignals);
   };
 
   //
-  AllZeroDigitalFilter(int num_filter_order, bool transposition)
-      : num_filter_order_(num_filter_order),
-        transposition_(transposition),
-        is_valid_(true) {
+  explicit LineSpectralPairsDigitalFilter(int num_filter_order)
+      : num_filter_order_(num_filter_order), is_valid_(true) {
     if (num_filter_order_ < 0) {
       is_valid_ = false;
     }
   }
 
   //
-  virtual ~AllZeroDigitalFilter() {
+  virtual ~LineSpectralPairsDigitalFilter() {
   }
 
   //
   int GetNumFilterOrder() const {
     return num_filter_order_;
-  }
-
-  //
-  bool GetTranspositionFlag() const {
-    return transposition_;
   }
 
   //
@@ -107,22 +103,19 @@ class AllZeroDigitalFilter {
   //
   bool Run(const std::vector<double>& filter_coefficients, double filter_input,
            double* filter_output,
-           AllZeroDigitalFilter::StoredSignals* signals) const;
+           LineSpectralPairsDigitalFilter::StoredSignals* signals) const;
 
  private:
   //
   const int num_filter_order_;
 
   //
-  const bool transposition_;
-
-  //
   bool is_valid_;
 
   //
-  DISALLOW_COPY_AND_ASSIGN(AllZeroDigitalFilter);
+  DISALLOW_COPY_AND_ASSIGN(LineSpectralPairsDigitalFilter);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_FILTER_ALL_ZERO_DIGITAL_FILTER_H_
+#endif  // SPTK_FILTER_LINE_SPECTRAL_PAIRS_DIGITAL_FILTER_H_

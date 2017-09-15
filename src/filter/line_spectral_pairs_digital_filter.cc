@@ -42,87 +42,84 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_FILTER_ALL_ZERO_DIGITAL_FILTER_H_
-#define SPTK_FILTER_ALL_ZERO_DIGITAL_FILTER_H_
+#include "SPTK/filter/line_spectral_pairs_digital_filter.h"
 
-#include <algorithm>  // std::fill
-#include <vector>     // std::vector
-
-#include "SPTK/utils/sptk_utils.h"
+#include <cmath>    // std::cos
+#include <cstddef>  // std::size_t
 
 namespace sptk {
 
-class AllZeroDigitalFilter {
- public:
-  class StoredSignals {
-   public:
-    //
-    StoredSignals() {
+bool LineSpectralPairsDigitalFilter::Run(
+    const std::vector<double>& filter_coefficients, double filter_input,
+    double* filter_output,
+    LineSpectralPairsDigitalFilter::StoredSignals* stored_signals) const {
+  // check inputs
+  if (filter_coefficients.size() !=
+          static_cast<std::size_t>(num_filter_order_ + 1) ||
+      NULL == filter_output || NULL == stored_signals || !is_valid_) {
+    return false;
+  }
+
+  // prepare memory
+  if (stored_signals->signals1_.size() !=
+      static_cast<std::size_t>(num_filter_order_ + 1)) {
+    stored_signals->signals1_.resize(num_filter_order_ + 1);
+    std::fill(stored_signals->signals1_.begin(),
+              stored_signals->signals1_.end(), 0.0);
+  }
+  if (stored_signals->signals2_.size() !=
+      static_cast<std::size_t>(num_filter_order_ + 1)) {
+    stored_signals->signals2_.resize(num_filter_order_ + 1);
+    std::fill(stored_signals->signals2_.begin(),
+              stored_signals->signals2_.end(), 0.0);
+  }
+
+  // set value
+  const double gained_input(filter_input * filter_coefficients[0]);
+  if (0 == num_filter_order_) {
+    *filter_output = gained_input;
+    return true;
+  }
+
+  // get values
+  const double* coefficients(&(filter_coefficients[0]));
+  double* signals1(&stored_signals->signals1_[0]);
+  double* signals2(&stored_signals->signals2_[0]);
+
+  // apply filter
+  double sum(gained_input);
+  {
+    double x1(signals1[0]);
+    double x2(signals2[0]);
+    for (int i(1); i < num_filter_order_; i += 2) {
+      signals1[i] -= 2.0 * x1 * std::cos(coefficients[i]);
+      signals2[i] -= 2.0 * x2 * std::cos(coefficients[i + 1]);
+      signals1[i + 1] += x1;
+      signals2[i + 1] += x2;
+      x1 = signals1[i + 1];
+      x2 = signals2[i + 1];
+      sum += signals1[i] + signals2[i];
     }
-
-    //
-    ~StoredSignals() {
+    if (1 == num_filter_order_ % 2) {
+      signals1[num_filter_order_] -=
+          2.0 * x1 * std::cos(coefficients[num_filter_order_]);
     }
-
-   private:
-    //
-    std::vector<double> signals_;
-
-    //
-    friend class AllZeroDigitalFilter;
-
-    //
-    DISALLOW_COPY_AND_ASSIGN(StoredSignals);
-  };
-
-  //
-  AllZeroDigitalFilter(int num_filter_order, bool transposition)
-      : num_filter_order_(num_filter_order),
-        transposition_(transposition),
-        is_valid_(true) {
-    if (num_filter_order_ < 0) {
-      is_valid_ = false;
-    }
+    sum += signals1[num_filter_order_] - signals2[num_filter_order_];
   }
 
-  //
-  virtual ~AllZeroDigitalFilter() {
+  // save result
+  *filter_output = sum;
+
+  // shift stored signals
+  for (int i(num_filter_order_); 0 < i; --i) {
+    signals1[i] = signals1[i - 1];
+    signals2[i] = signals2[i - 1];
   }
+  const double delayed_output(-0.5 * sum);
+  signals1[0] = delayed_output;
+  signals2[0] = delayed_output;
 
-  //
-  int GetNumFilterOrder() const {
-    return num_filter_order_;
-  }
-
-  //
-  bool GetTranspositionFlag() const {
-    return transposition_;
-  }
-
-  //
-  bool IsValid() const {
-    return is_valid_;
-  }
-
-  //
-  bool Run(const std::vector<double>& filter_coefficients, double filter_input,
-           double* filter_output,
-           AllZeroDigitalFilter::StoredSignals* signals) const;
-
- private:
-  //
-  const int num_filter_order_;
-
-  //
-  const bool transposition_;
-
-  //
-  bool is_valid_;
-
-  //
-  DISALLOW_COPY_AND_ASSIGN(AllZeroDigitalFilter);
-};
+  return true;
+}
 
 }  // namespace sptk
-
-#endif  // SPTK_FILTER_ALL_ZERO_DIGITAL_FILTER_H_

@@ -64,11 +64,6 @@ class AllPoleLatticeDigitalFilter {
     ~StoredSignals() {
     }
 
-    //
-    void Clear() {
-      std::fill(signals_.begin(), signals_.end(), 0.0);
-    }
-
    private:
     //
     std::vector<double> signals_;
