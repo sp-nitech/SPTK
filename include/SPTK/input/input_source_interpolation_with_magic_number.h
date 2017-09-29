@@ -47,12 +47,12 @@
 
 #include <vector>  // std::vector
 
+#include "SPTK/input/input_source_interface.h"
 #include "SPTK/utils/sptk_utils.h"
-#include "input_source_interface.h"
 
 namespace sptk {
 
-class InputSourceInterpolationWithMagicNumber {
+class InputSourceInterpolationWithMagicNumber : public InputSourceInterface {
  public:
   //
   InputSourceInterpolationWithMagicNumber(
@@ -85,7 +85,12 @@ class InputSourceInterpolationWithMagicNumber {
   }
 
   //
-  bool IsValid() const {
+  virtual int GetSize() const {
+    return source_ ? source_->GetSize() : 0;
+  }
+
+  //
+  virtual bool IsValid() const {
     return is_valid_;
   }
 

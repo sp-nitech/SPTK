@@ -52,7 +52,7 @@
 
 namespace sptk {
 
-class InputSourceInterpolation {
+class InputSourceInterpolation : public InputSourceInterface {
  public:
   //
   InputSourceInterpolation(int frame_period, int interpolation_period,
@@ -79,7 +79,12 @@ class InputSourceInterpolation {
   }
 
   //
-  bool IsValid() const {
+  virtual int GetSize() const {
+    return source_ ? source_->GetSize() : 0;
+  }
+
+  //
+  virtual bool IsValid() const {
     return is_valid_;
   }
 

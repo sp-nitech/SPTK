@@ -106,7 +106,7 @@ class AllZeroDigitalFilter {
   //
   bool Run(const std::vector<double>& filter_coefficients, double filter_input,
            double* filter_output,
-           AllZeroDigitalFilter::StoredSignals* signals) const;
+           AllZeroDigitalFilter::StoredSignals* stored_signals) const;
 
  private:
   //

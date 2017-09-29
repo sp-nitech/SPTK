@@ -102,7 +102,7 @@ class LineSpectralPairsDigitalFilter {
   //
   bool Run(const std::vector<double>& filter_coefficients, double filter_input,
            double* filter_output,
-           LineSpectralPairsDigitalFilter::StoredSignals* signals) const;
+           LineSpectralPairsDigitalFilter::StoredSignals* stored_signals) const;
 
  private:
   //

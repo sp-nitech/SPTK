@@ -106,7 +106,7 @@ class AllPoleDigitalFilter {
   //
   bool Run(const std::vector<double>& filter_coefficients, double filter_input,
            double* filter_output,
-           AllPoleDigitalFilter::StoredSignals* signals) const;
+           AllPoleDigitalFilter::StoredSignals* stored_signals) const;
 
  private:
   //
