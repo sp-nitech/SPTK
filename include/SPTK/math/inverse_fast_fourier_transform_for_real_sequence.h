@@ -68,7 +68,7 @@ class InverseFastFourierTransformForRealSequence {
   };
 
   //
-  InverseFastFourierTransformForRealSequence(int num_order, int fft_size);
+  InverseFastFourierTransformForRealSequence(int num_order, int fft_length);
 
   //
   virtual ~InverseFastFourierTransformForRealSequence() {
@@ -80,8 +80,8 @@ class InverseFastFourierTransformForRealSequence {
   }
 
   //
-  int GetFftSize() const {
-    return fast_fourier_transform_.GetFftSize();
+  int GetFftLength() const {
+    return fast_fourier_transform_.GetFftLength();
   }
 
   //

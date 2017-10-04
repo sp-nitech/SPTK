@@ -55,7 +55,7 @@ namespace sptk {
 class InverseFastFourierTransform {
  public:
   //
-  InverseFastFourierTransform(int num_order, int fft_size);
+  InverseFastFourierTransform(int num_order, int fft_length);
 
   //
   virtual ~InverseFastFourierTransform() {
@@ -66,8 +66,8 @@ class InverseFastFourierTransform {
   }
 
   //
-  int GetFftSize() const {
-    return fast_fourier_transform_.GetFftSize();
+  int GetFftLength() const {
+    return fast_fourier_transform_.GetFftLength();
   }
 
   //

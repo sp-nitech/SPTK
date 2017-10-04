@@ -54,7 +54,7 @@ namespace sptk {
 class FastFourierTransform {
  public:
   //
-  FastFourierTransform(int num_order, int fft_size);
+  FastFourierTransform(int num_order, int fft_length);
 
   //
   virtual ~FastFourierTransform() {
@@ -66,8 +66,8 @@ class FastFourierTransform {
   }
 
   //
-  int GetFftSize() const {
-    return fft_size_;
+  int GetFftLength() const {
+    return fft_length_;
   }
 
   //
@@ -86,10 +86,10 @@ class FastFourierTransform {
   const int num_order_;
 
   //
-  const int fft_size_;
+  const int fft_length_;
 
   //
-  const int half_fft_size_;
+  const int half_fft_length_;
 
   //
   bool is_valid_;

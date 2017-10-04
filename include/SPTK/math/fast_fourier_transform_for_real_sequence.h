@@ -69,7 +69,7 @@ class FastFourierTransformForRealSequence {
   };
 
   //
-  FastFourierTransformForRealSequence(int num_order, int fft_size);
+  FastFourierTransformForRealSequence(int num_order, int fft_length);
 
   //
   virtual ~FastFourierTransformForRealSequence() {
@@ -81,8 +81,8 @@ class FastFourierTransformForRealSequence {
   }
 
   //
-  int GetFftSize() const {
-    return fft_size_;
+  int GetFftLength() const {
+    return fft_length_;
   }
 
   //
@@ -101,10 +101,10 @@ class FastFourierTransformForRealSequence {
   const int num_order_;
 
   //
-  const int fft_size_;
+  const int fft_length_;
 
   //
-  const int half_fft_size_;
+  const int half_fft_length_;
 
   //
   const FastFourierTransform fast_fourier_transform_;

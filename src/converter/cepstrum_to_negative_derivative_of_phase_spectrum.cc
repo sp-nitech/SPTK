@@ -50,11 +50,11 @@
 namespace sptk {
 
 CepstrumToNegativeDerivativeOfPhaseSpectrum::
-    CepstrumToNegativeDerivativeOfPhaseSpectrum(int num_order, int fft_size)
+    CepstrumToNegativeDerivativeOfPhaseSpectrum(int num_order, int fft_length)
     : num_order_(num_order),
-      fast_fourier_transform_(fft_size - 1, fft_size),
+      fast_fourier_transform_(fft_length - 1, fft_length),
       is_valid_(true) {
-  if (num_order < 0 || fft_size < 2 * num_order ||
+  if (num_order < 0 || fft_length < 2 * num_order ||
       !fast_fourier_transform_.IsValid()) {
     is_valid_ = false;
   }
@@ -72,10 +72,10 @@ bool CepstrumToNegativeDerivativeOfPhaseSpectrum::Run(
   }
 
   // prepare memories
-  const int fft_size(fast_fourier_transform_.GetFftSize());
+  const int fft_length(fast_fourier_transform_.GetFftLength());
   if (buffer->fast_fourier_transform_input_.size() <
-      static_cast<std::size_t>(fft_size)) {
-    buffer->fast_fourier_transform_input_.resize(fft_size);
+      static_cast<std::size_t>(fft_length)) {
+    buffer->fast_fourier_transform_input_.resize(fft_length);
   }
 
   const double* input(&(cepstrum[0]));
@@ -84,22 +84,23 @@ bool CepstrumToNegativeDerivativeOfPhaseSpectrum::Run(
 
   // set a real part input of the fast Fourier transform
   {
-    const int half_fft_size(fft_size / 2);
+    const int half_fft_length(fft_length / 2);
     // fill the left side of the input with cepstrum
     fast_fourier_transform_input[0] = 0.0;
     for (int i(1); i <= num_order_; ++i) {
       fast_fourier_transform_input[i] = 0.5 * input[i] * i;
     }
-    std::fill(buffer->fast_fourier_transform_input_.begin() + num_order_ + 1,
-              buffer->fast_fourier_transform_input_.begin() + half_fft_size + 1,
-              0.0);
+    std::fill(
+        buffer->fast_fourier_transform_input_.begin() + num_order_ + 1,
+        buffer->fast_fourier_transform_input_.begin() + half_fft_length + 1,
+        0.0);
     // fill the right side of the input by mirroring the left one
     std::reverse_copy(
         buffer->fast_fourier_transform_input_.begin() + 1,
-        buffer->fast_fourier_transform_input_.begin() + half_fft_size + 1,
-        buffer->fast_fourier_transform_input_.begin() + half_fft_size);
+        buffer->fast_fourier_transform_input_.begin() + half_fft_length + 1,
+        buffer->fast_fourier_transform_input_.begin() + half_fft_length);
 
-    if (half_fft_size == num_order_) {
+    if (half_fft_length == num_order_) {
       // double the center value of the input because the cepstrum values on
       // both sides are overlapped at the center
       fast_fourier_transform_input[num_order_] *= 2.0;

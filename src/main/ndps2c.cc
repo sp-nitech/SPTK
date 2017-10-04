@@ -54,7 +54,7 @@
 
 namespace {
 
-const int kDefaultFftSize(256);
+const int kDefaultFftLength(256);
 const int kDefaultNumOrder(25);
 
 void PrintUsage(std::ostream* stream) {
@@ -65,8 +65,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       ndps2c [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : FFT size                      (   int)[" << std::setw(5) << std::right << kDefaultFftSize  << "][ 8 <= l <=     ]" << std::endl;  // NOLINT
-  *stream << "       -m m  : order of cepstrum             (   int)[" << std::setw(5) << std::right << kDefaultNumOrder << "][ 0 <= m <= l/2 ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length                    (   int)[" << std::setw(5) << std::right << kDefaultFftLength << "][ 8 <= l <=     ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of cepstrum             (   int)[" << std::setw(5) << std::right << kDefaultNumOrder  << "][ 0 <= m <= l/2 ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       negative derivative of phase spectrum (double)[stdin]" << std::endl;  // NOLINT
@@ -83,7 +83,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-  int fft_size(kDefaultFftSize);
+  int fft_length(kDefaultFftLength);
   int num_order(kDefaultNumOrder);
 
   for (;;) {
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
 
     switch (option_char) {
       case 'l': {
-        if (!sptk::ConvertStringToInteger(optarg, &fft_size)) {
+        if (!sptk::ConvertStringToInteger(optarg, &fft_length)) {
           std::ostringstream error_message;
           error_message << "The argument for the -l option must be an integer";
           sptk::PrintErrorMessage("ndps2c", error_message);
@@ -123,12 +123,12 @@ int main(int argc, char* argv[]) {
   }
 
   // check order
-  const int half_fft_size(fft_size / 2);
-  if (half_fft_size < num_order) {
+  const int half_fft_length(fft_length / 2);
+  if (half_fft_length < num_order) {
     std::ostringstream error_message;
     error_message << "The order of cepstrum " << num_order
-                  << " must be equal or less than the half of FFT size "
-                  << half_fft_size;
+                  << " must be equal or less than the half of FFT length "
+                  << half_fft_length;
     sptk::PrintErrorMessage("ndps2c", error_message);
     return 1;
   }
@@ -149,16 +149,16 @@ int main(int argc, char* argv[]) {
 
   // prepare for transformation
   sptk::NegativeDerivativeOfPhaseSpectrumToCepstrum
-      negative_derivative_of_phase_spectrum_to_cepstrum(fft_size, num_order);
+      negative_derivative_of_phase_spectrum_to_cepstrum(fft_length, num_order);
   sptk::NegativeDerivativeOfPhaseSpectrumToCepstrum::Buffer buffer;
   if (!negative_derivative_of_phase_spectrum_to_cepstrum.IsValid()) {
     std::ostringstream error_message;
-    error_message << "FFT size must be a power of 2 and greater than 4";
+    error_message << "FFT length must be a power of 2 and greater than 4";
     sptk::PrintErrorMessage("ndps2c", error_message);
     return 1;
   }
 
-  const int input_length(half_fft_size + 1);
+  const int input_length(half_fft_length + 1);
   const int output_length(num_order + 1);
   std::vector<double> negative_derivative_of_phase_spectrum(input_length);
   std::vector<double> cepstrum(output_length);

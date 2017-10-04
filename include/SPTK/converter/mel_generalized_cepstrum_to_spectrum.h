@@ -74,7 +74,7 @@ class MelGeneralizedCepstrumToSpectrum {
   //
   MelGeneralizedCepstrumToSpectrum(int num_order, double alpha, double gamma,
                                    bool is_normalized, bool is_multiplied,
-                                   int fft_size);
+                                   int fft_length);
 
   //
   virtual ~MelGeneralizedCepstrumToSpectrum() {
@@ -106,8 +106,8 @@ class MelGeneralizedCepstrumToSpectrum {
   }
 
   //
-  int GetFftSize() const {
-    return fast_fourier_transform_.GetFftSize();
+  int GetFftLength() const {
+    return fast_fourier_transform_.GetFftLength();
   }
 
   //

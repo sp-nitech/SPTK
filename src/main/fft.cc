@@ -64,7 +64,7 @@ enum OutputFormats {
   kNumOutputFormats
 };
 
-const int kDefaultFftSize(256);
+const int kDefaultFftLength(256);
 const OutputFormats kDefaultOutputFormat(kOutputRealAndImaginaryParts);
 
 void PrintUsage(std::ostream* stream) {
@@ -75,7 +75,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       fft [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : FFT size                       (   int)[" << std::setw(5) << std::right << kDefaultFftSize      << "][ 4 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length                     (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 4 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -m m  : order of sequence              (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= m <  l ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format                  (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 4 ]" << std::endl;  // NOLINT
   *stream << "                 0 (real and imaginary parts)" << std::endl;
@@ -99,8 +99,8 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-  int fft_size(kDefaultFftSize);
-  int num_order(kDefaultFftSize - 1);
+  int fft_length(kDefaultFftLength);
+  int num_order(kDefaultFftLength - 1);
   bool is_num_order_specified(false);
   OutputFormats output_format(kDefaultOutputFormat);
 
@@ -110,7 +110,7 @@ int main(int argc, char* argv[]) {
 
     switch (option_char) {
       case 'l': {
-        if (!sptk::ConvertStringToInteger(optarg, &fft_size)) {
+        if (!sptk::ConvertStringToInteger(optarg, &fft_length)) {
           std::ostringstream error_message;
           error_message << "The argument for the -l option must be an integer";
           sptk::PrintErrorMessage("fft", error_message);
@@ -158,11 +158,11 @@ int main(int argc, char* argv[]) {
 
   // check order
   if (!is_num_order_specified) {
-    num_order = fft_size - 1;
-  } else if (fft_size <= num_order) {
+    num_order = fft_length - 1;
+  } else if (fft_length <= num_order) {
     std::ostringstream error_message;
     error_message << "The order of data sequence " << num_order
-                  << " must be less than FFT size " << fft_size;
+                  << " must be less than FFT length " << fft_length;
     sptk::PrintErrorMessage("fft", error_message);
     return 1;
   }
@@ -182,10 +182,10 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
   // prepare for fast Fourier transform
-  sptk::FastFourierTransform fft(num_order, fft_size);
+  sptk::FastFourierTransform fft(num_order, fft_length);
   if (!fft.IsValid()) {
     std::ostringstream error_message;
-    error_message << "FFT size must be a power of 2 and greater than 2";
+    error_message << "FFT length must be a power of 2 and greater than 2";
     sptk::PrintErrorMessage("fft", error_message);
     return 1;
   }
@@ -193,8 +193,8 @@ int main(int argc, char* argv[]) {
   const int length(num_order + 1);
   std::vector<double> input_x(length);
   std::vector<double> input_y(length);
-  std::vector<double> output_x(fft_size);
-  std::vector<double> output_y(fft_size);
+  std::vector<double> output_x(fft_length);
+  std::vector<double> output_y(fft_length);
 
   while (sptk::ReadStream(true, 0, 0, length, &input_x, &input_stream) &&
          sptk::ReadStream(true, 0, 0, length, &input_y, &input_stream)) {
@@ -206,18 +206,18 @@ int main(int argc, char* argv[]) {
     }
 
     if (kOutputAmplitude == output_format) {
-      for (int i(0); i < fft_size; ++i) {
+      for (int i(0); i < fft_length; ++i) {
         output_x[i] =
             std::sqrt(output_x[i] * output_x[i] + output_y[i] * output_y[i]);
       }
     } else if (kOutputPower == output_format) {
-      for (int i(0); i < fft_size; ++i) {
+      for (int i(0); i < fft_length; ++i) {
         output_x[i] = output_x[i] * output_x[i] + output_y[i] * output_y[i];
       }
     }
 
     if (kOutputImaginaryPart != output_format &&
-        !sptk::WriteStream(0, fft_size, output_x, &std::cout)) {
+        !sptk::WriteStream(0, fft_length, output_x, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write output sequence";
       sptk::PrintErrorMessage("fft", error_message);
@@ -226,7 +226,7 @@ int main(int argc, char* argv[]) {
 
     if ((kOutputRealAndImaginaryParts == output_format ||
          kOutputImaginaryPart == output_format) &&
-        !sptk::WriteStream(0, fft_size, output_y, &std::cout)) {
+        !sptk::WriteStream(0, fft_length, output_y, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write imaginary parts";
       sptk::PrintErrorMessage("fft", error_message);

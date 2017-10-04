@@ -73,7 +73,7 @@ const double kDefaultAlpha(0.0);
 const double kDefaultGamma(0.0);
 const bool kDefaultNormalizationFlag(false);
 const bool kDefaultMultiplicationFlag(false);
-const int kDefaultFftSize(256);
+const int kDefaultFftLength(256);
 const OutputFormats kDefaultOutputFormat(kLogAmplitudeSpectrumInDecibels);
 
 void PrintUsage(std::ostream* stream) {
@@ -91,7 +91,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -n    : regard input as normalized                 (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultNormalizationFlag)  << "]" << std::endl;  // NOLINT
   *stream << "               mel-generalized cepstrum" << std::endl;
   *stream << "       -u    : regard input as multiplied by gamma        (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultMultiplicationFlag) << "]" << std::endl;  // NOLINT
-  *stream << "       -l l  : FFT size                                   (   int)[" << std::setw(5) << std::right << kDefaultFftSize      << "][ 8 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length                                 (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 8 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format                              (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 6 ]" << std::endl;  // NOLINT
   *stream << "                 0 (20*log|H(z)|)" << std::endl;
   *stream << "                 1 (ln|H(z)|)" << std::endl;
@@ -122,7 +122,7 @@ int main(int argc, char* argv[]) {
   double gamma(kDefaultGamma);
   bool normalization_flag(kDefaultNormalizationFlag);
   bool multiplication_flag(kDefaultMultiplicationFlag);
-  int fft_size(kDefaultFftSize);
+  int fft_length(kDefaultFftLength);
   OutputFormats output_format(kDefaultOutputFormat);
 
   for (;;) {
@@ -181,7 +181,7 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'l': {
-        if (!sptk::ConvertStringToInteger(optarg, &fft_size)) {
+        if (!sptk::ConvertStringToInteger(optarg, &fft_length)) {
           std::ostringstream error_message;
           error_message << "The argument for the -l option must be an integer";
           sptk::PrintErrorMessage("mgc2sp", error_message);
@@ -232,7 +232,7 @@ int main(int argc, char* argv[]) {
   // prepare for gain normalization
   sptk::MelGeneralizedCepstrumToSpectrum mel_generalized_cepstrum_to_spectrum(
       num_order, alpha, gamma, normalization_flag, multiplication_flag,
-      fft_size);
+      fft_length);
   sptk::MelGeneralizedCepstrumToSpectrum::Buffer buffer;
   if (!mel_generalized_cepstrum_to_spectrum.IsValid()) {
     std::ostringstream error_message;
@@ -242,10 +242,10 @@ int main(int argc, char* argv[]) {
   }
 
   const int input_length(num_order + 1);
-  const int output_length(fft_size / 2 + 1);
+  const int output_length(fft_length / 2 + 1);
   std::vector<double> mel_generalized_cepstrum(input_length);
-  std::vector<double> amplitude_spectrum(fft_size);
-  std::vector<double> phase_spectrum(fft_size);
+  std::vector<double> amplitude_spectrum(fft_length);
+  std::vector<double> phase_spectrum(fft_length);
 
   while (sptk::ReadStream(false, 0, 0, input_length, &mel_generalized_cepstrum,
                           &input_stream)) {

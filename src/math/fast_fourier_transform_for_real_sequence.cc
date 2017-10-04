@@ -51,25 +51,25 @@
 namespace sptk {
 
 FastFourierTransformForRealSequence::FastFourierTransformForRealSequence(
-    int num_order, int fft_size)
+    int num_order, int fft_length)
     : num_order_(num_order),
-      fft_size_(fft_size),
-      half_fft_size_(fft_size / 2),
-      fast_fourier_transform_(half_fft_size_ - 1, half_fft_size_),
+      fft_length_(fft_length),
+      half_fft_length_(fft_length / 2),
+      fast_fourier_transform_(half_fft_length_ - 1, half_fft_length_),
       is_valid_(true) {
-  if (!fast_fourier_transform_.IsValid() || !IsPowerOfTwo(fft_size) ||
-      fft_size <= num_order || num_order < 0) {
+  if (!fast_fourier_transform_.IsValid() || !IsPowerOfTwo(fft_length) ||
+      fft_length <= num_order || num_order < 0) {
     is_valid_ = false;
     return;
   }
 
-  const int table_size(fft_size - fft_size / 4 + 1);
-  const double argument(sptk::kPi / fft_size * 2);
+  const int table_size(fft_length - fft_length / 4 + 1);
+  const double argument(sptk::kPi / fft_length * 2);
   sine_table_.resize(table_size);
   for (int i(0); i < table_size; ++i) {
     sine_table_[i] = std::sin(argument * i);
   }
-  sine_table_[fft_size / 2] = 0.0;
+  sine_table_[fft_length / 2] = 0.0;
 }
 
 bool FastFourierTransformForRealSequence::Run(
@@ -87,30 +87,30 @@ bool FastFourierTransformForRealSequence::Run(
 
   // prepare memories
   if (buffer->real_part_input_.size() !=
-      static_cast<std::size_t>(half_fft_size_)) {
-    buffer->real_part_input_.resize(half_fft_size_);
+      static_cast<std::size_t>(half_fft_length_)) {
+    buffer->real_part_input_.resize(half_fft_length_);
   }
   if (buffer->imaginary_part_input_.size() !=
-      static_cast<std::size_t>(half_fft_size_)) {
-    buffer->imaginary_part_input_.resize(half_fft_size_);
+      static_cast<std::size_t>(half_fft_length_)) {
+    buffer->imaginary_part_input_.resize(half_fft_length_);
   }
-  if (real_part_output->size() < static_cast<std::size_t>(fft_size_)) {
-    real_part_output->resize(fft_size_);
+  if (real_part_output->size() < static_cast<std::size_t>(fft_length_)) {
+    real_part_output->resize(fft_length_);
   }
-  if (imaginary_part_output->size() < static_cast<std::size_t>(fft_size_)) {
-    imaginary_part_output->resize(fft_size_);
+  if (imaginary_part_output->size() < static_cast<std::size_t>(fft_length_)) {
+    imaginary_part_output->resize(fft_length_);
   }
 
   // get values and fill zero
-  const int input_size(num_order_ + 1);
-  for (int i(0), j(0); i < input_size; ++j) {
+  const int input_length(num_order_ + 1);
+  for (int i(0), j(0); i < input_length; ++j) {
     buffer->real_part_input_[j] = real_part_input[i++];
-    if (input_size <= i) break;
+    if (input_length <= i) break;
     buffer->imaginary_part_input_[j] = real_part_input[i++];
   }
-  std::fill(buffer->real_part_input_.begin() + (input_size + 1) / 2,
+  std::fill(buffer->real_part_input_.begin() + (input_length + 1) / 2,
             buffer->real_part_input_.end(), 0.0);
-  std::fill(buffer->imaginary_part_input_.begin() + input_size / 2,
+  std::fill(buffer->imaginary_part_input_.begin() + input_length / 2,
             buffer->imaginary_part_input_.end(), 0.0);
 
   // run fast Fourier transform
@@ -124,16 +124,16 @@ bool FastFourierTransformForRealSequence::Run(
   double* y(&((*imaginary_part_output)[0]));
   double* xp(x);
   double* yp(y);
-  double* xq(xp + fft_size_);
-  double* yq(yp + fft_size_);
-  *(xp + half_fft_size_) = *xp - *yp;
+  double* xq(xp + fft_length_);
+  double* yq(yp + fft_length_);
+  *(xp + half_fft_length_) = *xp - *yp;
   *xp = *xp + *yp;
-  *(yp + half_fft_size_) = 0;
+  *(yp + half_fft_length_) = 0;
   *yp = 0;
 
   double* sinp(const_cast<double*>(&(sine_table_[0])));
-  double* cosp(const_cast<double*>(&(sine_table_[0])) + fft_size_ / 4);
-  for (int i(1), j(half_fft_size_ - 2); i < half_fft_size_; ++i, j -= 2) {
+  double* cosp(const_cast<double*>(&(sine_table_[0])) + fft_length_ / 4);
+  for (int i(1), j(half_fft_length_ - 2); i < half_fft_length_; ++i, j -= 2) {
     ++xp;
     ++yp;
     ++sinp;
@@ -146,9 +146,9 @@ bool FastFourierTransformForRealSequence::Run(
 
   xp = x + 1;
   yp = y + 1;
-  xq = x + fft_size_;
-  yq = y + fft_size_;
-  for (int i(1); i < half_fft_size_; ++i) {
+  xq = x + fft_length_;
+  yq = y + fft_length_;
+  for (int i(1); i < half_fft_length_; ++i) {
     *xp++ = *(--xq);
     *yp++ = -(*(--yq));
   }

@@ -61,7 +61,7 @@ enum OutputFormats {
   kNumOutputFormats
 };
 
-const int kDefaultFftSize(256);
+const int kDefaultFftLength(256);
 const OutputFormats kDefaultOutputFormat(kOutputRealAndImaginaryParts);
 
 void PrintUsage(std::ostream* stream) {
@@ -72,7 +72,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       ifft [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : FFT size                       (   int)[" << std::setw(5) << std::right << kDefaultFftSize      << "][ 4 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length                     (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 4 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format                  (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 2 ]" << std::endl;  // NOLINT
   *stream << "                 0 (real and imaginary parts)" << std::endl;
   *stream << "                 1 (real part)" << std::endl;
@@ -93,7 +93,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-  int fft_size(kDefaultFftSize);
+  int fft_length(kDefaultFftLength);
   OutputFormats output_format(kDefaultOutputFormat);
 
   for (;;) {
@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
 
     switch (option_char) {
       case 'l': {
-        if (!sptk::ConvertStringToInteger(optarg, &fft_size)) {
+        if (!sptk::ConvertStringToInteger(optarg, &fft_length)) {
           std::ostringstream error_message;
           error_message << "The argument for the -l option must be an integer";
           sptk::PrintErrorMessage("ifft", error_message);
@@ -151,21 +151,21 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
   // prepare for inverse fast Fourier transform
-  sptk::InverseFastFourierTransform inverse_fft(fft_size - 1, fft_size);
+  sptk::InverseFastFourierTransform inverse_fft(fft_length - 1, fft_length);
   if (!inverse_fft.IsValid()) {
     std::ostringstream error_message;
-    error_message << "FFT size must be a power of 2 and greater than 2";
+    error_message << "FFT length must be a power of 2 and greater than 2";
     sptk::PrintErrorMessage("ifft", error_message);
     return 1;
   }
 
-  std::vector<double> input_x(fft_size);
-  std::vector<double> input_y(fft_size);
-  std::vector<double> output_x(fft_size);
-  std::vector<double> output_y(fft_size);
+  std::vector<double> input_x(fft_length);
+  std::vector<double> input_y(fft_length);
+  std::vector<double> output_x(fft_length);
+  std::vector<double> output_y(fft_length);
 
-  while (sptk::ReadStream(false, 0, 0, fft_size, &input_x, &input_stream) &&
-         sptk::ReadStream(false, 0, 0, fft_size, &input_y, &input_stream)) {
+  while (sptk::ReadStream(false, 0, 0, fft_length, &input_x, &input_stream) &&
+         sptk::ReadStream(false, 0, 0, fft_length, &input_y, &input_stream)) {
     if (!inverse_fft.Run(input_x, input_y, &output_x, &output_y)) {
       std::ostringstream error_message;
       error_message << "Failed to run inverse fast Fourier transform";
@@ -174,7 +174,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (kOutputImaginaryPart != output_format &&
-        !sptk::WriteStream(0, fft_size, output_x, &std::cout)) {
+        !sptk::WriteStream(0, fft_length, output_x, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write real parts";
       sptk::PrintErrorMessage("ifft", error_message);
@@ -183,7 +183,7 @@ int main(int argc, char* argv[]) {
 
     if ((kOutputRealAndImaginaryParts == output_format ||
          kOutputImaginaryPart == output_format) &&
-        !sptk::WriteStream(0, fft_size, output_y, &std::cout)) {
+        !sptk::WriteStream(0, fft_length, output_y, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write imaginary parts";
       sptk::PrintErrorMessage("ifft", error_message);

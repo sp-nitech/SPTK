@@ -51,8 +51,8 @@
 namespace sptk {
 
 InverseFastFourierTransform::InverseFastFourierTransform(int num_order,
-                                                         int fft_size)
-    : fast_fourier_transform_(num_order, fft_size) {
+                                                         int fft_length)
+    : fast_fourier_transform_(num_order, fft_length) {
 }
 
 bool InverseFastFourierTransform::Run(
@@ -75,16 +75,16 @@ bool InverseFastFourierTransform::Run(
     return false;
   }
 
-  const int fft_size(fast_fourier_transform_.GetFftSize());
-  const double inverse_fft_size(1.0 / fft_size);
+  const int fft_length(fast_fourier_transform_.GetFftLength());
+  const double inverse_fft_length(1.0 / fft_length);
   std::transform(real_part_output->begin(),
-                 real_part_output->begin() + fft_size,
+                 real_part_output->begin() + fft_length,
                  real_part_output->begin(),
-                 std::bind1st(std::multiplies<double>(), inverse_fft_size));
+                 std::bind1st(std::multiplies<double>(), inverse_fft_length));
   std::transform(imaginary_part_output->begin(),
-                 imaginary_part_output->begin() + fft_size,
+                 imaginary_part_output->begin() + fft_length,
                  imaginary_part_output->begin(),
-                 std::bind1st(std::multiplies<double>(), inverse_fft_size));
+                 std::bind1st(std::multiplies<double>(), inverse_fft_length));
 
   return true;
 }

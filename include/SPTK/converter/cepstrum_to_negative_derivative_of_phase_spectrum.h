@@ -70,7 +70,7 @@ class CepstrumToNegativeDerivativeOfPhaseSpectrum {
   };
 
   //
-  CepstrumToNegativeDerivativeOfPhaseSpectrum(int num_order, int fft_size);
+  CepstrumToNegativeDerivativeOfPhaseSpectrum(int num_order, int fft_length);
 
   //
   virtual ~CepstrumToNegativeDerivativeOfPhaseSpectrum() {
@@ -82,8 +82,8 @@ class CepstrumToNegativeDerivativeOfPhaseSpectrum {
   }
 
   //
-  int GetFftSize() const {
-    return fast_fourier_transform_.GetFftSize();
+  int GetFftLength() const {
+    return fast_fourier_transform_.GetFftLength();
   }
 
   //

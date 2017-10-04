@@ -50,11 +50,11 @@
 namespace sptk {
 
 NegativeDerivativeOfPhaseSpectrumToCepstrum::
-    NegativeDerivativeOfPhaseSpectrumToCepstrum(int fft_size, int num_order)
+    NegativeDerivativeOfPhaseSpectrumToCepstrum(int fft_length, int num_order)
     : num_order_(num_order),
-      fast_fourier_transform_(fft_size - 1, fft_size),
+      fast_fourier_transform_(fft_length - 1, fft_length),
       is_valid_(true) {
-  if (num_order < 0 || fft_size < 2 * num_order ||
+  if (num_order < 0 || fft_length < 2 * num_order ||
       !fast_fourier_transform_.IsValid()) {
     is_valid_ = false;
   }
@@ -65,11 +65,11 @@ bool NegativeDerivativeOfPhaseSpectrumToCepstrum::Run(
     std::vector<double>* cepstrum,
     NegativeDerivativeOfPhaseSpectrumToCepstrum::Buffer* buffer) const {
   // check inputs
-  const int fft_size(fast_fourier_transform_.GetFftSize());
-  const int half_fft_size(fft_size / 2);
+  const int fft_length(fast_fourier_transform_.GetFftLength());
+  const int half_fft_length(fft_length / 2);
   if (!is_valid_ ||
       negative_derivative_of_phase_spectrum.size() !=
-          static_cast<std::size_t>(half_fft_size + 1) ||
+          static_cast<std::size_t>(half_fft_length + 1) ||
       NULL == cepstrum || NULL == buffer) {
     return false;
   }
@@ -79,8 +79,8 @@ bool NegativeDerivativeOfPhaseSpectrumToCepstrum::Run(
     cepstrum->resize(num_order_ + 1);
   }
   if (buffer->fast_fourier_transform_input_.size() <
-      static_cast<std::size_t>(fft_size)) {
-    buffer->fast_fourier_transform_input_.resize(fft_size);
+      static_cast<std::size_t>(fft_length)) {
+    buffer->fast_fourier_transform_input_.resize(fft_length);
   }
 
   // set a real part input of the fast Fourier transform
@@ -90,7 +90,7 @@ bool NegativeDerivativeOfPhaseSpectrumToCepstrum::Run(
   std::reverse_copy(
       negative_derivative_of_phase_spectrum.begin() + 1,
       negative_derivative_of_phase_spectrum.end(),
-      buffer->fast_fourier_transform_input_.begin() + half_fft_size);
+      buffer->fast_fourier_transform_input_.begin() + half_fft_length);
 
   if (!fast_fourier_transform_.Run(
           buffer->fast_fourier_transform_input_,
@@ -107,9 +107,9 @@ bool NegativeDerivativeOfPhaseSpectrumToCepstrum::Run(
   output[0] = fast_fourier_transform_real_part_output[0];
   for (int i(1); i <= num_order_; ++i) {
     output[i] =
-        fast_fourier_transform_real_part_output[i] / (i * half_fft_size);
+        fast_fourier_transform_real_part_output[i] / (i * half_fft_length);
   }
-  if (half_fft_size == num_order_) {
+  if (half_fft_length == num_order_) {
     output[num_order_] *= 0.5;
   }
 

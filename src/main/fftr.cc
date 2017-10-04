@@ -64,9 +64,9 @@ enum OutputFormats {
   kNumOutputFormats
 };
 
-const int kDefaultFftSize(256);
+const int kDefaultFftLength(256);
 const OutputFormats kDefaultOutputFormat(kOutputRealAndImaginaryParts);
-const bool kDefaultHalfSizeOutputFlag(false);
+const bool kDefaultHalfLengthOutputFlag(false);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -76,7 +76,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       fftr [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : FFT size                       (   int)[" << std::setw(5) << std::right << kDefaultFftSize      << "][ 8 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length                     (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 8 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -m m  : order of sequence              (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= m <  l ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format                  (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 4 ]" << std::endl;  // NOLINT
   *stream << "                 0 (real and imaginary parts)" << std::endl;
@@ -84,7 +84,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 2 (imaginary part)" << std::endl;
   *stream << "                 3 (amplitude)" << std::endl;
   *stream << "                 4 (power)" << std::endl;
-  *stream << "       -H    : output half size               (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultHalfSizeOutputFlag) << "]" << std::endl;  // NOLINT
+  *stream << "       -H    : output half length             (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultHalfLengthOutputFlag) << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       data sequence                          (double)[stdin]" << std::endl;  // NOLINT
@@ -101,11 +101,11 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-  int fft_size(kDefaultFftSize);
-  int num_order(kDefaultFftSize - 1);
+  int fft_length(kDefaultFftLength);
+  int num_order(kDefaultFftLength - 1);
   bool is_num_order_specified(false);
   OutputFormats output_format(kDefaultOutputFormat);
-  bool half_size_output_flag(kDefaultHalfSizeOutputFlag);
+  bool half_length_output_flag(kDefaultHalfLengthOutputFlag);
 
   for (;;) {
     const int option_char(getopt_long(argc, argv, "l:m:o:Hh", NULL, NULL));
@@ -113,7 +113,7 @@ int main(int argc, char* argv[]) {
 
     switch (option_char) {
       case 'l': {
-        if (!sptk::ConvertStringToInteger(optarg, &fft_size)) {
+        if (!sptk::ConvertStringToInteger(optarg, &fft_length)) {
           std::ostringstream error_message;
           error_message << "The argument for the -l option must be an integer";
           sptk::PrintErrorMessage("fftr", error_message);
@@ -149,7 +149,7 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'H': {
-        half_size_output_flag = true;
+        half_length_output_flag = true;
         break;
       }
       case 'h': {
@@ -165,11 +165,11 @@ int main(int argc, char* argv[]) {
 
   // check order
   if (!is_num_order_specified) {
-    num_order = fft_size - 1;
-  } else if (fft_size <= num_order) {
+    num_order = fft_length - 1;
+  } else if (fft_length <= num_order) {
     std::ostringstream error_message;
     error_message << "The order of data sequence " << num_order
-                  << " must be less than FFT size " << fft_size;
+                  << " must be less than FFT length " << fft_length;
     sptk::PrintErrorMessage("fftr", error_message);
     return 1;
   }
@@ -189,21 +189,21 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
   // prepare for fast Fourier transform
-  sptk::FastFourierTransformForRealSequence fft(num_order, fft_size);
+  sptk::FastFourierTransformForRealSequence fft(num_order, fft_length);
   sptk::FastFourierTransformForRealSequence::Buffer buffer;
   if (!fft.IsValid()) {
     std::ostringstream error_message;
-    error_message << "FFT size must be a power of 2 and greater than 4";
+    error_message << "FFT length must be a power of 2 and greater than 4";
     sptk::PrintErrorMessage("fftr", error_message);
     return 1;
   }
 
   const int input_length(num_order + 1);
-  const int output_length(half_size_output_flag ? (fft_size / 2 + 1)
-                                                : fft_size);
+  const int output_length(half_length_output_flag ? (fft_length / 2 + 1)
+                                                  : fft_length);
   std::vector<double> input_x(input_length);
-  std::vector<double> output_x(fft_size);
-  std::vector<double> output_y(fft_size);
+  std::vector<double> output_x(fft_length);
+  std::vector<double> output_y(fft_length);
 
   while (sptk::ReadStream(true, 0, 0, input_length, &input_x, &input_stream)) {
     if (!fft.Run(input_x, &output_x, &output_y, &buffer)) {

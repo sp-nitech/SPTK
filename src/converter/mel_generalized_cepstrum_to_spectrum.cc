@@ -48,11 +48,11 @@ namespace sptk {
 
 MelGeneralizedCepstrumToSpectrum::MelGeneralizedCepstrumToSpectrum(
     int num_order, double alpha, double gamma, bool is_normalized,
-    bool is_multiplied, int fft_size)
-    : mel_generalized_cepstrum_transform_(num_order, alpha, gamma,
-                                          is_normalized, is_multiplied,
-                                          fft_size / 2, 0.0, 0.0, false, false),
-      fast_fourier_transform_(fft_size / 2, fft_size),
+    bool is_multiplied, int fft_length)
+    : mel_generalized_cepstrum_transform_(
+          num_order, alpha, gamma, is_normalized, is_multiplied, fft_length / 2,
+          0.0, 0.0, false, false),
+      fast_fourier_transform_(fft_length / 2, fft_length),
       is_valid_(true) {
   if (!mel_generalized_cepstrum_transform_.IsValid() ||
       !fast_fourier_transform_.IsValid()) {

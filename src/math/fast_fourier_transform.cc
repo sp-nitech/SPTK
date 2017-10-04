@@ -50,24 +50,24 @@
 
 namespace sptk {
 
-FastFourierTransform::FastFourierTransform(int num_order, int fft_size)
+FastFourierTransform::FastFourierTransform(int num_order, int fft_length)
     : num_order_(num_order),
-      fft_size_(fft_size),
-      half_fft_size_(fft_size / 2),
+      fft_length_(fft_length),
+      half_fft_length_(fft_length / 2),
       is_valid_(true) {
-  if (fft_size < 4 || !IsPowerOfTwo(fft_size) || fft_size <= num_order ||
+  if (fft_length < 4 || !IsPowerOfTwo(fft_length) || fft_length <= num_order ||
       num_order < 0) {
     is_valid_ = false;
     return;
   }
 
-  const int table_size(fft_size - fft_size / 4 + 1);
-  const double argument(sptk::kPi / fft_size * 2);
+  const int table_size(fft_length - fft_length / 4 + 1);
+  const double argument(sptk::kPi / fft_length * 2);
   sine_table_.resize(table_size);
   for (int i(0); i < table_size; ++i) {
     sine_table_[i] = std::sin(argument * i);
   }
-  sine_table_[fft_size / 2] = 0.0;
+  sine_table_[fft_length / 2] = 0.0;
 }
 
 bool FastFourierTransform::Run(
@@ -84,11 +84,11 @@ bool FastFourierTransform::Run(
   }
 
   // prepare memories
-  if (real_part_output->size() < static_cast<std::size_t>(fft_size_)) {
-    real_part_output->resize(fft_size_);
+  if (real_part_output->size() < static_cast<std::size_t>(fft_length_)) {
+    real_part_output->resize(fft_length_);
   }
-  if (imaginary_part_output->size() < static_cast<std::size_t>(fft_size_)) {
-    imaginary_part_output->resize(fft_size_);
+  if (imaginary_part_output->size() < static_cast<std::size_t>(fft_length_)) {
+    imaginary_part_output->resize(fft_length_);
   }
 
   // get values and fill zero
@@ -104,16 +104,16 @@ bool FastFourierTransform::Run(
   double* x(&((*real_part_output)[0]));
   double* y(&((*imaginary_part_output)[0]));
 
-  int lix(fft_size_);
-  int lmx(half_fft_size_);
+  int lix(fft_length_);
+  int lmx(half_fft_length_);
   int lf(1);
   while (1 < lmx) {
     double* sinp(const_cast<double*>(&(sine_table_[0])));
-    double* cosp(const_cast<double*>(&(sine_table_[0])) + fft_size_ / 4);
+    double* cosp(const_cast<double*>(&(sine_table_[0])) + fft_length_ / 4);
     for (int i(0); i < lmx; ++i) {
       double* xpi(&(x[i]));
       double* ypi(&(y[i]));
-      for (int li(lix); li <= fft_size_; li += lix) {
+      for (int li(lix); li <= fft_length_; li += lix) {
         const double t1(*(xpi) - *(xpi + lmx));
         const double t2(*(ypi) - *(ypi + lmx));
         *(xpi) += *(xpi + lmx);
@@ -133,7 +133,7 @@ bool FastFourierTransform::Run(
 
   double* xp(x);
   double* yp(y);
-  for (int li(half_fft_size_); li--; xp += 2, yp += 2) {
+  for (int li(half_fft_length_); li--; xp += 2, yp += 2) {
     const double t1(*(xp) - *(xp + 1));
     const double t2(*(yp) - *(yp + 1));
     *(xp) += *(xp + 1);
@@ -145,8 +145,8 @@ bool FastFourierTransform::Run(
   // bit reversal
   xp = x;
   yp = y;
-  const int dec_fft_size(fft_size_ - 1);
-  for (int lmx(0), j(0); lmx < dec_fft_size; ++lmx) {
+  const int dec_fft_length(fft_length_ - 1);
+  for (int lmx(0), j(0); lmx < dec_fft_length; ++lmx) {
     const int lmxj(lmx - j);
     if (lmxj < 0) {
       const double t1(*(xp));
@@ -157,7 +157,7 @@ bool FastFourierTransform::Run(
       *(yp + lmxj) = t2;
     }
 
-    int li(half_fft_size_);
+    int li(half_fft_length_);
     while (li <= j) {
       j -= li;
       li /= 2;
