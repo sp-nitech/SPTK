@@ -55,8 +55,7 @@ FastFourierTransform::FastFourierTransform(int num_order, int fft_length)
       fft_length_(fft_length),
       half_fft_length_(fft_length / 2),
       is_valid_(true) {
-  if (fft_length < 4 || !IsPowerOfTwo(fft_length) || fft_length <= num_order ||
-      num_order < 0) {
+  if (!IsPowerOfTwo(fft_length) || fft_length <= num_order || num_order < 0) {
     is_valid_ = false;
     return;
   }

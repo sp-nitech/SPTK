@@ -75,7 +75,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       fft [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : FFT length                     (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 4 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length                     (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -m m  : order of sequence              (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= m <  l ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format                  (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 4 ]" << std::endl;  // NOLINT
   *stream << "                 0 (real and imaginary parts)" << std::endl;
@@ -185,7 +185,7 @@ int main(int argc, char* argv[]) {
   sptk::FastFourierTransform fft(num_order, fft_length);
   if (!fft.IsValid()) {
     std::ostringstream error_message;
-    error_message << "FFT length must be a power of 2 and greater than 2";
+    error_message << "FFT length must be a power of 2";
     sptk::PrintErrorMessage("fft", error_message);
     return 1;
   }
