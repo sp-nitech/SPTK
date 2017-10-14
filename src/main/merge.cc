@@ -49,6 +49,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -211,8 +212,7 @@ class VectorMergeWrapper {
  public:
   VectorMergeWrapper(const std::string& data_type, int insert_point,
                      int input_length, int insert_length, bool overwrite_mode,
-                     std::istream* input_stream, std::istream* insert_stream)
-      : merge_(NULL) {
+                     std::istream* input_stream, std::istream* insert_stream) {
     if ("c" == data_type) {
       merge_ =
           new VectorMerge<int8_t>(insert_point, input_length, insert_length,
@@ -265,6 +265,8 @@ class VectorMergeWrapper {
       merge_ = new VectorMerge<long double>(insert_point, input_length,
                                             insert_length, overwrite_mode,
                                             input_stream, insert_stream);
+    } else {
+      merge_ = NULL;
     }
   }
 

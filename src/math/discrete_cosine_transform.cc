@@ -44,7 +44,7 @@
 
 #include "SPTK/math/discrete_cosine_transform.h"
 
-#include <algorithm>  // std::copy, std::fill, std::reverse_copy
+#include <algorithm>  // std::copy, std::reverse_copy
 #include <cmath>      // std::cos, std::sin, std::sqrt
 #include <cstddef>    // std::size_t
 
@@ -56,8 +56,9 @@ DiscreteCosineTransform::DiscreteCosineTransform(int dct_length)
     return;
   }
 
-  const double argument(sptk::kPi / (2 * dct_length_));
-  const double c(1.0 / std::sqrt(2 * dct_length_));
+  const int dft_length(2 * dct_length_);
+  const double argument(sptk::kPi / dft_length);
+  const double c(1.0 / std::sqrt(dft_length));
   cosine_table_.resize(dct_length_);
   sine_table_.resize(dct_length_);
   for (int i(0); i < dct_length_; ++i) {
@@ -100,18 +101,12 @@ bool DiscreteCosineTransform::Run(
 
   std::copy(real_part_input.begin(), real_part_input.end(),
             buffer->fourier_transform_real_part_input_.begin());
-  std::fill(buffer->fourier_transform_real_part_input_.begin() + dct_length_,
-            buffer->fourier_transform_real_part_input_.end() - dct_length_,
-            0.0);
   std::reverse_copy(
       real_part_input.begin(), real_part_input.end(),
       buffer->fourier_transform_real_part_input_.end() - dct_length_);
 
   std::copy(imaginary_part_input.begin(), imaginary_part_input.end(),
             buffer->fourier_transform_imaginary_part_input_.begin());
-  std::fill(
-      buffer->fourier_transform_imaginary_part_input_.begin() + dct_length_,
-      buffer->fourier_transform_imaginary_part_input_.end() - dct_length_, 0.0);
   std::reverse_copy(
       imaginary_part_input.begin(), imaginary_part_input.end(),
       buffer->fourier_transform_imaginary_part_input_.end() - dct_length_);
