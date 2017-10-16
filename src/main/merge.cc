@@ -50,7 +50,6 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include "SPTK/utils/int24_t.h"
@@ -64,29 +63,6 @@ const int kDefaultFrameLengthOfInputData(25);
 const int kDefaultFrameLengthOfInsertData(10);
 const bool kDefaultOverwriteMode(false);
 const char* kDefaultDataType("d");
-
-void PrintDataType(const std::string& symbol, const std::string& type,
-                   std::ostream* stream) {
-  std::unordered_map<std::string, std::size_t> size({
-      {"c", sizeof(int8_t)},
-      {"s", sizeof(int16_t)},
-      {"i3", sizeof(sptk::int24_t)},
-      {"i", sizeof(int32_t)},
-      {"l", sizeof(int64_t)},
-      {"C", sizeof(uint8_t)},
-      {"S", sizeof(uint16_t)},
-      {"I3", sizeof(sptk::uint24_t)},
-      {"I", sizeof(uint32_t)},
-      {"L", sizeof(uint64_t)},
-      {"f", sizeof(float)},
-      {"d", sizeof(double)},
-      {"de", sizeof(long double)},
-  });
-  std::ostringstream oss;
-  oss << std::setw(3) << std::left << symbol;
-  oss << "(" << type << ", " << size[symbol] << "byte)";
-  *stream << std::setw(27) << std::left << oss.str();
-}
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -103,13 +79,13 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -N N  : order of insert data        (   int)[" << std::setw(5) << std::right << "L-1"                           << "][ 0 <= N <=   ]" << std::endl;  // NOLINT
   *stream << "       -w    : overwrite mode              (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultOverwriteMode) << "]" << std::endl;  // NOLINT
   *stream << "       +type : data type                           [" << std::setw(5) << std::right << kDefaultDataType                << "]" << std::endl;  // NOLINT
-  *stream << "                 "; PrintDataType("c",  "char",        stream); PrintDataType("C",  "unsigned char",      stream); *stream << std::endl;  // NOLINT
-  *stream << "                 "; PrintDataType("s",  "short",       stream); PrintDataType("S",  "unsigned short",     stream); *stream << std::endl;  // NOLINT
-  *stream << "                 "; PrintDataType("i3", "int",         stream); PrintDataType("I3", "unsigned int",       stream); *stream << std::endl;  // NOLINT
-  *stream << "                 "; PrintDataType("i",  "int",         stream); PrintDataType("I",  "unsigned int",       stream); *stream << std::endl;  // NOLINT
-  *stream << "                 "; PrintDataType("l",  "long",        stream); PrintDataType("L",  "unsigned long",      stream); *stream << std::endl;  // NOLINT
-  *stream << "                 "; PrintDataType("f",  "float",       stream); PrintDataType("d",  "double",             stream); *stream << std::endl;  // NOLINT
-  *stream << "                 "; PrintDataType("de", "long double", stream);                                                    *stream << std::endl;  // NOLINT
+  *stream << "                 "; sptk::PrintDataType("c",  stream); sptk::PrintDataType("C",  stream); *stream << std::endl;  // NOLINT
+  *stream << "                 "; sptk::PrintDataType("s",  stream); sptk::PrintDataType("S",  stream); *stream << std::endl;  // NOLINT
+  *stream << "                 "; sptk::PrintDataType("i3", stream); sptk::PrintDataType("I3", stream); *stream << std::endl;  // NOLINT
+  *stream << "                 "; sptk::PrintDataType("i",  stream); sptk::PrintDataType("I",  stream); *stream << std::endl;  // NOLINT
+  *stream << "                 "; sptk::PrintDataType("l",  stream); sptk::PrintDataType("L",  stream); *stream << std::endl;  // NOLINT
+  *stream << "                 "; sptk::PrintDataType("f",  stream); sptk::PrintDataType("d",  stream); *stream << std::endl;  // NOLINT
+  *stream << "                 "; sptk::PrintDataType("de", stream);                                    *stream << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  file1:" << std::endl;
   *stream << "       insert data sequence" << std::endl;

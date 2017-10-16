@@ -85,6 +85,7 @@ bool IsPowerOfTwo(int num);
 int ExtractSign(double x);
 double FloorLog(double x);
 double AddInLogSpace(double log_x, double log_y);
+void PrintDataType(const std::string& symbol, std::ostream* stream);
 void PrintErrorMessage(const std::string& program_name,
                        const std::ostringstream& message);
 
