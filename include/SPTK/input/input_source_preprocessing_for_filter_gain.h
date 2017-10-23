@@ -66,7 +66,7 @@ class InputSourcePreprocessingForFilterGain : public InputSourceInterface {
   InputSourcePreprocessingForFilterGain(FilterGainType gain_type,
                                         InputSourceInterface* source)
       : gain_type_(gain_type), source_(source), is_valid_(true) {
-    if (NULL == source || !source->IsValid()) {
+    if (NULL == source_ || !source_->IsValid()) {
       is_valid_ = false;
       return;
     }

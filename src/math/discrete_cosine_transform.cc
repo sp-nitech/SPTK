@@ -51,7 +51,7 @@
 namespace sptk {
 
 DiscreteCosineTransform::DiscreteCosineTransform(int dct_length)
-    : dct_length_(dct_length), fourier_transform_(2 * dct_length) {
+    : dct_length_(dct_length), fourier_transform_(2 * dct_length_) {
   if (!fourier_transform_.IsValid()) {
     return;
   }

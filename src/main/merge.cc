@@ -116,10 +116,10 @@ class VectorMerge : public VectorMergeInterface {
       : insert_point_(insert_point),
         input_length_(input_length),
         insert_length_(insert_length),
-        merged_length_(overwrite_mode ? input_length
-                                      : input_length + insert_length),
-        input_rest_length_(merged_length_ - insert_point - insert_length),
-        input_skip_length_(overwrite_mode ? insert_length : 0),
+        merged_length_(overwrite_mode ? input_length_
+                                      : input_length_ + insert_length_),
+        input_rest_length_(merged_length_ - insert_point_ - insert_length_),
+        input_skip_length_(overwrite_mode ? insert_length_ : 0),
         input_stream_(input_stream),
         insert_stream_(insert_stream),
         merged_vector_(merged_length_) {

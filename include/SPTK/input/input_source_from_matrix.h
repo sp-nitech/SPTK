@@ -61,7 +61,7 @@ class InputSourceFromMatrix : public InputSourceInterface {
         input_matrix_(input_matrix),
         col_position_(0),
         is_valid_(true) {
-    if (row_size <= 0 || col_size <= 0 || NULL == input_matrix) {
+    if (row_size_ <= 0 || col_size_ <= 0 || NULL == input_matrix_) {
       is_valid_ = false;
     }
   }

@@ -81,8 +81,8 @@ DataSymmetrizing::DataSymmetrizing(int fft_length,
     : fft_length_(fft_length),
       input_format_(input_format),
       output_format_(output_format),
-      input_length_(CalculateDataLength(fft_length, input_format)),
-      output_length_(CalculateDataLength(fft_length, output_format)),
+      input_length_(CalculateDataLength(fft_length_, input_format_)),
+      output_length_(CalculateDataLength(fft_length_, output_format_)),
       is_valid_(true) {
   if (fft_length_ < 4 || 0 == input_length_ || 0 == output_length_) {
     is_valid_ = false;

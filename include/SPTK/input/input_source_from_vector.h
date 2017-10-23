@@ -63,11 +63,11 @@ class InputSourceFromVector : public InputSourceInterface {
         input_vector_(input_vector),
         position_(0),
         is_valid_(true) {
-    if (read_size <= 0 || NULL == input_vector) {
+    if (read_size_ <= 0 || NULL == input_vector_) {
       is_valid_ = false;
       return;
     }
-    vector_size_ = input_vector->size();
+    vector_size_ = input_vector_->size();
   }
 
   //

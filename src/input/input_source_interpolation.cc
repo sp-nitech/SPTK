@@ -55,16 +55,16 @@ InputSourceInterpolation::InputSourceInterpolation(
     bool use_final_frame_for_exceeded_frame, InputSourceInterface* source)
     : frame_period_(frame_period),
       interpolation_period_(interpolation_period),
-      first_interpolation_period_(interpolation_period / 2),
+      first_interpolation_period_(interpolation_period_ / 2),
       use_final_frame_for_exceeded_frame_(use_final_frame_for_exceeded_frame),
       remained_num_samples_(0),
       data_length_(0),
       point_index_in_frame_(0),
       source_(source),
       is_valid_(true) {
-  if (frame_period <= 0 || interpolation_period < 0 ||
-      frame_period / 2 < interpolation_period || NULL == source ||
-      !source->IsValid()) {
+  if (frame_period_ <= 0 || interpolation_period_ < 0 ||
+      frame_period_ / 2 < interpolation_period_ || NULL == source_ ||
+      !source_->IsValid()) {
     is_valid_ = false;
     return;
   }

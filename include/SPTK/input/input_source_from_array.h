@@ -63,7 +63,7 @@ class InputSourceFromArray : public InputSourceInterface {
         input_array_(input_array),
         position_(0),
         is_valid_(true) {
-    if (read_size <= 0 || array_size <= 0 || NULL == input_array) {
+    if (read_size_ <= 0 || array_size_ <= 0 || NULL == input_array_) {
       is_valid_ = false;
     }
   }

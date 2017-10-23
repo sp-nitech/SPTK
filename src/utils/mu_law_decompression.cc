@@ -53,7 +53,7 @@ MuLawDecompression::MuLawDecompression(double absolute_max_value,
     : absolute_max_value_(absolute_max_value),
       compression_factor_(compression_factor),
       is_valid_(true) {
-  if (absolute_max_value <= 0.0 || compression_factor <= 0) {
+  if (absolute_max_value_ <= 0.0 || compression_factor_ <= 0) {
     is_valid_ = false;
   }
 }
