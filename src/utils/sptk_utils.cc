@@ -230,7 +230,7 @@ void PrintDataType(const std::string& symbol, std::ostream* stream) {
   } else if ("s" == symbol) {
     data_type = "short";
     data_size = sizeof(int16_t);
-  } else if ("i3" == symbol) {
+  } else if ("h" == symbol) {
     data_type = "int";
     data_size = sizeof(int24_t);
   } else if ("i" == symbol) {
@@ -245,7 +245,7 @@ void PrintDataType(const std::string& symbol, std::ostream* stream) {
   } else if ("S" == symbol) {
     data_type = "unsigned short";
     data_size = sizeof(uint16_t);
-  } else if ("I3" == symbol) {
+  } else if ("H" == symbol) {
     data_type = "unsigned int";
     data_size = sizeof(uint24_t);
   } else if ("I" == symbol) {
@@ -260,17 +260,15 @@ void PrintDataType(const std::string& symbol, std::ostream* stream) {
   } else if ("d" == symbol) {
     data_type = "double";
     data_size = sizeof(double);
-  } else if ("de" == symbol) {
+  } else if ("e" == symbol) {
     data_type = "long double";
     data_size = sizeof(long double);
   } else if ("a" == symbol) {
     data_type = "ascii";
-  } else if ("aN" == symbol) {
-    data_type = "ascii with column number N";
   }
 
   std::ostringstream oss;
-  oss << std::setw(3) << std::left << symbol;
+  oss << std::setw(2) << std::left << symbol;
   if (0 < data_size) {
     oss << "(" << data_type << ", " << data_size << "byte)";
   } else {

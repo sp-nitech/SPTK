@@ -76,12 +76,12 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -E E  : end address         (   int)[" << std::setw(10) << std::right << kDefaultEndAddress        << "][ S <= E <=   ]" << std::endl;  // NOLINT
   *stream << "       -e e  : end offset number   (   int)[" << std::setw(10) << std::right << kDefaultEndOffsetNumber   << "][ s <= e <=   ]" << std::endl;  // NOLINT
   *stream << "       +type : data type                   [" << std::setw(10) << std::right << kDefaultDataType          << "]" << std::endl;  // NOLINT
-  *stream << "                 "; sptk::PrintDataType("s",  stream); sptk::PrintDataType("S",  stream); *stream << std::endl;  // NOLINT
-  *stream << "                 "; sptk::PrintDataType("i3", stream); sptk::PrintDataType("I3", stream); *stream << std::endl;  // NOLINT
-  *stream << "                 "; sptk::PrintDataType("i",  stream); sptk::PrintDataType("I",  stream); *stream << std::endl;  // NOLINT
-  *stream << "                 "; sptk::PrintDataType("l",  stream); sptk::PrintDataType("L",  stream); *stream << std::endl;  // NOLINT
-  *stream << "                 "; sptk::PrintDataType("f",  stream); sptk::PrintDataType("d",  stream); *stream << std::endl;  // NOLINT
-  *stream << "                 "; sptk::PrintDataType("de", stream);                                    *stream << std::endl;  // NOLINT
+  *stream << "                 "; sptk::PrintDataType("s", stream); sptk::PrintDataType("S", stream); *stream << std::endl;  // NOLINT
+  *stream << "                 "; sptk::PrintDataType("h", stream); sptk::PrintDataType("H", stream); *stream << std::endl;  // NOLINT
+  *stream << "                 "; sptk::PrintDataType("i", stream); sptk::PrintDataType("I", stream); *stream << std::endl;  // NOLINT
+  *stream << "                 "; sptk::PrintDataType("l", stream); sptk::PrintDataType("L", stream); *stream << std::endl;  // NOLINT
+  *stream << "                 "; sptk::PrintDataType("f", stream); sptk::PrintDataType("d", stream); *stream << std::endl;  // NOLINT
+  *stream << "                 "; sptk::PrintDataType("e", stream);                                   *stream << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       data sequence                       [" << std::setw(10) << std::right << "stdin" << "]" << std::endl;  // NOLINT
@@ -159,18 +159,6 @@ class ByteSwap : public ByteSwapInterface {
   DISALLOW_COPY_AND_ASSIGN(ByteSwap<T>);
 };
 
-template class ByteSwap<int16_t>;
-template class ByteSwap<sptk::int24_t>;
-template class ByteSwap<int32_t>;
-template class ByteSwap<int64_t>;
-template class ByteSwap<uint16_t>;
-template class ByteSwap<sptk::uint24_t>;
-template class ByteSwap<uint32_t>;
-template class ByteSwap<uint64_t>;
-template class ByteSwap<float>;
-template class ByteSwap<double>;
-template class ByteSwap<long double>;
-
 class ByteSwapWrapper {
  public:
   ByteSwapWrapper(const std::string& data_type, int start_address,
@@ -180,7 +168,7 @@ class ByteSwapWrapper {
       byte_swap_ =
           new ByteSwap<int16_t>(start_address, start_offset_number, end_address,
                                 end_offset_number, input_stream);
-    } else if ("i3" == data_type) {
+    } else if ("h" == data_type) {
       byte_swap_ = new ByteSwap<sptk::int24_t>(start_address,
                                                start_offset_number, end_address,
                                                end_offset_number, input_stream);
@@ -196,7 +184,7 @@ class ByteSwapWrapper {
       byte_swap_ =
           new ByteSwap<uint16_t>(start_address, start_offset_number,
                                  end_address, end_offset_number, input_stream);
-    } else if ("I3" == data_type) {
+    } else if ("H" == data_type) {
       byte_swap_ = new ByteSwap<sptk::uint24_t>(
           start_address, start_offset_number, end_address, end_offset_number,
           input_stream);
@@ -216,7 +204,7 @@ class ByteSwapWrapper {
       byte_swap_ =
           new ByteSwap<double>(start_address, start_offset_number, end_address,
                                end_offset_number, input_stream);
-    } else if ("de" == data_type) {
+    } else if ("e" == data_type) {
       byte_swap_ = new ByteSwap<long double>(start_address, start_offset_number,
                                              end_address, end_offset_number,
                                              input_stream);

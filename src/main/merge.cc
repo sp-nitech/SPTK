@@ -79,13 +79,13 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -N N  : order of insert data        (   int)[" << std::setw(5) << std::right << "L-1"                           << "][ 0 <= N <=   ]" << std::endl;  // NOLINT
   *stream << "       -w    : overwrite mode              (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultOverwriteMode) << "]" << std::endl;  // NOLINT
   *stream << "       +type : data type                           [" << std::setw(5) << std::right << kDefaultDataType                << "]" << std::endl;  // NOLINT
-  *stream << "                 "; sptk::PrintDataType("c",  stream); sptk::PrintDataType("C",  stream); *stream << std::endl;  // NOLINT
-  *stream << "                 "; sptk::PrintDataType("s",  stream); sptk::PrintDataType("S",  stream); *stream << std::endl;  // NOLINT
-  *stream << "                 "; sptk::PrintDataType("i3", stream); sptk::PrintDataType("I3", stream); *stream << std::endl;  // NOLINT
-  *stream << "                 "; sptk::PrintDataType("i",  stream); sptk::PrintDataType("I",  stream); *stream << std::endl;  // NOLINT
-  *stream << "                 "; sptk::PrintDataType("l",  stream); sptk::PrintDataType("L",  stream); *stream << std::endl;  // NOLINT
-  *stream << "                 "; sptk::PrintDataType("f",  stream); sptk::PrintDataType("d",  stream); *stream << std::endl;  // NOLINT
-  *stream << "                 "; sptk::PrintDataType("de", stream);                                    *stream << std::endl;  // NOLINT
+  *stream << "                 "; sptk::PrintDataType("c", stream); sptk::PrintDataType("C", stream); *stream << std::endl;  // NOLINT
+  *stream << "                 "; sptk::PrintDataType("s", stream); sptk::PrintDataType("S", stream); *stream << std::endl;  // NOLINT
+  *stream << "                 "; sptk::PrintDataType("h", stream); sptk::PrintDataType("H", stream); *stream << std::endl;  // NOLINT
+  *stream << "                 "; sptk::PrintDataType("i", stream); sptk::PrintDataType("I", stream); *stream << std::endl;  // NOLINT
+  *stream << "                 "; sptk::PrintDataType("l", stream); sptk::PrintDataType("L", stream); *stream << std::endl;  // NOLINT
+  *stream << "                 "; sptk::PrintDataType("f", stream); sptk::PrintDataType("d", stream); *stream << std::endl;  // NOLINT
+  *stream << "                 "; sptk::PrintDataType("e", stream);                                   *stream << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  file1:" << std::endl;
   *stream << "       insert data sequence" << std::endl;
@@ -170,20 +170,6 @@ class VectorMerge : public VectorMergeInterface {
   DISALLOW_COPY_AND_ASSIGN(VectorMerge<T>);
 };
 
-template class VectorMerge<int8_t>;
-template class VectorMerge<int16_t>;
-template class VectorMerge<sptk::int24_t>;
-template class VectorMerge<int32_t>;
-template class VectorMerge<int64_t>;
-template class VectorMerge<uint8_t>;
-template class VectorMerge<uint16_t>;
-template class VectorMerge<sptk::uint24_t>;
-template class VectorMerge<uint32_t>;
-template class VectorMerge<uint64_t>;
-template class VectorMerge<float>;
-template class VectorMerge<double>;
-template class VectorMerge<long double>;
-
 class VectorMergeWrapper {
  public:
   VectorMergeWrapper(const std::string& data_type, int insert_point,
@@ -197,7 +183,7 @@ class VectorMergeWrapper {
       merge_ =
           new VectorMerge<int16_t>(insert_point, input_length, insert_length,
                                    overwrite_mode, input_stream, insert_stream);
-    } else if ("i3" == data_type) {
+    } else if ("h" == data_type) {
       merge_ = new VectorMerge<sptk::int24_t>(insert_point, input_length,
                                               insert_length, overwrite_mode,
                                               input_stream, insert_stream);
@@ -217,7 +203,7 @@ class VectorMergeWrapper {
       merge_ = new VectorMerge<uint16_t>(insert_point, input_length,
                                          insert_length, overwrite_mode,
                                          input_stream, insert_stream);
-    } else if ("I3" == data_type) {
+    } else if ("H" == data_type) {
       merge_ = new VectorMerge<sptk::uint24_t>(insert_point, input_length,
                                                insert_length, overwrite_mode,
                                                input_stream, insert_stream);
@@ -237,7 +223,7 @@ class VectorMergeWrapper {
       merge_ =
           new VectorMerge<double>(insert_point, input_length, insert_length,
                                   overwrite_mode, input_stream, insert_stream);
-    } else if ("de" == data_type) {
+    } else if ("e" == data_type) {
       merge_ = new VectorMerge<long double>(insert_point, input_length,
                                             insert_length, overwrite_mode,
                                             input_stream, insert_stream);
