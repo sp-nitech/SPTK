@@ -54,11 +54,11 @@ LineSpectralPairsToLinearPredictiveCoefficients::
     LineSpectralPairsToLinearPredictiveCoefficients(int num_order)
     : num_order_(num_order),
       num_symmetric_polynomial_order_(
-          static_cast<int>(std::ceil(num_order * 0.5))),
+          static_cast<int>(std::ceil(num_order_ * 0.5))),
       num_asymmetric_polynomial_order_(
-          static_cast<int>(std::floor(num_order * 0.5))),
+          static_cast<int>(std::floor(num_order_ * 0.5))),
       is_valid_(true) {
-  if (num_order < 0) {
+  if (num_order_ < 0) {
     is_valid_ = false;
   }
 }

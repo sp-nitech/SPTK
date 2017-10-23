@@ -51,7 +51,7 @@ namespace sptk {
 
 LevinsonDurbinRecursion::LevinsonDurbinRecursion(int num_order, double epsilon)
     : num_order_(num_order), epsilon_(epsilon), is_valid_(true) {
-  if (num_order < 0 || epsilon < 0.0) {
+  if (num_order_ < 0 || epsilon_ < 0.0) {
     is_valid_ = false;
   }
 }

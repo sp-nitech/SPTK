@@ -56,8 +56,8 @@ ExcitationGeneration::ExcitationGeneration(
       random_generation_(random_generation),
       is_valid_(true),
       phase_(1.0) {
-  if (NULL == input_source || NULL == random_generation ||
-      !input_source->IsValid()) {
+  if (NULL == input_source_ || NULL == random_generation_ ||
+      !input_source_->IsValid()) {
     is_valid_ = false;
   }
 }

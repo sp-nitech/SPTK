@@ -54,7 +54,7 @@ NegativeDerivativeOfPhaseSpectrumToCepstrum::
     : num_order_(num_order),
       fast_fourier_transform_(fft_length - 1, fft_length),
       is_valid_(true) {
-  if (num_order < 0 || fft_length < 2 * num_order ||
+  if (num_order_ < 0 || fft_length < 2 * num_order_ ||
       !fast_fourier_transform_.IsValid()) {
     is_valid_ = false;
   }

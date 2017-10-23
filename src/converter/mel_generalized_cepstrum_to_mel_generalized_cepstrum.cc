@@ -271,7 +271,7 @@ MelGeneralizedCepstrumToMelGeneralizedCepstrum::
       is_valid_(true) {
   if (num_input_order_ < 0 || num_output_order_ < 0 ||
       (input_alpha_ != output_alpha_ && 1.0 == input_alpha_ * output_alpha_) ||
-      (is_multiplied_input && 0.0 == input_gamma_)) {
+      (is_multiplied_input_ && 0.0 == input_gamma_)) {
     is_valid_ = false;
     return;
   }

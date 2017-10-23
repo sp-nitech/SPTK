@@ -62,7 +62,7 @@ class InputSourceFromStream : public InputSourceInterface {
         read_size_(read_size),
         input_stream_(input_stream),
         is_valid_(true) {
-    if (read_size <= 0 || NULL == input_stream) {
+    if (read_size_ <= 0 || NULL == input_stream_) {
       is_valid_ = false;
     }
   }

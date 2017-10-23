@@ -52,7 +52,7 @@ namespace sptk {
 CompositeSinusoidalModelingToAutocorrelation::
     CompositeSinusoidalModelingToAutocorrelation(int num_sine_waves)
     : num_sine_waves_(num_sine_waves), is_valid_(true) {
-  if (num_sine_waves <= 0) {
+  if (num_sine_waves_ <= 0) {
     is_valid_ = false;
   }
 }

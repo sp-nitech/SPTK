@@ -51,7 +51,7 @@ namespace sptk {
 
 DiscreteFourierTransform::DiscreteFourierTransform(int dft_length)
     : dft_length_(dft_length), is_valid_(true) {
-  if (dft_length <= 0) {
+  if (dft_length_ <= 0) {
     is_valid_ = false;
   }
 }

@@ -79,14 +79,14 @@ LinearPredictiveCoefficientsToLineSpectralPairs::
                                                     double epsilon)
     : num_order_(num_order),
       num_symmetric_polynomial_order_(
-          static_cast<int>(std::ceil(num_order * 0.5))),
+          static_cast<int>(std::ceil(num_order_ * 0.5))),
       num_asymmetric_polynomial_order_(
-          static_cast<int>(std::floor(num_order * 0.5))),
+          static_cast<int>(std::floor(num_order_ * 0.5))),
       num_split_(num_split),
       num_iteration_(num_iteration),
       epsilon_(epsilon),
       is_valid_(true) {
-  if (num_order < 0 || num_split < 1 || num_iteration < 1 || epsilon < 0.0) {
+  if (num_order_ < 0 || num_split_ < 1 || num_iteration_ < 1 || epsilon_ < 0.0) {
     is_valid_ = false;
   }
 }

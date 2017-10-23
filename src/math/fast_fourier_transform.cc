@@ -53,20 +53,20 @@ namespace sptk {
 FastFourierTransform::FastFourierTransform(int num_order, int fft_length)
     : num_order_(num_order),
       fft_length_(fft_length),
-      half_fft_length_(fft_length / 2),
+      half_fft_length_(fft_length_ / 2),
       is_valid_(true) {
-  if (!IsPowerOfTwo(fft_length) || fft_length <= num_order || num_order < 0) {
+  if (!IsPowerOfTwo(fft_length_) || fft_length_ <= num_order_ || num_order_ < 0) {
     is_valid_ = false;
     return;
   }
 
-  const int table_size(fft_length - fft_length / 4 + 1);
-  const double argument(sptk::kPi / fft_length * 2);
+  const int table_size(fft_length_ - fft_length_ / 4 + 1);
+  const double argument(sptk::kPi / fft_length_ * 2);
   sine_table_.resize(table_size);
   for (int i(0); i < table_size; ++i) {
     sine_table_[i] = std::sin(argument * i);
   }
-  sine_table_[fft_length / 2] = 0.0;
+  sine_table_[fft_length_ / 2] = 0.0;
 }
 
 bool FastFourierTransform::Run(
