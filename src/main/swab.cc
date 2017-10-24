@@ -97,39 +97,37 @@ class ByteSwapInterface {
  public:
   virtual ~ByteSwapInterface() {
   }
-
-  virtual bool Run() = 0;
+  virtual bool Run(std::istream* input_stream) const = 0;
 };
 
 template <typename T>
 class ByteSwap : public ByteSwapInterface {
  public:
   ByteSwap(int start_address, int start_offset_number, int end_address,
-           int end_offset_number, std::istream* input_stream)
+           int end_offset_number)
       : start_address_(start_address),
         start_offset_number_(start_offset_number),
         end_address_(end_address),
-        end_offset_number_(end_offset_number),
-        input_stream_(input_stream) {
+        end_offset_number_(end_offset_number) {
   }
 
   ~ByteSwap() {
   }
 
-  virtual bool Run() {
+  virtual bool Run(std::istream* input_stream) const {
     // Skip data
     const int data_size(static_cast<int>(sizeof(T)));
     const int skip_size(start_address_ + data_size * start_offset_number_);
-    if (&std::cin == input_stream_) {
+    if (&std::cin == input_stream) {
       unsigned char tmp;
-      for (int i(0); i < skip_size && sptk::ReadStream(&tmp, input_stream_);
+      for (int i(0); i < skip_size && sptk::ReadStream(&tmp, input_stream);
            ++i) {
       }
     } else {
-      input_stream_->seekg(skip_size);
+      input_stream->seekg(skip_size);
     }
-    input_stream_->peek();
-    if (!input_stream_->good()) {
+    input_stream->peek();
+    if (!input_stream->good()) {
       return false;
     }
 
@@ -137,7 +135,7 @@ class ByteSwap : public ByteSwapInterface {
     T data;
     for (int address(skip_size), offset(start_offset_number_);
          ((address <= end_address_) && (offset <= end_offset_number_) &&
-          sptk::ReadStream(&data, input_stream_));
+          sptk::ReadStream(&data, input_stream));
          address += data_size, ++offset) {
       unsigned char* p(reinterpret_cast<unsigned char*>(&data));
       std::reverse(p, p + data_size);
@@ -154,7 +152,6 @@ class ByteSwap : public ByteSwapInterface {
   const int start_offset_number_;
   const int end_address_;
   const int end_offset_number_;
-  std::istream* input_stream_;
 
   DISALLOW_COPY_AND_ASSIGN(ByteSwap<T>);
 };
@@ -163,53 +160,41 @@ class ByteSwapWrapper {
  public:
   ByteSwapWrapper(const std::string& data_type, int start_address,
                   int start_offset_number, int end_address,
-                  int end_offset_number, std::istream* input_stream) {
+                  int end_offset_number)
+      : byte_swap_(NULL) {
     if ("s" == data_type) {
-      byte_swap_ =
-          new ByteSwap<int16_t>(start_address, start_offset_number, end_address,
-                                end_offset_number, input_stream);
+      byte_swap_ = new ByteSwap<int16_t>(start_address, start_offset_number,
+                                         end_address, end_offset_number);
     } else if ("h" == data_type) {
-      byte_swap_ = new ByteSwap<sptk::int24_t>(start_address,
-                                               start_offset_number, end_address,
-                                               end_offset_number, input_stream);
+      byte_swap_ = new ByteSwap<sptk::int24_t>(
+          start_address, start_offset_number, end_address, end_offset_number);
     } else if ("i" == data_type) {
-      byte_swap_ =
-          new ByteSwap<int32_t>(start_address, start_offset_number, end_address,
-                                end_offset_number, input_stream);
+      byte_swap_ = new ByteSwap<int32_t>(start_address, start_offset_number,
+                                         end_address, end_offset_number);
     } else if ("l" == data_type) {
-      byte_swap_ =
-          new ByteSwap<int64_t>(start_address, start_offset_number, end_address,
-                                end_offset_number, input_stream);
+      byte_swap_ = new ByteSwap<int64_t>(start_address, start_offset_number,
+                                         end_address, end_offset_number);
     } else if ("S" == data_type) {
-      byte_swap_ =
-          new ByteSwap<uint16_t>(start_address, start_offset_number,
-                                 end_address, end_offset_number, input_stream);
+      byte_swap_ = new ByteSwap<uint16_t>(start_address, start_offset_number,
+                                          end_address, end_offset_number);
     } else if ("H" == data_type) {
       byte_swap_ = new ByteSwap<sptk::uint24_t>(
-          start_address, start_offset_number, end_address, end_offset_number,
-          input_stream);
+          start_address, start_offset_number, end_address, end_offset_number);
     } else if ("I" == data_type) {
-      byte_swap_ =
-          new ByteSwap<uint32_t>(start_address, start_offset_number,
-                                 end_address, end_offset_number, input_stream);
+      byte_swap_ = new ByteSwap<uint32_t>(start_address, start_offset_number,
+                                          end_address, end_offset_number);
     } else if ("L" == data_type) {
-      byte_swap_ =
-          new ByteSwap<uint64_t>(start_address, start_offset_number,
-                                 end_address, end_offset_number, input_stream);
+      byte_swap_ = new ByteSwap<uint64_t>(start_address, start_offset_number,
+                                          end_address, end_offset_number);
     } else if ("f" == data_type) {
-      byte_swap_ =
-          new ByteSwap<float>(start_address, start_offset_number, end_address,
-                              end_offset_number, input_stream);
+      byte_swap_ = new ByteSwap<float>(start_address, start_offset_number,
+                                       end_address, end_offset_number);
     } else if ("d" == data_type) {
-      byte_swap_ =
-          new ByteSwap<double>(start_address, start_offset_number, end_address,
-                               end_offset_number, input_stream);
+      byte_swap_ = new ByteSwap<double>(start_address, start_offset_number,
+                                        end_address, end_offset_number);
     } else if ("e" == data_type) {
       byte_swap_ = new ByteSwap<long double>(start_address, start_offset_number,
-                                             end_address, end_offset_number,
-                                             input_stream);
-    } else {
-      byte_swap_ = NULL;
+                                             end_address, end_offset_number);
     }
   }
 
@@ -221,8 +206,8 @@ class ByteSwapWrapper {
     return NULL != byte_swap_;
   }
 
-  bool Run() const {
-    return IsValid() && byte_swap_->Run();
+  bool Run(std::istream* input_stream) const {
+    return IsValid() && byte_swap_->Run(input_stream);
   }
 
  private:
@@ -319,12 +304,17 @@ int main(int argc, char* argv[]) {
   // get input file
   const char* input_file(NULL);
   for (int i(argc - optind); 1 <= i; --i) {
-    const char* arg = argv[argc - i];
+    const char* arg(argv[argc - i]);
     if (0 == std::strncmp(arg, "+", 1)) {
       const std::string str(arg);
       data_type = str.substr(1, std::string::npos);
-    } else {
+    } else if (NULL == input_file) {
       input_file = arg;
+    } else {
+      std::ostringstream error_message;
+      error_message << "Too many input files";
+      sptk::PrintErrorMessage("swab", error_message);
+      return 1;
     }
   }
 
@@ -340,7 +330,7 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
   ByteSwapWrapper swap_byte(data_type, start_address, start_offset_number,
-                            end_address, end_offset_number, &input_stream);
+                            end_address, end_offset_number);
 
   if (!swap_byte.IsValid()) {
     std::ostringstream error_message;
@@ -349,7 +339,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  if (!swap_byte.Run()) {
+  if (!swap_byte.Run(&input_stream)) {
     std::ostringstream error_message;
     error_message << "Failed to swap bytes";
     sptk::PrintErrorMessage("swab", error_message);

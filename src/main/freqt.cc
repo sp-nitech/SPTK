@@ -157,7 +157,14 @@ int main(int argc, char* argv[]) {
   const double alpha((output_alpha - input_alpha) / (1.0 - prod_alphas));
 
   // get input file
-  const char* input_file((optind < argc) ? argv[argc - 1] : NULL);
+  const int num_rest_args(argc - optind);
+  if (1 < num_rest_args) {
+    std::ostringstream error_message;
+    error_message << "Too many input files";
+    sptk::PrintErrorMessage("freqt", error_message);
+    return 1;
+  }
+  const char* input_file(0 == num_rest_args ? NULL : argv[optind]);
 
   // open stream
   std::ifstream ifs;

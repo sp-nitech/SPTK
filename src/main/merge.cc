@@ -103,57 +103,55 @@ class VectorMergeInterface {
  public:
   virtual ~VectorMergeInterface() {
   }
-
-  virtual bool Run() = 0;
+  virtual bool Run(std::istream* input_stream,
+                   std::istream* insert_stream) const = 0;
 };
 
 template <typename T>
 class VectorMerge : public VectorMergeInterface {
  public:
   VectorMerge(int insert_point, int input_length, int insert_length,
-              bool overwrite_mode, std::istream* input_stream,
-              std::istream* insert_stream)
+              bool overwrite_mode)
       : insert_point_(insert_point),
         input_length_(input_length),
         insert_length_(insert_length),
         merged_length_(overwrite_mode ? input_length_
                                       : input_length_ + insert_length_),
         input_rest_length_(merged_length_ - insert_point_ - insert_length_),
-        input_skip_length_(overwrite_mode ? insert_length_ : 0),
-        input_stream_(input_stream),
-        insert_stream_(insert_stream),
-        merged_vector_(merged_length_) {
+        input_skip_length_(overwrite_mode ? insert_length_ : 0) {
   }
 
   ~VectorMerge() {
   }
 
-  virtual bool Run() {
+  virtual bool Run(std::istream* input_stream,
+                   std::istream* insert_stream) const {
+    std::vector<T> merged_vector(merged_length_);
     for (;;) {
       if (0 < insert_point_) {
-        if (!sptk::ReadStream(false, 0, 0, insert_point_, &merged_vector_,
-                              input_stream_)) {
+        if (!sptk::ReadStream(false, 0, 0, insert_point_, &merged_vector,
+                              input_stream)) {
           break;
         }
       }
       if (!sptk::ReadStream(false, 0, insert_point_, insert_length_,
-                            &merged_vector_, insert_stream_)) {
+                            &merged_vector, insert_stream)) {
         break;
       }
       if (0 < input_rest_length_) {
         if (!sptk::ReadStream(
                 false, input_skip_length_, insert_point_ + insert_length_,
-                input_rest_length_, &merged_vector_, input_stream_)) {
+                input_rest_length_, &merged_vector, input_stream)) {
           break;
         }
       }
-      if (!sptk::WriteStream(0, merged_length_, merged_vector_, &std::cout)) {
+      if (!sptk::WriteStream(0, merged_length_, merged_vector, &std::cout)) {
         return false;
       }
     }
 
-    return (input_stream_->peek() == std::istream::traits_type::eof() &&
-            insert_stream_->peek() == std::istream::traits_type::eof());
+    return (input_stream->peek() == std::istream::traits_type::eof() &&
+            insert_stream->peek() == std::istream::traits_type::eof());
   }
 
  private:
@@ -163,9 +161,6 @@ class VectorMerge : public VectorMergeInterface {
   const int merged_length_;
   const int input_rest_length_;
   const int input_skip_length_;
-  std::istream* input_stream_;
-  std::istream* insert_stream_;
-  std::vector<T> merged_vector_;
 
   DISALLOW_COPY_AND_ASSIGN(VectorMerge<T>);
 };
@@ -173,62 +168,47 @@ class VectorMerge : public VectorMergeInterface {
 class VectorMergeWrapper {
  public:
   VectorMergeWrapper(const std::string& data_type, int insert_point,
-                     int input_length, int insert_length, bool overwrite_mode,
-                     std::istream* input_stream, std::istream* insert_stream) {
+                     int input_length, int insert_length, bool overwrite_mode)
+      : merge_(NULL) {
     if ("c" == data_type) {
-      merge_ =
-          new VectorMerge<int8_t>(insert_point, input_length, insert_length,
-                                  overwrite_mode, input_stream, insert_stream);
+      merge_ = new VectorMerge<int8_t>(insert_point, input_length,
+                                       insert_length, overwrite_mode);
     } else if ("s" == data_type) {
-      merge_ =
-          new VectorMerge<int16_t>(insert_point, input_length, insert_length,
-                                   overwrite_mode, input_stream, insert_stream);
+      merge_ = new VectorMerge<int16_t>(insert_point, input_length,
+                                        insert_length, overwrite_mode);
     } else if ("h" == data_type) {
       merge_ = new VectorMerge<sptk::int24_t>(insert_point, input_length,
-                                              insert_length, overwrite_mode,
-                                              input_stream, insert_stream);
+                                              insert_length, overwrite_mode);
     } else if ("i" == data_type) {
-      merge_ =
-          new VectorMerge<int32_t>(insert_point, input_length, insert_length,
-                                   overwrite_mode, input_stream, insert_stream);
+      merge_ = new VectorMerge<int32_t>(insert_point, input_length,
+                                        insert_length, overwrite_mode);
     } else if ("l" == data_type) {
-      merge_ =
-          new VectorMerge<int64_t>(insert_point, input_length, insert_length,
-                                   overwrite_mode, input_stream, insert_stream);
+      merge_ = new VectorMerge<int64_t>(insert_point, input_length,
+                                        insert_length, overwrite_mode);
     } else if ("C" == data_type) {
-      merge_ =
-          new VectorMerge<uint8_t>(insert_point, input_length, insert_length,
-                                   overwrite_mode, input_stream, insert_stream);
+      merge_ = new VectorMerge<uint8_t>(insert_point, input_length,
+                                        insert_length, overwrite_mode);
     } else if ("S" == data_type) {
       merge_ = new VectorMerge<uint16_t>(insert_point, input_length,
-                                         insert_length, overwrite_mode,
-                                         input_stream, insert_stream);
+                                         insert_length, overwrite_mode);
     } else if ("H" == data_type) {
       merge_ = new VectorMerge<sptk::uint24_t>(insert_point, input_length,
-                                               insert_length, overwrite_mode,
-                                               input_stream, insert_stream);
+                                               insert_length, overwrite_mode);
     } else if ("I" == data_type) {
       merge_ = new VectorMerge<uint32_t>(insert_point, input_length,
-                                         insert_length, overwrite_mode,
-                                         input_stream, insert_stream);
+                                         insert_length, overwrite_mode);
     } else if ("L" == data_type) {
       merge_ = new VectorMerge<uint64_t>(insert_point, input_length,
-                                         insert_length, overwrite_mode,
-                                         input_stream, insert_stream);
+                                         insert_length, overwrite_mode);
     } else if ("f" == data_type) {
-      merge_ =
-          new VectorMerge<float>(insert_point, input_length, insert_length,
-                                 overwrite_mode, input_stream, insert_stream);
+      merge_ = new VectorMerge<float>(insert_point, input_length, insert_length,
+                                      overwrite_mode);
     } else if ("d" == data_type) {
-      merge_ =
-          new VectorMerge<double>(insert_point, input_length, insert_length,
-                                  overwrite_mode, input_stream, insert_stream);
+      merge_ = new VectorMerge<double>(insert_point, input_length,
+                                       insert_length, overwrite_mode);
     } else if ("e" == data_type) {
       merge_ = new VectorMerge<long double>(insert_point, input_length,
-                                            insert_length, overwrite_mode,
-                                            input_stream, insert_stream);
-    } else {
-      merge_ = NULL;
+                                            insert_length, overwrite_mode);
     }
   }
 
@@ -240,8 +220,8 @@ class VectorMergeWrapper {
     return NULL != merge_;
   }
 
-  bool Run() const {
-    return IsValid() && merge_->Run();
+  bool Run(std::istream* input_stream, std::istream* insert_stream) const {
+    return IsValid() && merge_->Run(input_stream, insert_stream);
   }
 
  private:
@@ -354,7 +334,7 @@ int main(int argc, char* argv[]) {
   const char* insert_file(NULL);
   const char* input_file(NULL);
   for (int i(argc - optind); 1 <= i; --i) {
-    const char* arg = argv[argc - i];
+    const char* arg(argv[argc - i]);
     if (0 == std::strncmp(arg, "+", 1)) {
       const std::string str(arg);
       data_type = str.substr(1, std::string::npos);
@@ -399,7 +379,7 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs2.fail() ? std::cin : ifs2);
 
   VectorMergeWrapper merge(data_type, insert_point, input_length, insert_length,
-                           overwrite_mode, &input_stream, &insert_stream);
+                           overwrite_mode);
 
   if (!merge.IsValid()) {
     std::ostringstream error_message;
@@ -408,7 +388,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  if (!merge.Run()) {
+  if (!merge.Run(&input_stream, &insert_stream)) {
     std::ostringstream error_message;
     error_message << "Failed to merge";
     sptk::PrintErrorMessage("merge", error_message);

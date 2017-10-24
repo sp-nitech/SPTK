@@ -86,7 +86,8 @@ LinearPredictiveCoefficientsToLineSpectralPairs::
       num_iteration_(num_iteration),
       epsilon_(epsilon),
       is_valid_(true) {
-  if (num_order_ < 0 || num_split_ < 1 || num_iteration_ < 1 || epsilon_ < 0.0) {
+  if (num_order_ < 0 || num_split_ < 1 || num_iteration_ < 1 ||
+      epsilon_ < 0.0) {
     is_valid_ = false;
   }
 }

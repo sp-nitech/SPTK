@@ -163,6 +163,9 @@ class int24_t {
   uint8_t value[3];
 };
 
+static const int24_t INT24_MAX(int24_t(8388607));
+static const int24_t INT24_MIN(int24_t(-8388608));
+
 }  // namespace sptk
 
 #endif  // SPTK_UTILS_INT24_T_H_
