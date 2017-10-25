@@ -235,7 +235,7 @@ class DataTransform : public DataTransformInterface {
           }
         }
         std::cout << buffer;
-        if (0 == index % num_column_) {
+        if (0 == (index + 1) % num_column_) {
           std::cout << std::endl;
         } else {
           std::cout << "\t";
