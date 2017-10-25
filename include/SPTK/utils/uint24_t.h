@@ -49,6 +49,8 @@
 
 namespace sptk {
 
+static const int UINT24_MAX(16777215);
+
 class uint24_t {
  public:
   uint24_t() {
@@ -63,6 +65,10 @@ class uint24_t {
 
   operator int() const {
     return (value[2] << 16) | (value[1] << 8) | (value[0] << 0);
+  }
+
+  explicit operator double() const {
+    return static_cast<double>(this->operator int());
   }
 
   uint24_t& operator=(const uint24_t& input) {
@@ -115,6 +121,22 @@ class uint24_t {
     return uint24_t(static_cast<int>(*this) / input);
   }
 
+  uint24_t operator+(double input) const {
+    return uint24_t(static_cast<double>(*this) + input);
+  }
+
+  uint24_t operator-(double input) const {
+    return uint24_t(static_cast<double>(*this) - input);
+  }
+
+  uint24_t operator*(double input) const {
+    return uint24_t(static_cast<double>(*this) * input);
+  }
+
+  uint24_t operator/(double input) const {
+    return uint24_t(static_cast<double>(*this) / input);
+  }
+
   uint24_t& operator+=(const uint24_t& input) {
     *this = *this + input;
     return *this;
@@ -155,12 +177,29 @@ class uint24_t {
     return *this;
   }
 
+  uint24_t& operator+=(double input) {
+    *this = *this + input;
+    return *this;
+  }
+
+  uint24_t& operator-=(double input) {
+    *this = *this - input;
+    return *this;
+  }
+
+  uint24_t& operator*=(double input) {
+    *this = *this * input;
+    return *this;
+  }
+
+  uint24_t& operator/=(double input) {
+    *this = *this / input;
+    return *this;
+  }
+
  protected:
   uint8_t value[3];
 };
-
-static const uint24_t UINT24_MAX(uint24_t(16777215));
-static const uint24_t UINT24_MIN(uint24_t(0));
 
 }  // namespace sptk
 
