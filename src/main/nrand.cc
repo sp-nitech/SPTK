@@ -154,6 +154,13 @@ int main(int argc, char* argv[]) {
     }
   }
 
+  if (0 != argc - optind) {
+    std::ostringstream error_message;
+    error_message << "Input file is not required";
+    sptk::PrintErrorMessage("nrand", error_message);
+    return 1;
+  }
+
   sptk::NormalDistributedRandomValueGeneration generator(seed);
 
   for (int i(0); output_length < 0 || i < output_length; ++i) {
