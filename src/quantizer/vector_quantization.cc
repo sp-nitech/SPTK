@@ -42,31 +42,50 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/utils/mu_law_decompression.h"
+#include "SPTK/quantizer/vector_quantization.h"
 
-#include <cmath>  // std::fabs, std::pow
+#include <cfloat>   // DBL_MAX
+#include <cstddef>  // std::size_t
 
 namespace sptk {
 
-MuLawDecompression::MuLawDecompression(double absolute_max_value,
-                                       int compression_factor)
-    : absolute_max_value_(absolute_max_value),
-      compression_factor_(compression_factor),
+VectorQuantization::VectorQuantization(int num_order)
+    : num_order_(num_order),
+      distance_calculator_(
+          num_order_, DistanceCalculator::DistanceMetric::kSquaredEuclidean),
       is_valid_(true) {
-  if (absolute_max_value_ <= 0.0 || compression_factor_ <= 0) {
+  if (num_order_ < 0 || !distance_calculator_.IsValid()) {
     is_valid_ = false;
   }
 }
 
-bool MuLawDecompression::Run(double input, double* output) const {
-  if (!is_valid_ || NULL == output) {
+bool VectorQuantization::Run(
+    const std::vector<double>& input_vector,
+    const std::vector<std::vector<double> >& codebook_vectors,
+    int* codebook_index) const {
+  if (!is_valid_ ||
+      input_vector.size() != static_cast<std::size_t>(num_order_ + 1) ||
+      codebook_vectors.empty() || NULL == codebook_index) {
     return false;
   }
 
-  const double ratio(std::fabs(input) / absolute_max_value_);
-  *output = sptk::ExtractSign(input) * absolute_max_value_ *
-            (std::pow(1.0 + compression_factor_, ratio) - 1.0) /
-            compression_factor_;
+  const int codebook_size(codebook_vectors.size());
+  int index(0);
+  double minimum_distance(DBL_MAX);
+
+  for (int i(0); i < codebook_size; ++i) {
+    double distance;
+    if (!distance_calculator_.Run(input_vector, codebook_vectors[i],
+                                  &distance)) {
+      return false;
+    }
+    if (distance < minimum_distance) {
+      index = i;
+      minimum_distance = distance;
+    }
+  }
+
+  *codebook_index = index;
 
   return true;
 }

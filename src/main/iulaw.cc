@@ -49,7 +49,7 @@
 #include <sstream>
 #include <vector>
 
-#include "SPTK/utils/mu_law_decompression.h"
+#include "SPTK/quantizer/inverse_mu_law_compression.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -144,9 +144,9 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
   // prepare for u-law decompression
-  sptk::MuLawDecompression mu_law_decompression(absolute_max_value,
-                                                compression_factor);
-  if (!mu_law_decompression.IsValid()) {
+  sptk::InverseMuLawCompression inverse_mu_law_compression(absolute_max_value,
+                                                           compression_factor);
+  if (!inverse_mu_law_compression.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for u-Law decompression";
     sptk::PrintErrorMessage("iulaw", error_message);
@@ -157,7 +157,7 @@ int main(int argc, char* argv[]) {
   double output;
 
   while (sptk::ReadStream(&input, &input_stream)) {
-    if (!mu_law_decompression.Run(input, &output)) {
+    if (!inverse_mu_law_compression.Run(input, &output)) {
       std::ostringstream error_message;
       error_message << "Failed to decompress";
       sptk::PrintErrorMessage("iulaw", error_message);

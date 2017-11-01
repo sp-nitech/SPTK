@@ -42,54 +42,79 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_UTILS_MU_LAW_COMPRESSION_H_
-#define SPTK_UTILS_MU_LAW_COMPRESSION_H_
+#include "SPTK/math/distance_calculator.h"
 
-#include "SPTK/utils/sptk_utils.h"
+#include <cmath>    // std::fabs, std::log, std::sqrt
+#include <cstddef>  // std::size_t
 
 namespace sptk {
 
-class MuLawCompression {
- public:
-  //
-  MuLawCompression(double absolute_max_value, int compression_factor);
+DistanceCalculator::DistanceCalculator(int num_order,
+                                       DistanceMetric distance_metric)
+    : num_order_(num_order),
+      distance_metric_(distance_metric),
+      is_valid_(true) {
+  if (num_order_ < 0 || distance_metric_ < 0 ||
+      kNumMetrics <= distance_metric_) {
+    is_valid_ = false;
+  }
+}
 
-  //
-  virtual ~MuLawCompression() {
+bool DistanceCalculator::Run(const std::vector<double>& vector1,
+                             const std::vector<double>& vector2,
+                             double* distance) const {
+  // check inputs
+  if (!is_valid_ ||
+      vector1.size() != static_cast<std::size_t>(num_order_ + 1) ||
+      vector2.size() != static_cast<std::size_t>(num_order_ + 1) ||
+      NULL == distance) {
+    return false;
   }
 
-  //
-  double GetAbsoluteMaxValue() const {
-    return absolute_max_value_;
+  // get values
+  const double* x(&(vector1[0]));
+  const double* y(&(vector2[0]));
+
+  double sum(0.0);
+
+  switch (distance_metric_) {
+    case kManhattan: {
+      for (int i(0); i <= num_order_; ++i) {
+        const double diff(x[i] - y[i]);
+        sum += std::fabs(diff);
+      }
+      break;
+    }
+    case kEuclidean: {
+      for (int i(0); i <= num_order_; ++i) {
+        const double diff(x[i] - y[i]);
+        sum += diff * diff;
+      }
+      sum = std::sqrt(sum);
+      break;
+    }
+    case kSquaredEuclidean: {
+      for (int i(0); i <= num_order_; ++i) {
+        const double diff(x[i] - y[i]);
+        sum += diff * diff;
+      }
+      break;
+    }
+    case kSymmetricKullbackLeibler: {
+      for (int i(0); i <= num_order_; ++i) {
+        if (x[i] <= 0.0 || y[i] <= 0.0) return false;
+        const double diff(x[i] - y[i]);
+        const double log_diff(std::log(x[i]) - std::log(y[i]));
+        sum += diff * log_diff;
+      }
+      break;
+    }
+    default: { return false; }
   }
 
-  //
-  int GetCompressionFactor() const {
-    return compression_factor_;
-  }
+  *distance = sum;
 
-  //
-  bool IsValid() const {
-    return is_valid_;
-  }
-
-  //
-  bool Run(double input, double* output) const;
-
- private:
-  //
-  const double absolute_max_value_;
-
-  //
-  const int compression_factor_;
-
-  //
-  bool is_valid_;
-
-  //
-  DISALLOW_COPY_AND_ASSIGN(MuLawCompression);
-};
+  return true;
+}
 
 }  // namespace sptk
-
-#endif  // SPTK_UTILS_MU_LAW_COMPRESSION_H_

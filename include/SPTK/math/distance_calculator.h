@@ -42,106 +42,41 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_CONVERTER_MEL_GENERALIZED_CEPSTRUM_TO_MEL_GENERALIZED_CEPSTRUM_H_
-#define SPTK_CONVERTER_MEL_GENERALIZED_CEPSTRUM_TO_MEL_GENERALIZED_CEPSTRUM_H_
+#ifndef SPTK_MATH_DISTANCE_CALCULATOR_H_
+#define SPTK_MATH_DISTANCE_CALCULATOR_H_
 
 #include <vector>  // std::vector
 
-#include "SPTK/math/frequency_transform.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
-class MelGeneralizedCepstrumToMelGeneralizedCepstrum {
+class DistanceCalculator {
  public:
-  class Buffer {
-   public:
-    Buffer() {
-    }
-    virtual ~Buffer() {
-    }
-
-   private:
-    FrequencyTransform::Buffer frequency_transform_buffer_;
-    std::vector<double> temporary_mel_generalized_cepstrum_;
-    friend class MelGeneralizedCepstrumToMelGeneralizedCepstrum;
-    DISALLOW_COPY_AND_ASSIGN(Buffer);
-  };
-
-  class ModuleInterface {
-   public:
-    virtual ~ModuleInterface() {
-    }
-    virtual bool IsValid() const = 0;
-    virtual bool Run(
-        const std::vector<double>& input, std::vector<double>* output,
-        FrequencyTransform::Buffer* frequency_transform_buffer) const = 0;
+  //
+  enum DistanceMetric {
+    kManhattan = 0,
+    kEuclidean,
+    kSquaredEuclidean,
+    kSymmetricKullbackLeibler,
+    kNumMetrics
   };
 
   //
-  MelGeneralizedCepstrumToMelGeneralizedCepstrum(
-      int num_input_order_, double input_alpha_, double input_gamma_,
-      bool is_normalized_input_, bool is_multiplied_input_,
-      int num_output_order_, double output_alpha_, double output_gamma_,
-      bool is_normalized_output_, bool is_multiplied_output_);
+  DistanceCalculator(int num_order, DistanceMetric distance_metric);
 
   //
-  virtual ~MelGeneralizedCepstrumToMelGeneralizedCepstrum() {
-    for (std::vector<MelGeneralizedCepstrumToMelGeneralizedCepstrum::
-                         ModuleInterface*>::iterator itr(modules_.begin());
-         itr != modules_.end(); ++itr) {
-      delete (*itr);
-    }
+  virtual ~DistanceCalculator() {
   }
 
   //
-  int GetNumInputOrder() const {
-    return num_input_order_;
+  int GetNumOrder() const {
+    return num_order_;
   }
 
   //
-  double GetInputAlpha() const {
-    return input_alpha_;
-  }
-
-  //
-  double GetInputGamma() const {
-    return input_gamma_;
-  }
-
-  //
-  bool IsNormalizedInput() const {
-    return is_normalized_input_;
-  }
-
-  //
-  bool IsMultipliedInput() const {
-    return is_multiplied_input_;
-  }
-
-  //
-  int GetNumOutputOrder() const {
-    return num_output_order_;
-  }
-
-  //
-  double GetOutputAlpha() const {
-    return output_alpha_;
-  }
-
-  //
-  double GetOutputGamma() const {
-    return output_gamma_;
-  }
-
-  //
-  bool IsNormalizedOutut() const {
-    return is_normalized_output_;
-  }
-
-  //
-  bool IsMultipliedOutput() const {
-    return is_multiplied_output_;
+  DistanceMetric GetDistanceMetric() const {
+    return distance_metric_;
   }
 
   //
@@ -150,55 +85,23 @@ class MelGeneralizedCepstrumToMelGeneralizedCepstrum {
   }
 
   //
-  bool Run(
-      const std::vector<double>& input, std::vector<double>* output,
-      MelGeneralizedCepstrumToMelGeneralizedCepstrum::Buffer* buffer) const;
+  bool Run(const std::vector<double>& vector1,
+           const std::vector<double>& vector2, double* distance) const;
 
  private:
   //
-  const int num_input_order_;
+  const int num_order_;
 
   //
-  const double input_alpha_;
-
-  //
-  const double input_gamma_;
-
-  //
-  const bool is_normalized_input_;
-
-  //
-  const bool is_multiplied_input_;
-
-  //
-  const int num_output_order_;
-
-  //
-  const double output_alpha_;
-
-  //
-  const double output_gamma_;
-
-  //
-  const bool is_normalized_output_;
-
-  //
-  const bool is_multiplied_output_;
-
-  //
-  double alpha_transform_;
-
-  //
-  std::vector<MelGeneralizedCepstrumToMelGeneralizedCepstrum::ModuleInterface*>
-      modules_;
+  const DistanceMetric distance_metric_;
 
   //
   bool is_valid_;
 
   //
-  DISALLOW_COPY_AND_ASSIGN(MelGeneralizedCepstrumToMelGeneralizedCepstrum);
+  DISALLOW_COPY_AND_ASSIGN(DistanceCalculator);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_CONVERTER_MEL_GENERALIZED_CEPSTRUM_TO_MEL_GENERALIZED_CEPSTRUM_H_
+#endif  // SPTK_MATH_DISTANCE_CALCULATOR_H_

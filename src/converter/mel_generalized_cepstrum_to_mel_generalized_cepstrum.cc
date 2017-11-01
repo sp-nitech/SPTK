@@ -48,9 +48,9 @@
 #include <functional>  // std::bind1st, std::multiplies
 #include <vector>      // std::vector
 
+#include "SPTK/math/frequency_transform.h"
 #include "SPTK/normalizer/generalized_cepstrum_gain_normalization.h"
 #include "SPTK/normalizer/generalized_cepstrum_inverse_gain_normalization.h"
-#include "SPTK/utils/frequency_transform.h"
 
 namespace {
 
@@ -431,7 +431,7 @@ bool MelGeneralizedCepstrumToMelGeneralizedCepstrum::Run(
     const std::vector<double>& input, std::vector<double>* output,
     MelGeneralizedCepstrumToMelGeneralizedCepstrum::Buffer* buffer) const {
   if (!is_valid_ ||
-      static_cast<std::size_t>(num_input_order_ + 1) != input.size() ||
+      input.size() != static_cast<std::size_t>(num_input_order_ + 1) ||
       NULL == output || NULL == buffer) {
     return false;
   }

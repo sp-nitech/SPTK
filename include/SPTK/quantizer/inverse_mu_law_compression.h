@@ -42,106 +42,30 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_CONVERTER_MEL_GENERALIZED_CEPSTRUM_TO_MEL_GENERALIZED_CEPSTRUM_H_
-#define SPTK_CONVERTER_MEL_GENERALIZED_CEPSTRUM_TO_MEL_GENERALIZED_CEPSTRUM_H_
+#ifndef SPTK_QUANTIZER_INVERSE_MU_LAW_COMPRESSION_H_
+#define SPTK_QUANTIZER_INVERSE_MU_LAW_COMPRESSION_H_
 
-#include <vector>  // std::vector
-
-#include "SPTK/math/frequency_transform.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
-class MelGeneralizedCepstrumToMelGeneralizedCepstrum {
+class InverseMuLawCompression {
  public:
-  class Buffer {
-   public:
-    Buffer() {
-    }
-    virtual ~Buffer() {
-    }
-
-   private:
-    FrequencyTransform::Buffer frequency_transform_buffer_;
-    std::vector<double> temporary_mel_generalized_cepstrum_;
-    friend class MelGeneralizedCepstrumToMelGeneralizedCepstrum;
-    DISALLOW_COPY_AND_ASSIGN(Buffer);
-  };
-
-  class ModuleInterface {
-   public:
-    virtual ~ModuleInterface() {
-    }
-    virtual bool IsValid() const = 0;
-    virtual bool Run(
-        const std::vector<double>& input, std::vector<double>* output,
-        FrequencyTransform::Buffer* frequency_transform_buffer) const = 0;
-  };
+  //
+  InverseMuLawCompression(double absolute_max_value, int compression_factor);
 
   //
-  MelGeneralizedCepstrumToMelGeneralizedCepstrum(
-      int num_input_order_, double input_alpha_, double input_gamma_,
-      bool is_normalized_input_, bool is_multiplied_input_,
-      int num_output_order_, double output_alpha_, double output_gamma_,
-      bool is_normalized_output_, bool is_multiplied_output_);
-
-  //
-  virtual ~MelGeneralizedCepstrumToMelGeneralizedCepstrum() {
-    for (std::vector<MelGeneralizedCepstrumToMelGeneralizedCepstrum::
-                         ModuleInterface*>::iterator itr(modules_.begin());
-         itr != modules_.end(); ++itr) {
-      delete (*itr);
-    }
+  virtual ~InverseMuLawCompression() {
   }
 
   //
-  int GetNumInputOrder() const {
-    return num_input_order_;
+  double GetAbsoluteMaxValue() const {
+    return absolute_max_value_;
   }
 
   //
-  double GetInputAlpha() const {
-    return input_alpha_;
-  }
-
-  //
-  double GetInputGamma() const {
-    return input_gamma_;
-  }
-
-  //
-  bool IsNormalizedInput() const {
-    return is_normalized_input_;
-  }
-
-  //
-  bool IsMultipliedInput() const {
-    return is_multiplied_input_;
-  }
-
-  //
-  int GetNumOutputOrder() const {
-    return num_output_order_;
-  }
-
-  //
-  double GetOutputAlpha() const {
-    return output_alpha_;
-  }
-
-  //
-  double GetOutputGamma() const {
-    return output_gamma_;
-  }
-
-  //
-  bool IsNormalizedOutut() const {
-    return is_normalized_output_;
-  }
-
-  //
-  bool IsMultipliedOutput() const {
-    return is_multiplied_output_;
+  int GetCompressionFactor() const {
+    return compression_factor_;
   }
 
   //
@@ -150,55 +74,22 @@ class MelGeneralizedCepstrumToMelGeneralizedCepstrum {
   }
 
   //
-  bool Run(
-      const std::vector<double>& input, std::vector<double>* output,
-      MelGeneralizedCepstrumToMelGeneralizedCepstrum::Buffer* buffer) const;
+  bool Run(double input, double* output) const;
 
  private:
   //
-  const int num_input_order_;
+  const double absolute_max_value_;
 
   //
-  const double input_alpha_;
-
-  //
-  const double input_gamma_;
-
-  //
-  const bool is_normalized_input_;
-
-  //
-  const bool is_multiplied_input_;
-
-  //
-  const int num_output_order_;
-
-  //
-  const double output_alpha_;
-
-  //
-  const double output_gamma_;
-
-  //
-  const bool is_normalized_output_;
-
-  //
-  const bool is_multiplied_output_;
-
-  //
-  double alpha_transform_;
-
-  //
-  std::vector<MelGeneralizedCepstrumToMelGeneralizedCepstrum::ModuleInterface*>
-      modules_;
+  const int compression_factor_;
 
   //
   bool is_valid_;
 
   //
-  DISALLOW_COPY_AND_ASSIGN(MelGeneralizedCepstrumToMelGeneralizedCepstrum);
+  DISALLOW_COPY_AND_ASSIGN(InverseMuLawCompression);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_CONVERTER_MEL_GENERALIZED_CEPSTRUM_TO_MEL_GENERALIZED_CEPSTRUM_H_
+#endif  // SPTK_QUANTIZER_INVERSE_MU_LAW_COMPRESSION_H_

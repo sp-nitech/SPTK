@@ -42,33 +42,54 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/utils/mu_law_compression.h"
+#ifndef SPTK_QUANTIZER_VECTOR_QUANTIZATION_H_
+#define SPTK_QUANTIZER_VECTOR_QUANTIZATION_H_
 
-#include <cmath>  // std::fabs, std::log
+#include <vector>  // std::vector
+
+#include "SPTK/math/distance_calculator.h"
+#include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
-MuLawCompression::MuLawCompression(double absolute_max_value,
-                                   int compression_factor)
-    : absolute_max_value_(absolute_max_value),
-      compression_factor_(compression_factor),
-      is_valid_(true) {
-  if (absolute_max_value_ <= 0.0 || compression_factor_ <= 0) {
-    is_valid_ = false;
-  }
-}
+class VectorQuantization {
+ public:
+  //
+  explicit VectorQuantization(int num_order);
 
-bool MuLawCompression::Run(double input, double* output) const {
-  if (!is_valid_ || NULL == output) {
-    return false;
+  //
+  virtual ~VectorQuantization() {
   }
 
-  const double ratio(std::fabs(input) / absolute_max_value_);
-  *output = sptk::ExtractSign(input) * absolute_max_value_ *
-            std::log(1.0 + compression_factor_ * ratio) /
-            std::log(1.0 + compression_factor_);
+  //
+  int GetNumOrder() const {
+    return num_order_;
+  }
 
-  return true;
-}
+  //
+  bool IsValid() const {
+    return is_valid_;
+  }
+
+  //
+  bool Run(const std::vector<double>& input_vector,
+           const std::vector<std::vector<double> >& codebook_vectors,
+           int* codebook_index) const;
+
+ private:
+  //
+  const int num_order_;
+
+  //
+  const DistanceCalculator distance_calculator_;
+
+  //
+  bool is_valid_;
+
+  //
+  DISALLOW_COPY_AND_ASSIGN(VectorQuantization);
+};
 
 }  // namespace sptk
+
+#endif  // SPTK_QUANTIZER_VECTOR_QUANTIZATION_H_

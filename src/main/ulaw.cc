@@ -49,7 +49,7 @@
 #include <sstream>
 #include <vector>
 
-#include "SPTK/utils/mu_law_compression.h"
+#include "SPTK/quantizer/mu_law_compression.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

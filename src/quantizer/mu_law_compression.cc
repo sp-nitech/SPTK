@@ -42,80 +42,33 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_UTILS_FREQUENCY_TRANSFORM_H_
-#define SPTK_UTILS_FREQUENCY_TRANSFORM_H_
+#include "SPTK/quantizer/mu_law_compression.h"
 
-#include <vector>  // std::vector
-
-#include "SPTK/utils/sptk_utils.h"
+#include <cmath>  // std::fabs, std::log
 
 namespace sptk {
 
-class FrequencyTransform {
- public:
-  class Buffer {
-   public:
-    Buffer() {
-    }
-    virtual ~Buffer() {
-    }
+MuLawCompression::MuLawCompression(double absolute_max_value,
+                                   int compression_factor)
+    : absolute_max_value_(absolute_max_value),
+      compression_factor_(compression_factor),
+      is_valid_(true) {
+  if (absolute_max_value_ <= 0.0 || compression_factor_ <= 0) {
+    is_valid_ = false;
+  }
+}
 
-   private:
-    std::vector<double> d_;
-    std::vector<double> g_;
-    friend class FrequencyTransform;
-    DISALLOW_COPY_AND_ASSIGN(Buffer);
-  };
-
-  //
-  FrequencyTransform(int num_input_order, int num_output_order, double alpha);
-
-  //
-  virtual ~FrequencyTransform() {
+bool MuLawCompression::Run(double input, double* output) const {
+  if (!is_valid_ || NULL == output) {
+    return false;
   }
 
-  //
-  int GetNumInputOrder() const {
-    return num_input_order_;
-  }
+  const double ratio(std::fabs(input) / absolute_max_value_);
+  *output = sptk::ExtractSign(input) * absolute_max_value_ *
+            std::log(1.0 + compression_factor_ * ratio) /
+            std::log(1.0 + compression_factor_);
 
-  //
-  int GetNumOutputOrder() const {
-    return num_output_order_;
-  }
-
-  //
-  double GetAlpha() const {
-    return alpha_;
-  }
-
-  //
-  bool IsValid() const {
-    return is_valid_;
-  }
-
-  //
-  bool Run(const std::vector<double>& minimum_phase_sequence,
-           std::vector<double>* warped_sequence,
-           FrequencyTransform::Buffer* buffer) const;
-
- private:
-  //
-  const int num_input_order_;
-
-  //
-  const int num_output_order_;
-
-  //
-  const double alpha_;
-
-  //
-  bool is_valid_;
-
-  //
-  DISALLOW_COPY_AND_ASSIGN(FrequencyTransform);
-};
+  return true;
+}
 
 }  // namespace sptk
-
-#endif  // SPTK_UTILS_FREQUENCY_TRANSFORM_H_

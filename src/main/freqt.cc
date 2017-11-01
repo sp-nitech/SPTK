@@ -49,7 +49,7 @@
 #include <sstream>
 #include <vector>
 
-#include "SPTK/utils/frequency_transform.h"
+#include "SPTK/math/frequency_transform.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

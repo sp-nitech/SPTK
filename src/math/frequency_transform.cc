@@ -42,7 +42,7 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/utils/frequency_transform.h"
+#include "SPTK/math/frequency_transform.h"
 
 #include <algorithm>  // std::copy, std::fill_n
 #include <cstddef>    // std::size_t

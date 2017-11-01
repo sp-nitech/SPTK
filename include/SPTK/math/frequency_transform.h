@@ -42,30 +42,51 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_UTILS_MU_LAW_DECOMPRESSION_H_
-#define SPTK_UTILS_MU_LAW_DECOMPRESSION_H_
+#ifndef SPTK_MATH_FREQUENCY_TRANSFORM_H_
+#define SPTK_MATH_FREQUENCY_TRANSFORM_H_
+
+#include <vector>  // std::vector
 
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
-class MuLawDecompression {
+class FrequencyTransform {
  public:
-  //
-  MuLawDecompression(double absolute_max_value, int compression_factor);
+  class Buffer {
+   public:
+    Buffer() {
+    }
+    virtual ~Buffer() {
+    }
+
+   private:
+    std::vector<double> d_;
+    std::vector<double> g_;
+    friend class FrequencyTransform;
+    DISALLOW_COPY_AND_ASSIGN(Buffer);
+  };
 
   //
-  virtual ~MuLawDecompression() {
+  FrequencyTransform(int num_input_order, int num_output_order, double alpha);
+
+  //
+  virtual ~FrequencyTransform() {
   }
 
   //
-  double GetAbsoluteMaxValue() const {
-    return absolute_max_value_;
+  int GetNumInputOrder() const {
+    return num_input_order_;
   }
 
   //
-  int GetCompressionFactor() const {
-    return compression_factor_;
+  int GetNumOutputOrder() const {
+    return num_output_order_;
+  }
+
+  //
+  double GetAlpha() const {
+    return alpha_;
   }
 
   //
@@ -74,22 +95,27 @@ class MuLawDecompression {
   }
 
   //
-  bool Run(double input, double* output) const;
+  bool Run(const std::vector<double>& minimum_phase_sequence,
+           std::vector<double>* warped_sequence,
+           FrequencyTransform::Buffer* buffer) const;
 
  private:
   //
-  const double absolute_max_value_;
+  const int num_input_order_;
 
   //
-  const int compression_factor_;
+  const int num_output_order_;
+
+  //
+  const double alpha_;
 
   //
   bool is_valid_;
 
   //
-  DISALLOW_COPY_AND_ASSIGN(MuLawDecompression);
+  DISALLOW_COPY_AND_ASSIGN(FrequencyTransform);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_UTILS_MU_LAW_DECOMPRESSION_H_
+#endif  // SPTK_MATH_FREQUENCY_TRANSFORM_H_

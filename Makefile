@@ -80,4 +80,6 @@ format:
 	clang-format -i	$(wildcard $(INCLUDEDIR)/SPTK/*/*.h)
 
 clean:
-	rm -rf $(BUILDDIR) $(TARGET)
+	rm -rf $(BUILDDIR) $(LIBDIR) $(BINDIR)
+
+.PHONY: all format clean
