@@ -59,7 +59,7 @@ const int kDefaultNumOrder(25);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " vq - vector quantzation" << std::endl;
+  *stream << " vq - vector quantization" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       vq [ options ] cbfile [ infile ] > stdout" << std::endl;
