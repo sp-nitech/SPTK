@@ -54,7 +54,7 @@ namespace sptk {
 class ZeroCrossing {
  public:
   //
-  ZeroCrossing(int frame_length);
+  explicit ZeroCrossing(int frame_length);
 
   //
   virtual ~ZeroCrossing() {
