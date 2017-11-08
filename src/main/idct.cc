@@ -49,10 +49,16 @@
 #include <sstream>
 #include <vector>
 
-#include "SPTK/math/inverse_fast_fourier_transform.h"
+#include "SPTK/math/inverse_discrete_cosine_transform.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
+
+enum InputFormats {
+  kInputRealAndImaginaryParts = 0,
+  kInputRealPart,
+  kNumInputFormats
+};
 
 enum OutputFormats {
   kOutputRealAndImaginaryParts = 0,
@@ -61,18 +67,22 @@ enum OutputFormats {
   kNumOutputFormats
 };
 
-const int kDefaultFftLength(256);
-const OutputFormats kDefaultOutputFormat(kOutputRealAndImaginaryParts);
+const int kDefaultDctLength(256);
+const InputFormats kDefaultInputFormat(kInputRealPart);
+const OutputFormats kDefaultOutputFormat(kOutputRealPart);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " ifft - inverse FFT for complex sequence" << std::endl;
+  *stream << " idct - inverse DCT for complex sequence" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
-  *stream << "       ifft [ options ] [ infile ] > stdout" << std::endl;
+  *stream << "       idct [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : FFT length                     (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : DCT length                     (   int)[" << std::setw(5) << std::right << kDefaultDctLength    << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -q q  : input format                   (   int)[" << std::setw(5) << std::right << kDefaultInputFormat  << "][ 0 <= q <= 1 ]" << std::endl;  // NOLINT
+  *stream << "                 0 (real and imaginary parts)" << std::endl;
+  *stream << "                 1 (real part)" << std::endl;
   *stream << "       -o o  : output format                  (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 2 ]" << std::endl;  // NOLINT
   *stream << "                 0 (real and imaginary parts)" << std::endl;
   *stream << "                 1 (real part)" << std::endl;
@@ -81,9 +91,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  infile:" << std::endl;
   *stream << "       data sequence                          (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       inverse FFT sequence                   (double)" << std::endl;  // NOLINT
-  *stream << "  notice:" << std::endl;
-  *stream << "       value of l must be a power of 2" << std::endl;
+  *stream << "       inverse DCT sequence                   (double)" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -93,21 +101,39 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-  int fft_length(kDefaultFftLength);
+  int dct_length(kDefaultDctLength);
+  InputFormats input_format(kDefaultInputFormat);
   OutputFormats output_format(kDefaultOutputFormat);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:o:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:q:o:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
       case 'l': {
-        if (!sptk::ConvertStringToInteger(optarg, &fft_length)) {
+        if (!sptk::ConvertStringToInteger(optarg, &dct_length) ||
+            dct_length <= 0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -l option must be an integer";
-          sptk::PrintErrorMessage("ifft", error_message);
+          error_message
+              << "The argument for the -l option must be a positive integer";
+          sptk::PrintErrorMessage("idct", error_message);
           return 1;
         }
+        break;
+      }
+      case 'q': {
+        const int min(0);
+        const int max(static_cast<int>(kNumInputFormats) - 1);
+        int tmp;
+        if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
+            !sptk::IsInRange(tmp, min, max)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -q option must be an integer "
+                        << "in the range of " << min << " to " << max;
+          sptk::PrintErrorMessage("idct", error_message);
+          return 1;
+        }
+        input_format = static_cast<InputFormats>(tmp);
         break;
       }
       case 'o': {
@@ -119,7 +145,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -o option must be an integer "
                         << "in the range of " << min << " to " << max;
-          sptk::PrintErrorMessage("ifft", error_message);
+          sptk::PrintErrorMessage("idct", error_message);
           return 1;
         }
         output_format = static_cast<OutputFormats>(tmp);
@@ -141,7 +167,7 @@ int main(int argc, char* argv[]) {
   if (1 < num_rest_args) {
     std::ostringstream error_message;
     error_message << "Too many input files";
-    sptk::PrintErrorMessage("ifft", error_message);
+    sptk::PrintErrorMessage("idct", error_message);
     return 1;
   }
   const char* input_file(0 == num_rest_args ? NULL : argv[optind]);
@@ -152,49 +178,54 @@ int main(int argc, char* argv[]) {
   if (ifs.fail() && NULL != input_file) {
     std::ostringstream error_message;
     error_message << "Cannot open file " << input_file;
-    sptk::PrintErrorMessage("ifft", error_message);
+    sptk::PrintErrorMessage("idct", error_message);
     return 1;
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for inverse fast Fourier transform
-  sptk::InverseFastFourierTransform inverse_fft(fft_length - 1, fft_length);
-  if (!inverse_fft.IsValid()) {
+  // prepare for discrete cosine transform
+  sptk::InverseDiscreteCosineTransform inverse_dct(dct_length);
+  sptk::InverseDiscreteCosineTransform::Buffer buffer;
+  if (!inverse_dct.IsValid()) {
     std::ostringstream error_message;
-    error_message << "FFT length must be a power of 2";
-    sptk::PrintErrorMessage("ifft", error_message);
+    error_message << "Failed to set condition for transformation";
+    sptk::PrintErrorMessage("idct", error_message);
     return 1;
   }
 
-  std::vector<double> input_x(fft_length);
-  std::vector<double> input_y(fft_length);
-  std::vector<double> output_x(fft_length);
-  std::vector<double> output_y(fft_length);
+  std::vector<double> input_x(dct_length);
+  std::vector<double> input_y(dct_length);
+  std::vector<double> output_x(dct_length);
+  std::vector<double> output_y(dct_length);
 
-  while (sptk::ReadStream(false, 0, 0, fft_length, &input_x, &input_stream) &&
-         sptk::ReadStream(false, 0, 0, fft_length, &input_y, &input_stream)) {
-    if (!inverse_fft.Run(input_x, input_y, &output_x, &output_y)) {
+  while (sptk::ReadStream(true, 0, 0, dct_length, &input_x, &input_stream)) {
+    if (kInputRealAndImaginaryParts == input_format &&
+        !sptk::ReadStream(true, 0, 0, dct_length, &input_y, &input_stream)) {
+      break;
+    }
+
+    if (!inverse_dct.Run(input_x, input_y, &output_x, &output_y, &buffer)) {
       std::ostringstream error_message;
-      error_message << "Failed to run inverse fast Fourier transform";
-      sptk::PrintErrorMessage("ifft", error_message);
+      error_message << "Failed to run inverse discrete cosine transform";
+      sptk::PrintErrorMessage("idct", error_message);
       return 1;
     }
 
     if ((kOutputRealAndImaginaryParts == output_format ||
          kOutputRealPart == output_format) &&
-        !sptk::WriteStream(0, fft_length, output_x, &std::cout)) {
+        !sptk::WriteStream(0, dct_length, output_x, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write real parts";
-      sptk::PrintErrorMessage("ifft", error_message);
+      sptk::PrintErrorMessage("idct", error_message);
       return 1;
     }
 
     if ((kOutputRealAndImaginaryParts == output_format ||
          kOutputImaginaryPart == output_format) &&
-        !sptk::WriteStream(0, fft_length, output_y, &std::cout)) {
+        !sptk::WriteStream(0, dct_length, output_y, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write imaginary parts";
-      sptk::PrintErrorMessage("ifft", error_message);
+      sptk::PrintErrorMessage("idct", error_message);
       return 1;
     }
   }

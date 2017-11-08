@@ -42,16 +42,17 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/math/discrete_cosine_transform.h"
+#include "SPTK/math/inverse_discrete_cosine_transform.h"
 
-#include <algorithm>  // std::copy, std::reverse_copy
-#include <cmath>      // std::cos, std::sin, std::sqrt
-#include <cstddef>    // std::size_t
+#include <algorithm>   // std::copy, std::reverse, std::transform
+#include <cmath>       // std::cos, std::sin, std::sqrt
+#include <cstddef>     // std::size_t
+#include <functional>  // std::bind1st, std::multiplies
 
 namespace sptk {
 
-DiscreteCosineTransform::DiscreteCosineTransform(int dct_length)
-    : dct_length_(dct_length), fourier_transform_(2 * dct_length_) {
+InverseDiscreteCosineTransform::InverseDiscreteCosineTransform(int dct_length)
+    : dct_length_(dct_length), fourier_transform_(2 * dct_length) {
   if (!fourier_transform_.IsValid()) {
     return;
   }
@@ -59,22 +60,22 @@ DiscreteCosineTransform::DiscreteCosineTransform(int dct_length)
   const int dft_length(2 * dct_length_);
   const double argument(sptk::kPi / dft_length);
   const double c(1.0 / std::sqrt(dft_length));
-  cosine_table_.resize(dct_length_);
-  sine_table_.resize(dct_length_);
-  cosine_table_[0] = c / std::sqrt(2.0);
+  cosine_table_.resize(dft_length);
+  sine_table_.resize(dft_length);
+  cosine_table_[0] = c * std::sqrt(2.0);
   sine_table_[0] = 0.0;
-  for (int i(1); i < dct_length_; ++i) {
+  for (int i(1); i < dft_length; ++i) {
     cosine_table_[i] = std::cos(argument * i) * c;
     sine_table_[i] = -std::sin(argument * i) * c;
   }
 }
 
-bool DiscreteCosineTransform::Run(
+bool InverseDiscreteCosineTransform::Run(
     const std::vector<double>& real_part_input,
     const std::vector<double>& imaginary_part_input,
     std::vector<double>* real_part_output,
     std::vector<double>* imaginary_part_output,
-    DiscreteCosineTransform::Buffer* buffer) const {
+    InverseDiscreteCosineTransform::Buffer* buffer) const {
   // check inputs
   if (!fourier_transform_.IsValid() ||
       real_part_input.size() != static_cast<std::size_t>(dct_length_) ||
@@ -84,6 +85,7 @@ bool DiscreteCosineTransform::Run(
     return false;
   }
 
+  // prepare buffer
   const int dft_length(2 * dct_length_);
   if (buffer->fourier_transform_real_part_input_.size() <
       static_cast<std::size_t>(dft_length)) {
@@ -93,49 +95,59 @@ bool DiscreteCosineTransform::Run(
       static_cast<std::size_t>(dft_length)) {
     buffer->fourier_transform_imaginary_part_input_.resize(dft_length);
   }
-  if (real_part_output->size() < static_cast<std::size_t>(dct_length_)) {
-    real_part_output->resize(dct_length_);
-  }
-  if (imaginary_part_output->size() < static_cast<std::size_t>(dct_length_)) {
-    imaginary_part_output->resize(dct_length_);
-  }
 
+  // fill buffer for real part
   std::copy(real_part_input.begin(), real_part_input.end(),
             buffer->fourier_transform_real_part_input_.begin());
-  std::reverse_copy(
-      real_part_input.begin(), real_part_input.end(),
-      buffer->fourier_transform_real_part_input_.end() - dct_length_);
+  std::transform(
+      real_part_input.begin() + 1, real_part_input.end(),
+      buffer->fourier_transform_real_part_input_.begin() + dct_length_ + 1,
+      std::bind1st(std::multiplies<double>(), -1.0));
+  std::reverse(
+      buffer->fourier_transform_real_part_input_.begin() + dct_length_ + 1,
+      buffer->fourier_transform_real_part_input_.end());
+  buffer->fourier_transform_real_part_input_[dct_length_] = 0.0;
 
+  // fill buffer for imaginary part
   std::copy(imaginary_part_input.begin(), imaginary_part_input.end(),
             buffer->fourier_transform_imaginary_part_input_.begin());
-  std::reverse_copy(
-      imaginary_part_input.begin(), imaginary_part_input.end(),
-      buffer->fourier_transform_imaginary_part_input_.end() - dct_length_);
+  std::transform(
+      imaginary_part_input.begin() + 1, imaginary_part_input.end(),
+      buffer->fourier_transform_imaginary_part_input_.begin() + dct_length_ + 1,
+      std::bind1st(std::multiplies<double>(), -1.0));
+  std::reverse(
+      buffer->fourier_transform_imaginary_part_input_.begin() + dct_length_ + 1,
+      buffer->fourier_transform_imaginary_part_input_.end());
+  buffer->fourier_transform_imaginary_part_input_[dct_length_] = 0.0;
 
-  if (!fourier_transform_.Run(
-          buffer->fourier_transform_real_part_input_,
-          buffer->fourier_transform_imaginary_part_input_,
-          &buffer->fourier_transform_real_part_output_,
-          &buffer->fourier_transform_imaginary_part_output_)) {
+  // make input for fourier transform using sine and cosine table
+  {
+    double* fourier_transform_real_part_input(
+        &buffer->fourier_transform_real_part_input_[0]);
+    double* fourier_transform_imaginary_part_input(
+        &buffer->fourier_transform_imaginary_part_input_[0]);
+
+    for (int i(0); i < dft_length; ++i) {
+      const double temporary_real_part(fourier_transform_real_part_input[i]);
+      const double temporary_imaginary_part(
+          fourier_transform_imaginary_part_input[i]);
+      fourier_transform_real_part_input[i] =
+          temporary_real_part * cosine_table_[i] -
+          temporary_imaginary_part * sine_table_[i];
+      fourier_transform_imaginary_part_input[i] =
+          temporary_real_part * sine_table_[i] +
+          temporary_imaginary_part * cosine_table_[i];
+    }
+  }
+
+  if (!fourier_transform_.Run(buffer->fourier_transform_real_part_input_,
+                              buffer->fourier_transform_imaginary_part_input_,
+                              real_part_output, imaginary_part_output)) {
     return false;
   }
 
-  double* discrete_cosine_transform_real_part_output(&((*real_part_output)[0]));
-  double* discrete_cosine_transform_imaginary_part_output(
-      &((*imaginary_part_output)[0]));
-  double* fourier_transform_real_part_output(
-      &buffer->fourier_transform_real_part_output_[0]);
-  double* fourier_transform_imaginary_part_output(
-      &buffer->fourier_transform_imaginary_part_output_[0]);
-
-  for (int i(0); i < dct_length_; ++i) {
-    discrete_cosine_transform_real_part_output[i] =
-        fourier_transform_real_part_output[i] * cosine_table_[i] -
-        fourier_transform_imaginary_part_output[i] * sine_table_[i];
-    discrete_cosine_transform_imaginary_part_output[i] =
-        fourier_transform_real_part_output[i] * sine_table_[i] +
-        fourier_transform_imaginary_part_output[i] * cosine_table_[i];
-  }
+  real_part_output->resize(dct_length_);
+  imaginary_part_output->resize(dct_length_);
 
   return true;
 }

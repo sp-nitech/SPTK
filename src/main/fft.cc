@@ -223,7 +223,9 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    if (kOutputImaginaryPart != output_format &&
+    if ((kOutputRealAndImaginaryParts == output_format ||
+         kOutputRealPart == output_format ||
+         kOutputAmplitude == output_format || kOutputPower == output_format) &&
         !sptk::WriteStream(0, fft_length, output_x, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write output sequence";
