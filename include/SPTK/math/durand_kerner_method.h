@@ -85,8 +85,7 @@ class DurandKernerMethod {
   // Assume polynomial x^n + a_1 * x^{n-1} + ... + a_n,
   // where the coefficients are [a_1 a_2 a_3 ... a_n].
   bool Run(const std::vector<double>& coefficients,
-           std::vector<std::complex<double> >* roots,
-           bool* is_converged) const;
+           std::vector<std::complex<double> >* roots, bool* is_converged) const;
 
  private:
   //
