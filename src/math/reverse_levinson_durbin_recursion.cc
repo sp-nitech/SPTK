@@ -49,8 +49,8 @@
 
 namespace sptk {
 
-ReverseLevinsonDurbinRecursion::
-    ReverseLevinsonDurbinRecursion(int num_order, double epsilon)
+ReverseLevinsonDurbinRecursion::ReverseLevinsonDurbinRecursion(int num_order,
+                                                               double epsilon)
     : num_order_(num_order), epsilon_(epsilon), is_valid_(true) {
   if (num_order_ < 0 || epsilon_ < 0.0) {
     is_valid_ = false;
@@ -66,14 +66,12 @@ bool ReverseLevinsonDurbinRecursion::Run(
   if (!is_valid_ ||
       linear_predictive_coefficients.size() !=
           static_cast<std::size_t>(length) ||
-      NULL == autocorrelation_sequence ||
-      NULL == buffer) {
+      NULL == autocorrelation_sequence || NULL == buffer) {
     return false;
   }
 
   // prepare memories
-  if (autocorrelation_sequence->size() <
-      static_cast<std::size_t>(length)) {
+  if (autocorrelation_sequence->size() < static_cast<std::size_t>(length)) {
     autocorrelation_sequence->resize(length);
   }
 
@@ -116,7 +114,8 @@ bool ReverseLevinsonDurbinRecursion::Run(
     for (int j(0); j < i; ++j) {
       buffer->u_[i][i - j - 1] =
           (buffer->u_[i + 1][i - j] -
-           buffer->u_[i + 1][0] * buffer->u_[i + 1][j + 1]) * inverse_rmd;
+           buffer->u_[i + 1][0] * buffer->u_[i + 1][j + 1]) *
+          inverse_rmd;
     }
     e[i] = e[i + 1] * inverse_rmd;
   }

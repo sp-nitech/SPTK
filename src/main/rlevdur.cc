@@ -143,8 +143,8 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  sptk::ReverseLevinsonDurbinRecursion
-    reverse_levinson_durbin_recursion(num_order, epsilon);
+  sptk::ReverseLevinsonDurbinRecursion reverse_levinson_durbin_recursion(
+      num_order, epsilon);
   sptk::ReverseLevinsonDurbinRecursion::Buffer buffer;
   if (!reverse_levinson_durbin_recursion.IsValid()) {
     std::ostringstream error_message;
@@ -157,19 +157,18 @@ int main(int argc, char* argv[]) {
   std::vector<double> autocorrelation_sequence(length);
   std::vector<double> linear_predictive_coefficients(length);
 
-  while (sptk::ReadStream(false, 0, 0, length,
-                          &linear_predictive_coefficients, &input_stream)) {
+  while (sptk::ReadStream(false, 0, 0, length, &linear_predictive_coefficients,
+                          &input_stream)) {
     if (!reverse_levinson_durbin_recursion.Run(linear_predictive_coefficients,
-                                       &autocorrelation_sequence,
-                                       &buffer)) {
+                                               &autocorrelation_sequence,
+                                               &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to solve autocorrelation normal equations";
       sptk::PrintErrorMessage("rlevdur", error_message);
       return 1;
     }
 
-    if (!sptk::WriteStream(0, length, autocorrelation_sequence,
-                           &std::cout)) {
+    if (!sptk::WriteStream(0, length, autocorrelation_sequence, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write autocorrelation sequence";
       sptk::PrintErrorMessage("rlevdur", error_message);
