@@ -53,6 +53,20 @@ namespace sptk {
 
 class ZeroCrossing {
  public:
+  class Buffer {
+   public:
+    Buffer() : is_first_frame_(true) {
+    }
+    virtual ~Buffer() {
+    }
+
+   private:
+    bool is_first_frame_;
+    double latest_signal_;
+    friend class ZeroCrossing;
+    DISALLOW_COPY_AND_ASSIGN(Buffer);
+  };
+
   //
   explicit ZeroCrossing(int frame_length);
 
@@ -71,7 +85,8 @@ class ZeroCrossing {
   }
 
   //
-  bool Run(const std::vector<double>& signals, int* num_zero_crossing) const;
+  bool Run(const std::vector<double>& signals, int* num_zero_crossing,
+           ZeroCrossing::Buffer* buffer) const;
 
  private:
   //

@@ -71,7 +71,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       zcross [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : frame length       (   int)[" << std::setw(5) << std::right << kDefaultFrameLength  << "][ 2 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : frame length       (   int)[" << std::setw(5) << std::right << kDefaultFrameLength  << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format      (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 1 ]" << std::endl;  // NOLINT
   *stream << "                 0 (number of zero-crossing)" << std::endl;
   *stream << "                 1 (zero-crossing rate)" << std::endl;
@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
     switch (option_char) {
       case 'l': {
         if (!sptk::ConvertStringToInteger(optarg, &frame_length) ||
-            frame_length < 2) {
+            frame_length < 1) {
           std::ostringstream error_message;
           error_message << "The argument for the -l option must be greater "
                         << "than 1";
@@ -157,6 +157,7 @@ int main(int argc, char* argv[]) {
 
   // prepare for frequency transform
   sptk::ZeroCrossing zero_crossing(frame_length);
+  sptk::ZeroCrossing::Buffer buffer;
   if (!zero_crossing.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for zero-crossing detection";
@@ -169,7 +170,7 @@ int main(int argc, char* argv[]) {
   while (
       sptk::ReadStream(false, 0, 0, frame_length, &input_data, &input_stream)) {
     int num_zero_crossing;
-    if (!zero_crossing.Run(input_data, &num_zero_crossing)) {
+    if (!zero_crossing.Run(input_data, &num_zero_crossing, &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to detect zero-crossing";
       sptk::PrintErrorMessage("zcross", error_message);
@@ -183,7 +184,7 @@ int main(int argc, char* argv[]) {
         break;
       }
       case kZeroCrossingRate: {
-        output /= (frame_length - 1);
+        output /= frame_length;
         break;
       }
       default: { break; }

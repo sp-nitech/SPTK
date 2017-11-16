@@ -46,31 +46,51 @@
 
 #include <cstddef>  // std::size_t
 
+namespace {
+
+bool IsCrossed(double left_sample, double right_sample) {
+  return ((0.0 <= left_sample && right_sample < 0.0) ||
+          (left_sample < 0.0 && 0.0 <= right_sample));
+}
+
+}  // namespace
+
 namespace sptk {
 
 ZeroCrossing::ZeroCrossing(int frame_length)
     : frame_length_(frame_length), is_valid_(true) {
-  if (frame_length < 2) {
+  if (frame_length < 1) {
     is_valid_ = false;
   }
 }
 
 bool ZeroCrossing::Run(const std::vector<double>& signals,
-                       int* num_zero_crossing) const {
+                       int* num_zero_crossing,
+                       ZeroCrossing::Buffer* buffer) const {
   // check inputs
   if (!is_valid_ || signals.size() != static_cast<std::size_t>(frame_length_) ||
-      NULL == num_zero_crossing) {
+      NULL == num_zero_crossing || NULL == buffer) {
     return false;
   }
 
   const double* x(&(signals[0]));
   int count(0);
+
+  if (buffer->is_first_frame_) {
+    buffer->latest_signal_ = x[0];
+    buffer->is_first_frame_ = false;
+  }
+
+  if (IsCrossed(buffer->latest_signal_, x[0])) {
+    ++count;
+  }
   for (int i(1); i < frame_length_; ++i) {
-    if ((0.0 <= x[i - 1] && x[i] < 0.0) || (0.0 <= x[i] && x[i - 1] < 0.0)) {
+    if (IsCrossed(x[i - 1], x[i])) {
       ++count;
     }
   }
 
+  buffer->latest_signal_ = x[frame_length_ - 1];
   *num_zero_crossing = count;
 
   return true;
