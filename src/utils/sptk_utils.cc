@@ -48,6 +48,7 @@
 #include <cerrno>     // errno, ERANGE
 #include <cmath>      // std::ceil, std::exp, std::log
 #include <cstdint>    // int8_t, etc.
+#include <cstdio>     // std::snprintf
 #include <cstdlib>    // std::size_t, std::strtod, std::strtol
 #include <iomanip>    // std::setw
 
@@ -151,6 +152,25 @@ bool WriteStream(int write_point, int write_size,
       sizeof(sequence_to_write[0]) * write_size);
 
   return !output_stream->fail();
+}
+
+template <typename T>
+bool SnPrintf(T data, const std::string& print_format, std::size_t buffer_size,
+              char* buffer) {
+  if (print_format.empty() || buffer_size <= 0 || NULL == buffer) {
+    return false;
+  }
+
+  if (3 == sizeof(T)) {  // int24_t and uint24_t
+    return (std::snprintf(buffer, buffer_size, print_format.c_str(),
+                          static_cast<int>(data)) < 0)
+               ? false
+               : true;
+  }
+
+  return (std::snprintf(buffer, buffer_size, print_format.c_str(), data) < 0)
+             ? false
+             : true;
 }
 
 const char* ConvertBooleanToString(bool input) {
@@ -337,6 +357,19 @@ template bool WriteStream<uint64_t>(int, int, const std::vector<uint64_t>&, std:
 template bool WriteStream<float>(int, int, const std::vector<float>&, std::ostream*);              // NOLINT
 template bool WriteStream<double>(int, int, const std::vector<double>&, std::ostream*);            // NOLINT
 template bool WriteStream<long double>(int, int, const std::vector<long double>&, std::ostream*);  // NOLINT
+template bool SnPrintf(int8_t, const std::string&, std::size_t, char*);
+template bool SnPrintf(int16_t, const std::string&, std::size_t, char*);
+template bool SnPrintf(int24_t, const std::string&, std::size_t, char*);
+template bool SnPrintf(int32_t, const std::string&, std::size_t, char*);
+template bool SnPrintf(int64_t, const std::string&, std::size_t, char*);
+template bool SnPrintf(uint8_t, const std::string&, std::size_t, char*);
+template bool SnPrintf(uint16_t, const std::string&, std::size_t, char*);
+template bool SnPrintf(uint24_t, const std::string&, std::size_t, char*);
+template bool SnPrintf(uint32_t, const std::string&, std::size_t, char*);
+template bool SnPrintf(uint64_t, const std::string&, std::size_t, char*);
+template bool SnPrintf(float, const std::string&, std::size_t, char*);
+template bool SnPrintf(double, const std::string&, std::size_t, char*);
+template bool SnPrintf(long double, const std::string&, std::size_t, char*);
 // clang-format on
 
 }  // namespace sptk

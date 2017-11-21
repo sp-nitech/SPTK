@@ -77,6 +77,9 @@ template <typename T>
 bool WriteStream(int write_point, int write_size,
                  const std::vector<T>& sequence_to_write,
                  std::ostream* output_stream);
+template <typename T>
+bool SnPrintf(T data, const std::string& print_format, size_t buffer_size,
+              char* buffer);
 const char* ConvertBooleanToString(bool input);
 bool ConvertStringToInteger(const std::string& input, int* output);
 bool ConvertStringToDouble(const std::string& input, double* output);

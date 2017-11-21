@@ -45,7 +45,6 @@
 #include <getopt.h>
 #include <cfloat>
 #include <climits>
-#include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <iomanip>
@@ -130,7 +129,7 @@ class DataTransform : public DataTransformInterface {
                 BehaviorForOutOfRangeValue behavior, bool rounding,
                 bool is_ascii_input, bool is_ascii_output, T2 minimum_value = 0,
                 T2 maximum_value = 0)
-      : print_format_(print_format.c_str()),
+      : print_format_(print_format),
         num_column_(num_column),
         input_numeric_type_(input_numeric_type),
         behavior_(behavior),
@@ -145,6 +144,7 @@ class DataTransform : public DataTransformInterface {
   }
 
   virtual bool Run(std::istream* input_stream) const {
+    char buffer[kBufferSize];
     int index(0);
     for (;; ++index) {
       // read
@@ -222,17 +222,9 @@ class DataTransform : public DataTransformInterface {
 
       // write
       if (is_ascii_output_) {
-        char buffer[kBufferSize];
-        if (3 == sizeof(T2)) {  // int24_t and uint24_t
-          if (std::snprintf(buffer, sizeof(buffer), print_format_,
-                            static_cast<int>(output_data)) < 0) {
-            return false;
-          }
-        } else {
-          if (std::snprintf(buffer, sizeof(buffer), print_format_,
-                            output_data) < 0) {
-            return false;
-          }
+        if (!sptk::SnPrintf(output_data, print_format_, sizeof(buffer),
+                            buffer)) {
+          return false;
         }
         std::cout << buffer;
         if (0 == (index + 1) % num_column_) {
@@ -255,7 +247,7 @@ class DataTransform : public DataTransformInterface {
   }
 
  private:
-  const char* print_format_;
+  const std::string print_format_;
   const int num_column_;
   const NumericType input_numeric_type_;
   const BehaviorForOutOfRangeValue behavior_;
