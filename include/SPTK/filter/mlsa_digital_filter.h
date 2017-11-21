@@ -60,7 +60,7 @@ class MlsaDigitalFilter {
     }
 
     //
-    ~StoredSignals() {
+    virtual ~StoredSignals() {
     }
 
    private:

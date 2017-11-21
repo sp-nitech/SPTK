@@ -60,7 +60,7 @@ class AllZeroDigitalFilter {
     }
 
     //
-    ~StoredSignals() {
+    virtual ~StoredSignals() {
     }
 
    private:

@@ -60,7 +60,7 @@ class LineSpectralPairsDigitalFilter {
     }
 
     //
-    ~StoredSignals() {
+    virtual ~StoredSignals() {
     }
 
    private:

@@ -60,7 +60,7 @@ class AllPoleDigitalFilter {
     }
 
     //
-    ~StoredSignals() {
+    virtual ~StoredSignals() {
     }
 
    private:

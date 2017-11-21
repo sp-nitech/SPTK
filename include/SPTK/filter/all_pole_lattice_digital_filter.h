@@ -60,7 +60,7 @@ class AllPoleLatticeDigitalFilter {
     }
 
     //
-    ~StoredSignals() {
+    virtual ~StoredSignals() {
     }
 
    private:
