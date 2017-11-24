@@ -91,9 +91,10 @@ bool MlsaDigitalFilter::Run(
     double* filter_output,
     MlsaDigitalFilter::StoredSignals* stored_signals) const {
   // check inputs
-  if (filter_coefficients.size() !=
+  if (!is_valid_ ||
+      filter_coefficients.size() !=
           static_cast<std::size_t>(num_filter_order_ + 1) ||
-      NULL == filter_output || NULL == stored_signals || !is_valid_) {
+      NULL == filter_output || NULL == stored_signals) {
     return false;
   }
 
