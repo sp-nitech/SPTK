@@ -1,0 +1,215 @@
+// ----------------------------------------------------------------- //
+//             The Speech Signal Processing Toolkit (SPTK)           //
+//             developed by SPTK Working Group                       //
+//             http://sp-tk.sourceforge.net/                         //
+// ----------------------------------------------------------------- //
+//                                                                   //
+//  Copyright (c) 1984-2007  Tokyo Institute of Technology           //
+//                           Interdisciplinary Graduate School of    //
+//                           Science and Engineering                 //
+//                                                                   //
+//                1996-2017  Nagoya Institute of Technology          //
+//                           Department of Computer Science          //
+//                                                                   //
+// All rights reserved.                                              //
+//                                                                   //
+// Redistribution and use in source and binary forms, with or        //
+// without modification, are permitted provided that the following   //
+// conditions are met:                                               //
+//                                                                   //
+// - Redistributions of source code must retain the above copyright  //
+//   notice, this list of conditions and the following disclaimer.   //
+// - Redistributions in binary form must reproduce the above         //
+//   copyright notice, this list of conditions and the following     //
+//   disclaimer in the documentation and/or other materials provided //
+//   with the distribution.                                          //
+// - Neither the name of the SPTK working group nor the names of its //
+//   contributors may be used to endorse or promote products derived //
+//   from this software without specific prior written permission.   //
+//                                                                   //
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND            //
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,       //
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF          //
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE          //
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS //
+// BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,          //
+// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED   //
+// TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,     //
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON //
+// ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,   //
+// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY    //
+// OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE           //
+// POSSIBILITY OF SUCH DAMAGE.                                       //
+// ----------------------------------------------------------------- //
+
+#include <getopt.h>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <vector>
+
+#include "SPTK/quantizer/multistage_vector_quantization.h"
+#include "SPTK/utils/sptk_utils.h"
+
+namespace {
+
+const int kDefaultNumOrder(25);
+
+void PrintUsage(std::ostream* stream) {
+  // clang-format off
+  *stream << std::endl;
+  *stream << " msvq - multistage vector quantization" << std::endl;
+  *stream << std::endl;
+  *stream << "  usage:" << std::endl;
+  *stream << "       msvq [ options ] -s cbfile1 -s cbfile2 ... [ infile ] > stdout" << std::endl;  // NOLINT
+  *stream << "  options:" << std::endl;
+  *stream << "       -l l : length of vector        (   int)[" << std::setw(5) << std::right << kDefaultNumOrder + 1 << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -n n : order of vector         (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= n <=   ]" << std::endl;  // NOLINT
+  *stream << "       -s s : codebook file           (string)[" << std::setw(5) << std::right << "N/A" << "]" << std::endl;  // NOLINT
+  *stream << "       -h   : print this message" << std::endl;
+  *stream << "  infile:" << std::endl;
+  *stream << "       vector                         (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "  stdout:" << std::endl;
+  *stream << "       codebook index                 (   int)" << std::endl;
+  *stream << "  cbfile:" << std::endl;
+  *stream << "       codebook                       (double)" << std::endl;
+  *stream << std::endl;
+  *stream << " SPTK: version " << sptk::kVersion << std::endl;
+  *stream << std::endl;
+  // clang-format on
+}
+
+}  // namespace
+
+int main(int argc, char* argv[]) {
+  int num_order(kDefaultNumOrder);
+  std::vector<char*> codebook_vectors_file;
+
+  for (;;) {
+    const int option_char(getopt_long(argc, argv, "l:n:s:h", NULL, NULL));
+    if (-1 == option_char) break;
+
+    switch (option_char) {
+      case 'l': {
+        if (!sptk::ConvertStringToInteger(optarg, &num_order) ||
+            num_order <= 0) {
+          std::ostringstream error_message;
+          error_message
+              << "The argument for the -l option must be a positive integer";
+          sptk::PrintErrorMessage("msvq", error_message);
+          return 1;
+        }
+        --num_order;
+        break;
+      }
+      case 'n': {
+        if (!sptk::ConvertStringToInteger(optarg, &num_order) ||
+            num_order < 0) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -n option must be a "
+                        << "non-negative integer";
+          sptk::PrintErrorMessage("msvq", error_message);
+          return 1;
+        }
+        break;
+      }
+      case 's': {
+        codebook_vectors_file.push_back(optarg);
+        break;
+      }
+      case 'h': {
+        PrintUsage(&std::cout);
+        return 0;
+      }
+      default: {
+        PrintUsage(&std::cerr);
+        return 1;
+      }
+    }
+  }
+
+  const int num_stage(codebook_vectors_file.size());
+  if (0 == num_stage) {
+    std::ostringstream error_message;
+    error_message << "One or more -s options are required";
+    sptk::PrintErrorMessage("msvq", error_message);
+    return 1;
+  }
+
+  // get input file
+  const int num_rest_args(argc - optind);
+  if (1 < num_rest_args) {
+    std::ostringstream error_message;
+    error_message << "Too many input files";
+    sptk::PrintErrorMessage("msvq", error_message);
+    return 1;
+  }
+  const char* input_vectors_file(0 == num_rest_args ? NULL : argv[optind]);
+
+  // read codebook
+  const int length(num_order + 1);
+  std::vector<std::vector<std::vector<double> > > codebook_vectors;
+  for (int i(0); i < num_stage; ++i) {
+    std::vector<std::vector<double> > codebook;
+    {
+      std::ifstream ifs1;
+      ifs1.open(codebook_vectors_file[i], std::ios::in | std::ios::binary);
+      if (ifs1.fail()) {
+        std::ostringstream error_message;
+        error_message << "Cannot open file " << codebook_vectors_file[i];
+        sptk::PrintErrorMessage("msvq", error_message);
+        return 1;
+      }
+
+      std::vector<double> codebook_vector(length);
+      while (sptk::ReadStream(false, 0, 0, length, &codebook_vector, &ifs1)) {
+        codebook.push_back(codebook_vector);
+      }
+      ifs1.close();
+    }
+    codebook_vectors.push_back(codebook);
+  }
+
+  // open stream
+  std::ifstream ifs2;
+  ifs2.open(input_vectors_file, std::ios::in | std::ios::binary);
+  if (ifs2.fail() && NULL != input_vectors_file) {
+    std::ostringstream error_message;
+    error_message << "Cannot open file " << input_vectors_file;
+    sptk::PrintErrorMessage("msvq", error_message);
+    return 1;
+  }
+  std::istream& stream_for_input_vectors(ifs2.fail() ? std::cin : ifs2);
+
+  sptk::MultistageVectorQuantization multistage_vector_quantization(num_order,
+                                                                    num_stage);
+  sptk::MultistageVectorQuantization::Buffer buffer;
+  if (!multistage_vector_quantization.IsValid()) {
+    std::ostringstream error_message;
+    error_message << "Failed to set condition for quantization";
+    sptk::PrintErrorMessage("msvq", error_message);
+    return 1;
+  }
+
+  std::vector<double> input_vector(length);
+  std::vector<int> codebook_index(num_stage);
+  while (sptk::ReadStream(false, 0, 0, length, &input_vector,
+                          &stream_for_input_vectors)) {
+    if (!multistage_vector_quantization.Run(input_vector, codebook_vectors,
+                                            &codebook_index, &buffer)) {
+      std::ostringstream error_message;
+      error_message << "Failed to quantize";
+      sptk::PrintErrorMessage("msvq", error_message);
+      return 1;
+    }
+    if (!sptk::WriteStream(0, num_stage, codebook_index, &std::cout)) {
+      std::ostringstream error_message;
+      error_message << "Failed to write codebook index";
+      sptk::PrintErrorMessage("msvq", error_message);
+      return 1;
+    }
+  }
+
+  return 0;
+}
