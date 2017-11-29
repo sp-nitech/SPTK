@@ -58,21 +58,22 @@ InverseVectorQuantization::InverseVectorQuantization(int num_order)
 bool InverseVectorQuantization::Run(
     int codebook_index,
     const std::vector<std::vector<double> >& codebook_vectors,
-    std::vector<double>* quantized_vector) const {
+    std::vector<double>* reconstructed_vector) const {
   if (!is_valid_ || codebook_index < 0 ||
       codebook_vectors.size() <= static_cast<std::size_t>(codebook_index) ||
       codebook_vectors[codebook_index].size() !=
           static_cast<std::size_t>(num_order_ + 1) ||
-      NULL == quantized_vector) {
+      NULL == reconstructed_vector) {
     return false;
   }
 
-  if (quantized_vector->size() < static_cast<std::size_t>(num_order_ + 1)) {
-    quantized_vector->resize(num_order_ + 1);
+  if (reconstructed_vector->size() < static_cast<std::size_t>(num_order_ + 1)) {
+    reconstructed_vector->resize(num_order_ + 1);
   }
 
   std::copy(codebook_vectors[codebook_index].begin(),
-            codebook_vectors[codebook_index].end(), quantized_vector->begin());
+            codebook_vectors[codebook_index].end(),
+            reconstructed_vector->begin());
 
   return true;
 }

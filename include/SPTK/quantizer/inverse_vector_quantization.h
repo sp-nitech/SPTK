@@ -73,7 +73,7 @@ class InverseVectorQuantization {
   //
   bool Run(int codebook_index,
            const std::vector<std::vector<double> >& codebook_vectors,
-           std::vector<double>* quantized_vector) const;
+           std::vector<double>* reconstructed_vector) const;
 
  private:
   //
