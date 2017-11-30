@@ -64,16 +64,16 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       msvq [ options ] -s cbfile1 -s cbfile2 ... [ infile ] > stdout" << std::endl;  // NOLINT
   *stream << "  options:" << std::endl;
-  *stream << "       -l l : length of vector        (   int)[" << std::setw(5) << std::right << kDefaultNumOrder + 1 << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -n n : order of vector         (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= n <=   ]" << std::endl;  // NOLINT
-  *stream << "       -s s : codebook file           (string)[" << std::setw(5) << std::right << "N/A" << "]" << std::endl;  // NOLINT
+  *stream << "       -l l : length of vector   (   int)[" << std::setw(5) << std::right << kDefaultNumOrder + 1 << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -n n : order of vector    (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= n <=   ]" << std::endl;  // NOLINT
+  *stream << "       -s s : codebook file      (string)[" << std::setw(5) << std::right << "N/A" << "]" << std::endl;  // NOLINT
   *stream << "       -h   : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       vector                         (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       vector                    (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       codebook index                 (   int)" << std::endl;
+  *stream << "       codebook index            (   int)" << std::endl;
   *stream << "  cbfile:" << std::endl;
-  *stream << "       codebook                       (double)" << std::endl;
+  *stream << "       codebook                  (double)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -137,6 +137,30 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  // read codebook
+  const int length(num_order + 1);
+  std::vector<std::vector<std::vector<double> > > codebook_vectors;
+  for (int i(0); i < num_stage; ++i) {
+    std::vector<std::vector<double> > codebook;
+    {
+      std::ifstream ifs;
+      ifs.open(codebook_vectors_file[i], std::ios::in | std::ios::binary);
+      if (ifs.fail()) {
+        std::ostringstream error_message;
+        error_message << "Cannot open file " << codebook_vectors_file[i];
+        sptk::PrintErrorMessage("msvq", error_message);
+        return 1;
+      }
+
+      std::vector<double> tmp(length);
+      while (sptk::ReadStream(false, 0, 0, length, &tmp, &ifs)) {
+        codebook.push_back(tmp);
+      }
+      ifs.close();
+    }
+    codebook_vectors.push_back(codebook);
+  }
+
   // get input file
   const int num_rest_args(argc - optind);
   if (1 < num_rest_args) {
@@ -147,40 +171,16 @@ int main(int argc, char* argv[]) {
   }
   const char* input_vectors_file(0 == num_rest_args ? NULL : argv[optind]);
 
-  // read codebook
-  const int length(num_order + 1);
-  std::vector<std::vector<std::vector<double> > > codebook_vectors;
-  for (int i(0); i < num_stage; ++i) {
-    std::vector<std::vector<double> > codebook;
-    {
-      std::ifstream ifs1;
-      ifs1.open(codebook_vectors_file[i], std::ios::in | std::ios::binary);
-      if (ifs1.fail()) {
-        std::ostringstream error_message;
-        error_message << "Cannot open file " << codebook_vectors_file[i];
-        sptk::PrintErrorMessage("msvq", error_message);
-        return 1;
-      }
-
-      std::vector<double> codebook_vector(length);
-      while (sptk::ReadStream(false, 0, 0, length, &codebook_vector, &ifs1)) {
-        codebook.push_back(codebook_vector);
-      }
-      ifs1.close();
-    }
-    codebook_vectors.push_back(codebook);
-  }
-
   // open stream
-  std::ifstream ifs2;
-  ifs2.open(input_vectors_file, std::ios::in | std::ios::binary);
-  if (ifs2.fail() && NULL != input_vectors_file) {
+  std::ifstream ifs;
+  ifs.open(input_vectors_file, std::ios::in | std::ios::binary);
+  if (ifs.fail() && NULL != input_vectors_file) {
     std::ostringstream error_message;
     error_message << "Cannot open file " << input_vectors_file;
     sptk::PrintErrorMessage("msvq", error_message);
     return 1;
   }
-  std::istream& stream_for_input_vectors(ifs2.fail() ? std::cin : ifs2);
+  std::istream& stream_for_input_vectors(ifs.fail() ? std::cin : ifs);
 
   sptk::MultistageVectorQuantization multistage_vector_quantization(num_order,
                                                                     num_stage);
