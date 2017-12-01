@@ -64,16 +64,16 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       msvq [ options ] -s cbfile1 -s cbfile2 ... [ infile ] > stdout" << std::endl;  // NOLINT
   *stream << "  options:" << std::endl;
-  *stream << "       -l l : length of vector   (   int)[" << std::setw(5) << std::right << kDefaultNumOrder + 1 << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -n n : order of vector    (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= n <=   ]" << std::endl;  // NOLINT
-  *stream << "       -s s : codebook file      (string)[" << std::setw(5) << std::right << "N/A" << "]" << std::endl;  // NOLINT
-  *stream << "       -h   : print this message" << std::endl;
+  *stream << "       -l l  : length of vector   (   int)[" << std::setw(5) << std::right << kDefaultNumOrder + 1 << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -n n  : order of vector    (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= n <=   ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : codebook file      (string)[" << std::setw(5) << std::right << "N/A" << "]" << std::endl;  // NOLINT
+  *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       vector                    (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       vector                     (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       codebook index            (   int)" << std::endl;
+  *stream << "       codebook index             (   int)" << std::endl;
   *stream << "  cbfile:" << std::endl;
-  *stream << "       codebook                  (double)" << std::endl;
+  *stream << "       codebook                   (double)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
