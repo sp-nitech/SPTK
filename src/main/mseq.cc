@@ -63,11 +63,12 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       mseq [ options ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -l l  : output length      (   int)[" << std::setw(5) << std::right << kDefaultOutputLength << "][   <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -n n  : output order       (   int)[" << std::setw(5) << std::right << "l-1"                << "][   <= n <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  stdout:" << std::endl;
   *stream << "       M-Sequence                 (double)" << std::endl;
   *stream << "  notice:" << std::endl;
-  *stream << "       if l < 0, generate infinite sequence" << std::endl;
+  *stream << "       if l <= 0 or n < 0, generate infinite sequence" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -80,7 +81,7 @@ int main(int argc, char* argv[]) {
   int output_length(kDefaultOutputLength);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:n:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -91,6 +92,16 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("mseq", error_message);
           return 1;
         }
+        break;
+      }
+      case 'n': {
+        if (!sptk::ConvertStringToInteger(optarg, &output_length)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -n option must be integer";
+          sptk::PrintErrorMessage("mseq", error_message);
+          return 1;
+        }
+        ++output_length;
         break;
       }
       case 'h': {
@@ -113,7 +124,7 @@ int main(int argc, char* argv[]) {
 
   sptk::MSequenceGeneration generator;
 
-  for (int i(0); output_length < 0 || i < output_length; ++i) {
+  for (int i(0); output_length <= 0 || i < output_length; ++i) {
     double output;
     if (!generator.Get(&output)) {
       std::ostringstream error_message;

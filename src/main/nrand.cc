@@ -67,6 +67,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       nrand [ options ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -l l  : output length      (   int)[" << std::setw(5) << std::right << kDefaultOutputLength                                  << "][     <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -n n  : output order       (   int)[" << std::setw(5) << std::right << "l-1"                                                 << "][     <= n <=   ]" << std::endl;  // NOLINT
   *stream << "       -s s  : seed               (   int)[" << std::setw(5) << std::right << kDefaultSeed                                          << "][     <= s <=   ]" << std::endl;  // NOLINT
   *stream << "       -m m  : mean               (double)[" << std::setw(5) << std::right << kDefaultMean                                          << "][     <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -v v  : variance           (double)[" << std::setw(5) << std::right << kDefaultStandardDeviation * kDefaultStandardDeviation << "][ 0.0 <= v <=   ]" << std::endl;  // NOLINT
@@ -75,7 +76,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  stdout:" << std::endl;
   *stream << "       random values              (double)" << std::endl;
   *stream << "  notice:" << std::endl;
-  *stream << "       if l < 0, generate infinite sequence" << std::endl;
+  *stream << "       if l <= 0 or n < 0, generate infinite sequence" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -91,7 +92,7 @@ int main(int argc, char* argv[]) {
   double standard_deviation(kDefaultStandardDeviation);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:s:m:v:d:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:n:s:m:v:d:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -102,6 +103,16 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("nrand", error_message);
           return 1;
         }
+        break;
+      }
+      case 'n': {
+        if (!sptk::ConvertStringToInteger(optarg, &output_length)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -n option must be integer";
+          sptk::PrintErrorMessage("nrand", error_message);
+          return 1;
+        }
+        ++output_length;
         break;
       }
       case 's': {
@@ -163,7 +174,7 @@ int main(int argc, char* argv[]) {
 
   sptk::NormalDistributedRandomValueGeneration generator(seed);
 
-  for (int i(0); output_length < 0 || i < output_length; ++i) {
+  for (int i(0); output_length <= 0 || i < output_length; ++i) {
     double output;
     if (!generator.Get(&output)) {
       std::ostringstream error_message;
