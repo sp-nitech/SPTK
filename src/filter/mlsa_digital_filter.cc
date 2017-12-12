@@ -86,43 +86,42 @@ MlsaDigitalFilter::MlsaDigitalFilter(int num_filter_order, int num_pade_order,
   }
 }
 
-bool MlsaDigitalFilter::Run(
-    const std::vector<double>& filter_coefficients, double filter_input,
-    double* filter_output,
-    MlsaDigitalFilter::StoredSignals* stored_signals) const {
+bool MlsaDigitalFilter::Run(const std::vector<double>& filter_coefficients,
+                            double filter_input, double* filter_output,
+                            MlsaDigitalFilter::Buffer* buffer) const {
   // check inputs
   if (!is_valid_ ||
       filter_coefficients.size() !=
           static_cast<std::size_t>(num_filter_order_ + 1) ||
-      NULL == filter_output || NULL == stored_signals) {
+      NULL == filter_output || NULL == buffer) {
     return false;
   }
 
   // prepare memories
-  if (stored_signals->signals_for_basic_filter1_.size() !=
+  if (buffer->signals_for_basic_filter1_.size() !=
       static_cast<std::size_t>(num_pade_order_ + 1)) {
-    stored_signals->signals_for_basic_filter1_.resize(num_pade_order_ + 1);
-    std::fill(stored_signals->signals_for_basic_filter1_.begin(),
-              stored_signals->signals_for_basic_filter1_.end(), 0.0);
+    buffer->signals_for_basic_filter1_.resize(num_pade_order_ + 1);
+    std::fill(buffer->signals_for_basic_filter1_.begin(),
+              buffer->signals_for_basic_filter1_.end(), 0.0);
   }
-  if (stored_signals->signals_for_basic_filter2_.size() !=
+  if (buffer->signals_for_basic_filter2_.size() !=
       static_cast<std::size_t>(num_pade_order_ * (num_filter_order_ + 2))) {
-    stored_signals->signals_for_basic_filter2_.resize(num_pade_order_ *
-                                                      (num_filter_order_ + 2));
-    std::fill(stored_signals->signals_for_basic_filter2_.begin(),
-              stored_signals->signals_for_basic_filter2_.end(), 0.0);
+    buffer->signals_for_basic_filter2_.resize(num_pade_order_ *
+                                              (num_filter_order_ + 2));
+    std::fill(buffer->signals_for_basic_filter2_.begin(),
+              buffer->signals_for_basic_filter2_.end(), 0.0);
   }
-  if (stored_signals->signals_for_exp_filter1_.size() !=
+  if (buffer->signals_for_exp_filter1_.size() !=
       static_cast<std::size_t>(num_pade_order_ + 1)) {
-    stored_signals->signals_for_exp_filter1_.resize(num_pade_order_ + 1);
-    std::fill(stored_signals->signals_for_exp_filter1_.begin(),
-              stored_signals->signals_for_exp_filter1_.end(), 0.0);
+    buffer->signals_for_exp_filter1_.resize(num_pade_order_ + 1);
+    std::fill(buffer->signals_for_exp_filter1_.begin(),
+              buffer->signals_for_exp_filter1_.end(), 0.0);
   }
-  if (stored_signals->signals_for_exp_filter2_.size() !=
+  if (buffer->signals_for_exp_filter2_.size() !=
       static_cast<std::size_t>(num_pade_order_ + 1)) {
-    stored_signals->signals_for_exp_filter2_.resize(num_pade_order_ + 1);
-    std::fill(stored_signals->signals_for_exp_filter2_.begin(),
-              stored_signals->signals_for_exp_filter2_.end(), 0.0);
+    buffer->signals_for_exp_filter2_.resize(num_pade_order_ + 1);
+    std::fill(buffer->signals_for_exp_filter2_.begin(),
+              buffer->signals_for_exp_filter2_.end(), 0.0);
   }
 
   // set value
@@ -138,8 +137,8 @@ bool MlsaDigitalFilter::Run(
   // First stage
   double first_output(0.0);
   {
-    double* d1(&stored_signals->signals_for_basic_filter1_[0]);
-    double* p1(&stored_signals->signals_for_exp_filter1_[0]);
+    double* d1(&buffer->signals_for_basic_filter1_[0]);
+    double* p1(&buffer->signals_for_exp_filter1_[0]);
     double x(gained_input);
     for (int i(num_pade_order_); 0 < i; --i) {
       d1[i] = beta * p1[i - 1] + alpha_ * d1[i];
@@ -156,11 +155,11 @@ bool MlsaDigitalFilter::Run(
   // Second stage
   double second_output(0.0);
   {
-    double* p2(&stored_signals->signals_for_exp_filter2_[0]);
+    double* p2(&buffer->signals_for_exp_filter2_[0]);
     double x(first_output);
     for (int i(num_pade_order_); 0 < i; --i) {
       const int bias((i - 1) * (num_filter_order_ + 2));
-      double* d2(&stored_signals->signals_for_basic_filter2_[bias]);
+      double* d2(&buffer->signals_for_basic_filter2_[bias]);
 
       if (transposition_) {
         d2[num_filter_order_] = b[num_filter_order_] * p2[i - 1] +

@@ -42,16 +42,17 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_FILTER_MLSA_DIGITAL_FILTER_H_
-#define SPTK_FILTER_MLSA_DIGITAL_FILTER_H_
+#ifndef SPTK_FILTER_MGLSA_DIGITAL_FILTER_H_
+#define SPTK_FILTER_MGLSA_DIGITAL_FILTER_H_
 
 #include <vector>  // std::vector
 
+#include "SPTK/filter/mlsa_digital_filter.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
-class MlsaDigitalFilter {
+class MglsaDigitalFilter {
  public:
   class Buffer {
    public:
@@ -61,20 +62,18 @@ class MlsaDigitalFilter {
     }
 
    private:
-    std::vector<double> signals_for_basic_filter1_;
-    std::vector<double> signals_for_basic_filter2_;
-    std::vector<double> signals_for_exp_filter1_;
-    std::vector<double> signals_for_exp_filter2_;
-    friend class MlsaDigitalFilter;
+    std::vector<double> signals_;
+    MlsaDigitalFilter::Buffer mlsa_digital_filter_buffer_;
+    friend class MglsaDigitalFilter;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
 
-  //
-  MlsaDigitalFilter(int num_filter_order, int num_pade_order, double alpha,
-                    bool transposition);
+  // If num_stage is 0, MLSA filter is used.
+  MglsaDigitalFilter(int num_filter_order, int num_pade_order, int num_stage,
+                     double alpha, bool transposition);
 
   //
-  virtual ~MlsaDigitalFilter() {
+  virtual ~MglsaDigitalFilter() {
   }
 
   //
@@ -84,7 +83,12 @@ class MlsaDigitalFilter {
 
   //
   int GetNumPadeOrder() const {
-    return num_pade_order_;
+    return mlsa_digital_filter_.GetNumPadeOrder();
+  }
+
+  //
+  int GetNumStage() const {
+    return num_stage_;
   }
 
   //
@@ -105,14 +109,14 @@ class MlsaDigitalFilter {
   //
   bool Run(const std::vector<double>& filter_coefficients, double filter_input,
            double* filter_output,
-           MlsaDigitalFilter::Buffer* stored_signals) const;
+           MglsaDigitalFilter::Buffer* stored_signals) const;
 
  private:
   //
   const int num_filter_order_;
 
   //
-  const int num_pade_order_;
+  const int num_stage_;
 
   //
   const double alpha_;
@@ -121,15 +125,15 @@ class MlsaDigitalFilter {
   const bool transposition_;
 
   //
+  const MlsaDigitalFilter mlsa_digital_filter_;
+
+  //
   bool is_valid_;
 
   //
-  std::vector<double> pade_coefficients_;
-
-  //
-  DISALLOW_COPY_AND_ASSIGN(MlsaDigitalFilter);
+  DISALLOW_COPY_AND_ASSIGN(MglsaDigitalFilter);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_FILTER_MLSA_DIGITAL_FILTER_H_
+#endif  // SPTK_FILTER_MGLSA_DIGITAL_FILTER_H_
