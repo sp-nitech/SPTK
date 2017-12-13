@@ -53,7 +53,7 @@
 #include <vector>
 
 #include "SPTK/converter/mel_cepstrum_to_mlsa_digital_filter_coefficients.h"
-#include "SPTK/filter/mglsa_digital_filter.h"
+#include "SPTK/filter/inverse_mglsa_digital_filter.h"
 #include "SPTK/input/input_source_from_stream.h"
 #include "SPTK/input/input_source_interpolation.h"
 #include "SPTK/normalizer/generalized_cepstrum_gain_normalization.h"
@@ -73,10 +73,10 @@ const bool kDefaultGainFlag(true);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " mglsadf - MGLSA digital filter for speech synthesis" << std::endl;  // NOLINT
+  *stream << " imglsadf - inverse MGLSA digital filter for speech synthesis" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
-  *stream << "       mglsadf [ options ] mgcfile [ infile ] > stdout" << std::endl;  // NOLINT
+  *stream << "       imglsadf [ options ] mgcfile [ infile ] > stdout" << std::endl;  // NOLINT
   *stream << "  options:" << std::endl;
   *stream << "       -m m  : order of filter coefficients  (   int)[" << std::setw(5) << std::right << kDefaultNumFilterOrder      << "][ 0 <= m <=     ]" << std::endl;  // NOLINT
   *stream << "       -a a  : all-pass constant             (double)[" << std::setw(5) << std::right << kDefaultAlpha               << "][   <= a <=     ]" << std::endl;  // NOLINT
@@ -95,8 +95,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       mel-generalized cepstral coefficients (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
   *stream << "       if i = 0, don't interpolate filter coefficients" << std::endl;  // NOLINT
-  *stream << "       if c = 0, MLSA filter is used" << std::endl;
-  *stream << "       otherwise MGLSA filter is used and P is ignored" << std::endl;  // NOLINT
+  *stream << "       if c = 0, inverse MLSA filter is used" << std::endl;
+  *stream << "       otherwise inverse MGLSA filter is used and P is ignored" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -244,7 +244,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -m option must be a "
                         << "non-negative integer";
-          sptk::PrintErrorMessage("mglsadf", error_message);
+          sptk::PrintErrorMessage("imglsadf", error_message);
           return 1;
         }
         break;
@@ -253,7 +253,7 @@ int main(int argc, char* argv[]) {
         if (!sptk::ConvertStringToDouble(optarg, &alpha)) {
           std::ostringstream error_message;
           error_message << "The argument for the -a option must be numeric";
-          sptk::PrintErrorMessage("mglsadf", error_message);
+          sptk::PrintErrorMessage("imglsadf", error_message);
           return 1;
         }
         break;
@@ -264,7 +264,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -c option must be a "
                         << "non-negative integer";
-          sptk::PrintErrorMessage("mglsadf", error_message);
+          sptk::PrintErrorMessage("imglsadf", error_message);
           return 1;
         }
         break;
@@ -275,7 +275,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -p option must be a positive integer";
-          sptk::PrintErrorMessage("mglsadf", error_message);
+          sptk::PrintErrorMessage("imglsadf", error_message);
           return 1;
         }
         break;
@@ -286,7 +286,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -i option must be a "
                         << "non-negative integer";
-          sptk::PrintErrorMessage("mglsadf", error_message);
+          sptk::PrintErrorMessage("imglsadf", error_message);
           return 1;
         }
         break;
@@ -299,7 +299,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -P option must be an integer "
                         << "in the range of " << min << " to " << max;
-          sptk::PrintErrorMessage("mglsadf", error_message);
+          sptk::PrintErrorMessage("imglsadf", error_message);
           return 1;
         }
         break;
@@ -327,7 +327,7 @@ int main(int argc, char* argv[]) {
     std::ostringstream error_message;
     error_message << "Interpolation period must be equal to or less than half "
                   << "frame period";
-    sptk::PrintErrorMessage("mglsadf", error_message);
+    sptk::PrintErrorMessage("imglsadf", error_message);
     return 1;
   }
 
@@ -344,7 +344,7 @@ int main(int argc, char* argv[]) {
   } else {
     std::ostringstream error_message;
     error_message << "Just two input files, mgcfile and infile, are required";
-    sptk::PrintErrorMessage("mglsadf", error_message);
+    sptk::PrintErrorMessage("imglsadf", error_message);
     return 1;
   }
 
@@ -354,7 +354,7 @@ int main(int argc, char* argv[]) {
   if (ifs1.fail()) {
     std::ostringstream error_message;
     error_message << "Cannot open file " << filter_coefficients_file;
-    sptk::PrintErrorMessage("mglsadf", error_message);
+    sptk::PrintErrorMessage("imglsadf", error_message);
     return 1;
   }
   std::istream& stream_for_filter_coefficients(ifs1);
@@ -365,7 +365,7 @@ int main(int argc, char* argv[]) {
   if (ifs2.fail() && NULL != filter_input_file) {
     std::ostringstream error_message;
     error_message << "Cannot open file " << filter_input_file;
-    sptk::PrintErrorMessage("mglsadf", error_message);
+    sptk::PrintErrorMessage("imglsadf", error_message);
     return 1;
   }
   std::istream& stream_for_filter_input(ifs2.fail() ? std::cin : ifs2);
@@ -382,14 +382,14 @@ int main(int argc, char* argv[]) {
       frame_period, interpolation_period, true, &preprocessing);
   double filter_input, filter_output;
 
-  sptk::MglsaDigitalFilter filter(num_filter_order, num_pade_order, num_stage,
-                                  alpha, transposition_flag);
-  sptk::MglsaDigitalFilter::Buffer buffer;
+  sptk::InverseMglsaDigitalFilter filter(num_filter_order, num_pade_order,
+                                         num_stage, alpha, transposition_flag);
+  sptk::InverseMglsaDigitalFilter::Buffer buffer;
 
   if (!interpolation.IsValid() || !filter.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for filtering";
-    sptk::PrintErrorMessage("mglsadf", error_message);
+    sptk::PrintErrorMessage("imglsadf", error_message);
     return 1;
   }
 
@@ -397,22 +397,22 @@ int main(int argc, char* argv[]) {
     if (!interpolation.Get(&filter_coefficients)) {
       std::ostringstream error_message;
       error_message << "Cannot get filter coefficients";
-      sptk::PrintErrorMessage("mglsadf", error_message);
+      sptk::PrintErrorMessage("imglsadf", error_message);
       return 1;
     }
 
     if (!filter.Run(filter_coefficients, filter_input, &filter_output,
                     &buffer)) {
       std::ostringstream error_message;
-      error_message << "Failed to apply MGLSA digital filter";
-      sptk::PrintErrorMessage("mglsadf", error_message);
+      error_message << "Failed to apply inverse MGLSA digital filter";
+      sptk::PrintErrorMessage("imglsadf", error_message);
       return 1;
     }
 
     if (!sptk::WriteStream(filter_output, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write a filter output";
-      sptk::PrintErrorMessage("mglsadf", error_message);
+      sptk::PrintErrorMessage("imglsadf", error_message);
       return 1;
     }
   }
