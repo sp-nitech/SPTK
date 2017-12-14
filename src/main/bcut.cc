@@ -75,7 +75,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -s s  : start number       (   int)[" << std::setw(5) << std::right << kDefaultStartNumber << "][ 0 <= s <= e ]" << std::endl;  // NOLINT
   *stream << "       -e e  : end number         (   int)[" << std::setw(5) << std::right << "EOF"               << "][ s <= e <=   ]" << std::endl;  // NOLINT
   *stream << "       -l l  : block length       (   int)[" << std::setw(5) << std::right << kDefaultBlockLength << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -n n  : block order        (   int)[" << std::setw(5) << std::right << "l-1"               << "][ 0 <= n <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : block order        (   int)[" << std::setw(5) << std::right << "l-1"               << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       +type : data type                  [" << std::setw(5) << std::right << kDefaultDataType    << "]" << std::endl;  // NOLINT
   *stream << "                 "; sptk::PrintDataType("c", stream); sptk::PrintDataType("C", stream); *stream << std::endl;  // NOLINT
   *stream << "                 "; sptk::PrintDataType("s", stream); sptk::PrintDataType("S", stream); *stream << std::endl;  // NOLINT
@@ -219,7 +219,7 @@ int main(int argc, char* argv[]) {
   std::string data_type(kDefaultDataType);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "s:e:l:n:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "s:e:l:m:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -256,11 +256,11 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      case 'n': {
+      case 'm': {
         if (!sptk::ConvertStringToInteger(optarg, &block_length) ||
             block_length < 0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -n option must be a "
+          error_message << "The argument for the -m option must be a "
                         << "non-negative integer";
           sptk::PrintErrorMessage("bcut", error_message);
           return 1;

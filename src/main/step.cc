@@ -63,13 +63,13 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       step [ options ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -l l  : output length      (   int)[" << std::setw(5) << std::right << kDefaultOutputLength << "][   <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -n n  : output order       (   int)[" << std::setw(5) << std::right << "l-1"                << "][   <= n <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : output order       (   int)[" << std::setw(5) << std::right << "l-1"                << "][   <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -v v  : step value         (double)[" << std::setw(5) << std::right << kDefaultStepValue    << "][   <= v <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  stdout:" << std::endl;
   *stream << "       step sequence              (double)" << std::endl;
   *stream << "  notice:" << std::endl;
-  *stream << "       if l <= 0 or n < 0, generate infinite sequence" << std::endl;  // NOLINT
+  *stream << "       if l <= 0 or m < 0, generate infinite sequence" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
   double step_value(kDefaultStepValue);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:n:v:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:v:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -96,10 +96,10 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      case 'n': {
+      case 'm': {
         if (!sptk::ConvertStringToInteger(optarg, &output_length)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -n option must be integer";
+          error_message << "The argument for the -m option must be integer";
           sptk::PrintErrorMessage("step", error_message);
           return 1;
         }

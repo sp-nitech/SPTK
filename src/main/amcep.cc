@@ -82,7 +82,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -p p  : output period                (   int)[" << std::setw(5) << std::right << kDefaultOutputPeriod     << "][   1 <= p <=     ]" << std::endl;  // NOLINT
   *stream << "       -P P  : order of Pade approximation  (   int)[" << std::setw(5) << std::right << kDefaultNumPadeOrder     << "][   4 <= P <= 5   ]" << std::endl;  // NOLINT
   *stream << "       -A    : output averaged mel-cepstrum (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultAverageFlag) << "]" << std::endl;  // NOLINT
-  *stream << "       -E E  : output file containing       (string)[" << std::setw(5) << std::right << "N/A" << "]" << std::endl;  // NOLINT
+  *stream << "       -E E  : output file containing       (string)[" << std::setw(5) << std::right << "N/A"                    << "]" << std::endl;  // NOLINT
   *stream << "               double type prediction error" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;

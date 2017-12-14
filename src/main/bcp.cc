@@ -78,10 +78,10 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -s s  : start number (input)      (   int)[" << std::setw(5) << std::right << kDefaultInputStartNumber  << "][ 0 <= s <= e ]" << std::endl;  // NOLINT
   *stream << "       -e e  : end number (input)        (   int)[" << std::setw(5) << std::right << "l-1"                     << "][ s <= e <  l ]" << std::endl;  // NOLINT
   *stream << "       -l l  : block length (input)      (   int)[" << std::setw(5) << std::right << kDefaultInputBlockLength  << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -n n  : block order (input)       (   int)[" << std::setw(5) << std::right << "l-1"                     << "][ 0 <= n <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : block order (input)       (   int)[" << std::setw(5) << std::right << "l-1"                     << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -S S  : start number (output)     (   int)[" << std::setw(5) << std::right << kDefaultOutputStartNumber << "][ 0 <= S <  L ]" << std::endl;  // NOLINT
   *stream << "       -L L  : block length (output)     (   int)[" << std::setw(5) << std::right << "N/A"                     << "][ 1 <= L <=   ]" << std::endl;  // NOLINT
-  *stream << "       -N N  : block order (output)      (   int)[" << std::setw(5) << std::right << "N/A"                     << "][ 0 <= N <=   ]" << std::endl;  // NOLINT
+  *stream << "       -M M  : block order (output)      (   int)[" << std::setw(5) << std::right << "N/A"                     << "][ 0 <= M <=   ]" << std::endl;  // NOLINT
   *stream << "       -f f  : pad value for empty slots (double)[" << std::setw(5) << std::right << kDefaultPadValue          << "][   <= f <=   ]" << std::endl;  // NOLINT
   *stream << "       +type : data type                         [" << std::setw(5) << std::right << kDefaultDataType          << "]" << std::endl;  // NOLINT
   *stream << "                 "; sptk::PrintDataType("c", stream); sptk::PrintDataType("C", stream); *stream << std::endl;  // NOLINT
@@ -306,7 +306,7 @@ int main(int argc, char* argv[]) {
 
   for (;;) {
     const int option_char(
-        getopt_long(argc, argv, "s:e:l:n:S:L:N:f:h", NULL, NULL));
+        getopt_long(argc, argv, "s:e:l:m:S:L:M:f:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -344,11 +344,11 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      case 'n': {
+      case 'm': {
         if (!sptk::ConvertStringToInteger(optarg, &input_block_length) ||
             input_block_length < 0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -n option must be a "
+          error_message << "The argument for the -m option must be a "
                         << "non-negative integer";
           sptk::PrintErrorMessage("bcp", error_message);
           return 1;
@@ -379,11 +379,11 @@ int main(int argc, char* argv[]) {
         is_output_block_length_specified = true;
         break;
       }
-      case 'N': {
+      case 'M': {
         if (!sptk::ConvertStringToInteger(optarg, &output_block_length) ||
             output_block_length < 0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -N option must be a "
+          error_message << "The argument for the -M option must be a "
                         << "non-negative integer";
           sptk::PrintErrorMessage("bcp", error_message);
           return 1;

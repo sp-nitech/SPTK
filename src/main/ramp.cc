@@ -64,7 +64,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       ramp [ options ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -l l  : output length      (   int)[" << std::setw(5) << std::right << kDefaultOutputLength << "][   <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -n n  : output order       (   int)[" << std::setw(5) << std::right << "l-1"                << "][   <= n <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : output order       (   int)[" << std::setw(5) << std::right << "l-1"                << "][   <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -s s  : start value        (double)[" << std::setw(5) << std::right << kDefaultStartValue   << "][   <= s <=   ]" << std::endl;  // NOLINT
   *stream << "       -e e  : end value          (double)[" << std::setw(5) << std::right << "N/A"                << "][   <= e <=   ]" << std::endl;  // NOLINT
   *stream << "       -t t  : step size          (double)[" << std::setw(5) << std::right << kDefaultStepSize     << "][   <= t <=   ]" << std::endl;  // NOLINT
@@ -72,11 +72,11 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  stdout:" << std::endl;
   *stream << "       ramp sequence              (double)" << std::endl;
   *stream << "  notice:" << std::endl;
-  *stream << "       if l <= 0 or n < 0, generate infinite sequence" << std::endl;  // NOLINT
+  *stream << "       if l <= 0 or m < 0, generate infinite sequence" << std::endl;  // NOLINT
   *stream << "       if t = 0.0 and s = e, generate infinite sequence" << std::endl;  // NOLINT
   *stream << "       if 0.0 < t, value of e must be s <= e" << std::endl;  // NOLINT
   *stream << "       if t < 0.0, value of e must be e <= s" << std::endl;  // NOLINT
-  *stream << "       when two or more of -l, -n, or -e are specified," << std::endl;  // NOLINT
+  *stream << "       when two or more of -l, -m, or -e are specified," << std::endl;  // NOLINT
   *stream << "       only the argument of the last option is used" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
   bool is_end_value_specified(false);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:n:s:e:t:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:s:e:t:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -108,10 +108,10 @@ int main(int argc, char* argv[]) {
         is_end_value_specified = false;
         break;
       }
-      case 'n': {
+      case 'm': {
         if (!sptk::ConvertStringToInteger(optarg, &output_length)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -n option must be an integer";
+          error_message << "The argument for the -m option must be an integer";
           sptk::PrintErrorMessage("ramp", error_message);
           return 1;
         }

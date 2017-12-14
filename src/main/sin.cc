@@ -54,7 +54,7 @@ namespace {
 
 const int kDefaultOutputLength(256);
 const double kDefaultPeriod(10.0);
-const double kDefaultMagnitude(1.0);
+const double kDefaultAmplitude(1.0);
 const bool kDefaultCosineWaveFlag(false);
 
 void PrintUsage(std::ostream* stream) {
@@ -66,15 +66,15 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       sin [ options ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -l l  : output length      (   int)[" << std::setw(5) << std::right << kDefaultOutputLength << "][     <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -n n  : output order       (   int)[" << std::setw(5) << std::right << "l-1"                << "][     <= n <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : output order       (   int)[" << std::setw(5) << std::right << "l-1"                << "][     <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -p p  : period             (double)[" << std::setw(5) << std::right << kDefaultPeriod       << "][ 0.0 <  p <=   ]" << std::endl;  // NOLINT
-  *stream << "       -m m  : magnitude          (double)[" << std::setw(5) << std::right << kDefaultMagnitude    << "][     <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -a a  : amplitude          (double)[" << std::setw(5) << std::right << kDefaultAmplitude    << "][     <= a <=   ]" << std::endl;  // NOLINT
   *stream << "       -C    : cosine wave        (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultCosineWaveFlag) << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  stdout:" << std::endl;
   *stream << "       sinusoidal sequence        (double)" << std::endl;
   *stream << "  notice:" << std::endl;
-  *stream << "       if l <= 0 or n < 0, generate infinite sequence" << std::endl;  // NOLINT
+  *stream << "       if l <= 0 or m < 0, generate infinite sequence" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -86,11 +86,11 @@ void PrintUsage(std::ostream* stream) {
 int main(int argc, char* argv[]) {
   int output_length(kDefaultOutputLength);
   double period(kDefaultPeriod);
-  double magnitude(kDefaultMagnitude);
+  double amplitude(kDefaultAmplitude);
   bool cosine_wave(kDefaultCosineWaveFlag);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:n:p:m:Ch", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:p:a:Ch", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -103,10 +103,10 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      case 'n': {
+      case 'm': {
         if (!sptk::ConvertStringToInteger(optarg, &output_length)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -n option must be integer";
+          error_message << "The argument for the -m option must be integer";
           sptk::PrintErrorMessage("sin", error_message);
           return 1;
         }
@@ -123,10 +123,10 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      case 'm': {
-        if (!sptk::ConvertStringToDouble(optarg, &magnitude)) {
+      case 'a': {
+        if (!sptk::ConvertStringToDouble(optarg, &amplitude)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -m option must be numeric";
+          error_message << "The argument for the -a option must be numeric";
           sptk::PrintErrorMessage("sin", error_message);
           return 1;
         }
@@ -157,8 +157,8 @@ int main(int argc, char* argv[]) {
   const double frequency(1.0 / period);
   for (int i(0); output_length <= 0 || i < output_length; ++i) {
     const double output(
-        cosine_wave ? magnitude * std::cos(sptk::kTwoPi * frequency * i)
-                    : magnitude * std::sin(sptk::kTwoPi * frequency * i));
+        cosine_wave ? amplitude * std::cos(sptk::kTwoPi * frequency * i)
+                    : amplitude * std::sin(sptk::kTwoPi * frequency * i));
     if (!sptk::WriteStream(output, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write sinusoidal sequence";

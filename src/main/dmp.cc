@@ -68,7 +68,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       dmp [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -l l  : block length       (   int)[" << std::setw(5) << std::right << "EOS"            << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -n n  : block order        (   int)[" << std::setw(5) << std::right << "EOS"            << "][ 0 <= n <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : block order        (   int)[" << std::setw(5) << std::right << "EOS"            << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -f f  : print format       (string)[" << std::setw(5) << std::right << "N/A"            << "]" << std::endl;  // NOLINT
   *stream << "       +type : data type                  [" << std::setw(5) << std::right << kDefaultDataType << "]" << std::endl;  // NOLINT
   *stream << "                 "; sptk::PrintDataType("c", stream); sptk::PrintDataType("C", stream); *stream << std::endl;  // NOLINT
@@ -225,7 +225,7 @@ int main(int argc, char* argv[]) {
   std::string data_type(kDefaultDataType);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:n:f:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:f:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -241,11 +241,11 @@ int main(int argc, char* argv[]) {
         minimum_index = 1;
         break;
       }
-      case 'n': {
+      case 'm': {
         if (!sptk::ConvertStringToInteger(optarg, &maximum_index) ||
             maximum_index < 0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -n option must be a "
+          error_message << "The argument for the -m option must be a "
                         << "non-negative integer";
           sptk::PrintErrorMessage("dmp", error_message);
           return 1;

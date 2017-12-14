@@ -74,9 +74,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  options:" << std::endl;
   *stream << "       -s s  : insert point                (   int)[" << std::setw(5) << std::right << kDefaultInsertPoint             << "][ 0 <= s <= l ]" << std::endl;  // NOLINT
   *stream << "       -l l  : frame length of input data  (   int)[" << std::setw(5) << std::right << kDefaultFrameLengthOfInputData  << "][ 0 <  l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -n n  : order of input data         (   int)[" << std::setw(5) << std::right << "l-1"                           << "][ 0 <= n <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of input data         (   int)[" << std::setw(5) << std::right << "l-1"                           << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -L L  : frame length of insert data (   int)[" << std::setw(5) << std::right << kDefaultFrameLengthOfInsertData << "][ 0 <  L <=   ]" << std::endl;  // NOLINT
-  *stream << "       -N N  : order of insert data        (   int)[" << std::setw(5) << std::right << "L-1"                           << "][ 0 <= N <=   ]" << std::endl;  // NOLINT
+  *stream << "       -M M  : order of insert data        (   int)[" << std::setw(5) << std::right << "L-1"                           << "][ 0 <= M <=   ]" << std::endl;  // NOLINT
   *stream << "       -w    : overwrite mode              (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultOverwriteMode) << "]" << std::endl;  // NOLINT
   *stream << "       +type : data type                           [" << std::setw(5) << std::right << kDefaultDataType                << "]" << std::endl;  // NOLINT
   *stream << "                 "; sptk::PrintDataType("c", stream); sptk::PrintDataType("C", stream); *stream << std::endl;  // NOLINT
@@ -240,7 +240,7 @@ int main(int argc, char* argv[]) {
   std::string data_type(kDefaultDataType);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "s:l:n:L:N:wh", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "s:l:m:L:M:wh", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -266,11 +266,11 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      case 'n': {
+      case 'm': {
         if (!sptk::ConvertStringToInteger(optarg, &input_length) ||
             input_length < 0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -n option must be a "
+          error_message << "The argument for the -m option must be a "
                         << "non-negative integer";
           sptk::PrintErrorMessage("merge", error_message);
           return 1;
@@ -289,11 +289,11 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      case 'N': {
+      case 'M': {
         if (!sptk::ConvertStringToInteger(optarg, &insert_length) ||
             insert_length < 0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -N option must be a "
+          error_message << "The argument for the -M option must be a "
                         << "non-negative integer";
           sptk::PrintErrorMessage("merge", error_message);
           return 1;
@@ -349,7 +349,7 @@ int main(int argc, char* argv[]) {
       return 1;
     }
   }
-  if (NULL == insert_file || NULL == input_file) {
+  if (NULL == insert_file) {
     std::ostringstream error_message;
     error_message << "Two input files, file1 and infile, are required";
     sptk::PrintErrorMessage("merge", error_message);

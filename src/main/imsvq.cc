@@ -65,8 +65,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       imsvq [ options ] -s cbfile1 -s cbfile2 ... [ infile ] > stdout" << std::endl;  // NOLINT
   *stream << "  options:" << std::endl;
   *stream << "       -l l  : length of vector   (   int)[" << std::setw(5) << std::right << kDefaultNumOrder + 1 << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -n n  : order of vector    (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= n <=   ]" << std::endl;  // NOLINT
-  *stream << "       -s s  : codebook file      (string)[" << std::setw(5) << std::right << "N/A" << "]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of vector    (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : codebook file      (string)[" << std::setw(5) << std::right << "N/A"                << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       codebook index             (   int)[stdin]" << std::endl;  // NOLINT
@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
   std::vector<char*> codebook_vectors_file;
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:n:s:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:s:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -103,11 +103,11 @@ int main(int argc, char* argv[]) {
         --num_order;
         break;
       }
-      case 'n': {
+      case 'm': {
         if (!sptk::ConvertStringToInteger(optarg, &num_order) ||
             num_order < 0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -n option must be a "
+          error_message << "The argument for the -m option must be a "
                         << "non-negative integer";
           sptk::PrintErrorMessage("imsvq", error_message);
           return 1;

@@ -86,7 +86,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       x2x [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       +type : input and output data types             [" << std::setw(5) << std::right << kDefaultDataTypes << "]" << std::endl;  // NOLINT
+  *stream << "       +type : input and output data types             [" << std::setw(5) << std::right << kDefaultDataTypes                  << "]" << std::endl;  // NOLINT
   *stream << "                 "; sptk::PrintDataType("c", stream); sptk::PrintDataType("C", stream); *stream << std::endl;  // NOLINT
   *stream << "                 "; sptk::PrintDataType("s", stream); sptk::PrintDataType("S", stream); *stream << std::endl;  // NOLINT
   *stream << "                 "; sptk::PrintDataType("h", stream); sptk::PrintDataType("H", stream); *stream << std::endl;  // NOLINT
@@ -100,7 +100,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 1 (clip the value and output warning)" << std::endl;  // NOLINT
   *stream << "                 2 (exit immediately)" << std::endl;
   *stream << "       -c c  : number of column                (   int)[" << std::setw(5) << std::right << kDefaultNumColumn                  << "][ 1 <= c <=   ]" << std::endl;  // NOLINT
-  *stream << "       -f f  : print format                    (string)[" << std::setw(5) << std::right << "N/A" << "]" << std::endl;  // NOLINT
+  *stream << "       -f f  : print format                    (string)[" << std::setw(5) << std::right << "N/A"                              << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       data sequence                                   [stdin]" << std::endl;  // NOLINT

@@ -65,7 +65,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       extract [ options ] idxfile [ infile ] > stdout" << std::endl;  // NOLINT
   *stream << "  options:" << std::endl;
   *stream << "       -l l  : length of vector   (   int)[" << std::setw(5) << std::right << kDefaultVectorLength  << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -n n  : order of vector    (   int)[" << std::setw(5) << std::right << "l-1"                 << "][ 0 <= n <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of vector    (   int)[" << std::setw(5) << std::right << "l-1"                 << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -i i  : codebook index     (   int)[" << std::setw(5) << std::right << kDefaultCodebookIndex << "][ 0 <= i <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
   int codebook_index(kDefaultCodebookIndex);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:n:i:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:i:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -102,11 +102,11 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      case 'n': {
+      case 'm': {
         if (!sptk::ConvertStringToInteger(optarg, &vector_length) ||
             vector_length < 0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -n option must be a "
+          error_message << "The argument for the -m option must be a "
                         << "non-negative integer";
           sptk::PrintErrorMessage("extract", error_message);
           return 1;
