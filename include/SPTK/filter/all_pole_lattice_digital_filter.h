@@ -53,14 +53,14 @@ namespace sptk {
 
 class AllPoleLatticeDigitalFilter {
  public:
-  class StoredSignals {
+  class Buffer {
    public:
     //
-    StoredSignals() {
+    Buffer() {
     }
 
     //
-    virtual ~StoredSignals() {
+    virtual ~Buffer() {
     }
 
    private:
@@ -71,7 +71,7 @@ class AllPoleLatticeDigitalFilter {
     friend class AllPoleLatticeDigitalFilter;
 
     //
-    DISALLOW_COPY_AND_ASSIGN(StoredSignals);
+    DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
 
   //
@@ -99,7 +99,7 @@ class AllPoleLatticeDigitalFilter {
   //
   bool Run(const std::vector<double>& filter_coefficients, double filter_input,
            double* filter_output,
-           AllPoleLatticeDigitalFilter::StoredSignals* signals) const;
+           AllPoleLatticeDigitalFilter::Buffer* signals) const;
 
  private:
   //

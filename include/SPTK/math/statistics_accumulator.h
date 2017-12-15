@@ -66,12 +66,12 @@ class StatisticsAccumulator {
       zeroth_order_statistics_ = 0.0;
       std::fill(first_order_statistics_.begin(), first_order_statistics_.end(),
                 0.0);
-      // TODO: clear buffer for second-order statistics
+      // TODO(takenori): clear buffer for second-order statistics
     }
 
     int zeroth_order_statistics_;
     std::vector<double> first_order_statistics_;
-    // TODO: declare buffer for second-order statistics
+    // TODO(takenori): declare buffer for second-order statistics
     friend class StatisticsAccumulator;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };

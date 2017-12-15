@@ -108,8 +108,7 @@ class MglsaDigitalFilter {
 
   //
   bool Run(const std::vector<double>& filter_coefficients, double filter_input,
-           double* filter_output,
-           MglsaDigitalFilter::Buffer* stored_signals) const;
+           double* filter_output, MglsaDigitalFilter::Buffer* buffer) const;
 
  private:
   //

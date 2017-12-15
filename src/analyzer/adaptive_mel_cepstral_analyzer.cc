@@ -93,11 +93,11 @@ bool AdaptiveMelCepstralAnalyzer::Run(
     buffer->inverse_mlsa_digital_filter_coefficients_.resize(num_order + 1);
     buffer->inverse_mlsa_digital_filter_coefficients_[0] = 0.0;
   }
-  if (buffer->stored_signals_for_phi_digital_filter_.size() <
+  if (buffer->buffer_for_phi_digital_filter_.size() <
       static_cast<std::size_t>(num_order + 1)) {
-    buffer->stored_signals_for_phi_digital_filter_.resize(num_order + 1);
-    std::fill(buffer->stored_signals_for_phi_digital_filter_.begin(),
-              buffer->stored_signals_for_phi_digital_filter_.end(), 0.0);
+    buffer->buffer_for_phi_digital_filter_.resize(num_order + 1);
+    std::fill(buffer->buffer_for_phi_digital_filter_.begin(),
+              buffer->buffer_for_phi_digital_filter_.end(), 0.0);
   }
   if (buffer->gradient_.size() < static_cast<std::size_t>(num_order)) {
     buffer->gradient_.resize(num_order);
@@ -112,15 +112,14 @@ bool AdaptiveMelCepstralAnalyzer::Run(
   double curr_prediction_error;
   if (!mlsa_digital_filter_.Run(
           buffer->inverse_mlsa_digital_filter_coefficients_, input_signal,
-          &curr_prediction_error,
-          &buffer->stored_signals_for_mlsa_digital_filter_)) {
+          &curr_prediction_error, &buffer->buffer_for_mlsa_digital_filter_)) {
     return false;
   }
 
   // apply phi digital filter
   {
     const double alpha(GetAlpha());
-    double* d(&buffer->stored_signals_for_phi_digital_filter_[0]);
+    double* d(&buffer->buffer_for_phi_digital_filter_[0]);
     d[0] =
         alpha * d[0] + (1.0 - alpha * alpha) * buffer->prev_prediction_error_;
     for (int i(1); i < num_order; ++i) {
@@ -143,7 +142,7 @@ bool AdaptiveMelCepstralAnalyzer::Run(
   {
     const double c(2.0 * (1.0 - momentum_) * curr_prediction_error);
     const double mu(step_size_factor_ / (num_order * curr_epsilon));
-    const double* error(&buffer->stored_signals_for_phi_digital_filter_[1]);
+    const double* error(&buffer->buffer_for_phi_digital_filter_[1]);
     double* gradient(&buffer->gradient_[0]);
     double* b(&buffer->mlsa_digital_filter_coefficients_[1]);
     buffer->mlsa_digital_filter_coefficients_[0] = 0.5 * std::log(curr_epsilon);

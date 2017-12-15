@@ -53,14 +53,14 @@ namespace sptk {
 
 class AllZeroDigitalFilter {
  public:
-  class StoredSignals {
+  class Buffer {
    public:
     //
-    StoredSignals() {
+    Buffer() {
     }
 
     //
-    virtual ~StoredSignals() {
+    virtual ~Buffer() {
     }
 
    private:
@@ -71,7 +71,7 @@ class AllZeroDigitalFilter {
     friend class AllZeroDigitalFilter;
 
     //
-    DISALLOW_COPY_AND_ASSIGN(StoredSignals);
+    DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
 
   //
@@ -105,8 +105,7 @@ class AllZeroDigitalFilter {
 
   //
   bool Run(const std::vector<double>& filter_coefficients, double filter_input,
-           double* filter_output,
-           AllZeroDigitalFilter::StoredSignals* stored_signals) const;
+           double* filter_output, AllZeroDigitalFilter::Buffer* buffer) const;
 
  private:
   //

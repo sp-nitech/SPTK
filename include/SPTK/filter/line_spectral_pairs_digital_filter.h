@@ -53,14 +53,14 @@ namespace sptk {
 
 class LineSpectralPairsDigitalFilter {
  public:
-  class StoredSignals {
+  class Buffer {
    public:
     //
-    StoredSignals() {
+    Buffer() {
     }
 
     //
-    virtual ~StoredSignals() {
+    virtual ~Buffer() {
     }
 
    private:
@@ -74,7 +74,7 @@ class LineSpectralPairsDigitalFilter {
     friend class LineSpectralPairsDigitalFilter;
 
     //
-    DISALLOW_COPY_AND_ASSIGN(StoredSignals);
+    DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
 
   //
@@ -102,7 +102,7 @@ class LineSpectralPairsDigitalFilter {
   //
   bool Run(const std::vector<double>& filter_coefficients, double filter_input,
            double* filter_output,
-           LineSpectralPairsDigitalFilter::StoredSignals* stored_signals) const;
+           LineSpectralPairsDigitalFilter::Buffer* buffer) const;
 
  private:
   //

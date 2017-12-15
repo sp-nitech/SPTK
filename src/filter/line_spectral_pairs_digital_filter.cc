@@ -53,27 +53,25 @@ namespace sptk {
 bool LineSpectralPairsDigitalFilter::Run(
     const std::vector<double>& filter_coefficients, double filter_input,
     double* filter_output,
-    LineSpectralPairsDigitalFilter::StoredSignals* stored_signals) const {
+    LineSpectralPairsDigitalFilter::Buffer* buffer) const {
   // check inputs
   if (!is_valid_ ||
       filter_coefficients.size() !=
           static_cast<std::size_t>(num_filter_order_ + 1) ||
-      NULL == filter_output || NULL == stored_signals) {
+      NULL == filter_output || NULL == buffer) {
     return false;
   }
 
   // prepare memory
-  if (stored_signals->signals1_.size() !=
+  if (buffer->signals1_.size() !=
       static_cast<std::size_t>(num_filter_order_ + 1)) {
-    stored_signals->signals1_.resize(num_filter_order_ + 1);
-    std::fill(stored_signals->signals1_.begin(),
-              stored_signals->signals1_.end(), 0.0);
+    buffer->signals1_.resize(num_filter_order_ + 1);
+    std::fill(buffer->signals1_.begin(), buffer->signals1_.end(), 0.0);
   }
-  if (stored_signals->signals2_.size() !=
+  if (buffer->signals2_.size() !=
       static_cast<std::size_t>(num_filter_order_ + 1)) {
-    stored_signals->signals2_.resize(num_filter_order_ + 1);
-    std::fill(stored_signals->signals2_.begin(),
-              stored_signals->signals2_.end(), 0.0);
+    buffer->signals2_.resize(num_filter_order_ + 1);
+    std::fill(buffer->signals2_.begin(), buffer->signals2_.end(), 0.0);
   }
 
   // set value
@@ -85,8 +83,8 @@ bool LineSpectralPairsDigitalFilter::Run(
 
   // get values
   const double* coefficients(&(filter_coefficients[0]));
-  double* signals1(&stored_signals->signals1_[0]);
-  double* signals2(&stored_signals->signals2_[0]);
+  double* signals1(&buffer->signals1_[0]);
+  double* signals2(&buffer->signals2_[0]);
 
   // apply filter
   double sum(gained_input);

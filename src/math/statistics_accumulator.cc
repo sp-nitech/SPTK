@@ -105,7 +105,7 @@ bool StatisticsAccumulator::Run(const std::vector<double>& data,
     }
   }
   if (2 <= num_statistics_order_) {
-    // TODO: prepare triangle matrix and initialize it
+    // TODO(takenori): prepare triangle matrix and initialize it
   }
 
   // 0th order
@@ -120,7 +120,7 @@ bool StatisticsAccumulator::Run(const std::vector<double>& data,
 
   // 2nd order
   if (2 <= num_statistics_order_) {
-    // TODO: accumulate second-order statistics
+    // TODO(takenori): accumulate second-order statistics
   }
 
   return true;

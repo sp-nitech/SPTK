@@ -49,24 +49,21 @@
 
 namespace sptk {
 
-bool AllPoleDigitalFilter::Run(
-    const std::vector<double>& filter_coefficients, double filter_input,
-    double* filter_output,
-    AllPoleDigitalFilter::StoredSignals* stored_signals) const {
+bool AllPoleDigitalFilter::Run(const std::vector<double>& filter_coefficients,
+                               double filter_input, double* filter_output,
+                               AllPoleDigitalFilter::Buffer* buffer) const {
   // check inputs
   if (!is_valid_ ||
       filter_coefficients.size() !=
           static_cast<std::size_t>(num_filter_order_ + 1) ||
-      NULL == filter_output || NULL == stored_signals) {
+      NULL == filter_output || NULL == buffer) {
     return false;
   }
 
   // prepare memory
-  if (stored_signals->signals_.size() !=
-      static_cast<std::size_t>(num_filter_order_)) {
-    stored_signals->signals_.resize(num_filter_order_);
-    std::fill(stored_signals->signals_.begin(), stored_signals->signals_.end(),
-              0.0);
+  if (buffer->signals_.size() != static_cast<std::size_t>(num_filter_order_)) {
+    buffer->signals_.resize(num_filter_order_);
+    std::fill(buffer->signals_.begin(), buffer->signals_.end(), 0.0);
   }
 
   // set value
@@ -78,7 +75,7 @@ bool AllPoleDigitalFilter::Run(
 
   // get values
   const double* coefficients(&(filter_coefficients[0]));
-  double* signals(&stored_signals->signals_[0]);
+  double* signals(&buffer->signals_[0]);
 
   // apply filter
   double sum(gained_input);

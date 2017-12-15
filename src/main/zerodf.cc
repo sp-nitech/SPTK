@@ -220,7 +220,7 @@ int main(int argc, char* argv[]) {
       frame_period, interpolation_period, true, &preprocessing);
   double filter_input, filter_output;
   sptk::AllZeroDigitalFilter filter(num_filter_order, transposition_flag);
-  sptk::AllZeroDigitalFilter::StoredSignals stored_signals;
+  sptk::AllZeroDigitalFilter::Buffer buffer;
 
   if (!interpolation.IsValid() || !filter.IsValid()) {
     std::ostringstream error_message;
@@ -238,7 +238,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (!filter.Run(filter_coefficients, filter_input, &filter_output,
-                    &stored_signals)) {
+                    &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to apply all-zero digital filter";
       sptk::PrintErrorMessage("zerodf", error_message);

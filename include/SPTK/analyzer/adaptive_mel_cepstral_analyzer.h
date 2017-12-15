@@ -66,8 +66,8 @@ class AdaptiveMelCepstralAnalyzer {
     std::vector<double> mlsa_digital_filter_coefficients_;
     std::vector<double> inverse_mlsa_digital_filter_coefficients_;
     std::vector<double> gradient_;
-    std::vector<double> stored_signals_for_phi_digital_filter_;
-    MlsaDigitalFilter::StoredSignals stored_signals_for_mlsa_digital_filter_;
+    std::vector<double> buffer_for_phi_digital_filter_;
+    MlsaDigitalFilter::Buffer buffer_for_mlsa_digital_filter_;
     double prev_prediction_error_;
     double prev_epsilon_;
     friend class AdaptiveMelCepstralAnalyzer;
