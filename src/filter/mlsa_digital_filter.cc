@@ -79,6 +79,25 @@ MlsaDigitalFilter::MlsaDigitalFilter(int num_filter_order, int num_pade_order,
       pade_coefficients_[5] = 0.00003041721;
       break;
     }
+    case 6: {
+      pade_coefficients_[1] = 0.500000157834843;
+      pade_coefficients_[2] = 0.113600112846183;
+      pade_coefficients_[3] = 0.015133367945131;
+      pade_coefficients_[4] = 0.001258740956606;
+      pade_coefficients_[5] = 0.000062701416552;
+      pade_coefficients_[6] = 0.000001481891776;
+      break;
+    }
+    case 7: {
+      pade_coefficients_[1] = 0.499802889651314;
+      pade_coefficients_[2] = 0.115274789205577;
+      pade_coefficients_[3] = 0.015997611632083;
+      pade_coefficients_[4] = 0.001452640362652;
+      pade_coefficients_[5] = 0.000087007832645;
+      pade_coefficients_[6] = 0.000003213962732;
+      pade_coefficients_[7] = 0.000000057148619;
+      break;
+    }
     default: {
       is_valid_ = false;
       return;

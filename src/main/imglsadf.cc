@@ -83,7 +83,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -c c  : gamma = -1 / c                (   int)[" << std::setw(5) << std::right << kDefaultNumStage            << "][ 0 <= c <=     ]" << std::endl;  // NOLINT
   *stream << "       -p p  : frame period                  (   int)[" << std::setw(5) << std::right << kDefaultFramePeriod         << "][ 0 <  p <=     ]" << std::endl;  // NOLINT
   *stream << "       -i i  : interpolation period          (   int)[" << std::setw(5) << std::right << kDefaultInterpolationPeriod << "][ 0 <= i <= p/2 ]" << std::endl;  // NOLINT
-  *stream << "       -P P  : order of Pade approximation   (   int)[" << std::setw(5) << std::right << kDefaultNumPadeOrder        << "][ 4 <= P <= 5   ]" << std::endl;  // NOLINT
+  *stream << "       -P P  : order of Pade approximation   (   int)[" << std::setw(5) << std::right << kDefaultNumPadeOrder        << "][ 4 <= P <= 7   ]" << std::endl;  // NOLINT
   *stream << "       -t    : transpose filter              (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultTranspositionFlag) << "]" << std::endl;  // NOLINT
   *stream << "       -k    : filtering without gain        (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(!kDefaultGainFlag)         << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
@@ -293,7 +293,7 @@ int main(int argc, char* argv[]) {
       }
       case 'P': {
         const int min(4);
-        const int max(5);
+        const int max(7);
         if (!sptk::ConvertStringToInteger(optarg, &num_pade_order) ||
             !sptk::IsInRange(num_pade_order, min, max)) {
           std::ostringstream error_message;
