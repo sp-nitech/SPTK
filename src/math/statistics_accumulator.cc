@@ -44,7 +44,7 @@
 
 #include "SPTK/math/statistics_accumulator.h"
 
-#include <algorithm>   // std::fill, std::transform
+#include <algorithm>   // std::copy, std::fill, std::transform
 #include <cstddef>     // std::size_t
 #include <functional>  // std::bind1st, std::plus
 
@@ -65,11 +65,26 @@ void StatisticsAccumulator::Clear(StatisticsAccumulator::Buffer* buffer) const {
   if (NULL != buffer) buffer->Clear();
 }
 
+bool StatisticsAccumulator::GetSum(const StatisticsAccumulator::Buffer& buffer,
+                                   std::vector<double>* sum) const {
+  if (num_statistics_order_ < 1 || buffer.zeroth_order_statistics_ <= 0 ||
+      NULL == sum) {
+    return false;
+  }
+
+  if (sum->size() < static_cast<std::size_t>(num_order_ + 1)) {
+    sum->resize(num_order_ + 1);
+  }
+
+  std::copy(buffer.first_order_statistics_.begin(),
+            buffer.first_order_statistics_.end(), sum->begin());
+
+  return true;
+}
+
 bool StatisticsAccumulator::GetMean(const StatisticsAccumulator::Buffer& buffer,
                                     std::vector<double>* mean) const {
   if (num_statistics_order_ < 1 || buffer.zeroth_order_statistics_ <= 0 ||
-      buffer.first_order_statistics_.size() !=
-          static_cast<std::size_t>(num_order_ + 1) ||
       NULL == mean) {
     return false;
   }
@@ -82,6 +97,7 @@ bool StatisticsAccumulator::GetMean(const StatisticsAccumulator::Buffer& buffer,
                  buffer.first_order_statistics_.end(), mean->begin(),
                  std::bind1st(std::multiplies<double>(),
                               1.0 / buffer.zeroth_order_statistics_));
+
   return true;
 }
 

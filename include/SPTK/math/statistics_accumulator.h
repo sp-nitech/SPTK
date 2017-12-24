@@ -99,6 +99,10 @@ class StatisticsAccumulator {
   }
 
   //
+  bool GetSum(const StatisticsAccumulator::Buffer& buffer,
+              std::vector<double>* sum) const;
+
+  //
   bool GetMean(const StatisticsAccumulator::Buffer& buffer,
                std::vector<double>* mean) const;
 
