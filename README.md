@@ -1,4 +1,4 @@
-# SPTK
+# SPTK 4.0 (Under Construction)
 
 The Speech Signal Processing Toolkit (SPTK) is a software for speech signal processing tools for UNIX environments.
 
