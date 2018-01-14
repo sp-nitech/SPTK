@@ -80,22 +80,22 @@ MlsaDigitalFilter::MlsaDigitalFilter(int num_filter_order, int num_pade_order,
       break;
     }
     case 6: {
-      pade_coefficients_[1] = 0.500000157834843;
-      pade_coefficients_[2] = 0.113600112846183;
-      pade_coefficients_[3] = 0.015133367945131;
-      pade_coefficients_[4] = 0.001258740956606;
-      pade_coefficients_[5] = 0.000062701416552;
-      pade_coefficients_[6] = 0.000001481891776;
+      pade_coefficients_[1] = 0.499962892438014;
+      pade_coefficients_[2] = 0.113301885013440;
+      pade_coefficients_[3] = 0.014990477313604;
+      pade_coefficients_[4] = 0.001229199693052;
+      pade_coefficients_[5] = 0.000059608811847;
+      pade_coefficients_[6] = 0.000001343163774;
       break;
     }
     case 7: {
-      pade_coefficients_[1] = 0.499802889651314;
-      pade_coefficients_[2] = 0.115274789205577;
-      pade_coefficients_[3] = 0.015997611632083;
-      pade_coefficients_[4] = 0.001452640362652;
-      pade_coefficients_[5] = 0.000087007832645;
-      pade_coefficients_[6] = 0.000003213962732;
-      pade_coefficients_[7] = 0.000000057148619;
+      pade_coefficients_[1] = 0.499969087072637;
+      pade_coefficients_[2] = 0.115077033090460;
+      pade_coefficients_[3] = 0.015876603489178;
+      pade_coefficients_[4] = 0.001424479579072;
+      pade_coefficients_[5] = 0.000083492347365;
+      pade_coefficients_[6] = 0.000002972456979;
+      pade_coefficients_[7] = 0.000000049755937;
       break;
     }
     default: {
