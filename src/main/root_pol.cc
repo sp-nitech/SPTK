@@ -217,8 +217,8 @@ int main(int argc, char* argv[]) {
   std::vector<double> normalized_coefficients(num_order);
   std::vector<std::complex<double> > roots(num_order);
 
-  if (sptk::ReadStream(false, 0, 0, num_order + 1, &coefficients,
-                       &input_stream)) {
+  if (sptk::ReadStream(false, 0, 0, num_order + 1, &coefficients, &input_stream,
+                       NULL)) {
     switch (input_format) {
       case kForwardOrder: {
         // nothing to do

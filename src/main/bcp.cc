@@ -176,17 +176,19 @@ class BlockCopy : public BlockCopyInterface {
       }
     } else {
       while (sptk::ReadStream(false, 0, 0, input_block_length_, &input_data,
-                              input_stream)) {
+                              input_stream, NULL)) {
         if (0 < left_pad_length &&
-            !sptk::WriteStream(0, left_pad_length, pad_data, &std::cout)) {
+            !sptk::WriteStream(0, left_pad_length, pad_data, &std::cout,
+                               NULL)) {
           return false;
         }
         if (!sptk::WriteStream(input_start_number_, copy_length, input_data,
-                               &std::cout)) {
+                               &std::cout, NULL)) {
           return false;
         }
         if (0 < right_pad_length &&
-            !sptk::WriteStream(0, right_pad_length, pad_data, &std::cout)) {
+            !sptk::WriteStream(0, right_pad_length, pad_data, &std::cout,
+                               NULL)) {
           return false;
         }
       }

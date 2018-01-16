@@ -202,8 +202,9 @@ int main(int argc, char* argv[]) {
   std::vector<double> linear_predictive_coefficients(length);
   std::vector<double> parcor_coefficients(length);
 
-  for (int frame_index(0); sptk::ReadStream(
-           false, 0, 0, length, &linear_predictive_coefficients, &input_stream);
+  for (int frame_index(0);
+       sptk::ReadStream(false, 0, 0, length, &linear_predictive_coefficients,
+                        &input_stream, NULL);
        ++frame_index) {
     bool is_stable(false);
     if (!linear_predictive_coefficients_to_parcor_coefficients.Run(
@@ -223,7 +224,7 @@ int main(int argc, char* argv[]) {
       if (kExit == behavior) return 1;
     }
 
-    if (!sptk::WriteStream(0, length, parcor_coefficients, &std::cout)) {
+    if (!sptk::WriteStream(0, length, parcor_coefficients, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write PARCOR coefficients";
       sptk::PrintErrorMessage("lpc2par", error_message);

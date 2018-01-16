@@ -180,9 +180,9 @@ int main(int argc, char* argv[]) {
 
   while (sptk::ReadStream(&index, &stream_for_index) &&
          sptk::ReadStream(false, 0, 0, vector_length, &input_vector,
-                          &stream_for_input)) {
+                          &stream_for_input, NULL)) {
     if (index == codebook_index &&
-        !sptk::WriteStream(0, vector_length, input_vector, &std::cout)) {
+        !sptk::WriteStream(0, vector_length, input_vector, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write extracted vector";
       sptk::PrintErrorMessage("extract", error_message);

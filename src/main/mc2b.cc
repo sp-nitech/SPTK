@@ -155,7 +155,8 @@ int main(int argc, char* argv[]) {
   std::vector<double> mel_cepstrum(length);
   std::vector<double> mlsa_digital_filter_coefficients(length);
 
-  while (sptk::ReadStream(false, 0, 0, length, &mel_cepstrum, &input_stream)) {
+  while (sptk::ReadStream(false, 0, 0, length, &mel_cepstrum, &input_stream,
+                          NULL)) {
     if (!mel_cepstrum_to_mlsa_digital_filter_coefficients.Run(
             mel_cepstrum, &mlsa_digital_filter_coefficients)) {
       std::ostringstream error_message;
@@ -166,7 +167,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (!sptk::WriteStream(0, length, mlsa_digital_filter_coefficients,
-                           &std::cout)) {
+                           &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write MLSA digital filter coefficients";
       sptk::PrintErrorMessage("mc2b", error_message);

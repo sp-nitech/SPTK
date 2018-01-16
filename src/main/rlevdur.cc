@@ -158,7 +158,7 @@ int main(int argc, char* argv[]) {
   std::vector<double> linear_predictive_coefficients(length);
 
   while (sptk::ReadStream(false, 0, 0, length, &linear_predictive_coefficients,
-                          &input_stream)) {
+                          &input_stream, NULL)) {
     if (!reverse_levinson_durbin_recursion.Run(linear_predictive_coefficients,
                                                &autocorrelation_sequence,
                                                &buffer)) {
@@ -168,7 +168,8 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    if (!sptk::WriteStream(0, length, autocorrelation_sequence, &std::cout)) {
+    if (!sptk::WriteStream(0, length, autocorrelation_sequence, &std::cout,
+                           NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write autocorrelation sequence";
       sptk::PrintErrorMessage("rlevdur", error_message);

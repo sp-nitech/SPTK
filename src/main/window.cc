@@ -222,7 +222,7 @@ int main(int argc, char* argv[]) {
   std::vector<double> windowed_data_sequence(output_length);
 
   while (sptk::ReadStream(false, 0, 0, input_length, &data_sequence,
-                          &input_stream)) {
+                          &input_stream, NULL)) {
     if (!data_windowing.Run(data_sequence, &windowed_data_sequence)) {
       std::ostringstream error_message;
       error_message << "Failed to apply a window function";
@@ -230,8 +230,8 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    if (!sptk::WriteStream(0, output_length, windowed_data_sequence,
-                           &std::cout)) {
+    if (!sptk::WriteStream(0, output_length, windowed_data_sequence, &std::cout,
+                           NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write windowed data sequence";
       sptk::PrintErrorMessage("window", error_message);

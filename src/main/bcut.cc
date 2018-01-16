@@ -119,7 +119,8 @@ class BinaryCut : public BinaryCutInterface {
 
     // Skip data
     for (int block_index(0); block_index < start_number_; ++block_index) {
-      if (!sptk::ReadStream(false, 0, 0, block_length_, &data, input_stream)) {
+      if (!sptk::ReadStream(false, 0, 0, block_length_, &data, input_stream,
+                            NULL)) {
         return false;
       }
     }
@@ -127,9 +128,10 @@ class BinaryCut : public BinaryCutInterface {
     for (int block_index(start_number_);
          ((kMagicNumberForEndOfFile == end_number_ ||
            block_index <= end_number_) &&
-          sptk::ReadStream(false, 0, 0, block_length_, &data, input_stream));
+          sptk::ReadStream(false, 0, 0, block_length_, &data, input_stream,
+                           NULL));
          ++block_index) {
-      if (!sptk::WriteStream(0, block_length_, data, &std::cout)) {
+      if (!sptk::WriteStream(0, block_length_, data, &std::cout, NULL)) {
         return false;
       }
     }

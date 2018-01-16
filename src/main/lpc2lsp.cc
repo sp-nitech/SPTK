@@ -267,7 +267,7 @@ int main(int argc, char* argv[]) {
   std::vector<double> line_spectral_pairs(length);
 
   while (sptk::ReadStream(false, 0, 0, length, &linear_predictive_coefficients,
-                          &input_stream)) {
+                          &input_stream, NULL)) {
     if (!linear_predictive_coefficients_to_line_spectral_pairs.Run(
             linear_predictive_coefficients, &line_spectral_pairs, &buffer)) {
       std::ostringstream error_message;
@@ -323,8 +323,8 @@ int main(int argc, char* argv[]) {
       default: { break; }
     }
 
-    if (!sptk::WriteStream(begin, write_size, line_spectral_pairs,
-                           &std::cout)) {
+    if (!sptk::WriteStream(begin, write_size, line_spectral_pairs, &std::cout,
+                           NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write line spectral pairs";
       sptk::PrintErrorMessage("lpc2lsp", error_message);

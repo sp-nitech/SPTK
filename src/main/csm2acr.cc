@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
   std::vector<double> autocorrelation(length);
 
   while (sptk::ReadStream(false, 0, 0, length, &composite_sinusoidal_modeling,
-                          &input_stream)) {
+                          &input_stream, NULL)) {
     if (!composite_sinusoidal_modeling_to_autocorrelation.Run(
             composite_sinusoidal_modeling, &autocorrelation)) {
       std::ostringstream error_message;
@@ -153,7 +153,7 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    if (!sptk::WriteStream(0, length, autocorrelation, &std::cout)) {
+    if (!sptk::WriteStream(0, length, autocorrelation, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write autocorrelation sequence";
       sptk::PrintErrorMessage("csm2acr", error_message);

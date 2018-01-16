@@ -306,7 +306,8 @@ int main(int argc, char* argv[]) {
   std::vector<double> data(vector_length);
 
   if (kFindValueFromVector == way_to_find_value) {
-    while (sptk::ReadStream(false, 0, 0, vector_length, &data, &input_stream)) {
+    while (sptk::ReadStream(false, 0, 0, vector_length, &data, &input_stream,
+                            NULL)) {
       for (int vector_index(0); vector_index < vector_length; ++vector_index) {
         if (!minmax_accumulator.Run(data[vector_index], &buffer[0])) {
           std::ostringstream error_message;
@@ -326,7 +327,8 @@ int main(int argc, char* argv[]) {
     }
   } else if (kFindValueFromVectorSequenceForEachDimension ==
              way_to_find_value) {
-    while (sptk::ReadStream(false, 0, 0, vector_length, &data, &input_stream)) {
+    while (sptk::ReadStream(false, 0, 0, vector_length, &data, &input_stream,
+                            NULL)) {
       for (int vector_index(0); vector_index < vector_length; ++vector_index) {
         if (!minmax_accumulator.Run(data[vector_index],
                                     &buffer[vector_index])) {

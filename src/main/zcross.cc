@@ -167,8 +167,8 @@ int main(int argc, char* argv[]) {
 
   std::vector<double> input_data(frame_length);
 
-  while (
-      sptk::ReadStream(false, 0, 0, frame_length, &input_data, &input_stream)) {
+  while (sptk::ReadStream(false, 0, 0, frame_length, &input_data, &input_stream,
+                          NULL)) {
     int num_zero_crossing;
     if (!zero_crossing.Run(input_data, &num_zero_crossing, &buffer)) {
       std::ostringstream error_message;

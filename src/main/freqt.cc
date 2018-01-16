@@ -194,7 +194,7 @@ int main(int argc, char* argv[]) {
   std::vector<double> warped_sequence(output_length);
 
   while (sptk::ReadStream(false, 0, 0, input_length, &minimum_phase_sequence,
-                          &input_stream)) {
+                          &input_stream, NULL)) {
     if (!frequency_transform.Run(minimum_phase_sequence, &warped_sequence,
                                  &buffer)) {
       std::ostringstream error_message;
@@ -203,7 +203,8 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    if (!sptk::WriteStream(0, output_length, warped_sequence, &std::cout)) {
+    if (!sptk::WriteStream(0, output_length, warped_sequence, &std::cout,
+                           NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write warped sequence";
       sptk::PrintErrorMessage("freqt", error_message);

@@ -70,13 +70,13 @@ bool ReadStream(T* data_to_read, std::istream* input_stream);
 template <typename T>
 bool ReadStream(bool zero_padding, int stream_skip, int read_point,
                 int read_size, std::vector<T>* sequence_to_read,
-                std::istream* input_stream);
+                std::istream* input_stream, int* actual_read_size);
 template <typename T>
 bool WriteStream(T data_to_write, std::ostream* output_stream);
 template <typename T>
 bool WriteStream(int write_point, int write_size,
                  const std::vector<T>& sequence_to_write,
-                 std::ostream* output_stream);
+                 std::ostream* output_stream, int* actual_write_size);
 template <typename T>
 bool SnPrintf(T data, const std::string& print_format, size_t buffer_size,
               char* buffer);

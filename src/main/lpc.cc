@@ -192,10 +192,11 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  sptk::WaveformToAutocorrelation waveform_to_autocorrelation;
-  if (!waveform_to_autocorrelation.SetNumOrder(num_order)) {
+  sptk::WaveformToAutocorrelation waveform_to_autocorrelation(frame_length,
+                                                              num_order);
+  if (!waveform_to_autocorrelation.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set the order of autocorrelation sequence";
+    error_message << "Failed to set condition for obtaining autocorrelation";
     sptk::PrintErrorMessage("lpc", error_message);
     return 1;
   }
@@ -214,8 +215,8 @@ int main(int argc, char* argv[]) {
   std::vector<double> autocorrelation_sequence(output_length);
   std::vector<double> linear_predictive_coefficients(output_length);
 
-  for (int frame_index(0); sptk::ReadStream(false, 0, 0, frame_length,
-                                            &windowed_sequence, &input_stream);
+  for (int frame_index(0); sptk::ReadStream(
+           false, 0, 0, frame_length, &windowed_sequence, &input_stream, NULL);
        ++frame_index) {
     if (!waveform_to_autocorrelation.Run(windowed_sequence,
                                          &autocorrelation_sequence)) {
@@ -243,7 +244,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (!sptk::WriteStream(0, output_length, linear_predictive_coefficients,
-                           &std::cout)) {
+                           &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write linear predictive coefficients";
       sptk::PrintErrorMessage("lpc", error_message);

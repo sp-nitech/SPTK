@@ -143,28 +143,30 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  sptk::WaveformToAutocorrelation waveform_to_autocorrelation;
-  if (!waveform_to_autocorrelation.SetNumOrder(num_order)) {
+  sptk::WaveformToAutocorrelation waveform_to_autocorrelation(frame_length,
+                                                              num_order);
+  if (!waveform_to_autocorrelation.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set the order of autocorrelation sequence";
+    error_message << "Failed to set condition for conversion";
     sptk::PrintErrorMessage("acorr", error_message);
     return 1;
   }
 
   const int output_length(num_order + 1);
-  std::vector<double> input_sequence(frame_length);
-  std::vector<double> output_sequence(output_length);
+  std::vector<double> waveform(frame_length);
+  std::vector<double> autocorrelation(output_length);
 
-  while (sptk::ReadStream(false, 0, 0, frame_length, &input_sequence,
-                          &input_stream)) {
-    if (!waveform_to_autocorrelation.Run(input_sequence, &output_sequence)) {
+  while (sptk::ReadStream(false, 0, 0, frame_length, &waveform, &input_stream,
+                          NULL)) {
+    if (!waveform_to_autocorrelation.Run(waveform, &autocorrelation)) {
       std::ostringstream error_message;
       error_message << "Failed to obtain autocorrelation sequence";
       sptk::PrintErrorMessage("acorr", error_message);
       return 1;
     }
 
-    if (!sptk::WriteStream(0, output_length, output_sequence, &std::cout)) {
+    if (!sptk::WriteStream(0, output_length, autocorrelation, &std::cout,
+                           NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write autocorrelation sequence";
       sptk::PrintErrorMessage("acorr", error_message);

@@ -130,22 +130,23 @@ class VectorMerge : public VectorMergeInterface {
     for (;;) {
       if (0 < insert_point_) {
         if (!sptk::ReadStream(false, 0, 0, insert_point_, &merged_vector,
-                              input_stream)) {
+                              input_stream, NULL)) {
           break;
         }
       }
       if (!sptk::ReadStream(false, 0, insert_point_, insert_length_,
-                            &merged_vector, insert_stream)) {
+                            &merged_vector, insert_stream, NULL)) {
         break;
       }
       if (0 < input_rest_length_) {
         if (!sptk::ReadStream(
                 false, input_skip_length_, insert_point_ + insert_length_,
-                input_rest_length_, &merged_vector, input_stream)) {
+                input_rest_length_, &merged_vector, input_stream, NULL)) {
           break;
         }
       }
-      if (!sptk::WriteStream(0, merged_length_, merged_vector, &std::cout)) {
+      if (!sptk::WriteStream(0, merged_length_, merged_vector, &std::cout,
+                             NULL)) {
         return false;
       }
     }

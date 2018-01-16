@@ -54,7 +54,11 @@ namespace sptk {
 class WaveformToAutocorrelation {
  public:
   //
-  WaveformToAutocorrelation() : num_order_(0) {
+  WaveformToAutocorrelation(int frame_length, int num_order)
+      : frame_length_(frame_length), num_order_(num_order), is_valid_(true) {
+    if (frame_length <= 0 || num_order_ < 0) {
+      is_valid_ = false;
+    }
   }
 
   //
@@ -62,10 +66,8 @@ class WaveformToAutocorrelation {
   }
 
   //
-  bool SetNumOrder(int num_order) {
-    if (num_order < 0) return false;
-    num_order_ = num_order;
-    return true;
+  int GetFrameLength() const {
+    return frame_length_;
   }
 
   //
@@ -74,12 +76,23 @@ class WaveformToAutocorrelation {
   }
 
   //
-  bool Run(const std::vector<double>& input_sequence,
-           std::vector<double>* output_sequence) const;
+  bool IsValid() const {
+    return is_valid_;
+  }
+
+  //
+  bool Run(const std::vector<double>& waveform,
+           std::vector<double>* autocorrelation) const;
 
  private:
   //
-  int num_order_;
+  const int frame_length_;
+
+  //
+  const int num_order_;
+
+  //
+  bool is_valid_;
 
   //
   DISALLOW_COPY_AND_ASSIGN(WaveformToAutocorrelation);

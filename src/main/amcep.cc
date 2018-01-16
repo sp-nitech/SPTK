@@ -315,7 +315,8 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("amcep", error_message);
           return 1;
         }
-        if (!sptk::WriteStream(0, length, averaged_mel_cepstrum, &std::cout)) {
+        if (!sptk::WriteStream(0, length, averaged_mel_cepstrum, &std::cout,
+                               NULL)) {
           std::ostringstream error_message;
           error_message << "Failed to write mel-cepstrum";
           sptk::PrintErrorMessage("amcep", error_message);
@@ -323,7 +324,7 @@ int main(int argc, char* argv[]) {
         }
         accumulator.Clear(&buffer_for_accumulator);
       } else {
-        if (!sptk::WriteStream(0, length, mel_cepstrum, &std::cout)) {
+        if (!sptk::WriteStream(0, length, mel_cepstrum, &std::cout, NULL)) {
           std::ostringstream error_message;
           error_message << "Failed to write mel-cepstrum";
           sptk::PrintErrorMessage("amcep", error_message);

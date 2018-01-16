@@ -153,7 +153,7 @@ int main(int argc, char* argv[]) {
       }
 
       std::vector<double> tmp(length);
-      while (sptk::ReadStream(false, 0, 0, length, &tmp, &ifs)) {
+      while (sptk::ReadStream(false, 0, 0, length, &tmp, &ifs, NULL)) {
         codebook.push_back(tmp);
       }
       ifs.close();
@@ -195,7 +195,7 @@ int main(int argc, char* argv[]) {
   std::vector<int> codebook_index(num_stage);
   std::vector<double> reconstructed_vector(length);
   while (sptk::ReadStream(false, 0, 0, num_stage, &codebook_index,
-                          &stream_for_codebook_index)) {
+                          &stream_for_codebook_index, NULL)) {
     if (!inverse_multistage_vector_quantization.Run(
             codebook_index, codebook_vectors, &reconstructed_vector, &buffer)) {
       std::ostringstream error_message;
@@ -203,7 +203,7 @@ int main(int argc, char* argv[]) {
       sptk::PrintErrorMessage("imsvq", error_message);
       return 1;
     }
-    if (!sptk::WriteStream(0, length, reconstructed_vector, &std::cout)) {
+    if (!sptk::WriteStream(0, length, reconstructed_vector, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write reconstructed vector";
       sptk::PrintErrorMessage("imsvq", error_message);

@@ -171,8 +171,10 @@ int main(int argc, char* argv[]) {
   std::vector<double> output_x(fft_length);
   std::vector<double> output_y(fft_length);
 
-  while (sptk::ReadStream(false, 0, 0, fft_length, &input_x, &input_stream) &&
-         sptk::ReadStream(false, 0, 0, fft_length, &input_y, &input_stream)) {
+  while (sptk::ReadStream(false, 0, 0, fft_length, &input_x, &input_stream,
+                          NULL) &&
+         sptk::ReadStream(false, 0, 0, fft_length, &input_y, &input_stream,
+                          NULL)) {
     if (!inverse_fft.Run(input_x, input_y, &output_x, &output_y)) {
       std::ostringstream error_message;
       error_message << "Failed to run inverse fast Fourier transform";
@@ -182,7 +184,7 @@ int main(int argc, char* argv[]) {
 
     if ((kOutputRealAndImaginaryParts == output_format ||
          kOutputRealPart == output_format) &&
-        !sptk::WriteStream(0, fft_length, output_x, &std::cout)) {
+        !sptk::WriteStream(0, fft_length, output_x, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write real parts";
       sptk::PrintErrorMessage("ifft", error_message);
@@ -191,7 +193,7 @@ int main(int argc, char* argv[]) {
 
     if ((kOutputRealAndImaginaryParts == output_format ||
          kOutputImaginaryPart == output_format) &&
-        !sptk::WriteStream(0, fft_length, output_y, &std::cout)) {
+        !sptk::WriteStream(0, fft_length, output_y, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write imaginary parts";
       sptk::PrintErrorMessage("ifft", error_message);

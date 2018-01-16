@@ -44,36 +44,36 @@
 
 #include "SPTK/converter/waveform_to_autocorrelation.h"
 
-#include <algorithm>  // std::fill_n
+#include <algorithm>  // std::fill
 #include <cstddef>    // std::size_t
 
 namespace sptk {
 
 bool WaveformToAutocorrelation::Run(
-    const std::vector<double>& input_sequence,
-    std::vector<double>* output_sequence) const {
+    const std::vector<double>& waveform,
+    std::vector<double>* autocorrelation) const {
   // check inputs
-  if (input_sequence.empty() || NULL == output_sequence) {
+  if (!is_valid_ ||
+      waveform.size() != static_cast<std::size_t>(frame_length_) ||
+      NULL == autocorrelation) {
     return false;
   }
 
   // prepare memories
-  const int output_length(num_order_ + 1);
-  if (output_sequence->size() < static_cast<std::size_t>(output_length)) {
-    output_sequence->resize(output_length);
+  if (autocorrelation->size() < static_cast<std::size_t>(num_order_ + 1)) {
+    autocorrelation->resize(num_order_ + 1);
   }
 
-  // get values
-  const int input_length(input_sequence.size());
-  const double* input(&(input_sequence[0]));
-  double* output(&((*output_sequence)[0]));
-
   // fill zero
-  std::fill_n(output, output_length, 0.0);
+  std::fill(autocorrelation->begin(), autocorrelation->end(), 0.0);
+
+  // get values
+  const double* input(&(waveform[0]));
+  double* output(&((*autocorrelation)[0]));
 
   // calculate
-  for (int i(0); i < output_length; ++i) {
-    for (int j(0); j <= input_length - i; ++j) {
+  for (int i(0); i <= num_order_; ++i) {
+    for (int j(0); j <= frame_length_ - i; ++j) {
       output[i] += input[j] * input[i + j];
     }
   }

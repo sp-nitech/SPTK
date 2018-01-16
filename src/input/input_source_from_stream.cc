@@ -51,7 +51,7 @@ bool InputSourceFromStream::Get(std::vector<double>* buffer) {
     return false;
   }
   return sptk::ReadStream(zero_padding_, 0, 0, read_size_, buffer,
-                          input_stream_);
+                          input_stream_, NULL);
 }
 
 }  // namespace sptk

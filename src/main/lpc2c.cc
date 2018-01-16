@@ -161,7 +161,8 @@ int main(int argc, char* argv[]) {
   std::vector<double> cepstrum(output_length);
 
   while (sptk::ReadStream(false, 0, 0, input_length,
-                          &linear_predictive_coefficients, &input_stream)) {
+                          &linear_predictive_coefficients, &input_stream,
+                          NULL)) {
     if (!linear_predictive_coefficients_to_cepstrum.Run(
             linear_predictive_coefficients, &cepstrum)) {
       std::ostringstream error_message;
@@ -171,7 +172,7 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    if (!sptk::WriteStream(0, output_length, cepstrum, &std::cout)) {
+    if (!sptk::WriteStream(0, output_length, cepstrum, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write cepstrum";
       sptk::PrintErrorMessage("lpc2c", error_message);

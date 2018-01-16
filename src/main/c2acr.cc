@@ -179,8 +179,8 @@ int main(int argc, char* argv[]) {
   std::vector<double> cepstrum(input_length);
   std::vector<double> autocorrelation(output_length);
 
-  while (
-      sptk::ReadStream(false, 0, 0, input_length, &cepstrum, &input_stream)) {
+  while (sptk::ReadStream(false, 0, 0, input_length, &cepstrum, &input_stream,
+                          NULL)) {
     if (!cepstrum_to_autocorrelation.Run(cepstrum, &autocorrelation, &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to transform cepstrum to autocorrelation";
@@ -188,7 +188,8 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    if (!sptk::WriteStream(0, output_length, autocorrelation, &std::cout)) {
+    if (!sptk::WriteStream(0, output_length, autocorrelation, &std::cout,
+                           NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write autocorrelation sequence";
       sptk::PrintErrorMessage("c2acr", error_message);

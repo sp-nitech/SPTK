@@ -192,7 +192,7 @@ int main(int argc, char* argv[]) {
   std::vector<double> linear_predictive_coefficients(length);
 
   for (int frame_index(0); sptk::ReadStream(
-           false, 0, 0, length, &autocorrelation_sequence, &input_stream);
+           false, 0, 0, length, &autocorrelation_sequence, &input_stream, NULL);
        ++frame_index) {
     bool is_stable(false);
     if (!levinson_durbin_recursion.Run(autocorrelation_sequence,
@@ -212,7 +212,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (!sptk::WriteStream(0, length, linear_predictive_coefficients,
-                           &std::cout)) {
+                           &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write linear predictive coefficients";
       sptk::PrintErrorMessage("levdur", error_message);

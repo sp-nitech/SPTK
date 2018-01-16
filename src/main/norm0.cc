@@ -144,7 +144,7 @@ int main(int argc, char* argv[]) {
   std::vector<double> normalized_filter_coefficients(length);
 
   while (sptk::ReadStream(false, 0, 0, length, &filter_coefficients,
-                          &input_stream)) {
+                          &input_stream, NULL)) {
     if (!filter_coefficient_normalization.Run(
             filter_coefficients, &normalized_filter_coefficients)) {
       std::ostringstream error_message;
@@ -154,7 +154,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (!sptk::WriteStream(0, length, normalized_filter_coefficients,
-                           &std::cout)) {
+                           &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write normalized filter coefficients";
       sptk::PrintErrorMessage("norm0", error_message);

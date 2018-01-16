@@ -269,7 +269,7 @@ int main(int argc, char* argv[]) {
   std::vector<double> transformed_mel_generalized_cepstrum(output_length);
 
   while (sptk::ReadStream(false, 0, 0, input_length, &mel_generalized_cepstrum,
-                          &input_stream)) {
+                          &input_stream, NULL)) {
     // input modification: 1+g*mgc[0] -> mgc[0]
     if (!input_normalization_flag && input_multiplication_flag)
       (*mel_generalized_cepstrum.begin()) =
@@ -289,7 +289,8 @@ int main(int argc, char* argv[]) {
           *(transformed_mel_generalized_cepstrum.begin()) * output_gamma + 1.0;
     // write results
     if (!sptk::WriteStream(0, output_length,
-                           transformed_mel_generalized_cepstrum, &std::cout)) {
+                           transformed_mel_generalized_cepstrum, &std::cout,
+                           NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write mel-generalized cepstrum";
       sptk::PrintErrorMessage("mgc2mgc", error_message);

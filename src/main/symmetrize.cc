@@ -200,7 +200,7 @@ int main(int argc, char* argv[]) {
   std::vector<double> symmetrized_data_sequence(output_length);
 
   while (sptk::ReadStream(false, 0, 0, input_length, &data_sequence,
-                          &input_stream)) {
+                          &input_stream, NULL)) {
     if (!data_symmetrizing.Run(data_sequence, &symmetrized_data_sequence)) {
       std::ostringstream error_message;
       error_message << "Failed to symmetrize";
@@ -209,7 +209,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (!sptk::WriteStream(0, output_length, symmetrized_data_sequence,
-                           &std::cout)) {
+                           &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write symmetrized data sequence";
       sptk::PrintErrorMessage("symmetrize", error_message);

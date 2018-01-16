@@ -79,7 +79,7 @@ bool ReadStream(T* read_data, std::istream* input_stream) {
 template <typename T>
 bool ReadStream(bool zero_padding, int stream_skip, int read_point,
                 int read_size, std::vector<T>* sequence_to_read,
-                std::istream* input_stream) {
+                std::istream* input_stream, int* actual_read_size) {
   if (stream_skip < 0 || read_point < 0 || read_size <= 0 ||
       NULL == sequence_to_read || NULL == input_stream || input_stream->eof()) {
     return false;
@@ -103,6 +103,10 @@ bool ReadStream(bool zero_padding, int stream_skip, int read_point,
       num_read_bytes);
 
   const int gcount(input_stream->gcount());
+  if (NULL != actual_read_size) {
+    *actual_read_size = gcount / type_byte;
+  }
+
   if (num_read_bytes == gcount) {
     return !input_stream->fail();
   } else if (zero_padding && 0 < gcount) {
@@ -137,7 +141,7 @@ bool WriteStream(T data_to_write, std::ostream* output_stream) {
 template <typename T>
 bool WriteStream(int write_point, int write_size,
                  const std::vector<T>& sequence_to_write,
-                 std::ostream* output_stream) {
+                 std::ostream* output_stream, int* actual_write_size) {
   if (write_point < 0 || write_size <= 0 || NULL == output_stream) {
     return false;
   }
@@ -147,9 +151,20 @@ bool WriteStream(int write_point, int write_size,
     return false;
   }
 
+  const int before((NULL == actual_write_size)
+                       ? 0
+                       : static_cast<int>(output_stream->tellp()));
+
   output_stream->write(
       reinterpret_cast<const char*>(&(sequence_to_write[0]) + write_point),
       sizeof(sequence_to_write[0]) * write_size);
+
+  // When output_stream is std::cout, actual_write_size is always zero.
+  if (NULL != actual_write_size) {
+    const int after(output_stream->tellp());
+    const int type_byte(sizeof(sequence_to_write[0]));
+    *actual_write_size = (after - before) / type_byte;
+  }
 
   return !output_stream->fail();
 }
@@ -318,19 +333,19 @@ template bool ReadStream<uint64_t>(uint64_t*, std::istream*);
 template bool ReadStream<float>(float*, std::istream*);
 template bool ReadStream<double>(double*, std::istream*);
 template bool ReadStream<long double>(long double*, std::istream*);
-template bool ReadStream<int8_t>(bool, int, int, int, std::vector<int8_t>*, std::istream*);            // NOLINT
-template bool ReadStream<int16_t>(bool, int, int, int, std::vector<int16_t>*, std::istream*);          // NOLINT
-template bool ReadStream<int24_t>(bool, int, int, int, std::vector<int24_t>*, std::istream*);          // NOLINT
-template bool ReadStream<int32_t>(bool, int, int, int, std::vector<int32_t>*, std::istream*);          // NOLINT
-template bool ReadStream<int64_t>(bool, int, int, int, std::vector<int64_t>*, std::istream*);          // NOLINT
-template bool ReadStream<uint8_t>(bool, int, int, int, std::vector<uint8_t>*, std::istream*);          // NOLINT
-template bool ReadStream<uint16_t>(bool, int, int, int, std::vector<uint16_t>*, std::istream*);        // NOLINT
-template bool ReadStream<uint24_t>(bool, int, int, int, std::vector<uint24_t>*, std::istream*);        // NOLINT
-template bool ReadStream<uint32_t>(bool, int, int, int, std::vector<uint32_t>*, std::istream*);        // NOLINT
-template bool ReadStream<uint64_t>(bool, int, int, int, std::vector<uint64_t>*, std::istream*);        // NOLINT
-template bool ReadStream<float>(bool, int, int, int, std::vector<float>*, std::istream*);              // NOLINT
-template bool ReadStream<double>(bool, int, int, int, std::vector<double>*, std::istream*);            // NOLINT
-template bool ReadStream<long double>(bool, int, int, int, std::vector<long double>*, std::istream*);  // NOLINT
+template bool ReadStream<int8_t>(bool, int, int, int, std::vector<int8_t>*, std::istream*, int*);            // NOLINT
+template bool ReadStream<int16_t>(bool, int, int, int, std::vector<int16_t>*, std::istream*, int*);          // NOLINT
+template bool ReadStream<int24_t>(bool, int, int, int, std::vector<int24_t>*, std::istream*, int*);          // NOLINT
+template bool ReadStream<int32_t>(bool, int, int, int, std::vector<int32_t>*, std::istream*, int*);          // NOLINT
+template bool ReadStream<int64_t>(bool, int, int, int, std::vector<int64_t>*, std::istream*, int*);          // NOLINT
+template bool ReadStream<uint8_t>(bool, int, int, int, std::vector<uint8_t>*, std::istream*, int*);          // NOLINT
+template bool ReadStream<uint16_t>(bool, int, int, int, std::vector<uint16_t>*, std::istream*, int*);        // NOLINT
+template bool ReadStream<uint24_t>(bool, int, int, int, std::vector<uint24_t>*, std::istream*, int*);        // NOLINT
+template bool ReadStream<uint32_t>(bool, int, int, int, std::vector<uint32_t>*, std::istream*, int*);        // NOLINT
+template bool ReadStream<uint64_t>(bool, int, int, int, std::vector<uint64_t>*, std::istream*, int*);        // NOLINT
+template bool ReadStream<float>(bool, int, int, int, std::vector<float>*, std::istream*, int*);              // NOLINT
+template bool ReadStream<double>(bool, int, int, int, std::vector<double>*, std::istream*, int*);            // NOLINT
+template bool ReadStream<long double>(bool, int, int, int, std::vector<long double>*, std::istream*, int*);  // NOLINT
 template bool WriteStream<int8_t>(int8_t, std::ostream*);
 template bool WriteStream<int16_t>(int16_t, std::ostream*);
 template bool WriteStream<int24_t>(int24_t, std::ostream*);
@@ -344,19 +359,19 @@ template bool WriteStream<uint64_t>(uint64_t, std::ostream*);
 template bool WriteStream<float>(float, std::ostream*);
 template bool WriteStream<double>(double, std::ostream*);
 template bool WriteStream<long double>(long double, std::ostream*);
-template bool WriteStream<int8_t>(int, int, const std::vector<int8_t>&, std::ostream*);            // NOLINT
-template bool WriteStream<int16_t>(int, int, const std::vector<int16_t>&, std::ostream*);          // NOLINT
-template bool WriteStream<int24_t>(int, int, const std::vector<int24_t>&, std::ostream*);          // NOLINT
-template bool WriteStream<int32_t>(int, int, const std::vector<int32_t>&, std::ostream*);          // NOLINT
-template bool WriteStream<int64_t>(int, int, const std::vector<int64_t>&, std::ostream*);          // NOLINT
-template bool WriteStream<uint8_t>(int, int, const std::vector<uint8_t>&, std::ostream*);          // NOLINT
-template bool WriteStream<uint16_t>(int, int, const std::vector<uint16_t>&, std::ostream*);        // NOLINT
-template bool WriteStream<uint24_t>(int, int, const std::vector<uint24_t>&, std::ostream*);        // NOLINT
-template bool WriteStream<uint32_t>(int, int, const std::vector<uint32_t>&, std::ostream*);        // NOLINT
-template bool WriteStream<uint64_t>(int, int, const std::vector<uint64_t>&, std::ostream*);        // NOLINT
-template bool WriteStream<float>(int, int, const std::vector<float>&, std::ostream*);              // NOLINT
-template bool WriteStream<double>(int, int, const std::vector<double>&, std::ostream*);            // NOLINT
-template bool WriteStream<long double>(int, int, const std::vector<long double>&, std::ostream*);  // NOLINT
+template bool WriteStream<int8_t>(int, int, const std::vector<int8_t>&, std::ostream*, int*);            // NOLINT
+template bool WriteStream<int16_t>(int, int, const std::vector<int16_t>&, std::ostream*, int*);          // NOLINT
+template bool WriteStream<int24_t>(int, int, const std::vector<int24_t>&, std::ostream*, int*);          // NOLINT
+template bool WriteStream<int32_t>(int, int, const std::vector<int32_t>&, std::ostream*, int*);          // NOLINT
+template bool WriteStream<int64_t>(int, int, const std::vector<int64_t>&, std::ostream*, int*);          // NOLINT
+template bool WriteStream<uint8_t>(int, int, const std::vector<uint8_t>&, std::ostream*, int*);          // NOLINT
+template bool WriteStream<uint16_t>(int, int, const std::vector<uint16_t>&, std::ostream*, int*);        // NOLINT
+template bool WriteStream<uint24_t>(int, int, const std::vector<uint24_t>&, std::ostream*, int*);        // NOLINT
+template bool WriteStream<uint32_t>(int, int, const std::vector<uint32_t>&, std::ostream*, int*);        // NOLINT
+template bool WriteStream<uint64_t>(int, int, const std::vector<uint64_t>&, std::ostream*, int*);        // NOLINT
+template bool WriteStream<float>(int, int, const std::vector<float>&, std::ostream*, int*);              // NOLINT
+template bool WriteStream<double>(int, int, const std::vector<double>&, std::ostream*, int*);            // NOLINT
+template bool WriteStream<long double>(int, int, const std::vector<long double>&, std::ostream*, int*);  // NOLINT
 template bool SnPrintf(int8_t, const std::string&, std::size_t, char*);
 template bool SnPrintf(int16_t, const std::string&, std::size_t, char*);
 template bool SnPrintf(int24_t, const std::string&, std::size_t, char*);

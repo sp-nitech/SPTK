@@ -312,8 +312,8 @@ int main(int argc, char* argv[]) {
   std::vector<double> spectrum(output_length);
 
   while (sptk::ReadStream(false, 0, read_point, read_size,
-                          &mel_generalized_line_spectral_pairs,
-                          &input_stream)) {
+                          &mel_generalized_line_spectral_pairs, &input_stream,
+                          NULL)) {
     switch (input_gain_type) {
       case kLinearGain: {
         // nothing to do
@@ -395,7 +395,7 @@ int main(int argc, char* argv[]) {
       default: { break; }
     }
 
-    if (!sptk::WriteStream(0, output_length, spectrum, &std::cout)) {
+    if (!sptk::WriteStream(0, output_length, spectrum, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write spectrum";
       sptk::PrintErrorMessage("mglsp2sp", error_message);

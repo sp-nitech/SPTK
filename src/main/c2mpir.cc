@@ -172,8 +172,8 @@ int main(int argc, char* argv[]) {
   std::vector<double> cepstrum(input_length);
   std::vector<double> minimum_phase_impulse_response(output_length);
 
-  while (
-      sptk::ReadStream(false, 0, 0, input_length, &cepstrum, &input_stream)) {
+  while (sptk::ReadStream(false, 0, 0, input_length, &cepstrum, &input_stream,
+                          NULL)) {
     if (!cepstrum_to_minimum_phase_impulse_response.Run(
             cepstrum, &minimum_phase_impulse_response)) {
       std::ostringstream error_message;
@@ -184,7 +184,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (!sptk::WriteStream(0, output_length, minimum_phase_impulse_response,
-                           &std::cout)) {
+                           &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write minimum phase impulse response";
       sptk::PrintErrorMessage("c2mpir", error_message);

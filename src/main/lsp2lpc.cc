@@ -225,7 +225,7 @@ int main(int argc, char* argv[]) {
   std::vector<double> linear_predictive_coefficients(length);
 
   while (sptk::ReadStream(false, 0, read_point, read_size, &line_spectral_pairs,
-                          &input_stream)) {
+                          &input_stream, NULL)) {
     switch (input_gain_type) {
       case kLinearGain: {
         // nothing to do
@@ -283,7 +283,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (!sptk::WriteStream(0, length, linear_predictive_coefficients,
-                           &std::cout)) {
+                           &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write linear predictive coefficients";
       sptk::PrintErrorMessage("lsp2lpc", error_message);

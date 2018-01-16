@@ -161,7 +161,7 @@ int main(int argc, char* argv[]) {
   // skip data
   for (int frame_index(0); frame_index < start_index; ++frame_index) {
     if (!sptk::ReadStream(false, 0, 0, vector_length, &input_data,
-                          &input_stream)) {
+                          &input_stream, NULL)) {
       std::ostringstream error_message;
       error_message << "Start index exceeds data length";
       sptk::PrintErrorMessage("decimate", error_message);
@@ -169,11 +169,11 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  for (int frame_index(0);
-       sptk::ReadStream(false, 0, 0, vector_length, &input_data, &input_stream);
+  for (int frame_index(0); sptk::ReadStream(false, 0, 0, vector_length,
+                                            &input_data, &input_stream, NULL);
        ++frame_index) {
     if (0 == frame_index % decimation_period) {
-      if (!sptk::WriteStream(0, vector_length, input_data, &std::cout)) {
+      if (!sptk::WriteStream(0, vector_length, input_data, &std::cout, NULL)) {
         std::ostringstream error_message;
         error_message << "Failed to write decimated data sequence";
         sptk::PrintErrorMessage("decimate", error_message);

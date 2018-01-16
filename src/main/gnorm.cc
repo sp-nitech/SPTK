@@ -169,7 +169,7 @@ int main(int argc, char* argv[]) {
   std::vector<double> normalized_generalized_cepstrum(length);
 
   while (sptk::ReadStream(false, 0, 0, length, &generalized_cepstrum,
-                          &input_stream)) {
+                          &input_stream, NULL)) {
     if (!generalized_cepstrum_gain_normalization.Run(
             generalized_cepstrum, &normalized_generalized_cepstrum)) {
       std::ostringstream error_message;
@@ -179,7 +179,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (!sptk::WriteStream(length, 0, normalized_generalized_cepstrum,
-                           &std::cout)) {
+                           &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to normalized generalized cepstrum";
       sptk::PrintErrorMessage("gnorm", error_message);

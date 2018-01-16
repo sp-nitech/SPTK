@@ -255,7 +255,7 @@ int main(int argc, char* argv[]) {
   std::vector<double> phase_spectrum(fft_length);
 
   while (sptk::ReadStream(false, 0, 0, input_length, &mel_generalized_cepstrum,
-                          &input_stream)) {
+                          &input_stream, NULL)) {
     // input modification
     if (!normalization_flag && multiplication_flag) {
       (*mel_generalized_cepstrum.begin()) =
@@ -326,8 +326,8 @@ int main(int argc, char* argv[]) {
       case kLogAmplitudeSpectrum:
       case kAmplitudeSpectrum:
       case kPowerSpectrum: {
-        if (!sptk::WriteStream(0, output_length, amplitude_spectrum,
-                               &std::cout)) {
+        if (!sptk::WriteStream(0, output_length, amplitude_spectrum, &std::cout,
+                               NULL)) {
           std::ostringstream error_message;
           error_message << "Failed to write amplitude spectrum";
           sptk::PrintErrorMessage("mgc2sp", error_message);
@@ -338,7 +338,8 @@ int main(int argc, char* argv[]) {
       case kPhaseSpectrumInNormalizedRadians:
       case kPhaseSpectrumInRadians:
       case kPhaseSpectrumInDegrees: {
-        if (!sptk::WriteStream(0, output_length, phase_spectrum, &std::cout)) {
+        if (!sptk::WriteStream(0, output_length, phase_spectrum, &std::cout,
+                               NULL)) {
           std::ostringstream error_message;
           error_message << "Failed to write phase spectrum";
           sptk::PrintErrorMessage("mgc2sp", error_message);

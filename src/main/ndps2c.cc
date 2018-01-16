@@ -171,8 +171,8 @@ int main(int argc, char* argv[]) {
   std::vector<double> cepstrum(output_length);
 
   while (sptk::ReadStream(false, 0, 0, input_length,
-                          &negative_derivative_of_phase_spectrum,
-                          &input_stream)) {
+                          &negative_derivative_of_phase_spectrum, &input_stream,
+                          NULL)) {
     if (!negative_derivative_of_phase_spectrum_to_cepstrum.Run(
             negative_derivative_of_phase_spectrum, &cepstrum, &buffer)) {
       std::ostringstream error_message;
@@ -182,7 +182,7 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    if (!sptk::WriteStream(0, output_length, cepstrum, &std::cout)) {
+    if (!sptk::WriteStream(0, output_length, cepstrum, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write cepstrum";
       sptk::PrintErrorMessage("ndps2c", error_message);
