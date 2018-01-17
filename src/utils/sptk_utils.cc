@@ -44,7 +44,8 @@
 
 #include "SPTK/utils/sptk_utils.h"
 
-#include <algorithm>  // std::fill_n
+#include <algorithm>  // std::fill_n, std::transform
+#include <cctype>     // std::tolower
 #include <cerrno>     // errno, ERANGE
 #include <cmath>      // std::ceil, std::exp, std::log
 #include <cstdint>    // int8_t, etc.
@@ -222,6 +223,53 @@ bool ConvertStringToDouble(const std::string& input, double* output) {
 
   *output = converted_value;
   return true;
+}
+
+bool ConvertSpecialStringToDouble(const std::string& input, double* output) {
+  if (input.empty() || NULL == output) {
+    return false;
+  }
+
+  std::string lowercase_input;
+  std::transform(input.begin(), input.end(), lowercase_input.begin(),
+                 [](unsigned char c) { return std::tolower(c); });
+
+  if ("pi" == lowercase_input) {
+    *output = sptk::kPi;
+    return true;
+  } else if ("db" == lowercase_input) {
+    *output = sptk::kNeper;
+    return true;
+  } else if ("cent" == lowercase_input) {
+    *output = 1200.0 * sptk::kOctave;
+    return true;
+  } else if ("semitone" == lowercase_input) {
+    *output = 12.0 * sptk::kOctave;
+    return true;
+  } else if ("octave" == lowercase_input) {
+    *output = sptk::kOctave;
+    return true;
+  } else if (lowercase_input.find("sqrt") == 0) {
+    double tmp;
+    if (ConvertStringToDouble(lowercase_input.substr(4), &tmp) && 0.0 <= tmp) {
+      *output = std::sqrt(tmp);
+      return true;
+    }
+  } else if (lowercase_input.find("ln") == 0) {
+    double tmp;
+    if (ConvertStringToDouble(lowercase_input.substr(2), &tmp) && 0.0 < tmp) {
+      *output = std::log(tmp);
+      return true;
+    }
+  } else if (lowercase_input.find("exp") == 0) {
+    double tmp;
+    if (ConvertStringToDouble(lowercase_input.substr(3), &tmp)) {
+      *output = std::exp(tmp);
+      return true;
+    }
+  }
+
+  return false;
 }
 
 bool IsInRange(int num, int min, int max) {

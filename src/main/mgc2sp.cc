@@ -278,7 +278,7 @@ int main(int argc, char* argv[]) {
         std::transform(amplitude_spectrum.begin(),
                        amplitude_spectrum.begin() + output_length,
                        amplitude_spectrum.begin(),
-                       std::bind1st(std::multiplies<double>(), sptk::kNp));
+                       std::bind1st(std::multiplies<double>(), sptk::kNeper));
         break;
       }
       case kLogAmplitudeSpectrum: {

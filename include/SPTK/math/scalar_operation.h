@@ -42,58 +42,121 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_UTILS_SPTK_UTILS_H_
-#define SPTK_UTILS_SPTK_UTILS_H_
+#ifndef SPTK_MATH_SCALAR_OPERATION_H_
+#define SPTK_MATH_SCALAR_OPERATION_H_
 
-#include <iostream>  // std::istream, std::ostream
-#include <sstream>   // std::ostringstream
-#include <string>    // std::string
-#include <vector>    // std::vector
+#include <vector>  // std::vector
 
-#ifndef DISALLOW_COPY_AND_ASSIGN
-#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-  TypeName(const TypeName&);               \
-  void operator=(const TypeName&)
-#endif
+#include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
-static const char* const kVersion("4.0");
-static const double kPi(3.141592653589793);
-static const double kTwoPi(6.283185307179586);
-static const double kNeper(8.685889638065035);   // 1 Np = 20 / ln(10) dB
-static const double kOctave(1.442695040888963);  // 1 / ln(2)
-static const double kLogTwo(0.693147180559945);
-static const double kLogZero(-1.0e+10);
+class ScalarOperation {
+ public:
+  //
+  class ModuleInterface {
+   public:
+    virtual ~ModuleInterface() {
+    }
+    virtual bool Run(double* number, bool* is_magic_number) const = 0;
+  };
 
-template <typename T>
-bool ReadStream(T* data_to_read, std::istream* input_stream);
-template <typename T>
-bool ReadStream(bool zero_padding, int stream_skip, int read_point,
-                int read_size, std::vector<T>* sequence_to_read,
-                std::istream* input_stream, int* actual_read_size);
-template <typename T>
-bool WriteStream(T data_to_write, std::ostream* output_stream);
-template <typename T>
-bool WriteStream(int write_point, int write_size,
-                 const std::vector<T>& sequence_to_write,
-                 std::ostream* output_stream, int* actual_write_size);
-template <typename T>
-bool SnPrintf(T data, const std::string& print_format, size_t buffer_size,
-              char* buffer);
-const char* ConvertBooleanToString(bool input);
-bool ConvertStringToInteger(const std::string& input, int* output);
-bool ConvertStringToDouble(const std::string& input, double* output);
-bool ConvertSpecialStringToDouble(const std::string& input, double* output);
-bool IsInRange(int num, int min, int max);
-bool IsPowerOfTwo(int num);
-int ExtractSign(double x);
-double FloorLog(double x);
-double AddInLogSpace(double log_x, double log_y);
-void PrintDataType(const std::string& symbol, std::ostream* stream);
-void PrintErrorMessage(const std::string& program_name,
-                       const std::ostringstream& message);
+  //
+  ScalarOperation() : use_magic_number_(false) {
+  }
+
+  //
+  virtual ~ScalarOperation() {
+    for (std::vector<ScalarOperation::ModuleInterface*>::iterator itr(
+             modules_.begin());
+         itr != modules_.end(); ++itr) {
+      delete (*itr);
+    }
+  }
+
+  //
+  bool AddAdditionOperation(double addend);
+
+  //
+  bool AddSubtractionOperation(double subtrahend);
+
+  //
+  bool AddMultiplicationOperation(double multiplier);
+
+  //
+  bool AddDivisionOperation(double divisor);
+
+  //
+  bool AddPowerOperation(double exponent);
+
+  //
+  bool AddLowerBoundingOperation(double lower_bound);
+
+  //
+  bool AddUpperBoundingOperation(double upper_bound);
+
+  //
+  bool AddAbsoluteOperation();
+
+  //
+  bool AddReciprocalOperation();
+
+  //
+  bool AddSquareOperation();
+
+  //
+  bool AddSquareRootOperation();
+
+  //
+  bool AddNaturalLogarithmOperation();
+
+  //
+  bool AddLogarithmOperation(double base);
+
+  //
+  bool AddNaturalExponentialOperation();
+
+  //
+  bool AddExponentialOperation(double base);
+
+  //
+  bool AddRoundingOperation();
+
+  //
+  bool AddUnitStepOperation();
+
+  //
+  bool AddSineOperation();
+
+  //
+  bool AddCosineOperation();
+
+  //
+  bool AddTangentOperation();
+
+  //
+  bool AddArctangentOperation();
+
+  //
+  bool AddMagicNumberRemover(double magic_number);
+
+  //
+  bool AddMagicNumberReplacer(double replacement_number);
+
+  //
+  bool Run(double* number, bool* is_magic_number) const;
+
+ private:
+  //
+  bool use_magic_number_;
+
+  //
+  std::vector<ScalarOperation::ModuleInterface*> modules_;
+
+  //
+  DISALLOW_COPY_AND_ASSIGN(ScalarOperation);
+};
 
 }  // namespace sptk
 
-#endif  // SPTK_UTILS_SPTK_UTILS_H_
+#endif  // SPTK_MATH_SCALAR_OPERATION_H_

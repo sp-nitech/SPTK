@@ -374,7 +374,7 @@ int main(int argc, char* argv[]) {
     switch (output_format) {
       case kLogAmplitudeSpectrumInDecibels: {
         std::transform(spectrum.begin(), spectrum.end(), spectrum.begin(),
-                       std::bind1st(std::multiplies<double>(), sptk::kNp));
+                       std::bind1st(std::multiplies<double>(), sptk::kNeper));
         break;
       }
       case kLogAmplitudeSpectrum: {
