@@ -76,11 +76,8 @@ bool ReverseLevinsonDurbinRecursion::Run(
   }
 
   // prepare buffer
-  if (buffer->u_.size() < static_cast<std::size_t>(length)) {
-    buffer->u_.resize(length);
-    for (int i(0); i < length; ++i) {
-      buffer->u_[i].resize(i + 1);
-    }
+  if (buffer->u_.GetNumDimension() < length) {
+    buffer->u_.Resize(length);
   }
   if (buffer->e_.size() < static_cast<std::size_t>(length)) {
     buffer->e_.resize(length);

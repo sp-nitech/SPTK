@@ -47,6 +47,7 @@
 
 #include <vector>  // std::vector
 
+#include "SPTK/math/triangular_matrix.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
@@ -61,7 +62,7 @@ class ReverseLevinsonDurbinRecursion {
     }
 
    private:
-    std::vector<std::vector<double> > u_;
+    TriangularMatrix u_;
     std::vector<double> e_;
     friend class ReverseLevinsonDurbinRecursion;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
