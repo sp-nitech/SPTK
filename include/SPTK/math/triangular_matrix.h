@@ -71,11 +71,7 @@ class TriangularMatrix {
   };
 
   //
-  explicit TriangularMatrix(int num_dimension);
-
-  //
-  virtual ~TriangularMatrix() {
-  }
+  explicit TriangularMatrix(int num_dimension = 0);
 
   //
   TriangularMatrix(const TriangularMatrix& triangular_matrix);
@@ -84,9 +80,16 @@ class TriangularMatrix {
   TriangularMatrix& operator=(const TriangularMatrix& triangular_matrix);
 
   //
+  virtual ~TriangularMatrix() {
+  }
+
+  //
   int GetNumDimension() const {
     return num_dimension_;
   }
+
+  //
+  void Resize(int num_dimension);
 
   //
   Row operator[](int row) {

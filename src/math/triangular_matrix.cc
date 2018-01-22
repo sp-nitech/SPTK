@@ -74,7 +74,7 @@ const double& TriangularMatrix::Row::operator[](int col) const {
 
 TriangularMatrix::TriangularMatrix(int num_dimension)
     : num_dimension_(num_dimension < 0 ? 0 : num_dimension) {
-  data_.resize(num_dimension_ * (num_dimension + 1) / 2);
+  data_.resize(num_dimension_ * (num_dimension_ + 1) / 2);
   index_.resize(num_dimension_);
 
   for (int i(0), j(0); i < num_dimension_; ++i, j += i) {
@@ -106,6 +106,16 @@ TriangularMatrix& TriangularMatrix::operator=(
   return *this;
 }
 
+void TriangularMatrix::Resize(int num_dimension) {
+  num_dimension_ = num_dimension < 0 ? 0 : num_dimension;
+  data_.resize(num_dimension_ * (num_dimension_ + 1) / 2);
+  index_.resize(num_dimension_);
+
+  for (int i(0), j(0); i < num_dimension_; ++i, j += i) {
+    index_[i] = &data_[j];
+  }
+}
+
 double& TriangularMatrix::At(int row, int col) {
   if (row < col) {
     std::swap(row, col);
@@ -113,8 +123,7 @@ double& TriangularMatrix::At(int row, int col) {
   if (col < 0 || num_dimension_ <= row) {
     throw std::out_of_range(kErrorMessage);
   }
-  // return index_[row][col];
-  return data_[row * (row + 1) / 2 + col];
+  return index_[row][col];
 }
 
 const double& TriangularMatrix::At(int row, int col) const {
