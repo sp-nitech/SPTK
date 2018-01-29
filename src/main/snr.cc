@@ -79,11 +79,11 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 2 (segmental SNR per frame)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  file1:" << std::endl;
-  *stream << "       signal sequence            (double)" << std::endl;  // NOLINT
+  *stream << "       signal sequence            (double)" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       signal plus noise sequence (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       signal plus noise sequence (double)[stdin]" << std::endl;
   *stream << "  stdout:" << std::endl;
-  *stream << "       SNR                        (double)" << std::endl;  // NOLINT
+  *stream << "       SNR                        (double)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
