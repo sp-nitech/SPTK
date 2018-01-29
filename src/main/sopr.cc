@@ -69,6 +69,7 @@ enum LongOptions {
   kPOWX,
   kFIX,
   kUNIT,
+  kRAMP,
   kSIN,
   kCOS,
   kTAN,
@@ -106,6 +107,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -POWX X      : power of X           (double)[  N/A][     X ^ x ]" << std::endl;  // NOLINT
   *stream << "       -FIX         : rounding                            [  round(x) ]" << std::endl;  // NOLINT
   *stream << "       -UNIT        : unit step                           [      u(x) ]" << std::endl;  // NOLINT
+  *stream << "       -RAMP        : rectifier                           [  x * u(x) ]" << std::endl;  // NOLINT
   *stream << "       -SIN         : sine                                [    sin(x) ]" << std::endl;  // NOLINT
   *stream << "       -COS         : cosine                              [    cos(x) ]" << std::endl;  // NOLINT
   *stream << "       -TAN         : tangent                             [    tan(x) ]" << std::endl;  // NOLINT
@@ -126,7 +128,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "           lnX      :        ln(X)  [ 0.0 <  X <=   ]" << std::endl;  // NOLINT
   *stream << "           expX     :       exp(X)  [     <= X <=   ]" << std::endl;  // NOLINT
   *stream << "" << std::endl;
-  *stream << "        they are case-insensitive." << std::endl;
+  *stream << "        they are case-insensitive" << std::endl;
   *stream << "" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       data sequence                       (double)[stdin]" << std::endl;  // NOLINT
@@ -160,6 +162,7 @@ int main(int argc, char* argv[]) {
       {"POWX", required_argument, NULL, kPOWX},
       {"FIX", no_argument, NULL, kFIX},
       {"UNIT", no_argument, NULL, kUNIT},
+      {"RAMP", no_argument, NULL, kRAMP},
       {"SIN", no_argument, NULL, kSIN},
       {"COS", no_argument, NULL, kCOS},
       {"TAN", no_argument, NULL, kTAN},
@@ -429,6 +432,15 @@ int main(int argc, char* argv[]) {
         if (!scalar_operation.AddUnitStepOperation()) {
           std::ostringstream error_message;
           error_message << "Failed to add operation by -UNIT option";
+          sptk::PrintErrorMessage("sopr", error_message);
+          return 1;
+        }
+        break;
+      }
+      case kRAMP: {
+        if (!scalar_operation.AddLowerBoundingOperation(0.0)) {
+          std::ostringstream error_message;
+          error_message << "Failed to add operation by -RAMP option";
           sptk::PrintErrorMessage("sopr", error_message);
           return 1;
         }
