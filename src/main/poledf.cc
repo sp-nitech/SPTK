@@ -77,12 +77,12 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -t    : transpose filter             (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultTranspositionFlag) << "]" << std::endl;  // NOLINT
   *stream << "       -k    : filtering without gain       (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(!kDefaultGainFlag)         << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
+  *stream << "  afile:" << std::endl;
+  *stream << "       filter (AR) coefficients             (double)" << std::endl;  // NOLINT
   *stream << "  infile:" << std::endl;
   *stream << "       filter input                         (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
   *stream << "       filter output                        (double)" << std::endl;  // NOLINT
-  *stream << "  afile:" << std::endl;
-  *stream << "       filter (AR) coefficients             (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
   *stream << "       if i = 0, don't interpolate filter coefficients" << std::endl;  // NOLINT
   *stream << std::endl;

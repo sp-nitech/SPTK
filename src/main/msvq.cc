@@ -68,12 +68,12 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -m m  : order of vector    (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -s s  : codebook file      (string)[" << std::setw(5) << std::right << "N/A"                << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
+  *stream << "  cbfile:" << std::endl;
+  *stream << "       codebook                   (double)" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       vector                     (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
   *stream << "       codebook index             (   int)" << std::endl;
-  *stream << "  cbfile:" << std::endl;
-  *stream << "       codebook                   (double)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;

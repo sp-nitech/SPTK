@@ -80,12 +80,12 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 1 (log gain)" << std::endl;
   *stream << "                 2 (unity gain)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
+  *stream << "  lspfile:" << std::endl;
+  *stream << "       line spectral paris coefficients     (double)" << std::endl;  // NOLINT
   *stream << "  infile:" << std::endl;
   *stream << "       filter input                         (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
   *stream << "       filter output                        (double)" << std::endl;  // NOLINT
-  *stream << "  lspfile:" << std::endl;
-  *stream << "       line spectral paris coefficients     (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
   *stream << "       if i = 0, don't interpolate filter coefficients" << std::endl;  // NOLINT
   *stream << std::endl;
