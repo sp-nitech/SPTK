@@ -48,6 +48,7 @@
 #include <algorithm>  // std::fill
 #include <vector>     // std::vector
 
+#include "SPTK/math/triangular_matrix.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
@@ -56,7 +57,7 @@ class StatisticsAccumulator {
  public:
   class Buffer {
    public:
-    Buffer() {
+    Buffer() : zeroth_order_statistics_(0) {
     }
     virtual ~Buffer() {
     }
@@ -66,12 +67,12 @@ class StatisticsAccumulator {
       zeroth_order_statistics_ = 0.0;
       std::fill(first_order_statistics_.begin(), first_order_statistics_.end(),
                 0.0);
-      // TODO(takenori): clear buffer for second-order statistics
+      second_order_statistics_.FillZero();
     }
 
     int zeroth_order_statistics_;
     std::vector<double> first_order_statistics_;
-    // TODO(takenori): declare buffer for second-order statistics
+    TriangularMatrix second_order_statistics_;
     friend class StatisticsAccumulator;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
@@ -105,6 +106,22 @@ class StatisticsAccumulator {
   //
   bool GetMean(const StatisticsAccumulator::Buffer& buffer,
                std::vector<double>* mean) const;
+
+  //
+  bool GetDiagonalCovariance(const StatisticsAccumulator::Buffer& buffer,
+                             std::vector<double>* variance) const;
+
+  //
+  bool GetStandardDeviation(const StatisticsAccumulator::Buffer& buffer,
+                            std::vector<double>* standard_deviation) const;
+
+  //
+  bool GetFullCovariance(const StatisticsAccumulator::Buffer& buffer,
+                         TriangularMatrix* full_covariance) const;
+
+  //
+  bool GetCorrelation(const StatisticsAccumulator::Buffer& buffer,
+                      TriangularMatrix* correlation) const;
 
   //
   void Clear(StatisticsAccumulator::Buffer* buffer) const;

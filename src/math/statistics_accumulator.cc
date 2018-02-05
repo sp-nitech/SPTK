@@ -45,8 +45,9 @@
 #include "SPTK/math/statistics_accumulator.h"
 
 #include <algorithm>   // std::copy, std::fill, std::transform
+#include <cmath>       // std::sqrt
 #include <cstddef>     // std::size_t
-#include <functional>  // std::bind1st, std::plus
+#include <functional>  // std::bind1st, std::multiplies, std::plus, etc.
 
 namespace sptk {
 
@@ -61,14 +62,9 @@ StatisticsAccumulator::StatisticsAccumulator(int num_order,
   }
 }
 
-void StatisticsAccumulator::Clear(StatisticsAccumulator::Buffer* buffer) const {
-  if (NULL != buffer) buffer->Clear();
-}
-
 bool StatisticsAccumulator::GetSum(const StatisticsAccumulator::Buffer& buffer,
                                    std::vector<double>* sum) const {
-  if (num_statistics_order_ < 1 || buffer.zeroth_order_statistics_ <= 0 ||
-      NULL == sum) {
+  if (!is_valid_ || num_statistics_order_ < 1 || NULL == sum) {
     return false;
   }
 
@@ -84,7 +80,7 @@ bool StatisticsAccumulator::GetSum(const StatisticsAccumulator::Buffer& buffer,
 
 bool StatisticsAccumulator::GetMean(const StatisticsAccumulator::Buffer& buffer,
                                     std::vector<double>* mean) const {
-  if (num_statistics_order_ < 1 || buffer.zeroth_order_statistics_ <= 0 ||
+  if (!is_valid_ || num_statistics_order_ < 1 || buffer.zeroth_order_statistics_ <= 0 ||
       NULL == mean) {
     return false;
   }
@@ -101,6 +97,111 @@ bool StatisticsAccumulator::GetMean(const StatisticsAccumulator::Buffer& buffer,
   return true;
 }
 
+bool StatisticsAccumulator::GetDiagonalCovariance(
+    const StatisticsAccumulator::Buffer& buffer,
+    std::vector<double>* diagonal_covariance) const {
+  if (!is_valid_ || num_statistics_order_ < 2 || buffer.zeroth_order_statistics_ <= 0 ||
+      NULL == diagonal_covariance) {
+    return false;
+  }
+
+  if (diagonal_covariance->size() < static_cast<std::size_t>(num_order_ + 1)) {
+    diagonal_covariance->resize(num_order_ + 1);
+  }
+
+  std::vector<double> mean;
+  if (!GetMean(buffer, &mean)) {
+    return false;
+  }
+
+  const double inverse_num_data(1.0 / buffer.zeroth_order_statistics_);
+  const double* mu(&(mean[0]));
+  double* variance(&((*diagonal_covariance)[0]));
+  for (int i(0); i <= num_order_; ++i) {
+    variance[i] = inverse_num_data * buffer.second_order_statistics_[i][i] -
+                  mu[i] * mu[i];
+  }
+
+  return true;
+}
+
+bool StatisticsAccumulator::GetStandardDeviation(
+    const StatisticsAccumulator::Buffer& buffer,
+    std::vector<double>* standard_deviation) const {
+  if (!is_valid_ || num_statistics_order_ < 2 || NULL == standard_deviation) {
+    return false;
+  }
+
+  if (!GetDiagonalCovariance(buffer, standard_deviation)) {
+    return false;
+  }
+
+  std::transform(standard_deviation->begin(), standard_deviation->end(),
+                 standard_deviation->begin(),
+                 std::ptr_fun<double, double>(std::sqrt));
+
+  return true;
+}
+
+bool StatisticsAccumulator::GetFullCovariance(
+    const StatisticsAccumulator::Buffer& buffer,
+    TriangularMatrix* full_covariance) const {
+  if (!is_valid_ || num_statistics_order_ < 2 || buffer.zeroth_order_statistics_ <= 0 ||
+      NULL == full_covariance) {
+    return false;
+  }
+
+  if (full_covariance->GetNumDimension() < num_order_ + 1) {
+    full_covariance->Resize(num_order_ + 1);
+  }
+
+  std::vector<double> mean;
+  if (!GetMean(buffer, &mean)) {
+    return false;
+  }
+
+  const double inverse_num_data(1.0 / buffer.zeroth_order_statistics_);
+  const double* mu(&(mean[0]));
+  for (int i(0); i <= num_order_; ++i) {
+    for (int j(0); j <= i; ++j) {
+      (*full_covariance)[i][j] =
+          inverse_num_data * buffer.second_order_statistics_[i][j] -
+          mu[i] * mu[j];
+    }
+  }
+
+  return true;
+}
+
+bool StatisticsAccumulator::GetCorrelation(
+    const StatisticsAccumulator::Buffer& buffer,
+    TriangularMatrix* correlation) const {
+  if (!is_valid_ || num_statistics_order_ < 2 || NULL == correlation) {
+    return false;
+  }
+
+  std::vector<double> standard_deviation;
+  if (!GetStandardDeviation(buffer, &standard_deviation)) {
+    return false;
+  }
+  if (!GetFullCovariance(buffer, correlation)) {
+    return false;
+  }
+
+  const double* sigma(&(standard_deviation[0]));
+  for (int i(0); i <= num_order_; ++i) {
+    for (int j(0); j <= i; ++j) {
+      (*correlation)[i][j] = (*correlation)[i][j] / (sigma[i] * sigma[j]);
+    }
+  }
+
+  return true;
+}
+
+void StatisticsAccumulator::Clear(StatisticsAccumulator::Buffer* buffer) const {
+  if (!is_valid_ || NULL != buffer) buffer->Clear();
+}
+
 bool StatisticsAccumulator::Run(const std::vector<double>& data,
                                 StatisticsAccumulator::Buffer* buffer) const {
   // check inputs
@@ -111,17 +212,14 @@ bool StatisticsAccumulator::Run(const std::vector<double>& data,
   }
 
   // prepare buffer
-  if (1 <= num_statistics_order_) {
-    if (buffer->first_order_statistics_.size() <
-        static_cast<std::size_t>(length)) {
-      buffer->first_order_statistics_.resize(length);
-      std::fill(buffer->first_order_statistics_.begin(),
-                buffer->first_order_statistics_.end(), 0.0);
-      buffer->zeroth_order_statistics_ = 0.0;
-    }
+  if (1 <= num_statistics_order_ &&
+      buffer->first_order_statistics_.size() <
+          static_cast<std::size_t>(length)) {
+    buffer->first_order_statistics_.resize(length);
   }
-  if (2 <= num_statistics_order_) {
-    // TODO(takenori): prepare triangle matrix and initialize it
+  if (2 <= num_statistics_order_ &&
+      buffer->second_order_statistics_.GetNumDimension() < length) {
+    buffer->second_order_statistics_.Resize(length);
   }
 
   // 0th order
@@ -136,7 +234,11 @@ bool StatisticsAccumulator::Run(const std::vector<double>& data,
 
   // 2nd order
   if (2 <= num_statistics_order_) {
-    // TODO(takenori): accumulate second-order statistics
+    for (int i(0); i < length; ++i) {
+      for (int j(0); j <= i; ++j) {
+        buffer->second_order_statistics_[i][j] += data[i] * data[j];
+      }
+    }
   }
 
   return true;
