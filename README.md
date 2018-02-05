@@ -12,7 +12,7 @@ The Speech Signal Processing Toolkit (SPTK) is a software for speech signal proc
 ## Contributors
 
 * **Cassia Valentini** - [The University of Edinburgh](http://www.cstr.ed.ac.uk/ssi/people/cvbotinh.html)
-  * Calculate the coefficients of the 6th- and 7th-order modified Pade approximation.
+  * Calculated the coefficients of the 6th- and 7th-order modified Pade approximation.
 
 ## License
 

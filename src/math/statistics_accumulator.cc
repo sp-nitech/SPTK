@@ -80,8 +80,8 @@ bool StatisticsAccumulator::GetSum(const StatisticsAccumulator::Buffer& buffer,
 
 bool StatisticsAccumulator::GetMean(const StatisticsAccumulator::Buffer& buffer,
                                     std::vector<double>* mean) const {
-  if (!is_valid_ || num_statistics_order_ < 1 || buffer.zeroth_order_statistics_ <= 0 ||
-      NULL == mean) {
+  if (!is_valid_ || num_statistics_order_ < 1 ||
+      buffer.zeroth_order_statistics_ <= 0 || NULL == mean) {
     return false;
   }
 
@@ -100,8 +100,8 @@ bool StatisticsAccumulator::GetMean(const StatisticsAccumulator::Buffer& buffer,
 bool StatisticsAccumulator::GetDiagonalCovariance(
     const StatisticsAccumulator::Buffer& buffer,
     std::vector<double>* diagonal_covariance) const {
-  if (!is_valid_ || num_statistics_order_ < 2 || buffer.zeroth_order_statistics_ <= 0 ||
-      NULL == diagonal_covariance) {
+  if (!is_valid_ || num_statistics_order_ < 2 ||
+      buffer.zeroth_order_statistics_ <= 0 || NULL == diagonal_covariance) {
     return false;
   }
 
@@ -146,8 +146,8 @@ bool StatisticsAccumulator::GetStandardDeviation(
 bool StatisticsAccumulator::GetFullCovariance(
     const StatisticsAccumulator::Buffer& buffer,
     TriangularMatrix* full_covariance) const {
-  if (!is_valid_ || num_statistics_order_ < 2 || buffer.zeroth_order_statistics_ <= 0 ||
-      NULL == full_covariance) {
+  if (!is_valid_ || num_statistics_order_ < 2 ||
+      buffer.zeroth_order_statistics_ <= 0 || NULL == full_covariance) {
     return false;
   }
 
