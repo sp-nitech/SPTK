@@ -78,11 +78,11 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       pitch_mark [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -s s  : sampling rate                 (double)[" << std::setw(5) << std::right << kDefaultSamplingRate     << "][  6.0 <  s <= 98.0 ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : sampling rate [kHz]           (double)[" << std::setw(5) << std::right << kDefaultSamplingRate     << "][  6.0 <  s <= 98.0 ]" << std::endl;  // NOLINT
   *stream << "       -L L  : minimum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultMinimumF0        << "][  0.0 <  L <  H    ]" << std::endl;  // NOLINT
-  *stream << "               to search for" << std::endl;
+  *stream << "               to search for [Hz]" << std::endl;
   *stream << "       -H H  : maximum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultMaximumF0        << "][    L <  H <=      ]" << std::endl;  // NOLINT
-  *stream << "               to search for" << std::endl;
+  *stream << "               to search for [Hz]" << std::endl;
   *stream << "       -t t  : voicing threshold             (double)[" << std::setw(5) << std::right << kDefaultVoicingThreshold << "][ -0.5 <= t <= 1.6  ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format                 (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat     << "][    0 <= o <= 2    ]" << std::endl;  // NOLINT
   *stream << "                 0 (binary sequence)" << std::endl;
