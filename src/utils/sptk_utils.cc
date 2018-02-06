@@ -276,6 +276,10 @@ bool IsInRange(int num, int min, int max) {
   return (min <= num && num <= max);
 }
 
+bool IsInRange(double num, double min, double max) {
+  return (min <= num && num <= max);
+}
+
 // check whether the given number is a power of two, 2^p where p is a
 // non-negative integer.
 bool IsPowerOfTwo(int num) {

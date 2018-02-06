@@ -42,54 +42,25 @@
 # POSSIBILITY OF SUCH DAMAGE.                                       #
 # ----------------------------------------------------------------- #
 
-SOURCEDIR      = src
-MAINSOURCEDIR  = $(SOURCEDIR)/main
-BUILDDIR       = build
-INCLUDEDIR     = include
-LIBDIR         = lib
-BINDIR         = bin
-THIRDPARTYDIR  = third_party
-REAPERDIR      = $(THIRDPARTYDIR)/REAPER
-THIRDPARTYDIRS = $(REAPERDIR)
+SOURCEDIR     = .
+BUILDDIR      = build
+INCLUDEDIR    = .
 
-TARGET        = $(LIBDIR)/libsptk.a
-MAINSOURCES   = $(wildcard $(MAINSOURCEDIR)/*.cc)
-SOURCES       = $(filter-out $(MAINSOURCES), $(wildcard $(SOURCEDIR)/*/*.cc))
+SOURCES       = $(wildcard $(SOURCEDIR)/*/*.cc)
 OBJECTS       = $(patsubst $(SOURCEDIR)/%.cc, $(BUILDDIR)/%.o, $(SOURCES))
-BINARIES      = $(patsubst $(MAINSOURCEDIR)/%.cc, $(BINDIR)/%, $(MAINSOURCES))
 
-MAKE          = make
 CXX           = g++
 AR            = ar
-CXXFLAGS      = -Wall -O2 -g -std=c++11
-LIBFLAGS      = -lm -lstdc++
-INCLUDE       = -I $(INCLUDEDIR) -I $(REAPERDIR)
+CXXFLAGS      = -Wall -O2 -std=c++11
+INCLUDE       = -I $(INCLUDEDIR)
 
-all: $(THIRDPARTYDIRS) $(TARGET) $(BINARIES)
-
-$(BINARIES): $(BINDIR)/%: $(MAINSOURCEDIR)/%.cc
-	mkdir -p $(BINDIR)
-	$(CXX) $(LIBFLAGS) $(CXXFLAGS) $(INCLUDE) $< $(TARGET) -o $@
-
-$(TARGET): $(OBJECTS)
-	mkdir -p $(LIBDIR)
-	$(AR) cru $(TARGET) $(OBJECTS) $(wildcard $(REAPERDIR)/build/*/*.o)
+all: $(OBJECTS)
 
 $(OBJECTS): $(BUILDDIR)/%.o: $(SOURCEDIR)/%.cc
 	mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ -c $<
 
-$(THIRDPARTYDIRS):
-	$(MAKE) -C $@
-
-format:
-	clang-format -i $(wildcard $(SOURCEDIR)/*/*.cc)
-	clang-format -i	$(wildcard $(INCLUDEDIR)/SPTK/*/*.h)
-
 clean:
-	for dir in $(THIRDPARTYDIRS); do \
-		$(MAKE) clean -C $$dir; \
-	done
-	rm -rf $(BUILDDIR) $(LIBDIR) $(BINDIR)
+	rm -rf $(BUILDDIR)
 
-.PHONY: all $(THIRDPARTYDIRS) format clean
+.PHONY: all clean

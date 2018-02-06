@@ -42,59 +42,85 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_UTILS_SPTK_UTILS_H_
-#define SPTK_UTILS_SPTK_UTILS_H_
+#ifndef SPTK_ANALYZER_PITCH_EXTRACTION_BY_REAPER_H_
+#define SPTK_ANALYZER_PITCH_EXTRACTION_BY_REAPER_H_
 
-#include <iostream>  // std::istream, std::ostream
-#include <sstream>   // std::ostringstream
-#include <string>    // std::string
-#include <vector>    // std::vector
+#include <vector>  // std::vector
 
-#ifndef DISALLOW_COPY_AND_ASSIGN
-#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-  TypeName(const TypeName&);               \
-  void operator=(const TypeName&)
-#endif
+#include "SPTK/analyzer/pitch_extraction_interface.h"
+#include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
-static const char* const kVersion("4.0");
-static const double kPi(3.141592653589793);
-static const double kTwoPi(6.283185307179586);
-static const double kNeper(8.685889638065035);   // 1 Np = 20 / ln(10) dB
-static const double kOctave(1.442695040888963);  // 1 / ln(2)
-static const double kLogTwo(0.693147180559945);
-static const double kLogZero(-1.0e+10);
+class PitchExtractionByReaper : public PitchExtractionInterface {
+ public:
+  //
+  PitchExtractionByReaper(int frame_shift, double sampling_rate,
+                          double minimum_f0, double maximum_f0,
+                          double voicing_threshold);
 
-template <typename T>
-bool ReadStream(T* data_to_read, std::istream* input_stream);
-template <typename T>
-bool ReadStream(bool zero_padding, int stream_skip, int read_point,
-                int read_size, std::vector<T>* sequence_to_read,
-                std::istream* input_stream, int* actual_read_size);
-template <typename T>
-bool WriteStream(T data_to_write, std::ostream* output_stream);
-template <typename T>
-bool WriteStream(int write_point, int write_size,
-                 const std::vector<T>& sequence_to_write,
-                 std::ostream* output_stream, int* actual_write_size);
-template <typename T>
-bool SnPrintf(T data, const std::string& print_format, size_t buffer_size,
-              char* buffer);
-const char* ConvertBooleanToString(bool input);
-bool ConvertStringToInteger(const std::string& input, int* output);
-bool ConvertStringToDouble(const std::string& input, double* output);
-bool ConvertSpecialStringToDouble(const std::string& input, double* output);
-bool IsInRange(int num, int min, int max);
-bool IsInRange(double num, double min, double max);
-bool IsPowerOfTwo(int num);
-int ExtractSign(double x);
-double FloorLog(double x);
-double AddInLogSpace(double log_x, double log_y);
-void PrintDataType(const std::string& symbol, std::ostream* stream);
-void PrintErrorMessage(const std::string& program_name,
-                       const std::ostringstream& message);
+  //
+  virtual ~PitchExtractionByReaper() {
+  }
+
+  //
+  int GetFrameShift() const {
+    return frame_shift_;
+  }
+
+  //
+  double GetSamplingRate() const {
+    return sampling_rate_;
+  }
+
+  //
+  double GetMinimumF0() const {
+    return minimum_f0_;
+  }
+
+  //
+  double GetMaximumF0() const {
+    return maximum_f0_;
+  }
+
+  //
+  double GetVoicingThreshold() const {
+    return voicing_threshold_;
+  }
+
+  //
+  virtual bool IsValid() const {
+    return is_valid_;
+  }
+
+  //
+  virtual bool Get(const std::vector<double>& waveform, std::vector<double>* f0,
+                   std::vector<double>* epochs,
+                   PitchExtractionInterface::Polarity* polarity) const;
+
+ private:
+  //
+  const int frame_shift_;
+
+  //
+  const double sampling_rate_;
+
+  //
+  const double minimum_f0_;
+
+  //
+  const double maximum_f0_;
+
+  //
+  const double voicing_threshold_;
+
+  //
+  bool is_valid_;
+
+  //
+  DISALLOW_COPY_AND_ASSIGN(PitchExtractionByReaper);
+};
 
 }  // namespace sptk
 
-#endif  // SPTK_UTILS_SPTK_UTILS_H_
+#endif  // SPTK_ANALYZER_PITCH_EXTRACTION_BY_REAPER_H_
