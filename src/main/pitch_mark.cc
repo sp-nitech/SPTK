@@ -61,7 +61,7 @@ enum OutputFormats {
   kBinarySequence = 0,
   kPositionInSeconds,
   kPosition,
-  kNumOutputFormats,
+  kNumOutputFormats
 };
 
 const double kDefaultSamplingRate(16.0);
@@ -269,7 +269,7 @@ int main(int argc, char* argv[]) {
               : -1.0);
       const int waveform_length(waveform.size());
       const int num_pitch_marks(pitch_mark.size());
-      int next_pitch_mark(std::round(pitch_mark[0]));
+      int next_pitch_mark(pitch_mark.empty() ? -1 : std::round(pitch_mark[0]));
       for (int i(0), j(1); i < waveform_length; ++i) {
         if (i == next_pitch_mark) {
           if (!sptk::WriteStream(binary_polarity, &std::cout)) {
@@ -294,7 +294,8 @@ int main(int argc, char* argv[]) {
     }
     case kPositionInSeconds:
     case kPosition: {
-      if (!sptk::WriteStream(0, pitch_mark.size(), pitch_mark, &std::cout,
+      if (!pitch_mark.empty() &&
+          !sptk::WriteStream(0, pitch_mark.size(), pitch_mark, &std::cout,
                              NULL)) {
         std::ostringstream error_message;
         error_message << "Failed to write pitch mark";

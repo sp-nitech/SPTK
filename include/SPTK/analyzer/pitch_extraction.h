@@ -55,11 +55,7 @@ namespace sptk {
 class PitchExtraction {
  public:
   //
-  enum Algorithms {
-    kRapt = 0,
-    kSwipe,
-    kReaper,
-  };
+  enum Algorithms { kRapt = 0, kSwipe, kReaper, kNumAlgorithms };
 
   //
   PitchExtraction(int frame_shift, double sampling_rate, double minimum_f0,
@@ -67,15 +63,21 @@ class PitchExtraction {
                   Algorithms algorithm) {
     switch (algorithm) {
       case kRapt: {
+        pitch_extractor_ = NULL;
         break;
       }
       case kSwipe: {
+        pitch_extractor_ = NULL;
         break;
       }
       case kReaper: {
         pitch_extractor_ =
             new PitchExtractionByReaper(frame_shift, sampling_rate, minimum_f0,
                                         maximum_f0, voicing_threshold);
+        break;
+      }
+      default: {
+        pitch_extractor_ = NULL;
         break;
       }
     }
@@ -88,14 +90,15 @@ class PitchExtraction {
 
   //
   bool IsValid() const {
-    return pitch_extractor_->IsValid();
+    return (pitch_extractor_ != NULL && pitch_extractor_->IsValid());
   }
 
   //
   bool Run(const std::vector<double>& waveform, std::vector<double>* f0,
            std::vector<double>* epochs,
            PitchExtractionInterface::Polarity* polarity) const {
-    return pitch_extractor_->Get(waveform, f0, epochs, polarity);
+    return (pitch_extractor_ != NULL &&
+            pitch_extractor_->Get(waveform, f0, epochs, polarity));
   }
 
  private:
