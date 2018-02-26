@@ -78,7 +78,6 @@ bool ReadStream(bool zero_padding, int stream_skip, int read_point,
                 std::istream* input_stream, int* actual_read_size);
 template <typename T>
 bool WriteStream(T data_to_write, std::ostream* output_stream);
-template <>
 bool WriteStream(const sptk::Matrix& matrix_to_write,
                  std::ostream* output_stream);
 template <typename T>

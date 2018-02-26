@@ -158,7 +158,6 @@ bool WriteStream(T data_to_write, std::ostream* output_stream) {
   return !output_stream->fail();
 }
 
-template <>
 bool WriteStream(const sptk::Matrix& matrix_to_write,
                  std::ostream* output_stream) {
   if (0 == matrix_to_write.GetNumRow() || 0 == matrix_to_write.GetNumColumn() ||
