@@ -48,8 +48,6 @@
 #include <iostream>  // std::istream, std::ostream
 #include <vector>    // std::vector
 
-#include "SPTK/utils/sptk_utils.h"
-
 namespace sptk {
 
 class Matrix {
@@ -118,10 +116,6 @@ class Matrix {
   //
   std::vector<double*> index_;
 };
-
-bool ReadStream(Matrix* matrix_to_read, std::istream* input_stream);
-
-bool WriteStream(const Matrix& matrix_to_write, std::ostream* output_stream);
 
 }  // namespace sptk
 

@@ -66,15 +66,34 @@ static const double kThresholdOfInformationLossInLogSpace(-34.0);
 namespace sptk {
 
 template <typename T>
-bool ReadStream(T* read_data, std::istream* input_stream) {
-  if (NULL == read_data || NULL == input_stream || input_stream->eof()) {
+bool ReadStream(T* data_to_read, std::istream* input_stream) {
+  if (NULL == data_to_read || NULL == input_stream || input_stream->eof()) {
     return false;
   }
 
-  const int type_byte(sizeof(*read_data));
-  input_stream->read(reinterpret_cast<char*>(read_data), type_byte);
+  const int type_byte(sizeof(*data_to_read));
+  input_stream->read(reinterpret_cast<char*>(data_to_read), type_byte);
 
   return (type_byte == input_stream->gcount()) ? !input_stream->fail() : false;
+}
+
+template <>
+bool ReadStream(sptk::Matrix* matrix_to_read, std::istream* input_stream) {
+  if (NULL == matrix_to_read || 0 == matrix_to_read->GetNumRow() ||
+      0 == matrix_to_read->GetNumColumn() || NULL == input_stream ||
+      input_stream->eof()) {
+    return false;
+  }
+
+  const int type_byte(sizeof((*matrix_to_read)[0][0]));
+
+  const int num_read_bytes(type_byte * matrix_to_read->GetNumRow() *
+                           matrix_to_read->GetNumColumn());
+  input_stream->read(reinterpret_cast<char*>(&((*matrix_to_read)[0][0])),
+                     num_read_bytes);
+
+  return (num_read_bytes == input_stream->gcount()) ? !input_stream->fail()
+                                                    : false;
 }
 
 template <typename T>
@@ -135,6 +154,22 @@ bool WriteStream(T data_to_write, std::ostream* output_stream) {
 
   output_stream->write(reinterpret_cast<const char*>(&data_to_write),
                        sizeof(data_to_write));
+
+  return !output_stream->fail();
+}
+
+template <>
+bool WriteStream(const sptk::Matrix& matrix_to_write,
+                 std::ostream* output_stream) {
+  if (0 == matrix_to_write.GetNumRow() || 0 == matrix_to_write.GetNumColumn() ||
+      NULL == output_stream) {
+    return false;
+  }
+
+  output_stream->write(reinterpret_cast<const char*>(&(matrix_to_write[0][0])),
+                       sizeof(matrix_to_write[0][0]) *
+                           matrix_to_write.GetNumRow() *
+                           matrix_to_write.GetNumColumn());
 
   return !output_stream->fail();
 }

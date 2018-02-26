@@ -148,36 +148,4 @@ void Matrix::Transpose() {
   }
 }
 
-bool ReadStream(Matrix* matrix_to_read, std::istream* input_stream) {
-  if (NULL == matrix_to_read || 0 == matrix_to_read->GetNumRow() ||
-      0 == matrix_to_read->GetNumColumn() || NULL == input_stream ||
-      input_stream->eof()) {
-    return false;
-  }
-
-  const int type_byte(sizeof((*matrix_to_read)[0][0]));
-
-  const int num_read_bytes(type_byte * matrix_to_read->GetNumRow() *
-                           matrix_to_read->GetNumColumn());
-  input_stream->read(reinterpret_cast<char*>(&((*matrix_to_read)[0][0])),
-                     num_read_bytes);
-
-  return (num_read_bytes == input_stream->gcount()) ? !input_stream->fail()
-                                                    : false;
-}
-
-bool WriteStream(const Matrix& matrix_to_write, std::ostream* output_stream) {
-  if (0 == matrix_to_write.GetNumRow() || 0 == matrix_to_write.GetNumColumn() ||
-      NULL == output_stream) {
-    return false;
-  }
-
-  output_stream->write(reinterpret_cast<const char*>(&(matrix_to_write[0][0])),
-                       sizeof(matrix_to_write[0][0]) *
-                           matrix_to_write.GetNumRow() *
-                           matrix_to_write.GetNumColumn());
-
-  return !output_stream->fail();
-}
-
 }  // namespace sptk
