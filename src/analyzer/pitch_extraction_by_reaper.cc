@@ -44,11 +44,11 @@
 
 #include "SPTK/analyzer/pitch_extraction_by_reaper.h"
 
-#include <algorithm>  // std::copy
-#include <cstddef>    // std::size_t
+#include <algorithm>  // std::copy, std::fill
+#include <cmath>      // std::ceil
 #include <cstdint>    // int16_t
 
-#include "epoch_tracker/epoch_tracker.h"
+#include "REAPER/epoch_tracker/epoch_tracker.h"
 
 namespace sptk {
 
@@ -63,8 +63,8 @@ PitchExtractionByReaper::PitchExtractionByReaper(int frame_shift,
       maximum_f0_(maximum_f0),
       voicing_threshold_(voicing_threshold),
       is_valid_(true) {
-  if (sampling_rate_ <= 6000.0 || 98000.0 < sampling_rate ||
-      frame_shift_ <= 0 || minimum_f0_ <= 0.0 || maximum_f0_ <= minimum_f0_ ||
+  if (frame_shift_ <= 0 || sampling_rate_ <= reaper::kMinSampleRate ||
+      minimum_f0_ <= 0.0 || maximum_f0_ <= minimum_f0_ ||
       voicing_threshold_ < -0.5 || 1.6 < voicing_threshold_) {
     is_valid_ = false;
   }
@@ -78,7 +78,7 @@ bool PitchExtractionByReaper::Get(
     return false;
   }
 
-  EpochTracker epoch_tracker;
+  reaper::EpochTracker epoch_tracker;
   epoch_tracker.set_unvoiced_cost(voicing_threshold_);
   std::vector<int16_t> integer_waveform(waveform.begin(), waveform.end());
   if (!epoch_tracker.Init(&(integer_waveform[0]), waveform.size(),
@@ -114,22 +114,29 @@ bool PitchExtractionByReaper::Get(
   }
 
   if (NULL != f0) {
-    std::vector<float> tmp_f0;
-    std::vector<float> correlation;
     const float external_frame_interval(static_cast<float>(frame_shift_) /
                                         sampling_rate_);
+    std::vector<float> tmp_f0;
+    std::vector<float> correlation;
     if (!epoch_tracker.ResampleAndReturnResults(external_frame_interval,
                                                 &tmp_f0, &correlation)) {
       return false;
     }
-    f0->resize(tmp_f0.size());
+    const int target_length(
+        std::ceil(static_cast<float>(waveform.size()) / frame_shift_));
+    if (target_length < static_cast<int>(tmp_f0.size())) {
+      tmp_f0.resize(target_length);
+    }
+    f0->resize(target_length);
     std::copy(tmp_f0.begin(), tmp_f0.end(), f0->begin());
+    std::fill(f0->begin() + tmp_f0.size(), f0->end(), tmp_f0.back());
   }
 
   if (NULL != epochs) {
     std::vector<float> times;
     std::vector<int16_t> voicing;
-    epoch_tracker.GetFilledEpochs(kUnvoicedPulseInterval, &times, &voicing);
+    epoch_tracker.GetFilledEpochs(reaper::kUnvoicedPulseInterval, &times,
+                                  &voicing);
 
     const int time_length(static_cast<int>(times.size()));
     int num_epochs(0);

@@ -62,7 +62,11 @@ float ToFloat(const std::string &s) {
 //
 const uint32_t kMaxCharBufSize = 8192;  // 8k
 
+#if 0
 std::string GetToken(FileResource *fr) {
+#else
+std::string GetToken(sptk::reaper::FileResource *fr) {
+#endif
   char buff[kMaxCharBufSize];
   uint32_t i = 0;
   bool foundData = false;
@@ -113,6 +117,10 @@ bool GetTokenFromChars(const char *c, std::string *s, int32_t *tok_end) {
 
 }  // namespace
 
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
 
 Track::Track() {
   num_frames_ = 0;
@@ -579,3 +587,8 @@ float *TrackToFloatPointer(const Track &track, int *num_samples) {
   }
   return array;
 }
+
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif

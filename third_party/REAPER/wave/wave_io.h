@@ -20,6 +20,11 @@ limitations under the License.
 #include "wave/codec_api.h"
 #include "wave/codec_riff.h"
 
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
+
 class FileResource;
 
 // This class provides the main interface for waveform input/output. The class
@@ -73,6 +78,11 @@ class WaveIO {
   CodecApi<WavRiffCodec> codec_riff_;
   WaveCodingType coding_type_;
 };
+
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif
 
 #include "wave_io-inl.h"
 

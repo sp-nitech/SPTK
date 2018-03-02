@@ -29,6 +29,11 @@ limitations under the License.
 #define TRUE 1
 #define FALSE 0
 
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
+
 class FFT {
  public:
   // Constructor: Prepare for radix-2 FFT's of size (1<<pow2)
@@ -69,5 +74,10 @@ class FFT {
   int fft_ftablesize;  // size of trig tables (= (max fft size)/2)
   int power2, kbase, fftSize;  // Misc. values pre-computed for convenience
 };
+
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif
 
 #endif  // _FFT_H_

@@ -24,6 +24,11 @@ limitations under the License.
 #include "core/file_resource.h"
 #include "core/float_matrix.h"
 
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
+
 class Track {
  public:
   Track();
@@ -316,5 +321,10 @@ void Track::Set(float time_shift, const std::vector<ValueType> &values) {
     set_v(n, true);
   }
 }
+
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif
 
 #endif  // _TRACK_H_

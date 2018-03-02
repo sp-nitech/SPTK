@@ -23,7 +23,10 @@ limitations under the License.
 
 #include "wave/codec_riff.h"
 
-
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
 
 class FileResource;
 
@@ -92,6 +95,10 @@ class CodecApi {
 
 };
 
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif
 
 #include "codec_api-inl.h"
 

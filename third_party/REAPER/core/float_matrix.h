@@ -23,6 +23,11 @@ limitations under the License.
 #include <stdint.h>
 #include <string>
 
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
+
 class FloatMatrix {
  public:
   FloatMatrix();
@@ -51,6 +56,11 @@ class FloatMatrix {
   uint32_t x_size_;
   uint32_t y_size_;
 };
+
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif
 
 #include "float_matrix-inl.h"
 

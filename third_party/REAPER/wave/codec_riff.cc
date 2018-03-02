@@ -20,6 +20,11 @@ limitations under the License.
 
 #include "core/file_resource.h"
 
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
+
 uint8_t UlawCodec::Int16ToUlaw(int16_t pcm_val) const {
   int16_t mask;
   int16_t seg;
@@ -268,3 +273,8 @@ bool WavRiffCodec::Initialize(WaveCodingType coding_type) {
   coding_type_ = coding_type;
   return true;
 }
+
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif

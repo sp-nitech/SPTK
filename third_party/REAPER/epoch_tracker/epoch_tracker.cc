@@ -29,7 +29,14 @@ limitations under the License.
 #include "epoch_tracker/lpc_analyzer.h"
 #include "epoch_tracker/fft.h"
 
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
+
+#if 0
 const int kMinSampleRate = 6000;
+#endif
 
 EpochTracker::EpochTracker(void) : sample_rate_(-1.0) {
   SetParameters();
@@ -136,7 +143,11 @@ void EpochTracker::SetParameters(void) {
 bool EpochTracker::Init(const int16_t* input, int32_t n_input, float sample_rate,
                         float min_f0_search, float max_f0_search,
                         bool do_highpass, bool do_hilbert_transform) {
+#if 0
   if (input && (sample_rate > 6000.0) && (n_input > (sample_rate * 0.05)) &&
+#else
+  if (input && (sample_rate > kMinSampleRate) && (n_input > (sample_rate * 0.05)) &&
+#endif
       (min_f0_search < max_f0_search) && (min_f0_search > 0.0)) {
     CleanUp();
     min_f0_search_ = min_f0_search;
@@ -1251,3 +1262,8 @@ bool EpochTracker::WriteDiagnostics(const std::string& file_base) {
   }
   return true;
 }
+
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif

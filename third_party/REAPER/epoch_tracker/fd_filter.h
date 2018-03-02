@@ -24,6 +24,11 @@ Author: David Talkin (dtalkin@google.com)
 #include <stdio.h>
 #include <stdint.h>
 
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
+
 class FFT;
 
 class FdFilter {
@@ -127,5 +132,10 @@ class FdFilter {
   int max_input_;  // maximum allowed input with each call to filterBuffer
   FFT* fft_;  // The FFT instance used by the filter.
 };
+
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif
 
 #endif  // _FD_FILTER_H_

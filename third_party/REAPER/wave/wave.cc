@@ -23,7 +23,10 @@ limitations under the License.
 #include "core/file_resource.h"
 #include "wave/wave_io.h"
 
-
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
 
 WaveData::WaveData() : sample_rate_(16000) {
 }
@@ -156,3 +159,8 @@ bool Wave::AmplifyBuffer(float gain, int16_t *buf, uint32_t size) {
   }
   return !clipped;
 }
+
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif

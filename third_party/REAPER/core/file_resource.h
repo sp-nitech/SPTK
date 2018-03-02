@@ -20,6 +20,11 @@ limitations under the License.
 #include <stdio.h>
 #include <string>
 
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
+
 class FileResource {
  public:
   // Mode follows the standard (eg. "wb", "r").
@@ -40,5 +45,10 @@ class FileResource {
   std::string mode_;
   FILE *fp_;
 };
+
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif
 
 #endif  // _FILE_RESOURCE_H_

@@ -16,6 +16,11 @@ limitations under the License.
 
 #include "core/file_resource.h"
 
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
+
 FileResource::FileResource(const std::string &filename, const std::string &mode)
     : filename_(filename), mode_(mode) {
 }
@@ -28,3 +33,8 @@ bool FileResource::Get() {
   fp_ = fopen(filename_.c_str(), mode_.c_str());
   return fp_ != NULL;
 }
+
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif

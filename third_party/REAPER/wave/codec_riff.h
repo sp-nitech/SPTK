@@ -20,6 +20,11 @@ limitations under the License.*/
 #include <string>
 #include <vector>
 
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
+
 class FileResource;
 
 enum WaveCodingType {
@@ -87,5 +92,10 @@ class UlawCodec {
   static const int16_t kSegShift;   // Left shift for segment number.
   static const int16_t kSegMask;    // Segment field mask.
 };
+
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif
 
 #endif  // _CODEC_RIFF_H_

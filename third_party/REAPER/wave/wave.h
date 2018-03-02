@@ -21,7 +21,10 @@ limitations under the License.
 #include <stdint.h>
 #include <vector>
 
-
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
 
 class WaveData : public std::vector<int16_t> {
  public:
@@ -138,5 +141,10 @@ inline bool Wave::Load(const std::string &filename) {
   }
   return Load(&fr);
 }
+
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif
 
 #endif  // SPEECH_PATTS_ENGINE_LING_ARCH_WAVE_H_

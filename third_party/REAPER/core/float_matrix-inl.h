@@ -19,7 +19,10 @@ limitations under the License.
 
 // IWYU pragma: private, include "float_matrix.h"
 
-
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
 
 inline uint32_t FloatMatrix::get_x_size(void) const {
   return x_size_;
@@ -67,6 +70,9 @@ inline void FloatMatrix::StringWrite(std::string *out) const {
   }
 }
 
-
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif
 
 #endif  // SPEECH_PATTS_ENGINE_COMMON_CORE_FLOAT_MATRIX_INL_H_

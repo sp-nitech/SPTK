@@ -20,6 +20,11 @@ limitations under the License.
 #include <string>
 #include <vector>
 
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
+
 inline WaveCodingType WaveIO::get_coding_type() const {
   return coding_type_;
 }
@@ -35,5 +40,10 @@ bool WaveIO::Load(const std::string &filename,
   }
   return Load(&fr, samples, sample_rate);
 }
+
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif
 
 #endif  //  _WAVE_IO_INL_H_

@@ -45,7 +45,7 @@
 #ifndef SPTK_MATH_MATRIX_H_
 #define SPTK_MATH_MATRIX_H_
 
-#include <vector>    // std::vector
+#include <vector>  // std::vector
 
 namespace sptk {
 

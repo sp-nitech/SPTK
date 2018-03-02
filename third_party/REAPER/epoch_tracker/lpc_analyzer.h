@@ -25,6 +25,11 @@ limitations under the License.
 // Largest order allowed for any linear predictor analysis
 #define BIGSORD 100
 
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
+
 class LpcAnalyzer {
  public:
   LpcAnalyzer(void) { }
@@ -109,5 +114,10 @@ class LpcAnalyzer {
   std::vector<float> energywind_;
   std::vector<float> window_;
 };
+
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif
 
 #endif  // _LPC_ANALYZER_H_

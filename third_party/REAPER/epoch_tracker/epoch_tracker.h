@@ -90,6 +90,12 @@ limitations under the License.
 #include <vector>
 #include <string>
 
+#if 1
+namespace sptk {
+namespace reaper {
+
+static const float kMinSampleRate = 6000.0;
+#endif
 static const float kExternalFrameInterval = 0.005;
 static const float kInternalFrameInterval = 0.002;
 static const float kMinF0Search = 40.0;
@@ -99,7 +105,6 @@ static const float kUnvoicedCost = 0.9;
 static const bool kDoHighpass = true;
 static const bool kDoHilbertTransform = false;
 static const char kDebugName[] = "";
-
 
 class EpochTracker {
  public:
@@ -479,5 +484,9 @@ class EpochTracker {
   float endpoint_padding_;
 };
 
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif
 
 #endif  // _EPOCH_TRACKER_H_

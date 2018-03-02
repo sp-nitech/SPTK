@@ -20,7 +20,10 @@ limitations under the License.
 
 #include "core/file_resource.h"
 
-
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
 
 WaveIO::WaveIO(void) {
   Initialize(PCM16);
@@ -109,3 +112,8 @@ bool WaveIO::Initialize(WaveCodingType coding_type) {
       return false;
   }
 }
+
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif

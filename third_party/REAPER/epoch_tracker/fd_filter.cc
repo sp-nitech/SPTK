@@ -51,6 +51,11 @@ for a test harness and use examples.
 
 #include "epoch_tracker/fft.h"
 
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
+
 // kIoBufferSize can be any reasonable size.
 #if 0
 static const int kIoBufferSize = 10000;
@@ -769,3 +774,8 @@ void FdFilter::MakeLinearFir(float fc, int *nf, float *coef) {
   for (i = 0; i < n; i++)
     coef[n - i - 1] *= (.5 - (.5 * cos(fn * (i + 0.5))));
 }
+
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif

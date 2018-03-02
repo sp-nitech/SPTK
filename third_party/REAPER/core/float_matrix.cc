@@ -18,7 +18,10 @@ limitations under the License.
 
 #include <string.h>
 
-
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
 
 FloatMatrix::FloatMatrix() {
   data_ = NULL;
@@ -76,3 +79,8 @@ void FloatMatrix::resize(uint32_t x_size, uint32_t y_size) {
   x_size_ = x_size;
   y_size_ = y_size;
 }
+
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif

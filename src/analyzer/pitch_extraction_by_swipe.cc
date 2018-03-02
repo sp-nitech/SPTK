@@ -42,76 +42,65 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_ANALYZER_PITCH_EXTRACTION_H_
-#define SPTK_ANALYZER_PITCH_EXTRACTION_H_
-
-#include <vector>  // std::vector
-
-#include "SPTK/analyzer/pitch_extraction_by_reaper.h"
 #include "SPTK/analyzer/pitch_extraction_by_swipe.h"
-#include "SPTK/utils/sptk_utils.h"
+
+#include <algorithm>  // std::copy, std::fill
+#include <cmath>      // std::ceil
+
+#include "SWIPE/src/swipe.h"
 
 namespace sptk {
 
-class PitchExtraction {
- public:
-  //
-  enum Algorithms { kRapt = 0, kSwipe, kReaper, kNumAlgorithms };
+PitchExtractionBySwipe::PitchExtractionBySwipe(int frame_shift,
+                                               double sampling_rate,
+                                               double minimum_f0,
+                                               double maximum_f0,
+                                               double voicing_threshold)
+    : frame_shift_(frame_shift),
+      sampling_rate_(sampling_rate),
+      minimum_f0_(minimum_f0),
+      maximum_f0_(maximum_f0),
+      voicing_threshold_(voicing_threshold),
+      is_valid_(true) {
+  if (frame_shift_ <= 0 || sampling_rate <= 0.0 || minimum_f0_ <= 0.0 ||
+      maximum_f0_ <= minimum_f0_ || voicing_threshold_ < 0.2 ||
+      0.5 < voicing_threshold_) {
+    is_valid_ = false;
+  }
+}
 
-  //
-  PitchExtraction(int frame_shift, double sampling_rate, double minimum_f0,
-                  double maximum_f0, double voicing_threshold,
-                  Algorithms algorithm) {
-    switch (algorithm) {
-      case kRapt: {
-        pitch_extractor_ = NULL;
-        break;
-      }
-      case kSwipe: {
-        pitch_extractor_ =
-            new PitchExtractionBySwipe(frame_shift, sampling_rate, minimum_f0,
-                                       maximum_f0, voicing_threshold);
-        break;
-      }
-      case kReaper: {
-        pitch_extractor_ =
-            new PitchExtractionByReaper(frame_shift, sampling_rate, minimum_f0,
-                                        maximum_f0, voicing_threshold);
-        break;
-      }
-      default: {
-        pitch_extractor_ = NULL;
-        break;
-      }
+bool PitchExtractionBySwipe::Get(
+    const std::vector<double>& waveform, std::vector<double>* f0,
+    std::vector<double>* epochs,
+    PitchExtractionInterface::Polarity* polarity) const {
+  if (!is_valid_ || waveform.empty()) {
+    return false;
+  }
+
+  if (NULL != f0) {
+    swipe::vector tmp_f0(swipe::swipe(
+        waveform, sampling_rate_, minimum_f0_, maximum_f0_, voicing_threshold_,
+        static_cast<double>(frame_shift_) / sampling_rate_));
+    const int target_length(
+        std::ceil(static_cast<double>(waveform.size()) / frame_shift_));
+    if (target_length < tmp_f0.x) {
+      tmp_f0.x = target_length;
     }
+    f0->resize(target_length);
+    std::copy(tmp_f0.v, tmp_f0.v + tmp_f0.x, &((*f0)[0]));
+    std::fill(f0->begin() + tmp_f0.x, f0->end(), tmp_f0.v[tmp_f0.x - 1]);
+    swipe::freev(tmp_f0);
   }
 
-  //
-  virtual ~PitchExtraction() {
-    delete pitch_extractor_;
+  if (NULL != epochs) {
+    // nothing to do
   }
 
-  //
-  bool IsValid() const {
-    return (pitch_extractor_ != NULL && pitch_extractor_->IsValid());
+  if (NULL != polarity) {
+    // nothing to do
   }
 
-  //
-  bool Run(const std::vector<double>& waveform, std::vector<double>* f0,
-           std::vector<double>* epochs,
-           PitchExtractionInterface::Polarity* polarity) const {
-    return (pitch_extractor_ != NULL &&
-            pitch_extractor_->Get(waveform, f0, epochs, polarity));
-  }
-
- private:
-  //
-  PitchExtractionInterface* pitch_extractor_;
-
-  //
-  DISALLOW_COPY_AND_ASSIGN(PitchExtraction);
-};
+  return true;
+}
 
 }  // namespace sptk
-
-#endif  // SPTK_ANALYZER_PITCH_EXTRACTION_H_

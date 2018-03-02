@@ -26,6 +26,11 @@ limitations under the License.
 #define M_PI (3.14159265359)
 #endif
 
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
+
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 /* Generate a Hanning window, if one does not already exist. */
 void LpcAnalyzer::HannWindow(const float* din, float* dout, int n,
@@ -239,3 +244,8 @@ int LpcAnalyzer::ComputeLpc(int lpc_ord, float noise_floor, int wsize,
   delete [] dwind;
   return true;
 }
+
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif

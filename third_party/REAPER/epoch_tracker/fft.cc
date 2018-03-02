@@ -17,6 +17,11 @@ limitations under the License.
 
 #include "epoch_tracker/fft.h"
 
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
+
 /* Construct a FFT to perform a DFT of size 2^power. */
 FFT::FFT(int power) {
   makefttable(power);
@@ -179,3 +184,8 @@ void FFT::ifft(float *x, float *y) {
     j += k;
   }
 }
+
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif

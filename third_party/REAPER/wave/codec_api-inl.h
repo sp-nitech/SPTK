@@ -19,6 +19,10 @@ limitations under the License.
 
 #include "core/file_resource.h"
 
+#if 1
+namespace sptk {
+namespace reaper {
+#endif
 
 template <class CodecImplementation>
 inline bool CodecApi<CodecImplementation>::SetHeaderInfo(
@@ -131,5 +135,9 @@ bool CodecApi<CodecImplementation>::Initialize(
   return codec_.Initialize(coding_type);
 }
 
+#if 1
+}  // namespace reaper
+}  // namespace sptk
+#endif
 
 #endif  // SPEECH_PATTS_LIBS_IO_CODEC_API_INL_H_
