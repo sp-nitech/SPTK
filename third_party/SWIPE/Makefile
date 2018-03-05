@@ -51,7 +51,7 @@ OBJECTS       = $(patsubst $(SOURCEDIR)/%.cc, $(BUILDDIR)/%.o, $(SOURCES))
 
 CXX           = g++
 AR            = ar
-CXXFLAGS      = -w -O2 -std=c++11
+CXXFLAGS      = -w -O2 -g -std=c++11
 INCLUDE       = -I $(INCLUDEDIR) -I ../../include
 
 all: $(OBJECTS)

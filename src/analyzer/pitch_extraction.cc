@@ -42,52 +42,42 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_ANALYZER_PITCH_EXTRACTION_H_
-#define SPTK_ANALYZER_PITCH_EXTRACTION_H_
+#include "SPTK/analyzer/pitch_extraction.h"
 
-#include <vector>  // std::vector
-
-#include "SPTK/analyzer/pitch_extraction_interface.h"
-#include "SPTK/utils/sptk_utils.h"
+#include "SPTK/analyzer/pitch_extraction_by_rapt.h"
+#include "SPTK/analyzer/pitch_extraction_by_reaper.h"
+#include "SPTK/analyzer/pitch_extraction_by_swipe.h"
 
 namespace sptk {
 
-class PitchExtraction {
- public:
-  //
-  enum Algorithms { kRapt = 0, kSwipe, kReaper, kNumAlgorithms };
-
-  //
-  PitchExtraction(int frame_shift, double sampling_rate, double minimum_f0,
-                  double maximum_f0, double voicing_threshold,
-                  Algorithms algorithm);
-
-  //
-  virtual ~PitchExtraction() {
-    delete pitch_extractor_;
+PitchExtraction::PitchExtraction(int frame_shift, double sampling_rate,
+                                 double minimum_f0, double maximum_f0,
+                                 double voicing_threshold,
+                                 PitchExtraction::Algorithms algorithm) {
+  switch (algorithm) {
+    case kRapt: {
+      pitch_extractor_ =
+          new PitchExtractionByRapt(frame_shift, sampling_rate, minimum_f0,
+                                    maximum_f0, voicing_threshold);
+      break;
+    }
+    case kSwipe: {
+      pitch_extractor_ =
+          new PitchExtractionBySwipe(frame_shift, sampling_rate, minimum_f0,
+                                     maximum_f0, voicing_threshold);
+      break;
+    }
+    case kReaper: {
+      pitch_extractor_ =
+          new PitchExtractionByReaper(frame_shift, sampling_rate, minimum_f0,
+                                      maximum_f0, voicing_threshold);
+      break;
+    }
+    default: {
+      pitch_extractor_ = NULL;
+      break;
+    }
   }
-
-  //
-  bool IsValid() const {
-    return (NULL != pitch_extractor_ && pitch_extractor_->IsValid());
-  }
-
-  //
-  bool Run(const std::vector<double>& waveform, std::vector<double>* f0,
-           std::vector<double>* epochs,
-           PitchExtractionInterface::Polarity* polarity) const {
-    return (NULL != pitch_extractor_ &&
-            pitch_extractor_->Get(waveform, f0, epochs, polarity));
-  }
-
- private:
-  //
-  PitchExtractionInterface* pitch_extractor_;
-
-  //
-  DISALLOW_COPY_AND_ASSIGN(PitchExtraction);
-};
+}
 
 }  // namespace sptk
-
-#endif  // SPTK_ANALYZER_PITCH_EXTRACTION_H_

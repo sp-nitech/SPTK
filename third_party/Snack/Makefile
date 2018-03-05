@@ -44,7 +44,7 @@
 
 SOURCEDIR     = .
 BUILDDIR      = build
-INCLUDEDIR    = .
+INCLUDEDIR    = generic
 
 SOURCES       = $(wildcard $(SOURCEDIR)/*/*.cc)
 OBJECTS       = $(patsubst $(SOURCEDIR)/%.cc, $(BUILDDIR)/%.o, $(SOURCES))
@@ -52,7 +52,7 @@ OBJECTS       = $(patsubst $(SOURCEDIR)/%.cc, $(BUILDDIR)/%.o, $(SOURCES))
 CXX           = g++
 AR            = ar
 CXXFLAGS      = -w -O2 -g -std=c++11
-INCLUDE       = -I $(INCLUDEDIR)
+INCLUDE       = -I $(INCLUDEDIR) -I ../../include
 
 all: $(OBJECTS)
 

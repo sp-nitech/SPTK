@@ -42,8 +42,8 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_ANALYZER_PITCH_EXTRACTION_H_
-#define SPTK_ANALYZER_PITCH_EXTRACTION_H_
+#ifndef SPTK_ANALYZER_PITCH_EXTRACTION_BY_RAPT_H_
+#define SPTK_ANALYZER_PITCH_EXTRACTION_BY_RAPT_H_
 
 #include <vector>  // std::vector
 
@@ -52,42 +52,75 @@
 
 namespace sptk {
 
-class PitchExtraction {
+class PitchExtractionByRapt : public PitchExtractionInterface {
  public:
   //
-  enum Algorithms { kRapt = 0, kSwipe, kReaper, kNumAlgorithms };
+  PitchExtractionByRapt(int frame_shift, double sampling_rate,
+                        double minimum_f0, double maximum_f0,
+                        double voicing_threshold);
 
   //
-  PitchExtraction(int frame_shift, double sampling_rate, double minimum_f0,
-                  double maximum_f0, double voicing_threshold,
-                  Algorithms algorithm);
-
-  //
-  virtual ~PitchExtraction() {
-    delete pitch_extractor_;
+  virtual ~PitchExtractionByRapt() {
   }
 
   //
-  bool IsValid() const {
-    return (NULL != pitch_extractor_ && pitch_extractor_->IsValid());
+  int GetFrameShift() const {
+    return frame_shift_;
   }
 
   //
-  bool Run(const std::vector<double>& waveform, std::vector<double>* f0,
-           std::vector<double>* epochs,
-           PitchExtractionInterface::Polarity* polarity) const {
-    return (NULL != pitch_extractor_ &&
-            pitch_extractor_->Get(waveform, f0, epochs, polarity));
+  double GetSamplingRate() const {
+    return sampling_rate_;
   }
+
+  //
+  double GetMinimumF0() const {
+    return minimum_f0_;
+  }
+
+  //
+  double GetMaximumF0() const {
+    return maximum_f0_;
+  }
+
+  //
+  double GetVoicingThreshold() const {
+    return voicing_threshold_;
+  }
+
+  //
+  virtual bool IsValid() const {
+    return is_valid_;
+  }
+
+  //
+  virtual bool Get(const std::vector<double>& waveform, std::vector<double>* f0,
+                   std::vector<double>* epochs,
+                   PitchExtractionInterface::Polarity* polarity) const;
 
  private:
   //
-  PitchExtractionInterface* pitch_extractor_;
+  const int frame_shift_;
 
   //
-  DISALLOW_COPY_AND_ASSIGN(PitchExtraction);
+  const double sampling_rate_;
+
+  //
+  const double minimum_f0_;
+
+  //
+  const double maximum_f0_;
+
+  //
+  const double voicing_threshold_;
+
+  //
+  bool is_valid_;
+
+  //
+  DISALLOW_COPY_AND_ASSIGN(PitchExtractionByRapt);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_ANALYZER_PITCH_EXTRACTION_H_
+#endif  // SPTK_ANALYZER_PITCH_EXTRACTION_BY_RAPT_H_

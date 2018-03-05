@@ -62,9 +62,10 @@ PitchExtractionBySwipe::PitchExtractionBySwipe(int frame_shift,
       maximum_f0_(maximum_f0),
       voicing_threshold_(voicing_threshold),
       is_valid_(true) {
-  if (frame_shift_ <= 0 || sampling_rate <= 0.0 || minimum_f0_ <= 0.0 ||
-      maximum_f0_ <= minimum_f0_ || voicing_threshold_ < 0.2 ||
-      0.5 < voicing_threshold_) {
+  if (frame_shift_ <= 0 || sampling_rate_ / 2 <= maximum_f0_ ||
+      (sampling_rate_ <= 6000.0 || 98000.0 <= sampling_rate_) ||
+      (minimum_f0_ <= 10.0 || maximum_f0_ <= minimum_f0_) ||
+      (voicing_threshold_ < 0.2 || 0.5 < voicing_threshold_)) {
     is_valid_ = false;
   }
 }
@@ -87,7 +88,7 @@ bool PitchExtractionBySwipe::Get(
       tmp_f0.x = target_length;
     }
     f0->resize(target_length);
-    std::copy(tmp_f0.v, tmp_f0.v + tmp_f0.x, &((*f0)[0]));
+    std::copy(tmp_f0.v, tmp_f0.v + tmp_f0.x, f0->begin());
     std::fill(f0->begin() + tmp_f0.x, f0->end(), tmp_f0.v[tmp_f0.x - 1]);
     swipe::freev(tmp_f0);
   }
