@@ -67,6 +67,8 @@ enum LongOptions {
   kPOW2,
   kPOW10,
   kPOWX,
+  kFLOOR,
+  kCEIL,
   kFIX,
   kUNIT,
   kRAMP,
@@ -90,6 +92,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -s s         : subtraction          (double)[  N/A][     x - s ]" << std::endl;  // NOLINT
   *stream << "       -m m         : multiplication       (double)[  N/A][     x * m ]" << std::endl;  // NOLINT
   *stream << "       -d d         : division             (double)[  N/A][     x / d ]" << std::endl;  // NOLINT
+  *stream << "       -r r         : modulo               (double)[  N/A][     x % r ]" << std::endl;  // NOLINT
   *stream << "       -p p         : power                (double)[  N/A][     x ^ p ]" << std::endl;  // NOLINT
   *stream << "       -l l         : lower bounding       (double)[  N/A][ max(x, l) ]" << std::endl;  // NOLINT
   *stream << "       -u u         : upper bounding       (double)[  N/A][ min(x, u) ]" << std::endl;  // NOLINT
@@ -105,6 +108,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -POW2        : power of 2                          [     2 ^ x ]" << std::endl;  // NOLINT
   *stream << "       -POW10       : power of 10                         [    10 ^ x ]" << std::endl;  // NOLINT
   *stream << "       -POWX X      : power of X           (double)[  N/A][     X ^ x ]" << std::endl;  // NOLINT
+  *stream << "       -FLOOR       : flooring                            [  floor(x) ]" << std::endl;  // NOLINT
+  *stream << "       -CEIL        : ceiling                             [   ceil(x) ]" << std::endl;  // NOLINT
   *stream << "       -FIX         : rounding                            [  round(x) ]" << std::endl;  // NOLINT
   *stream << "       -UNIT        : unit step                           [      u(x) ]" << std::endl;  // NOLINT
   *stream << "       -RAMP        : rectifier                           [  x * u(x) ]" << std::endl;  // NOLINT
@@ -160,6 +165,8 @@ int main(int argc, char* argv[]) {
       {"POW2", no_argument, NULL, kPOW2},
       {"POW10", no_argument, NULL, kPOW10},
       {"POWX", required_argument, NULL, kPOWX},
+      {"FLOOR", no_argument, NULL, kFLOOR},
+      {"CEIL", no_argument, NULL, kCEIL},
       {"FIX", no_argument, NULL, kFIX},
       {"UNIT", no_argument, NULL, kUNIT},
       {"RAMP", no_argument, NULL, kRAMP},
@@ -174,7 +181,7 @@ int main(int argc, char* argv[]) {
 
   for (;;) {
     const int option_char(
-        getopt_long_only(argc, argv, "a:s:m:d:p:l:u:h", long_options, NULL));
+        getopt_long_only(argc, argv, "a:s:m:d:r:p:l:u:h", long_options, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -241,6 +248,22 @@ int main(int argc, char* argv[]) {
         if (!scalar_operation.AddDivisionOperation(divisor)) {
           std::ostringstream error_message;
           error_message << "Failed to add operation by -d option";
+          sptk::PrintErrorMessage("sopr", error_message);
+          return 1;
+        }
+        break;
+      }
+      case 'r': {
+        int divisor;
+        if (!sptk::ConvertStringToInteger(optarg, &divisor)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -r option must be an integer";
+          sptk::PrintErrorMessage("sopr", error_message);
+          return 1;
+        }
+        if (!scalar_operation.AddModuloOperation(divisor)) {
+          std::ostringstream error_message;
+          error_message << "Failed to add operation by -r option";
           sptk::PrintErrorMessage("sopr", error_message);
           return 1;
         }
@@ -414,6 +437,24 @@ int main(int argc, char* argv[]) {
         if (!scalar_operation.AddExponentialOperation(base)) {
           std::ostringstream error_message;
           error_message << "Failed to add operation by -POWX option";
+          sptk::PrintErrorMessage("sopr", error_message);
+          return 1;
+        }
+        break;
+      }
+      case kFLOOR: {
+        if (!scalar_operation.AddFlooringOperation()) {
+          std::ostringstream error_message;
+          error_message << "Failed to add operation by -FLOOR option";
+          sptk::PrintErrorMessage("sopr", error_message);
+          return 1;
+        }
+        break;
+      }
+      case kCEIL: {
+        if (!scalar_operation.AddCeilingOperation()) {
+          std::ostringstream error_message;
+          error_message << "Failed to add operation by -CEIL option";
           sptk::PrintErrorMessage("sopr", error_message);
           return 1;
         }

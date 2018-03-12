@@ -137,6 +137,21 @@ class Division : public OperationInterface {
   DISALLOW_COPY_AND_ASSIGN(Division);
 };
 
+class Modulo : public OperationInterface {
+ public:
+  explicit Modulo(int divisor) : divisor_(divisor) {
+  }
+
+  virtual bool Run(double* number) const {
+    *number = static_cast<int>(*number) % divisor_;
+    return true;
+  }
+
+ private:
+  const int divisor_;
+  DISALLOW_COPY_AND_ASSIGN(Modulo);
+};
+
 class Power : public OperationInterface {
  public:
   explicit Power(double exponent) : exponent_(exponent) {
@@ -296,6 +311,34 @@ class Exponential : public OperationInterface {
   DISALLOW_COPY_AND_ASSIGN(Exponential);
 };
 
+class Flooring : public OperationInterface {
+ public:
+  Flooring() {
+  }
+
+  virtual bool Run(double* number) const {
+    *number = std::floor(*number);
+    return true;
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(Flooring);
+};
+
+class Ceiling : public OperationInterface {
+ public:
+  Ceiling() {
+  }
+
+  virtual bool Run(double* number) const {
+    *number = std::ceil(*number);
+    return true;
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(Ceiling);
+};
+
 class Rounding : public OperationInterface {
  public:
   Rounding() {
@@ -449,6 +492,12 @@ bool ScalarOperation::AddDivisionOperation(double divisor) {
   return true;
 }
 
+bool ScalarOperation::AddModuloOperation(int divisor) {
+  if (0 == divisor) return false;
+  modules_.push_back(new OperationPerformer(new Modulo(divisor)));
+  return true;
+}
+
 bool ScalarOperation::AddPowerOperation(double exponent) {
   modules_.push_back(new OperationPerformer(new Power(exponent)));
   return true;
@@ -502,6 +551,16 @@ bool ScalarOperation::AddNaturalExponentialOperation() {
 
 bool ScalarOperation::AddExponentialOperation(double base) {
   modules_.push_back(new OperationPerformer(new Exponential(base)));
+  return true;
+}
+
+bool ScalarOperation::AddFlooringOperation() {
+  modules_.push_back(new OperationPerformer(new Flooring()));
+  return true;
+}
+
+bool ScalarOperation::AddCeilingOperation() {
+  modules_.push_back(new OperationPerformer(new Ceiling()));
   return true;
 }
 

@@ -87,6 +87,9 @@ class ScalarOperation {
   bool AddDivisionOperation(double divisor);
 
   //
+  bool AddModuloOperation(int divisor);
+
+  //
   bool AddPowerOperation(double exponent);
 
   //
@@ -118,6 +121,12 @@ class ScalarOperation {
 
   //
   bool AddExponentialOperation(double base);
+
+  //
+  bool AddFlooringOperation();
+
+  //
+  bool AddCeilingOperation();
 
   //
   bool AddRoundingOperation();
