@@ -42,20 +42,20 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/analyzer/pitch_extraction_by_rapt.h"
+#include "SPTK/analyzer/pitch_extraction_by_world.h"
 
 #include <algorithm>  // std::copy, std::fill
 #include <cmath>      // std::ceil
 
-#include "Snack/generic/jkGetF0.h"
+#include "WORLD/src/world/dio.h"
 
 namespace sptk {
 
-PitchExtractionByRapt::PitchExtractionByRapt(int frame_shift,
-                                             double sampling_rate,
-                                             double minimum_f0,
-                                             double maximum_f0,
-                                             double voicing_threshold)
+PitchExtractionByWorld::PitchExtractionByWorld(int frame_shift,
+                                               double sampling_rate,
+                                               double minimum_f0,
+                                               double maximum_f0,
+                                               double voicing_threshold)
     : frame_shift_(frame_shift),
       sampling_rate_(sampling_rate),
       minimum_f0_(minimum_f0),
@@ -63,14 +63,14 @@ PitchExtractionByRapt::PitchExtractionByRapt(int frame_shift,
       voicing_threshold_(voicing_threshold),
       is_valid_(true) {
   if (frame_shift_ <= 0 || sampling_rate_ / 2 <= maximum_f0_ ||
-      (sampling_rate_ <= 6000.0 || 98000.0 <= sampling_rate_) ||
-      (minimum_f0_ <= 10.0 || maximum_f0_ <= minimum_f0_) ||
-      (voicing_threshold_ < -0.6 || 0.7 < voicing_threshold_)) {
+      (sampling_rate_ <= 6.0 || 98000.0 <= sampling_rate_) ||
+      (minimum_f0_ < 10.0 || maximum_f0_ <= minimum_f0_) ||
+      (voicing_threshold_ < 0.02 || 0.2 < voicing_threshold_)) {
     is_valid_ = false;
   }
 }
 
-bool PitchExtractionByRapt::Get(
+bool PitchExtractionByWorld::Get(
     const std::vector<double>& waveform, std::vector<double>* f0,
     std::vector<double>* epochs,
     PitchExtractionInterface::Polarity* polarity) const {
@@ -80,22 +80,30 @@ bool PitchExtractionByRapt::Get(
   }
 
   if (NULL != f0) {
-    float* tmp_f0;
-    int tmp_length;
-    if (0 != snack::cGet_f0(waveform, frame_shift_, sampling_rate_, minimum_f0_,
-                            maximum_f0_, voicing_threshold_, &tmp_f0,
-                            &tmp_length)) {
-      return false;
-    }
+    world::DioOption option({0});
+    world::InitializeDioOption(&option);
+
+    const double frame_period((1000.0 * frame_shift_) / sampling_rate_);
+    option.frame_period = frame_period;
+    option.f0_floor = minimum_f0_;
+    option.f0_ceil = maximum_f0_;
+    option.allowed_range = voicing_threshold_;
+
+    const int tmp_length(
+        world::GetSamplesForDIO(sampling_rate_, waveform.size(), frame_period));
+    std::vector<double> time_axis(tmp_length);
+    std::vector<double> tmp_f0(tmp_length);
+    world::Dio(&(waveform[0]), waveform.size(), sampling_rate_, &option,
+               &(time_axis[0]), &(tmp_f0[0]));
+
     const int target_length(
         std::ceil(static_cast<double>(waveform.size()) / frame_shift_));
     if (target_length < tmp_length) {
-      tmp_length = target_length;
+      tmp_f0.resize(target_length);
     }
     f0->resize(target_length);
-    std::copy(tmp_f0, tmp_f0 + tmp_length, f0->begin());
-    std::fill(f0->begin() + tmp_length, f0->end(), tmp_f0[tmp_length - 1]);
-    snack::ckfree(tmp_f0);
+    std::copy(tmp_f0.begin(), tmp_f0.end(), f0->begin());
+    std::fill(f0->begin() + tmp_f0.size(), f0->end(), tmp_f0.back());
   }
 
   if (NULL != epochs) {

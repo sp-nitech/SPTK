@@ -47,6 +47,7 @@
 #include "SPTK/analyzer/pitch_extraction_by_rapt.h"
 #include "SPTK/analyzer/pitch_extraction_by_reaper.h"
 #include "SPTK/analyzer/pitch_extraction_by_swipe.h"
+#include "SPTK/analyzer/pitch_extraction_by_world.h"
 
 namespace sptk {
 
@@ -71,6 +72,12 @@ PitchExtraction::PitchExtraction(int frame_shift, double sampling_rate,
       pitch_extractor_ =
           new PitchExtractionByReaper(frame_shift, sampling_rate, minimum_f0,
                                       maximum_f0, voicing_threshold);
+      break;
+    }
+    case kWorld: {
+      pitch_extractor_ =
+          new PitchExtractionByWorld(frame_shift, sampling_rate, minimum_f0,
+                                     maximum_f0, voicing_threshold);
       break;
     }
     default: {
