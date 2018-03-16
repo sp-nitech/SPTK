@@ -143,15 +143,20 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
   sptk::Matrix matrix(num_row, num_column);
+  sptk::Matrix transposed_matrix(num_column, num_row);
   while (sptk::ReadStream(&matrix, &input_stream)) {
-    matrix.Transpose();
-    if (!sptk::WriteStream(matrix, &std::cout)) {
+    if (!matrix.Transpose(&transposed_matrix)) {
+      std::ostringstream error_message;
+      error_message << "Failed to transpose";
+      sptk::PrintErrorMessage("transpose", error_message);
+      return 1;
+    }
+    if (!sptk::WriteStream(transposed_matrix, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write transposed data sequence";
       sptk::PrintErrorMessage("transpose", error_message);
       return 1;
     }
-    matrix.Resize(num_row, num_column);
   }
 
   return 0;
