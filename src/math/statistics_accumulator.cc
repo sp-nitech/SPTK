@@ -145,7 +145,7 @@ bool StatisticsAccumulator::GetStandardDeviation(
 
 bool StatisticsAccumulator::GetFullCovariance(
     const StatisticsAccumulator::Buffer& buffer,
-    TriangularMatrix* full_covariance) const {
+    SymmetricMatrix* full_covariance) const {
   if (!is_valid_ || num_statistics_order_ < 2 ||
       buffer.zeroth_order_statistics_ <= 0 || NULL == full_covariance) {
     return false;
@@ -175,7 +175,7 @@ bool StatisticsAccumulator::GetFullCovariance(
 
 bool StatisticsAccumulator::GetCorrelation(
     const StatisticsAccumulator::Buffer& buffer,
-    TriangularMatrix* correlation) const {
+    SymmetricMatrix* correlation) const {
   if (!is_valid_ || num_statistics_order_ < 2 || NULL == correlation) {
     return false;
   }

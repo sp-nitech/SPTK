@@ -42,8 +42,8 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_MATH_TRIANGULAR_MATRIX_H_
-#define SPTK_MATH_TRIANGULAR_MATRIX_H_
+#ifndef SPTK_MATH_SYMMETRIC_MATRIX_H_
+#define SPTK_MATH_SYMMETRIC_MATRIX_H_
 
 #include <vector>  // std::vector
 
@@ -51,36 +51,36 @@
 
 namespace sptk {
 
-class TriangularMatrix {
+class SymmetricMatrix {
  public:
   class Row {
    public:
-    Row(const TriangularMatrix& triangular_matrix, int row)
-        : triangular_matrix_(triangular_matrix), row_(row) {
+    Row(const SymmetricMatrix& symmetric_matrix, int row)
+        : symmetric_matrix_(symmetric_matrix), row_(row) {
     }
     virtual ~Row() {
     }
-    double& operator[](int col);
-    const double& operator[](int col) const;
+    double& operator[](int column);
+    const double& operator[](int column) const;
 
    private:
-    const TriangularMatrix& triangular_matrix_;
+    const SymmetricMatrix& symmetric_matrix_;
     const int row_;
-    friend class TriangularMatrix;
+    friend class SymmetricMatrix;
     DISALLOW_COPY_AND_ASSIGN(Row);
   };
 
   //
-  explicit TriangularMatrix(int num_dimension = 0);
+  explicit SymmetricMatrix(int num_dimension = 0);
 
   //
-  TriangularMatrix(const TriangularMatrix& triangular_matrix);
+  SymmetricMatrix(const SymmetricMatrix& symmetric_matrix);
 
   //
-  TriangularMatrix& operator=(const TriangularMatrix& triangular_matrix);
+  SymmetricMatrix& operator=(const SymmetricMatrix& symmetric_matrix);
 
   //
-  virtual ~TriangularMatrix() {
+  virtual ~SymmetricMatrix() {
   }
 
   //
@@ -102,13 +102,16 @@ class TriangularMatrix {
   }
 
   //
-  double& At(int row, int col);
+  double& At(int row, int column);
 
   //
-  const double& At(int row, int col) const;
+  const double& At(int row, int column) const;
 
   //
   void FillZero();
+
+  //
+  bool Invert(SymmetricMatrix* inverse_matrix) const;
 
  private:
   //
@@ -123,4 +126,4 @@ class TriangularMatrix {
 
 }  // namespace sptk
 
-#endif  // SPTK_MATH_TRIANGULAR_MATRIX_H_
+#endif  // SPTK_MATH_SYMMETRIC_MATRIX_H_

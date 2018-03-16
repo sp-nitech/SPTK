@@ -48,7 +48,7 @@
 #include <algorithm>  // std::fill
 #include <vector>     // std::vector
 
-#include "SPTK/math/triangular_matrix.h"
+#include "SPTK/math/symmetric_matrix.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
@@ -72,7 +72,7 @@ class StatisticsAccumulator {
 
     int zeroth_order_statistics_;
     std::vector<double> first_order_statistics_;
-    TriangularMatrix second_order_statistics_;
+    SymmetricMatrix second_order_statistics_;
     friend class StatisticsAccumulator;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
@@ -117,11 +117,11 @@ class StatisticsAccumulator {
 
   //
   bool GetFullCovariance(const StatisticsAccumulator::Buffer& buffer,
-                         TriangularMatrix* full_covariance) const;
+                         SymmetricMatrix* full_covariance) const;
 
   //
   bool GetCorrelation(const StatisticsAccumulator::Buffer& buffer,
-                      TriangularMatrix* correlation) const;
+                      SymmetricMatrix* correlation) const;
 
   //
   void Clear(StatisticsAccumulator::Buffer* buffer) const;

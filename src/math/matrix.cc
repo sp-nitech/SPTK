@@ -44,7 +44,7 @@
 
 #include "SPTK/math/matrix.h"
 
-#include <algorithm>  // std::fill, std::swap
+#include <algorithm>  // std::fill
 #include <stdexcept>  // std::out_of_range
 #include <string>     // std::string
 
@@ -114,38 +114,41 @@ void Matrix::Resize(int num_row, int num_column) {
   }
 }
 
-double& Matrix::At(int row, int col) {
-  if (row < 0 || num_row_ <= row || col < 0 || num_column_ <= col) {
+double& Matrix::At(int row, int column) {
+  if (row < 0 || num_row_ <= row || column < 0 || num_column_ <= column) {
     throw std::out_of_range(kErrorMessage);
   }
-  return index_[row][col];
+  return index_[row][column];
 }
 
-const double& Matrix::At(int row, int col) const {
-  if (row < 0 || num_row_ <= row || col < 0 || num_column_ <= col) {
+const double& Matrix::At(int row, int column) const {
+  if (row < 0 || num_row_ <= row || column < 0 || num_column_ <= column) {
     throw std::out_of_range(kErrorMessage);
   }
-  return index_[row][col];
+  return index_[row][column];
 }
 
 void Matrix::FillZero() {
   std::fill(data_.begin(), data_.end(), 0.0);
 }
 
-void Matrix::Transpose() {
-  for (int i(1); i < num_row_ * num_column_ - 1; ++i) {
-    int position(i / num_row_ + i % num_row_ * num_column_);
-    while (position < i) {
-      position = position / num_row_ + position % num_row_ * num_column_;
-    }
-    std::swap(data_[i], data_[position]);
+bool Matrix::Transpose(Matrix* transposed_matrix) const {
+  if (NULL == transposed_matrix) {
+    return false;
   }
 
-  std::swap(num_row_, num_column_);
-  index_.resize(num_row_);
-  for (int i(0); i < num_row_; ++i) {
-    index_[i] = &data_[i * num_column_];
+  if (num_column_ != transposed_matrix->num_row_ ||
+      num_row_ != transposed_matrix->num_column_) {
+    transposed_matrix->Resize(num_column_, num_row_);
   }
+
+  for (int i(0); i < num_row_; ++i) {
+    for (int j(0); j < num_column_; ++j) {
+      transposed_matrix->index_[j][i] = index_[i][j];
+    }
+  }
+
+  return true;
 }
 
 }  // namespace sptk

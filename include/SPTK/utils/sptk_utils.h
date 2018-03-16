@@ -97,6 +97,14 @@ bool IsPowerOfTwo(int num);
 int ExtractSign(double x);
 double FloorLog(double x);
 double AddInLogSpace(double log_x, double log_y);
+bool ComputePercentagePointOfStandardNormalDistribution(
+    double probability, double* percentage_point);
+bool ComputeProbabilityOfTDistribution(double percentage_point,
+                                       int degrees_of_freedom,
+                                       double* probability);
+bool ComputePercentagePointOfTDistribution(double probability,
+                                           int degrees_of_freedom,
+                                           double* percentage_point);
 void PrintDataType(const std::string& symbol, std::ostream* stream);
 void PrintErrorMessage(const std::string& program_name,
                        const std::ostringstream& message);

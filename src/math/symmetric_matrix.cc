@@ -42,7 +42,7 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/math/triangular_matrix.h"
+#include "SPTK/math/symmetric_matrix.h"
 
 #include <algorithm>  // std::fill, std::swap
 #include <stdexcept>  // std::out_of_range
@@ -50,29 +50,29 @@
 
 namespace {
 
-const std::string kErrorMessage("TriangularMatrix: Out of range");
+const std::string kErrorMessage("SymmetricMatrix: Out of range");
 
 }  // namespace
 
 namespace sptk {
 
-double& TriangularMatrix::Row::operator[](int col) {
+double& SymmetricMatrix::Row::operator[](int column) {
   int row(row_);
-  if (row < col) {
-    std::swap(row, col);
+  if (row < column) {
+    std::swap(row, column);
   }
-  return triangular_matrix_.index_[row][col];
+  return symmetric_matrix_.index_[row][column];
 }
 
-const double& TriangularMatrix::Row::operator[](int col) const {
+const double& SymmetricMatrix::Row::operator[](int column) const {
   int row(row_);
-  if (row < col) {
-    std::swap(row, col);
+  if (row < column) {
+    std::swap(row, column);
   }
-  return triangular_matrix_.index_[row][col];
+  return symmetric_matrix_.index_[row][column];
 }
 
-TriangularMatrix::TriangularMatrix(int num_dimension)
+SymmetricMatrix::SymmetricMatrix(int num_dimension)
     : num_dimension_(num_dimension < 0 ? 0 : num_dimension) {
   data_.resize(num_dimension_ * (num_dimension_ + 1) / 2);
   index_.resize(num_dimension_);
@@ -82,9 +82,9 @@ TriangularMatrix::TriangularMatrix(int num_dimension)
   }
 }
 
-TriangularMatrix::TriangularMatrix(const TriangularMatrix& triangular_matrix)
-    : num_dimension_(triangular_matrix.num_dimension_) {
-  data_ = triangular_matrix.data_;
+SymmetricMatrix::SymmetricMatrix(const SymmetricMatrix& symmetric_matrix)
+    : num_dimension_(symmetric_matrix.num_dimension_) {
+  data_ = symmetric_matrix.data_;
   index_.resize(num_dimension_);
 
   for (int i(0), j(0); i < num_dimension_; ++i, j += i) {
@@ -92,11 +92,11 @@ TriangularMatrix::TriangularMatrix(const TriangularMatrix& triangular_matrix)
   }
 }
 
-TriangularMatrix& TriangularMatrix::operator=(
-    const TriangularMatrix& triangular_matrix) {
-  if (this != &triangular_matrix) {
-    num_dimension_ = triangular_matrix.num_dimension_;
-    data_ = triangular_matrix.data_;
+SymmetricMatrix& SymmetricMatrix::operator=(
+    const SymmetricMatrix& symmetric_matrix) {
+  if (this != &symmetric_matrix) {
+    num_dimension_ = symmetric_matrix.num_dimension_;
+    data_ = symmetric_matrix.data_;
     index_.resize(num_dimension_);
 
     for (int i(0), j(0); i < num_dimension_; ++i, j += i) {
@@ -106,7 +106,7 @@ TriangularMatrix& TriangularMatrix::operator=(
   return *this;
 }
 
-void TriangularMatrix::Resize(int num_dimension) {
+void SymmetricMatrix::Resize(int num_dimension) {
   num_dimension_ = num_dimension < 0 ? 0 : num_dimension;
   data_.resize(num_dimension_ * (num_dimension_ + 1) / 2);
   index_.resize(num_dimension_);
@@ -116,28 +116,99 @@ void TriangularMatrix::Resize(int num_dimension) {
   }
 }
 
-double& TriangularMatrix::At(int row, int col) {
-  if (row < col) {
-    std::swap(row, col);
+double& SymmetricMatrix::At(int row, int column) {
+  if (row < column) {
+    std::swap(row, column);
   }
-  if (col < 0 || num_dimension_ <= row) {
+  if (column < 0 || num_dimension_ <= row) {
     throw std::out_of_range(kErrorMessage);
   }
-  return index_[row][col];
+  return index_[row][column];
 }
 
-const double& TriangularMatrix::At(int row, int col) const {
-  if (row < col) {
-    std::swap(row, col);
+const double& SymmetricMatrix::At(int row, int column) const {
+  if (row < column) {
+    std::swap(row, column);
   }
-  if (col < 0 || num_dimension_ <= row) {
+  if (column < 0 || num_dimension_ <= row) {
     throw std::out_of_range(kErrorMessage);
   }
-  return index_[row][col];
+  return index_[row][column];
 }
 
-void TriangularMatrix::FillZero() {
+void SymmetricMatrix::FillZero() {
   std::fill(data_.begin(), data_.end(), 0.0);
+}
+
+bool SymmetricMatrix::Invert(SymmetricMatrix* inverse_matrix) const {
+  if (NULL == inverse_matrix) {
+    return false;
+  }
+
+  for (int i(0); i < num_dimension_; ++i) {
+    if (0.0 == index_[i][i]) {
+      return false;
+    }
+  }
+
+  if (num_dimension_ != inverse_matrix->num_dimension_) {
+    inverse_matrix->Resize(num_dimension_);
+  }
+
+  std::vector<double> diagonal_elements(num_dimension_);
+  SymmetricMatrix lower_triangular_matrix(num_dimension_);
+
+  diagonal_elements[0] = index_[0][0];
+  lower_triangular_matrix.index_[0][0] = 1.0;
+  for (int i(1); i < num_dimension_; ++i) {
+    for (int j(0); j < i; ++j) {
+      double tmp(index_[i][j]);
+      for (int k(0); k < j; ++k) {
+        tmp -= lower_triangular_matrix.index_[i][k] *
+               lower_triangular_matrix.index_[j][k] * diagonal_elements[k];
+      }
+      lower_triangular_matrix.index_[i][j] = tmp / diagonal_elements[j];
+    }
+
+    diagonal_elements[i] = index_[i][i];
+    for (int j(0); j < i; ++j) {
+      diagonal_elements[i] -= lower_triangular_matrix.index_[i][j] *
+                              lower_triangular_matrix.index_[i][j] *
+                              diagonal_elements[j];
+    }
+    lower_triangular_matrix.index_[i][i] = 1.0;
+  }
+
+  for (int i(num_dimension_ - 1); 0 <= i; --i) {
+    inverse_matrix->index_[i][i] = 1.0;
+    for (int j(i + 1); j < num_dimension_; ++j) {
+      inverse_matrix->index_[j][i] =
+          lower_triangular_matrix.index_[j][i] * inverse_matrix->index_[i][i];
+      for (int k(i + 1); k < j; ++k) {
+        inverse_matrix->index_[j][i] +=
+            lower_triangular_matrix.index_[j][k] * inverse_matrix->index_[k][i];
+      }
+      inverse_matrix->index_[j][i] *= -inverse_matrix->index_[j][j];
+    }
+  }
+
+  std::vector<double> inverse_diagonal_elements(num_dimension_);
+  for (int i(0); i < num_dimension_; ++i) {
+    inverse_diagonal_elements[i] = 1.0 / diagonal_elements[i];
+  }
+
+  for (int i(0); i < num_dimension_; ++i) {
+    for (int j(0); j <= i; ++j) {
+      double sum(0.0);
+      for (int k(i); k < num_dimension_; ++k) {
+        sum += inverse_matrix->index_[k][i] * inverse_diagonal_elements[k] *
+               inverse_matrix->index_[k][j];
+      }
+      inverse_matrix->index_[i][j] = sum;
+    }
+  }
+
+  return true;
 }
 
 }  // namespace sptk

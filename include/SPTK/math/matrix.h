@@ -52,7 +52,7 @@ namespace sptk {
 class Matrix {
  public:
   //
-  Matrix(int num_row = 0, int num_column = 0);
+  explicit Matrix(int num_row = 0, int num_column = 0);
 
   //
   Matrix(int num_row, int num_column, const std::vector<double>& vector);
@@ -91,16 +91,16 @@ class Matrix {
   }
 
   //
-  double& At(int row, int col);
+  double& At(int row, int column);
 
   //
-  const double& At(int row, int col) const;
+  const double& At(int row, int column) const;
 
   //
   void FillZero();
 
   //
-  void Transpose();
+  bool Transpose(Matrix* transposed_matrix) const;
 
  private:
   //
