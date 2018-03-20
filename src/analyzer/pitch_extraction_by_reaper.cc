@@ -75,8 +75,7 @@ bool PitchExtractionByReaper::Get(
     const std::vector<double>& waveform, std::vector<double>* f0,
     std::vector<double>* epochs,
     PitchExtractionInterface::Polarity* polarity) const {
-  if (!is_valid_ || waveform.empty() ||
-      static_cast<int>(waveform.size()) < frame_shift_) {
+  if (!is_valid_ || waveform.empty()) {
     return false;
   }
 
