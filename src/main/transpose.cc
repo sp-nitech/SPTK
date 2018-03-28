@@ -47,7 +47,6 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <vector>
 
 #include "SPTK/math/matrix.h"
 #include "SPTK/utils/sptk_utils.h"
