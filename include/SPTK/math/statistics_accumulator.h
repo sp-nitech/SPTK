@@ -64,7 +64,7 @@ class StatisticsAccumulator {
 
    private:
     void Clear() {
-      zeroth_order_statistics_ = 0.0;
+      zeroth_order_statistics_ = 0;
       std::fill(first_order_statistics_.begin(), first_order_statistics_.end(),
                 0.0);
       second_order_statistics_.FillZero();
@@ -98,6 +98,10 @@ class StatisticsAccumulator {
   bool IsValid() const {
     return is_valid_;
   }
+
+  //
+  bool GetNumData(const StatisticsAccumulator::Buffer& buffer,
+                  int* num_data) const;
 
   //
   bool GetSum(const StatisticsAccumulator::Buffer& buffer,

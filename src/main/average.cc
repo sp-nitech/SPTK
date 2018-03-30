@@ -55,24 +55,22 @@
 namespace {
 
 const int kMagicNumberForEndOfFile(-1);
-const int kDefaultVectorLength(1);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " vsum - summation of vectors" << std::endl;
+  *stream << " average - calculation of average" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
-  *stream << "       vsum [ options ] [ infile ] > stdout" << std::endl;
+  *stream << "       average [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : length of vector   (   int)[" << std::setw(5) << std::right << kDefaultVectorLength << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -m m  : order of vector    (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -t t  : number of vector   (   int)[" << std::setw(5) << std::right << "N/A"                << "][ 1 <= t <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : frame length       (   int)[" << std::setw(5) << std::right << "EOF" << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of sequence  (   int)[" << std::setw(5) << std::right << "l-1" << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       vectors                    (double)[stdin]" << std::endl;
+  *stream << "       data sequence              (double)[stdin]" << std::endl;
   *stream << "  stdout:" << std::endl;
-  *stream << "       summation of vectors       (double)" << std::endl;
+  *stream << "       average                    (double)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -82,46 +80,34 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-  int vector_length(kDefaultVectorLength);
-  int num_vector(kMagicNumberForEndOfFile);
+  int frame_length(kMagicNumberForEndOfFile);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:m:t:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
       case 'l': {
-        if (!sptk::ConvertStringToInteger(optarg, &vector_length) ||
-            vector_length <= 0) {
+        if (!sptk::ConvertStringToInteger(optarg, &frame_length) ||
+            frame_length <= 0) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -l option must be a positive integer";
-          sptk::PrintErrorMessage("vsum", error_message);
+          sptk::PrintErrorMessage("average", error_message);
           return 1;
         }
         break;
       }
       case 'm': {
-        if (!sptk::ConvertStringToInteger(optarg, &vector_length) ||
-            vector_length < 0) {
+        if (!sptk::ConvertStringToInteger(optarg, &frame_length) ||
+            frame_length < 0) {
           std::ostringstream error_message;
           error_message << "The argument for the -m option must be a "
                         << "non-negative integer";
-          sptk::PrintErrorMessage("vsum", error_message);
+          sptk::PrintErrorMessage("average", error_message);
           return 1;
         }
-        ++vector_length;
-        break;
-      }
-      case 't': {
-        if (!sptk::ConvertStringToInteger(optarg, &num_vector) ||
-            num_vector <= 0) {
-          std::ostringstream error_message;
-          error_message
-              << "The argument for the -t option must be a positive integer";
-          sptk::PrintErrorMessage("vsum", error_message);
-          return 1;
-        }
+        ++frame_length;
         break;
       }
       case 'h': {
@@ -140,7 +126,7 @@ int main(int argc, char* argv[]) {
   if (1 < num_rest_args) {
     std::ostringstream error_message;
     error_message << "Too many input files";
-    sptk::PrintErrorMessage("vsum", error_message);
+    sptk::PrintErrorMessage("average", error_message);
     return 1;
   }
   const char* input_file(0 == num_rest_args ? NULL : argv[optind]);
@@ -151,69 +137,72 @@ int main(int argc, char* argv[]) {
   if (ifs.fail() && NULL != input_file) {
     std::ostringstream error_message;
     error_message << "Cannot open file " << input_file;
-    sptk::PrintErrorMessage("vsum", error_message);
+    sptk::PrintErrorMessage("average", error_message);
     return 1;
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  sptk::StatisticsAccumulator accumulator(vector_length - 1, 1);
+  sptk::StatisticsAccumulator accumulator(0, 1);
   sptk::StatisticsAccumulator::Buffer buffer;
   if (!accumulator.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for accumulation";
-    sptk::PrintErrorMessage("vsum", error_message);
+    sptk::PrintErrorMessage("average", error_message);
     return 1;
   }
 
-  std::vector<double> data(vector_length);
-  std::vector<double> sum(vector_length);
-  for (int vector_index(1);
-       sptk::ReadStream(false, 0, 0, vector_length, &data, &input_stream, NULL);
-       ++vector_index) {
+  std::vector<double> data(1);
+  for (int data_index(1);
+       sptk::ReadStream(false, 0, 0, 1, &data, &input_stream, NULL);
+       ++data_index) {
     if (!accumulator.Run(data, &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to accumulate statistics";
-      sptk::PrintErrorMessage("vsum", error_message);
+      sptk::PrintErrorMessage("average", error_message);
       return 1;
     }
 
-    if (kMagicNumberForEndOfFile != num_vector &&
-        0 == vector_index % num_vector) {
-      if (!accumulator.GetSum(buffer, &sum)) {
+    if (kMagicNumberForEndOfFile != frame_length &&
+        0 == data_index % frame_length) {
+      std::vector<double> average(1);
+      if (!accumulator.GetMean(buffer, &average)) {
         std::ostringstream error_message;
-        error_message << "Failed to accumulate statistics";
-        sptk::PrintErrorMessage("vsum", error_message);
+        error_message << "Failed to calculate average";
+        sptk::PrintErrorMessage("average", error_message);
         return 1;
       }
-      if (!sptk::WriteStream(0, vector_length, sum, &std::cout, NULL)) {
+
+      if (!sptk::WriteStream(0, 1, average, &std::cout, NULL)) {
         std::ostringstream error_message;
-        error_message << "Failed to write statistics";
-        sptk::PrintErrorMessage("vsum", error_message);
+        error_message << "Failed to write average";
+        sptk::PrintErrorMessage("average", error_message);
         return 1;
       }
       accumulator.Clear(&buffer);
     }
   }
 
-  int num_actual_vector;
-  if (!accumulator.GetNumData(buffer, &num_actual_vector)) {
+  int num_data;
+  if (!accumulator.GetNumData(buffer, &num_data)) {
     std::ostringstream error_message;
     error_message << "Failed to accumulate statistics";
-    sptk::PrintErrorMessage("vsum", error_message);
+    sptk::PrintErrorMessage("average", error_message);
     return 1;
   }
 
-  if (kMagicNumberForEndOfFile == num_vector && 0 < num_actual_vector) {
-    if (!accumulator.GetSum(buffer, &sum)) {
+  if (kMagicNumberForEndOfFile == frame_length && 0 < num_data) {
+    std::vector<double> average(1);
+    if (!accumulator.GetMean(buffer, &average)) {
       std::ostringstream error_message;
-      error_message << "Failed to accumulate statistics";
-      sptk::PrintErrorMessage("vsum", error_message);
+      error_message << "Failed to calculate average";
+      sptk::PrintErrorMessage("average", error_message);
       return 1;
     }
-    if (!sptk::WriteStream(0, vector_length, sum, &std::cout, NULL)) {
+
+    if (!sptk::WriteStream(0, 1, average, &std::cout, NULL)) {
       std::ostringstream error_message;
-      error_message << "Failed to write statistics";
-      sptk::PrintErrorMessage("vsum", error_message);
+      error_message << "Failed to write average";
+      sptk::PrintErrorMessage("average", error_message);
       return 1;
     }
   }

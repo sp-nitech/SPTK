@@ -108,8 +108,8 @@ void PrintUsage(std::ostream* stream) {
 
 bool OutputStatistics(const sptk::StatisticsAccumulator& accumulator,
                       const sptk::StatisticsAccumulator::Buffer& buffer,
-                      int vector_length, int num_vector,
-                      OutputFormats output_format, double confidence_level,
+                      int vector_length, OutputFormats output_format,
+                      double confidence_level,
                       bool outputs_only_diagonal_elements) {
   if (kMeanAndCovariance == output_format || kMean == output_format ||
       kMeanAndLowerAndUpperBounds == output_format) {
@@ -200,6 +200,11 @@ bool OutputStatistics(const sptk::StatisticsAccumulator& accumulator,
   }
 
   if (kMeanAndLowerAndUpperBounds == output_format) {
+    int num_vector;
+    if (!accumulator.GetNumData(buffer, &num_vector)) {
+      return false;
+    }
+
     const int degrees_of_freedom(num_vector - 1);
     if (0 == degrees_of_freedom) {
       return false;
@@ -357,8 +362,7 @@ int main(int argc, char* argv[]) {
   }
 
   std::vector<double> data(vector_length);
-  int vector_index(1);
-  for (;
+  for (int vector_index(1);
        sptk::ReadStream(false, 0, 0, vector_length, &data, &input_stream, NULL);
        ++vector_index) {
     if (!accumulator.Run(data, &buffer)) {
@@ -369,10 +373,9 @@ int main(int argc, char* argv[]) {
     }
 
     if (kMagicNumberForEndOfFile != num_vector &&
-        vector_index % num_vector == 0) {
-      if (!OutputStatistics(accumulator, buffer, vector_length, num_vector,
-                            output_format, confidence_level,
-                            outputs_only_diagonal_elements)) {
+        0 == vector_index % num_vector) {
+      if (!OutputStatistics(accumulator, buffer, vector_length, output_format,
+                            confidence_level, outputs_only_diagonal_elements)) {
         std::ostringstream error_message;
         error_message << "Failed to write statistics";
         sptk::PrintErrorMessage("vstat", error_message);
@@ -382,10 +385,17 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  if (kMagicNumberForEndOfFile == num_vector) {
-    if (!OutputStatistics(accumulator, buffer, vector_length, vector_index - 1,
-                          output_format, confidence_level,
-                          outputs_only_diagonal_elements)) {
+  int num_actual_vector;
+  if (!accumulator.GetNumData(buffer, &num_actual_vector)) {
+    std::ostringstream error_message;
+    error_message << "Failed to accumulate statistics";
+    sptk::PrintErrorMessage("vstat", error_message);
+    return 1;
+  }
+
+  if (kMagicNumberForEndOfFile == num_vector && 0 < num_actual_vector) {
+    if (!OutputStatistics(accumulator, buffer, vector_length, output_format,
+                          confidence_level, outputs_only_diagonal_elements)) {
       std::ostringstream error_message;
       error_message << "Failed to write statistics";
       sptk::PrintErrorMessage("vstat", error_message);

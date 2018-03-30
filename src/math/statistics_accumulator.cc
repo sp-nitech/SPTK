@@ -62,6 +62,17 @@ StatisticsAccumulator::StatisticsAccumulator(int num_order,
   }
 }
 
+bool StatisticsAccumulator::GetNumData(
+    const StatisticsAccumulator::Buffer& buffer, int* num_data) const {
+  if (!is_valid_ || NULL == num_data) {
+    return false;
+  }
+
+  *num_data = buffer.zeroth_order_statistics_;
+
+  return true;
+}
+
 bool StatisticsAccumulator::GetSum(const StatisticsAccumulator::Buffer& buffer,
                                    std::vector<double>* sum) const {
   if (!is_valid_ || num_statistics_order_ < 1 || NULL == sum) {
