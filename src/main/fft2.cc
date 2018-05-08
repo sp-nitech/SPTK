@@ -48,9 +48,9 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <vector>
 
-#include "SPTK/math/fast_fourier_transform.h"
+#include "SPTK/math/matrix.h"
+#include "SPTK/math/two_dimensional_fast_fourier_transform.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -64,30 +64,45 @@ enum OutputFormats {
   kNumOutputFormats
 };
 
-const int kDefaultFftLength(256);
+enum OutputStyles {
+  kStandard = 0,
+  kTranspose,
+  kTransposeWithBoundary,
+  kQuadrantWithBoundary,
+  kNumOutputStyles
+};
+
+const int kDefaultFftLength(64);
 const OutputFormats kDefaultOutputFormat(kOutputRealAndImaginaryParts);
+const OutputStyles kDefaultOutputStyle(kStandard);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " fft - FFT for complex sequence" << std::endl;
+  *stream << " fft2 - 2D FFT for complex sequence" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
-  *stream << "       fft [ options ] [ infile ] > stdout" << std::endl;
+  *stream << "       fft2 [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -l l  : FFT length                     (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 0 <  l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -m m  : order of sequence              (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= m <  l ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : number of rows                 (   int)[" << std::setw(5) << std::right << "l"                  << "][ 0 <  m <= l ]" << std::endl;  // NOLINT
+  *stream << "       -n n  : number of columns              (   int)[" << std::setw(5) << std::right << "l"                  << "][ 0 <  n <= l ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format                  (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 4 ]" << std::endl;  // NOLINT
   *stream << "                 0 (real and imaginary parts)" << std::endl;
   *stream << "                 1 (real part)" << std::endl;
   *stream << "                 2 (imaginary part)" << std::endl;
   *stream << "                 3 (amplitude)" << std::endl;
   *stream << "                 4 (power)" << std::endl;
+  *stream << "       -p p  : output style                   (   int)[" << std::setw(5) << std::right << kDefaultOutputStyle  << "][ 0 <= p <= 3 ]" << std::endl;  // NOLINT
+  *stream << "                 0 (standard)" << std::endl;
+  *stream << "                 1 (transpose)" << std::endl;
+  *stream << "                 2 (transpose with boundary)" << std::endl;
+  *stream << "                 3 (quadrant with boundary)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       data sequence                          (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       FFT sequence                           (double)" << std::endl;  // NOLINT
+  *stream << "       2D FFT sequence                        (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
   *stream << "       value of l must be a power of 2" << std::endl;
   *stream << std::endl;
@@ -100,12 +115,14 @@ void PrintUsage(std::ostream* stream) {
 
 int main(int argc, char* argv[]) {
   int fft_length(kDefaultFftLength);
-  int num_order(kDefaultFftLength - 1);
-  bool is_num_order_specified(false);
+  int num_row(kDefaultFftLength);
+  int num_column(kDefaultFftLength);
+  bool is_num_row_or_num_column_specified(false);
   OutputFormats output_format(kDefaultOutputFormat);
+  OutputStyles output_style(kDefaultOutputStyle);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:m:o:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:n:o:p:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -113,21 +130,32 @@ int main(int argc, char* argv[]) {
         if (!sptk::ConvertStringToInteger(optarg, &fft_length)) {
           std::ostringstream error_message;
           error_message << "The argument for the -l option must be an integer";
-          sptk::PrintErrorMessage("fft", error_message);
+          sptk::PrintErrorMessage("fft2", error_message);
           return 1;
         }
         break;
       }
       case 'm': {
-        if (!sptk::ConvertStringToInteger(optarg, &num_order) ||
-            num_order < 0) {
+        if (!sptk::ConvertStringToInteger(optarg, &num_row) || num_row <= 0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -m option must be a "
-                        << "non-negative integer";
-          sptk::PrintErrorMessage("fft", error_message);
+          error_message
+              << "The argument for the -m option must be a positive integer";
+          sptk::PrintErrorMessage("fft2", error_message);
           return 1;
         }
-        is_num_order_specified = true;
+        is_num_row_or_num_column_specified = true;
+        break;
+      }
+      case 'n': {
+        if (!sptk::ConvertStringToInteger(optarg, &num_column) ||
+            num_column <= 0) {
+          std::ostringstream error_message;
+          error_message
+              << "The argument for the -n option must be a positive integer";
+          sptk::PrintErrorMessage("fft2", error_message);
+          return 1;
+        }
+        is_num_row_or_num_column_specified = true;
         break;
       }
       case 'o': {
@@ -139,10 +167,25 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -o option must be an integer "
                         << "in the range of " << min << " to " << max;
-          sptk::PrintErrorMessage("fft", error_message);
+          sptk::PrintErrorMessage("fft2", error_message);
           return 1;
         }
         output_format = static_cast<OutputFormats>(tmp);
+        break;
+      }
+      case 'p': {
+        const int min(0);
+        const int max(static_cast<int>(kNumOutputStyles) - 1);
+        int tmp;
+        if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
+            !sptk::IsInRange(tmp, min, max)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -p option must be an integer "
+                        << "in the range of " << min << " to " << max;
+          sptk::PrintErrorMessage("fft2", error_message);
+          return 1;
+        }
+        output_style = static_cast<OutputStyles>(tmp);
         break;
       }
       case 'h': {
@@ -156,13 +199,15 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // check order
-  if (!is_num_order_specified) {
-    num_order = fft_length - 1;
-  } else if (fft_length <= num_order) {
+  // check arguments
+  if (!is_num_row_or_num_column_specified) {
+    num_row = fft_length;
+    num_column = fft_length;
+  } else if (fft_length < num_row || fft_length < num_column) {
     std::ostringstream error_message;
-    error_message << "Order of data sequence must be less than FFT length";
-    sptk::PrintErrorMessage("fft", error_message);
+    error_message << "Number of rows and number of columns must be equal to or "
+                  << "less than FFT length";
+    sptk::PrintErrorMessage("fft2", error_message);
     return 1;
   }
 
@@ -171,7 +216,7 @@ int main(int argc, char* argv[]) {
   if (1 < num_rest_args) {
     std::ostringstream error_message;
     error_message << "Too many input files";
-    sptk::PrintErrorMessage("fft", error_message);
+    sptk::PrintErrorMessage("fft2", error_message);
     return 1;
   }
   const char* input_file(0 == num_rest_args ? NULL : argv[optind]);
@@ -182,62 +227,127 @@ int main(int argc, char* argv[]) {
   if (ifs.fail() && NULL != input_file) {
     std::ostringstream error_message;
     error_message << "Cannot open file " << input_file;
-    sptk::PrintErrorMessage("fft", error_message);
+    sptk::PrintErrorMessage("fft2", error_message);
     return 1;
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for fast Fourier transform
-  sptk::FastFourierTransform fast_fourier_transform(num_order, fft_length);
+  // prepare for 2D fast Fourier transform
+  sptk::TwoDimensionalFastFourierTransform fast_fourier_transform(
+      num_row, num_column, fft_length);
+  sptk::TwoDimensionalFastFourierTransform::Buffer buffer;
   if (!fast_fourier_transform.IsValid()) {
     std::ostringstream error_message;
     error_message << "FFT length must be a power of 2";
-    sptk::PrintErrorMessage("fft", error_message);
+    sptk::PrintErrorMessage("fft2", error_message);
     return 1;
   }
 
-  const int length(num_order + 1);
-  std::vector<double> input_x(length);
-  std::vector<double> input_y(length);
-  std::vector<double> output_x(fft_length);
-  std::vector<double> output_y(fft_length);
+  const int half_fft_length(fft_length / 2);
+  int output_length(0);
+  if (kStandard == output_style || kTranspose == output_style) {
+    output_length = fft_length;
+  } else if (kTransposeWithBoundary == output_style) {
+    output_length = fft_length + 1;
+  } else if (kQuadrantWithBoundary == output_style) {
+    output_length = half_fft_length + 1;
+  }
+  sptk::Matrix input_x(num_row, num_column);
+  sptk::Matrix input_y(num_row, num_column);
+  sptk::Matrix tmp_x(fft_length, fft_length);
+  sptk::Matrix tmp_y(fft_length, fft_length);
+  sptk::Matrix output_x(output_length, output_length);
+  sptk::Matrix output_y(output_length, output_length);
 
-  while (sptk::ReadStream(true, 0, 0, length, &input_x, &input_stream, NULL) &&
-         sptk::ReadStream(true, 0, 0, length, &input_y, &input_stream, NULL)) {
-    if (!fast_fourier_transform.Run(input_x, input_y, &output_x, &output_y)) {
+  while (sptk::ReadStream(&input_x, &input_stream) &&
+         sptk::ReadStream(&input_y, &input_stream)) {
+    if (!fast_fourier_transform.Run(input_x, input_y, &tmp_x, &tmp_y,
+                                    &buffer)) {
       std::ostringstream error_message;
-      error_message << "Failed to run fast Fourier transform";
-      sptk::PrintErrorMessage("fft", error_message);
+      error_message << "Failed to run 2D fast Fourier transform";
+      sptk::PrintErrorMessage("fft2", error_message);
       return 1;
     }
 
+    if (kStandard == output_style || kQuadrantWithBoundary == output_style) {
+      for (int i(0); i < output_length; ++i) {
+        for (int j(0); j < output_length; ++j) {
+          output_x[i][j] = tmp_x[i][j];
+          output_y[i][j] = tmp_y[i][j];
+        }
+      }
+    } else if (kTranspose == output_style ||
+               kTransposeWithBoundary == output_style) {
+      for (int i(0); i < half_fft_length; ++i) {
+        for (int j(0); j < half_fft_length; ++j) {
+          output_x[i][j] = tmp_x[i + half_fft_length][j + half_fft_length];
+          output_y[i][j] = tmp_y[i + half_fft_length][j + half_fft_length];
+        }
+      }
+      for (int i(half_fft_length); i < fft_length; ++i) {
+        for (int j(half_fft_length); j < fft_length; ++j) {
+          output_x[i][j] = tmp_x[i - half_fft_length][j - half_fft_length];
+          output_y[i][j] = tmp_y[i - half_fft_length][j - half_fft_length];
+        }
+      }
+      for (int i(0); i < half_fft_length; ++i) {
+        for (int j(half_fft_length); j < fft_length; ++j) {
+          output_x[i][j] = tmp_x[i + half_fft_length][j - half_fft_length];
+          output_y[i][j] = tmp_y[i + half_fft_length][j - half_fft_length];
+        }
+      }
+      for (int i(half_fft_length); i < fft_length; ++i) {
+        for (int j(0); j < half_fft_length; ++j) {
+          output_x[i][j] = tmp_x[i - half_fft_length][j + half_fft_length];
+          output_y[i][j] = tmp_y[i - half_fft_length][j + half_fft_length];
+        }
+      }
+
+      if (kTransposeWithBoundary == output_style) {
+        const int boundary(output_length - 1);
+        for (int i(0); i < fft_length; ++i) {
+          output_x[i][boundary] = output_x[i][0];
+          output_x[boundary][i] = output_x[0][i];
+          output_y[i][boundary] = output_y[i][0];
+          output_y[boundary][i] = output_y[0][i];
+        }
+        output_x[boundary][boundary] = output_x[0][0];
+        output_y[boundary][boundary] = output_y[0][0];
+      }
+    }
+
     if (kOutputAmplitude == output_format) {
-      for (int i(0); i < fft_length; ++i) {
-        output_x[i] =
-            std::sqrt(output_x[i] * output_x[i] + output_y[i] * output_y[i]);
+      for (int i(0); i < output_length; ++i) {
+        for (int j(0); j < output_length; ++j) {
+          output_x[i][j] = std::sqrt(output_x[i][j] * output_x[i][j] +
+                                     output_y[i][j] * output_y[i][j]);
+        }
       }
     } else if (kOutputPower == output_format) {
-      for (int i(0); i < fft_length; ++i) {
-        output_x[i] = output_x[i] * output_x[i] + output_y[i] * output_y[i];
+      for (int i(0); i < output_length; ++i) {
+        for (int j(0); j < output_length; ++j) {
+          output_x[i][j] =
+              output_x[i][j] * output_x[i][j] + output_y[i][j] * output_y[i][j];
+        }
       }
     }
 
     if ((kOutputRealAndImaginaryParts == output_format ||
          kOutputRealPart == output_format ||
          kOutputAmplitude == output_format || kOutputPower == output_format) &&
-        !sptk::WriteStream(0, fft_length, output_x, &std::cout, NULL)) {
+        !sptk::WriteStream(output_x, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write output sequence";
-      sptk::PrintErrorMessage("fft", error_message);
+      sptk::PrintErrorMessage("fft2", error_message);
       return 1;
     }
 
     if ((kOutputRealAndImaginaryParts == output_format ||
          kOutputImaginaryPart == output_format) &&
-        !sptk::WriteStream(0, fft_length, output_y, &std::cout, NULL)) {
+        !sptk::WriteStream(output_y, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write imaginary parts";
-      sptk::PrintErrorMessage("fft", error_message);
+      sptk::PrintErrorMessage("fft2", error_message);
       return 1;
     }
   }
