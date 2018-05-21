@@ -53,8 +53,8 @@
 
 namespace {
 
-const int kDefaultStartPoint(0);
-const bool kDefaultKeepDataLengthFlag(false);
+const int kDefaultStartIndex(0);
+const bool kDefaultKeepSequenceLengthFlag(false);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -64,13 +64,13 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       delay [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -s s  : start point        (   int)[" << std::setw(5) << std::right << kDefaultStartPoint << "][   <= s <=   ]" << std::endl;  // NOLINT
-  *stream << "       -k    : keep data length   (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultKeepDataLengthFlag) << "]" << std::endl;  // NOLINT
+  *stream << "       -s s  : start index          (   int)[" << std::setw(5) << std::right << kDefaultStartIndex << "][   <= s <=   ]" << std::endl;  // NOLINT
+  *stream << "       -k    : keep sequence length (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultKeepSequenceLengthFlag) << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       data sequence              (double)[stdin]" << std::endl;
+  *stream << "       data sequence                (double)[stdin]" << std::endl;
   *stream << "  stdout:" << std::endl;
-  *stream << "       delayed data sequence      (double)" << std::endl;
+  *stream << "       delayed data sequence        (double)" << std::endl;
   *stream << "  notice:" << std::endl;
   *stream << "       if s < 0, advance data sequence" << std::endl;
   *stream << std::endl;
@@ -82,8 +82,8 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-  int start_point(kDefaultStartPoint);
-  bool keep_data_length_flag(kDefaultKeepDataLengthFlag);
+  int start_index(kDefaultStartIndex);
+  bool keep_sequence_length_flag(kDefaultKeepSequenceLengthFlag);
 
   for (;;) {
     const int option_char(getopt_long(argc, argv, "s:kh", NULL, NULL));
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
 
     switch (option_char) {
       case 's': {
-        if (!sptk::ConvertStringToInteger(optarg, &start_point)) {
+        if (!sptk::ConvertStringToInteger(optarg, &start_index)) {
           std::ostringstream error_message;
           error_message << "The argument for the -s option must be an integer";
           sptk::PrintErrorMessage("delay", error_message);
@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'k': {
-        keep_data_length_flag = true;
+        keep_sequence_length_flag = true;
         break;
       }
       case 'h': {
@@ -135,10 +135,10 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  if (start_point <= 0) {
+  if (start_index <= 0) {
     double data;
-    int num_zeros(-start_point);
-    for (int i(0); i < -start_point; ++i) {
+    int num_zeros(-start_index);
+    for (int i(0); i < -start_index; ++i) {
       if (!sptk::ReadStream(&data, &input_stream)) {
         num_zeros = i;
         break;
@@ -154,7 +154,7 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    if (keep_data_length_flag) {
+    if (keep_sequence_length_flag) {
       for (int i(0); i < num_zeros; ++i) {
         if (!sptk::WriteStream(0.0, &std::cout)) {
           std::ostringstream error_message;
@@ -167,10 +167,10 @@ int main(int argc, char* argv[]) {
   } else {
     double data;
     std::queue<double> stored_data;
-    for (int i(0); i < start_point; ++i) {
+    for (int i(0); i < start_index; ++i) {
       if (sptk::ReadStream(&data, &input_stream)) {
         stored_data.push(data);
-      } else if (keep_data_length_flag) {
+      } else if (keep_sequence_length_flag) {
         return 0;
       }
       if (!sptk::WriteStream(0.0, &std::cout)) {
@@ -192,7 +192,7 @@ int main(int argc, char* argv[]) {
       stored_data.push(data);
     }
 
-    if (!keep_data_length_flag) {
+    if (!keep_sequence_length_flag) {
       while (!stored_data.empty()) {
         if (!sptk::WriteStream(stored_data.front(), &std::cout)) {
           std::ostringstream error_message;

@@ -53,26 +53,32 @@
 
 namespace {
 
+enum OutputFormats { kPadWithZero = 0, kPadWithSameValue, kNumOutputFormats };
+
 const int kDefaultStartIndex(0);
 const int kDefaultVectorLength(1);
-const int kDefaultDecimationPeriod(10);
+const int kDefaultInterpolationPeriod(10);
+const OutputFormats kDefaultOutputFormat(kPadWithZero);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " decimate - data decimation" << std::endl;
+  *stream << " interpolate - data interpolation" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
-  *stream << "       decimate [ options ] [ infile ] > stdout" << std::endl;
+  *stream << "       interpolate [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -s s  : start index        (   int)[" << std::setw(5) << std::right << kDefaultStartIndex       << "][ 0 <= s <=   ]" << std::endl;  // NOLINT
-  *stream << "       -l l  : length of vector   (   int)[" << std::setw(5) << std::right << kDefaultVectorLength     << "][ 0 <  l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -p p  : decimation period  (   int)[" << std::setw(5) << std::right << kDefaultDecimationPeriod << "][ 0 <  p <=   ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : start index          (   int)[" << std::setw(5) << std::right << kDefaultStartIndex          << "][ 0 <= s <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : length of vector     (   int)[" << std::setw(5) << std::right << kDefaultVectorLength        << "][ 0 <  l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -p p  : interpolation period (   int)[" << std::setw(5) << std::right << kDefaultInterpolationPeriod << "][ 0 <  p <=   ]" << std::endl;  // NOLINT
+  *stream << "       -o o  : output format        (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat        << "][ 0 <= o <= 1 ]" << std::endl;  // NOLINT
+  *stream << "                 0 ( x(0), 0,    ..., x(1), 0,    ..., )" << std::endl;  // NOLINT
+  *stream << "                 1 ( x(0), x(0), ..., x(1), x(1), ..., )" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       data sequence              (double)[stdin]" << std::endl;
+  *stream << "       data sequence                (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       decimated data sequence    (double)" << std::endl;
+  *stream << "       interpolated data sequence   (double)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -84,10 +90,11 @@ void PrintUsage(std::ostream* stream) {
 int main(int argc, char* argv[]) {
   int start_index(kDefaultStartIndex);
   int vector_length(kDefaultVectorLength);
-  int decimation_period(kDefaultDecimationPeriod);
+  int interpolation_period(kDefaultInterpolationPeriod);
+  OutputFormats output_format(kDefaultOutputFormat);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "s:l:p:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "s:l:p:o:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -97,7 +104,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -s option must be a "
                         << "non-negative integer";
-          sptk::PrintErrorMessage("decimate", error_message);
+          sptk::PrintErrorMessage("interpolate", error_message);
           return 1;
         }
         break;
@@ -108,20 +115,35 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -l option must be a positive integer";
-          sptk::PrintErrorMessage("decimate", error_message);
+          sptk::PrintErrorMessage("interpolate", error_message);
           return 1;
         }
         break;
       }
       case 'p': {
-        if (!sptk::ConvertStringToInteger(optarg, &decimation_period) ||
-            decimation_period <= 0) {
+        if (!sptk::ConvertStringToInteger(optarg, &interpolation_period) ||
+            interpolation_period <= 0) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -p option must be a positive integer";
-          sptk::PrintErrorMessage("decimate", error_message);
+          sptk::PrintErrorMessage("interpolate", error_message);
           return 1;
         }
+        break;
+      }
+      case 'o': {
+        const int min(0);
+        const int max(static_cast<int>(kNumOutputFormats) - 1);
+        int tmp;
+        if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
+            !sptk::IsInRange(tmp, min, max)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -o option must be an integer "
+                        << "in the range of " << min << " to " << max;
+          sptk::PrintErrorMessage("interpolate", error_message);
+          return 1;
+        }
+        output_format = static_cast<OutputFormats>(tmp);
         break;
       }
       case 'h': {
@@ -140,7 +162,7 @@ int main(int argc, char* argv[]) {
   if (1 < num_rest_args) {
     std::ostringstream error_message;
     error_message << "Too many input files";
-    sptk::PrintErrorMessage("decimate", error_message);
+    sptk::PrintErrorMessage("interpolate", error_message);
     return 1;
   }
   const char* input_file(0 == num_rest_args ? NULL : argv[optind]);
@@ -151,35 +173,46 @@ int main(int argc, char* argv[]) {
   if (ifs.fail() && NULL != input_file) {
     std::ostringstream error_message;
     error_message << "Cannot open file " << input_file;
-    sptk::PrintErrorMessage("decimate", error_message);
+    sptk::PrintErrorMessage("interpolate", error_message);
     return 1;
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  std::vector<double> input_data(vector_length);
+  const int output_length(interpolation_period * vector_length);
+  std::vector<double> data(output_length);
 
-  // skip data
+  // output zeros
   for (int sample_index(0); sample_index < start_index; ++sample_index) {
-    if (!sptk::ReadStream(false, 0, 0, vector_length, &input_data,
-                          &input_stream, NULL)) {
+    if (!sptk::WriteStream(0, vector_length, data, &std::cout, NULL)) {
       std::ostringstream error_message;
-      error_message << "Start index exceeds data length";
-      sptk::PrintErrorMessage("decimate", error_message);
+      error_message << "Failed to write zero sequence";
+      sptk::PrintErrorMessage("interpolate", error_message);
       return 1;
     }
   }
 
-  for (int sample_index(0); sptk::ReadStream(false, 0, 0, vector_length,
-                                             &input_data, &input_stream, NULL);
-       ++sample_index) {
-    if (0 == sample_index % decimation_period) {
-      if (!sptk::WriteStream(0, vector_length, input_data, &std::cout, NULL)) {
-        std::ostringstream error_message;
-        error_message << "Failed to write decimated data sequence";
-        sptk::PrintErrorMessage("decimate", error_message);
-        return 1;
+  while (sptk::ReadStream(false, 0, 0, vector_length, &data, &input_stream,
+                          NULL)) {
+    switch (output_format) {
+      case kPadWithZero: {
+        // nothing to do
+        break;
       }
-      sample_index = 0;
+      case kPadWithSameValue: {
+        for (int i(vector_length), j(0); i < output_length; ++i, ++j) {
+          if (vector_length <= j) j = 0;
+          data[i] = data[j];
+        }
+        break;
+      }
+      default: { break; }
+    }
+
+    if (!sptk::WriteStream(0, output_length, data, &std::cout, NULL)) {
+      std::ostringstream error_message;
+      error_message << "Failed to write interpolated data sequence";
+      sptk::PrintErrorMessage("interpolate", error_message);
+      return 1;
     }
   }
 
