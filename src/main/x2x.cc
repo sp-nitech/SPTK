@@ -65,17 +65,12 @@ enum NumericType {
   kFloatingPoint,
 };
 
-enum BehaviorForOutOfRangeValue {
-  kClip = 0,
-  kWarn,
-  kExit,
-  kNumKindsOfBehavior
-};
+enum WarningType { kIgnore = 0, kWarn, kExit, kNumWarningTypes };
 
 const int kBufferSize(128);
 const char* kDefaultDataTypes("da");
 const bool kDefaultRoundingFlag(false);
-const BehaviorForOutOfRangeValue kDefaultBehaviorForOutOfRangeValue(kClip);
+const WarningType kDefaultWarningType(kIgnore);
 const int kDefaultNumColumn(1);
 
 void PrintUsage(std::ostream* stream) {
@@ -86,7 +81,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       x2x [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       +type : input and output data types             [" << std::setw(5) << std::right << kDefaultDataTypes                  << "]" << std::endl;  // NOLINT
+  *stream << "       +type : input and output data types                 [" << std::setw(5) << std::right << kDefaultDataTypes  << "]" << std::endl;  // NOLINT
   *stream << "                 "; sptk::PrintDataType("c", stream); sptk::PrintDataType("C", stream); *stream << std::endl;  // NOLINT
   *stream << "                 "; sptk::PrintDataType("s", stream); sptk::PrintDataType("S", stream); *stream << std::endl;  // NOLINT
   *stream << "                 "; sptk::PrintDataType("h", stream); sptk::PrintDataType("H", stream); *stream << std::endl;  // NOLINT
@@ -94,16 +89,17 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 "; sptk::PrintDataType("l", stream); sptk::PrintDataType("L", stream); *stream << std::endl;  // NOLINT
   *stream << "                 "; sptk::PrintDataType("f", stream); sptk::PrintDataType("d", stream); *stream << std::endl;  // NOLINT
   *stream << "                 "; sptk::PrintDataType("e", stream); sptk::PrintDataType("a", stream); *stream << std::endl;  // NOLINT
-  *stream << "       -r    : rounding                        (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultRoundingFlag) << "]" << std::endl;  // NOLINT
-  *stream << "       -e e  : behavior for out-of-range value (   int)[" << std::setw(5) << std::right << kDefaultBehaviorForOutOfRangeValue << "][ 0 <= e <= 2 ]" << std::endl;  // NOLINT
-  *stream << "                 0 (clip the value)" << std::endl;
-  *stream << "                 1 (clip the value and output warning)" << std::endl;  // NOLINT
-  *stream << "                 2 (exit immediately)" << std::endl;
-  *stream << "       -c c  : number of column                (   int)[" << std::setw(5) << std::right << kDefaultNumColumn                  << "][ 1 <= c <=   ]" << std::endl;  // NOLINT
-  *stream << "       -f f  : print format                    (string)[" << std::setw(5) << std::right << "N/A"                              << "]" << std::endl;  // NOLINT
+  *stream << "       -r    : rounding                            (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultRoundingFlag) << "]" << std::endl;  // NOLINT
+  *stream << "       -e e  : warning type of out-of-range value  (   int)[" << std::setw(5) << std::right << kDefaultWarningType << "][ 0 <= e <= 2 ]" << std::endl;  // NOLINT
+  *stream << "                 0 (nothing to do)" << std::endl;
+  *stream << "                 1 (output the index to stderr)" << std::endl;
+  *stream << "                 2 (output the index to stderr and" << std::endl;
+  *stream << "                    exit immediately)" << std::endl;
+  *stream << "       -c c  : number of column                    (   int)[" << std::setw(5) << std::right << kDefaultNumColumn   << "][ 1 <= c <=   ]" << std::endl;  // NOLINT
+  *stream << "       -f f  : print format                        (string)[" << std::setw(5) << std::right << "N/A"               << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       data sequence                                   [stdin]" << std::endl;  // NOLINT
+  *stream << "       data sequence                                       [stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
   *stream << "       transformed data sequence" << std::endl;
   *stream << "  notice:" << std::endl;
@@ -125,14 +121,13 @@ template <typename T1, typename T2>
 class DataTransform : public DataTransformInterface {
  public:
   DataTransform(const std::string& print_format, int num_column,
-                NumericType input_numeric_type,
-                BehaviorForOutOfRangeValue behavior, bool rounding,
-                bool is_ascii_input, bool is_ascii_output, T2 minimum_value = 0,
-                T2 maximum_value = 0)
+                NumericType input_numeric_type, WarningType warning_type,
+                bool rounding, bool is_ascii_input, bool is_ascii_output,
+                T2 minimum_value = 0, T2 maximum_value = 0)
       : print_format_(print_format),
         num_column_(num_column),
         input_numeric_type_(input_numeric_type),
-        behavior_(behavior),
+        warning_type_(warning_type),
         rounding_(rounding),
         is_ascii_input_(is_ascii_input),
         is_ascii_output_(is_ascii_output),
@@ -213,11 +208,11 @@ class DataTransform : public DataTransformInterface {
         }
       }
 
-      if (is_clipped && (kWarn == behavior_ || kExit == behavior_)) {
+      if (is_clipped && kIgnore != warning_type_) {
         std::ostringstream error_message;
         error_message << index << "th data is over the range of output type";
         sptk::PrintErrorMessage("x2x", error_message);
-        if (kExit == behavior_) return false;
+        if (kExit == warning_type_) return false;
       }
 
       // write
@@ -250,7 +245,7 @@ class DataTransform : public DataTransformInterface {
   const std::string print_format_;
   const int num_column_;
   const NumericType input_numeric_type_;
-  const BehaviorForOutOfRangeValue behavior_;
+  const WarningType warning_type_;
   const bool rounding_;
   const bool is_ascii_input_;
   const bool is_ascii_output_;
@@ -266,8 +261,7 @@ class DataTransformWrapper {
   DataTransformWrapper(const std::string& input_data_type,
                        const std::string& output_data_type,
                        const std::string& given_print_format, int num_column,
-                       BehaviorForOutOfRangeValue behavior,
-                       bool given_rounding_flag)
+                       WarningType warning_type, bool given_rounding_flag)
       : data_transform_(NULL) {
     std::string print_format(given_print_format);
     if (print_format.empty() && "a" == output_data_type) {
@@ -319,483 +313,483 @@ class DataTransformWrapper {
     // c -> *
     if ("c" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<int8_t, int8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("c" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<int8_t, int16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("c" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<int8_t, sptk::int24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::int24_t(0), sptk::int24_t(0));
     } else if ("c" == input_data_type && "i" == output_data_type) {
       data_transform_ = new DataTransform<int8_t, int32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("c" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<int8_t, int64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("c" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<int8_t, uint8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
     } else if ("c" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<int8_t, uint16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
     } else if ("c" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<int8_t, sptk::uint24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::uint24_t(0),
           sptk::uint24_t(SCHAR_MAX));
     } else if ("c" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<int8_t, uint32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
     } else if ("c" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<int8_t, uint64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
     } else if ("c" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<int8_t, float>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("c" == input_data_type && "d" == output_data_type) {
       data_transform_ = new DataTransform<int8_t, double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("c" == input_data_type && "e" == output_data_type) {
       data_transform_ = new DataTransform<int8_t, long double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("c" == input_data_type && "a" == output_data_type) {
       data_transform_ = new DataTransform<int8_t, int8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     }
 
     // s -> *
     else if ("s" == input_data_type && "c" == output_data_type) {  // NOLINT
       data_transform_ = new DataTransform<int16_t, int8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
     } else if ("s" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, int16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("s" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, sptk::int24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::int24_t(0), sptk::int24_t(0));
     } else if ("s" == input_data_type && "i" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, int32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("s" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, int64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("s" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, uint8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
     } else if ("s" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, uint16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, SHRT_MAX);
     } else if ("s" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, sptk::uint24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::uint24_t(0),
           sptk::uint24_t(SHRT_MAX));
     } else if ("s" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, uint32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, SHRT_MAX);
     } else if ("s" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, uint64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, SHRT_MAX);
     } else if ("s" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, float>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("s" == input_data_type && "d" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("s" == input_data_type && "e" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, long double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("s" == input_data_type && "a" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, int16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     }
 
     // h -> *
     else if ("h" == input_data_type && "c" == output_data_type) {  // NOLINT
       data_transform_ = new DataTransform<sptk::int24_t, int8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
     } else if ("h" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<sptk::int24_t, int16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SHRT_MIN, SHRT_MAX);
     } else if ("h" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<sptk::int24_t, sptk::int24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::int24_t(0), sptk::int24_t(0));
     } else if ("h" == input_data_type && "i" == output_data_type) {
       data_transform_ = new DataTransform<sptk::int24_t, int32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("h" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<sptk::int24_t, int64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("h" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<sptk::int24_t, uint8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
     } else if ("h" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<sptk::int24_t, uint16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, USHRT_MAX);
     } else if ("h" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<sptk::int24_t, sptk::uint24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::uint24_t(0),
           sptk::uint24_t(sptk::INT24_MAX));
     } else if ("h" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<sptk::int24_t, uint32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, sptk::INT24_MAX);
     } else if ("h" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<sptk::int24_t, uint64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, sptk::INT24_MAX);
     } else if ("h" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<sptk::int24_t, float>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("h" == input_data_type && "d" == output_data_type) {
       data_transform_ = new DataTransform<sptk::int24_t, double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("h" == input_data_type && "e" == output_data_type) {
       data_transform_ = new DataTransform<sptk::int24_t, long double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("h" == input_data_type && "a" == output_data_type) {
       data_transform_ = new DataTransform<sptk::int24_t, sptk::int24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::int24_t(0), sptk::int24_t(0));
     }
 
     // i -> *
     else if ("i" == input_data_type && "c" == output_data_type) {  // NOLINT
       data_transform_ = new DataTransform<int32_t, int8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
     } else if ("i" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, int16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SHRT_MIN, SHRT_MAX);
     } else if ("i" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, sptk::int24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::int24_t(sptk::INT24_MIN),
           sptk::int24_t(sptk::INT24_MAX));
     } else if ("i" == input_data_type && "i" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, int32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("i" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, int64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("i" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, uint8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
     } else if ("i" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, uint16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, USHRT_MAX);
     } else if ("i" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, sptk::uint24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::uint24_t(0),
           sptk::uint24_t(sptk::UINT24_MAX));
     } else if ("i" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, uint32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, INT_MAX);
     } else if ("i" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, uint64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, INT_MAX);
     } else if ("i" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, float>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("i" == input_data_type && "d" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("i" == input_data_type && "e" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, long double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("i" == input_data_type && "a" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, int32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     }
 
     // l -> *
     else if ("l" == input_data_type && "c" == output_data_type) {  // NOLINT
       data_transform_ = new DataTransform<int64_t, int8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
     } else if ("l" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, int16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SHRT_MIN, SHRT_MAX);
     } else if ("l" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, sptk::int24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::int24_t(sptk::INT24_MIN),
           sptk::int24_t(sptk::INT24_MAX));
     } else if ("l" == input_data_type && "i" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, int32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, INT_MIN, INT_MAX);
     } else if ("l" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, int64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("l" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, uint8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
     } else if ("l" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, uint16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, USHRT_MAX);
     } else if ("l" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, sptk::uint24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::uint24_t(0),
           sptk::uint24_t(sptk::UINT24_MAX));
     } else if ("l" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, uint32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, UINT_MAX);
     } else if ("l" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, uint64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, LLONG_MAX);
     } else if ("l" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, float>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("l" == input_data_type && "d" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("l" == input_data_type && "e" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, long double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("l" == input_data_type && "a" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, int64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     }
 
     // C -> *
     else if ("C" == input_data_type && "c" == output_data_type) {  // NOLINT
       data_transform_ = new DataTransform<uint8_t, int8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
     } else if ("C" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<uint8_t, int16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("C" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<uint8_t, sptk::int24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::int24_t(0), sptk::int24_t(0));
     } else if ("C" == input_data_type && "i" == output_data_type) {
       data_transform_ = new DataTransform<uint8_t, int32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("C" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<uint8_t, int64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("C" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<uint8_t, uint8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("C" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<uint8_t, uint16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("C" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<uint8_t, sptk::uint24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::uint24_t(0),
           sptk::uint24_t(0));
     } else if ("C" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<uint8_t, uint32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("C" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<uint8_t, uint64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("C" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<uint8_t, float>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("C" == input_data_type && "d" == output_data_type) {
       data_transform_ = new DataTransform<uint8_t, double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("C" == input_data_type && "e" == output_data_type) {
       data_transform_ = new DataTransform<uint8_t, long double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("C" == input_data_type && "a" == output_data_type) {
       data_transform_ = new DataTransform<uint8_t, uint8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     }
 
     // S -> *
     else if ("S" == input_data_type && "c" == output_data_type) {  // NOLINT
       data_transform_ = new DataTransform<uint16_t, int8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
     } else if ("S" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<uint16_t, int16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, SHRT_MAX);
     } else if ("S" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<uint16_t, sptk::int24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::int24_t(0), sptk::int24_t(0));
     } else if ("S" == input_data_type && "i" == output_data_type) {
       data_transform_ = new DataTransform<uint16_t, int32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("S" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<uint16_t, int64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("S" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<uint16_t, uint8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
     } else if ("S" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<uint16_t, uint16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("S" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<uint16_t, sptk::uint24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::uint24_t(0),
           sptk::uint24_t(0));
     } else if ("S" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<uint16_t, uint32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("S" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<uint16_t, uint64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("S" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<uint16_t, float>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("S" == input_data_type && "d" == output_data_type) {
       data_transform_ = new DataTransform<uint16_t, double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("S" == input_data_type && "e" == output_data_type) {
       data_transform_ = new DataTransform<uint16_t, long double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("S" == input_data_type && "a" == output_data_type) {
       data_transform_ = new DataTransform<uint16_t, uint16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     }
 
     // H -> *
     else if ("H" == input_data_type && "c" == output_data_type) {  // NOLINT
       data_transform_ = new DataTransform<sptk::uint24_t, int8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
     } else if ("H" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, int16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, SHRT_MAX);
     } else if ("H" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, sptk::int24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::int24_t(0),
           sptk::int24_t(sptk::INT24_MAX));
     } else if ("H" == input_data_type && "i" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, int32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("H" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, int64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("H" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, uint8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
     } else if ("H" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, uint16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, USHRT_MAX);
     } else if ("H" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, sptk::uint24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::uint24_t(0),
           sptk::uint24_t(0));
     } else if ("H" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, uint32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("H" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, uint64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("H" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, float>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("H" == input_data_type && "d" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("H" == input_data_type && "e" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, long double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("H" == input_data_type && "a" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, sptk::uint24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::uint24_t(0),
           sptk::uint24_t(0));
     }
@@ -803,366 +797,366 @@ class DataTransformWrapper {
     // I -> *
     else if ("I" == input_data_type && "c" == output_data_type) {  // NOLINT
       data_transform_ = new DataTransform<uint32_t, int8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
     } else if ("I" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, int16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, SHRT_MAX);
     } else if ("I" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, sptk::int24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::int24_t(0),
           sptk::int24_t(sptk::INT24_MAX));
     } else if ("I" == input_data_type && "i" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, int32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, INT_MAX);
     } else if ("I" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, int64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("I" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, uint8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
     } else if ("I" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, uint16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, USHRT_MAX);
     } else if ("I" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, sptk::uint24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::uint24_t(0),
           sptk::uint24_t(sptk::UINT24_MAX));
     } else if ("I" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, uint32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("I" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, uint64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("I" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, float>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("I" == input_data_type && "d" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("I" == input_data_type && "e" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, long double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("I" == input_data_type && "a" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, uint32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     }
 
     // L -> *
     else if ("L" == input_data_type && "c" == output_data_type) {  // NOLINT
       data_transform_ = new DataTransform<uint64_t, int8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
     } else if ("L" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, int16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, SHRT_MAX);
     } else if ("L" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, sptk::int24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::int24_t(0),
           sptk::int24_t(sptk::INT24_MAX));
     } else if ("L" == input_data_type && "i" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, int32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, INT_MAX);
     } else if ("L" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, int64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, LLONG_MAX);
     } else if ("L" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, uint8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
     } else if ("L" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, uint16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, USHRT_MAX);
     } else if ("L" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, sptk::uint24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::uint24_t(0),
           sptk::uint24_t(sptk::UINT24_MAX));
     } else if ("L" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, uint32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, UINT_MAX);
     } else if ("L" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, uint64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("L" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, float>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("L" == input_data_type && "d" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("L" == input_data_type && "e" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, long double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("L" == input_data_type && "a" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, uint64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     }
 
     // f -> *
     else if ("f" == input_data_type && "c" == output_data_type) {  // NOLINT
       data_transform_ = new DataTransform<float, int8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
     } else if ("f" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<float, int16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SHRT_MIN, SHRT_MAX);
     } else if ("f" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<float, sptk::int24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::int24_t(sptk::INT24_MIN),
           sptk::int24_t(sptk::INT24_MAX));
     } else if ("f" == input_data_type && "i" == output_data_type) {
       data_transform_ = new DataTransform<float, int32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, INT_MIN, INT_MAX);
     } else if ("f" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<float, int64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, LLONG_MIN, LLONG_MAX);
     } else if ("f" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<float, uint8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
     } else if ("f" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<float, uint16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, USHRT_MAX);
     } else if ("f" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<float, sptk::uint24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::uint24_t(0),
           sptk::uint24_t(sptk::UINT24_MAX));
     } else if ("f" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<float, uint32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, UINT_MAX);
     } else if ("f" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<float, uint64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, ULLONG_MAX);
     } else if ("f" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<float, float>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("f" == input_data_type && "d" == output_data_type) {
       data_transform_ = new DataTransform<float, double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("f" == input_data_type && "e" == output_data_type) {
       data_transform_ = new DataTransform<float, long double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("f" == input_data_type && "a" == output_data_type) {
       data_transform_ = new DataTransform<float, float>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     }
 
     // d -> *
     else if ("d" == input_data_type && "c" == output_data_type) {  // NOLINT
       data_transform_ = new DataTransform<double, int8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
     } else if ("d" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<double, int16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SHRT_MIN, SHRT_MAX);
     } else if ("d" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<double, sptk::int24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::int24_t(sptk::INT24_MIN),
           sptk::int24_t(sptk::INT24_MAX));
     } else if ("d" == input_data_type && "i" == output_data_type) {
       data_transform_ = new DataTransform<double, int32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, INT_MIN, INT_MAX);
     } else if ("d" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<double, int64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, LLONG_MIN, LLONG_MAX);
     } else if ("d" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<double, uint8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
     } else if ("d" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<double, uint16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, USHRT_MAX);
     } else if ("d" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<double, sptk::uint24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::uint24_t(0),
           sptk::uint24_t(sptk::UINT24_MAX));
     } else if ("d" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<double, uint32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, UINT_MAX);
     } else if ("d" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<double, uint64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, ULLONG_MAX);
     } else if ("d" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<double, float>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, -FLT_MAX, FLT_MAX);
     } else if ("d" == input_data_type && "d" == output_data_type) {
       data_transform_ = new DataTransform<double, double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("d" == input_data_type && "e" == output_data_type) {
       data_transform_ = new DataTransform<double, long double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("d" == input_data_type && "a" == output_data_type) {
       data_transform_ = new DataTransform<double, double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     }
 
     // e -> *
     else if ("e" == input_data_type && "c" == output_data_type) {  // NOLINT
       data_transform_ = new DataTransform<long double, int8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
     } else if ("e" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<long double, int16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SHRT_MIN, SHRT_MAX);
     } else if ("e" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<long double, sptk::int24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::int24_t(sptk::INT24_MIN),
           sptk::int24_t(sptk::INT24_MAX));
     } else if ("e" == input_data_type && "i" == output_data_type) {
       data_transform_ = new DataTransform<long double, int32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, INT_MIN, INT_MAX);
     } else if ("e" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<long double, int64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, LLONG_MIN, LLONG_MAX);
     } else if ("e" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<long double, uint8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
     } else if ("e" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<long double, uint16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, USHRT_MAX);
     } else if ("e" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<long double, sptk::uint24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::uint24_t(0),
           sptk::uint24_t(sptk::UINT24_MAX));
     } else if ("e" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<long double, uint32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, UINT_MAX);
     } else if ("e" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<long double, uint64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, ULLONG_MAX);
     } else if ("e" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<long double, float>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, -FLT_MAX, FLT_MAX);
     } else if ("e" == input_data_type && "d" == output_data_type) {
       data_transform_ = new DataTransform<long double, double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, -DBL_MAX, DBL_MAX);
     } else if ("e" == input_data_type && "e" == output_data_type) {
       data_transform_ = new DataTransform<long double, long double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("e" == input_data_type && "a" == output_data_type) {
       data_transform_ = new DataTransform<long double, long double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     }
 
     // a -> *
     else if ("a" == input_data_type && "c" == output_data_type) {  // NOLINT
       data_transform_ = new DataTransform<long double, int8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
     } else if ("a" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<long double, int16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SHRT_MIN, SHRT_MAX);
     } else if ("a" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<long double, sptk::int24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::int24_t(sptk::INT24_MIN),
           sptk::int24_t(sptk::INT24_MAX));
     } else if ("a" == input_data_type && "i" == output_data_type) {
       data_transform_ = new DataTransform<long double, int32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, INT_MIN, INT_MAX);
     } else if ("a" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<long double, int64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, LLONG_MIN, LLONG_MAX);
     } else if ("a" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<long double, uint8_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
     } else if ("a" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<long double, uint16_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, USHRT_MAX);
     } else if ("a" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<long double, sptk::uint24_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::uint24_t(0),
           sptk::uint24_t(sptk::UINT24_MAX));
     } else if ("a" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<long double, uint32_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, UINT_MAX);
     } else if ("a" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<long double, uint64_t>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, ULLONG_MAX);
     } else if ("a" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<long double, float>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, -FLT_MAX, FLT_MAX);
     } else if ("a" == input_data_type && "d" == output_data_type) {
       data_transform_ = new DataTransform<long double, double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, -DBL_MAX, DBL_MAX);
     } else if ("a" == input_data_type && "e" == output_data_type) {
       data_transform_ = new DataTransform<long double, long double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     } else if ("a" == input_data_type && "a" == output_data_type) {
       data_transform_ = new DataTransform<long double, long double>(
-          print_format, num_column, input_numeric_type, behavior, rounding,
+          print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output);
     }
   }
@@ -1189,7 +1183,7 @@ class DataTransformWrapper {
 
 int main(int argc, char* argv[]) {
   bool rounding_flag(kDefaultRoundingFlag);
-  BehaviorForOutOfRangeValue behavior(kDefaultBehaviorForOutOfRangeValue);
+  WarningType warning_type(kDefaultWarningType);
   int num_column(kDefaultNumColumn);
   std::string print_format("");
   std::string data_types(kDefaultDataTypes);
@@ -1205,7 +1199,7 @@ int main(int argc, char* argv[]) {
       }
       case 'e': {
         const int min(0);
-        const int max(static_cast<int>(kNumKindsOfBehavior) - 1);
+        const int max(static_cast<int>(kNumWarningTypes) - 1);
         int tmp;
         if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
             !sptk::IsInRange(tmp, min, max)) {
@@ -1215,7 +1209,7 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("x2x", error_message);
           return 1;
         }
-        behavior = static_cast<BehaviorForOutOfRangeValue>(tmp);
+        warning_type = static_cast<WarningType>(tmp);
         break;
       }
       case 'c': {
@@ -1233,8 +1227,8 @@ int main(int argc, char* argv[]) {
         print_format = optarg;
         if ("%" != print_format.substr(0, 1)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -f option must be begin with "
-                        << "%";
+          error_message
+              << "The argument for the -f option must be begin with %";
           sptk::PrintErrorMessage("x2x", error_message);
           return 1;
         }
@@ -1288,7 +1282,7 @@ int main(int argc, char* argv[]) {
   const std::string input_data_type(data_types.substr(0, 1));
   const std::string output_data_type(data_types.substr(1, 1));
   DataTransformWrapper data_transform(input_data_type, output_data_type,
-                                      print_format, num_column, behavior,
+                                      print_format, num_column, warning_type,
                                       rounding_flag);
 
   if (!data_transform.IsValid()) {

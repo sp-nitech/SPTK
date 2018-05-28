@@ -55,18 +55,12 @@
 
 namespace {
 
-enum BehaviorForUnstableCoefficients {
-  kIgnore = 0,
-  kWarn,
-  kExit,
-  kNumKindsOfBehavior
-};
+enum WarningType { kIgnore = 0, kWarn, kExit, kNumWarningTypes };
 
 const int kDefaultFrameLength(256);
 const int kDefaultNumOrder(25);
 const double kDefaultEpsilon(0.0);
-const BehaviorForUnstableCoefficients kDefaultBehaviorForUnstableCoefficients(
-    kIgnore);
+const WarningType kDefaultWarningType(kIgnore);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -76,17 +70,14 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       lpc [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : frame length                            (   int)[" << std::setw(5) << std::right << kDefaultFrameLength                     << "][   0 <  l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -m m  : order of linear predictive coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumOrder                        << "][   0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -f f  : minimum value of the determinant of     (double)[" << std::setw(5) << std::right << kDefaultEpsilon                         << "][ 0.0 <= f <=   ]" << std::endl;  // NOLINT
-  *stream << "               the normal matrix" << std::endl;
-  *stream << "       -e e  : check whether the derived linear        (   int)[" << std::setw(5) << std::right << kDefaultBehaviorForUnstableCoefficients << "][   0 <= e <= 2 ]" << std::endl;  // NOLINT
-  *stream << "               predictive coefficients are stable" << std::endl;
-  *stream << "                 0 (the check is not performed)" << std::endl;
-  *stream << "                 1 (if the coefficients are unstable," << std::endl;  // NOLINT
-  *stream << "                    output the index to stderr)" << std::endl;
-  *stream << "                 2 (if the coefficients are unstable," << std::endl;  // NOLINT
-  *stream << "                    output the index to stderr and" << std::endl;
+  *stream << "       -l l  : frame length                            (   int)[" << std::setw(5) << std::right << kDefaultFrameLength << "][   0 <  l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of linear predictive coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumOrder    << "][   0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -f f  : minimum value of the determinant of     (double)[" << std::setw(5) << std::right << kDefaultEpsilon     << "][ 0.0 <= f <=   ]" << std::endl;  // NOLINT
+  *stream << "               normal matrix" << std::endl;
+  *stream << "       -e e  : warning type of unstable index          (   int)[" << std::setw(5) << std::right << kDefaultWarningType << "][   0 <= e <= 2 ]" << std::endl;  // NOLINT
+  *stream << "                 0 (nothing to do)" << std::endl;
+  *stream << "                 1 (output the index to stderr)" << std::endl;
+  *stream << "                 2 (output the index to stderr and" << std::endl;
   *stream << "                    exit immediately)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
@@ -105,8 +96,7 @@ int main(int argc, char* argv[]) {
   int frame_length(kDefaultFrameLength);
   int num_order(kDefaultNumOrder);
   double epsilon(kDefaultEpsilon);
-  BehaviorForUnstableCoefficients behavior(
-      kDefaultBehaviorForUnstableCoefficients);
+  WarningType warning_type(kDefaultWarningType);
 
   for (;;) {
     const int option_char(getopt_long(argc, argv, "l:m:f:e:h", NULL, NULL));
@@ -147,7 +137,7 @@ int main(int argc, char* argv[]) {
       }
       case 'e': {
         const int min(0);
-        const int max(static_cast<int>(kNumKindsOfBehavior) - 1);
+        const int max(static_cast<int>(kNumWarningTypes) - 1);
         int tmp;
         if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
             !sptk::IsInRange(tmp, min, max)) {
@@ -157,7 +147,7 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("lpc", error_message);
           return 1;
         }
-        behavior = static_cast<BehaviorForUnstableCoefficients>(tmp);
+        warning_type = static_cast<WarningType>(tmp);
         break;
       }
       case 'h': {
@@ -236,11 +226,11 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    if (!is_stable && kIgnore != behavior) {
+    if (!is_stable && kIgnore != warning_type) {
       std::ostringstream error_message;
       error_message << frame_index << "th frame is unstable";
       sptk::PrintErrorMessage("lpc", error_message);
-      if (kExit == behavior) return 1;
+      if (kExit == warning_type) return 1;
     }
 
     if (!sptk::WriteStream(0, output_length, linear_predictive_coefficients,

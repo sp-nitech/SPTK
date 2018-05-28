@@ -54,17 +54,11 @@
 
 namespace {
 
-enum BehaviorForUnstableCoefficients {
-  kIgnore = 0,
-  kWarn,
-  kExit,
-  kNumKindsOfBehavior
-};
+enum WarningType { kIgnore = 0, kWarn, kExit, kNumWarningTypes };
 
 const int kDefaultNumOrder(25);
 const double kDefaultGamma(1.0);
-const BehaviorForUnstableCoefficients kDefaultBehaviorForUnstableCoefficients(
-    kIgnore);
+const WarningType kDefaultWarningType(kIgnore);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -74,16 +68,13 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       lpc2par [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of linear predictive coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumOrder                        << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -g g  : gamma of generalized cepstrum           (double)[" << std::setw(5) << std::right << kDefaultGamma                           << "][   <= g <=   ]" << std::endl;  // NOLINT
-  *stream << "       -c c  : gamma of generalized cepstrum = -1 / c  (   int)[" << std::setw(5) << std::right << "N/A"                                   << "][ 1 <= c <=   ]" << std::endl;  // NOLINT
-  *stream << "       -e e  : check whether the derived PARCOR        (   int)[" << std::setw(5) << std::right << kDefaultBehaviorForUnstableCoefficients << "][ 0 <= e <= 2 ]" << std::endl;  // NOLINT
-  *stream << "               coefficients are stable" << std::endl;
-  *stream << "                 0 (the check is not performed)" << std::endl;
-  *stream << "                 1 (if the coefficients are unstable," << std::endl;  // NOLINT
-  *stream << "                    output the index to stderr)" << std::endl;
-  *stream << "                 2 (if the coefficients are unstable," << std::endl;  // NOLINT
-  *stream << "                    output the index to stderr and" << std::endl;
+  *stream << "       -m m  : order of linear predictive coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumOrder    << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -g g  : gamma of generalized cepstrum           (double)[" << std::setw(5) << std::right << kDefaultGamma       << "][   <= g <=   ]" << std::endl;  // NOLINT
+  *stream << "       -c c  : gamma of generalized cepstrum = -1 / c  (   int)[" << std::setw(5) << std::right << "N/A"               << "][ 1 <= c <=   ]" << std::endl;  // NOLINT
+  *stream << "       -e e  : warning type of unstable index          (   int)[" << std::setw(5) << std::right << kDefaultWarningType << "][ 0 <= e <= 2 ]" << std::endl;  // NOLINT
+  *stream << "                 0 (nothing to do)" << std::endl;
+  *stream << "                 1 (output the index to stderr)" << std::endl;
+  *stream << "                 2 (output the index to stderr and" << std::endl;
   *stream << "                    exit immediately)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
@@ -101,8 +92,7 @@ void PrintUsage(std::ostream* stream) {
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   double gamma(kDefaultGamma);
-  BehaviorForUnstableCoefficients behavior(
-      kDefaultBehaviorForUnstableCoefficients);
+  WarningType warning_type(kDefaultWarningType);
 
   for (;;) {
     const int option_char(getopt_long(argc, argv, "m:g:c:e:h", NULL, NULL));
@@ -143,7 +133,7 @@ int main(int argc, char* argv[]) {
       }
       case 'e': {
         const int min(0);
-        const int max(static_cast<int>(kNumKindsOfBehavior) - 1);
+        const int max(static_cast<int>(kNumWarningTypes) - 1);
         int tmp;
         if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
             !sptk::IsInRange(tmp, min, max)) {
@@ -153,7 +143,7 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("lpc2par", error_message);
           return 1;
         }
-        behavior = static_cast<BehaviorForUnstableCoefficients>(tmp);
+        warning_type = static_cast<WarningType>(tmp);
         break;
       }
       case 'h': {
@@ -217,11 +207,11 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    if (!is_stable && kIgnore != behavior) {
+    if (!is_stable && kIgnore != warning_type) {
       std::ostringstream error_message;
       error_message << frame_index << "th frame is unstable";
       sptk::PrintErrorMessage("lpc2par", error_message);
-      if (kExit == behavior) return 1;
+      if (kExit == warning_type) return 1;
     }
 
     if (!sptk::WriteStream(0, length, parcor_coefficients, &std::cout, NULL)) {
