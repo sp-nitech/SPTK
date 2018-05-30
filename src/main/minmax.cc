@@ -99,7 +99,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  stdout:" << std::endl;
   *stream << "       minimum and maximum values       (double)" << std::endl;
   *stream << "  notice:" << std::endl;
-  *stream << "       if f = 0, l must be larger than max(1, b - 1)" << std::endl;  // NOLINT
+  *stream << "       if f = 0, l must be greater than max(1, b - 1)" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -248,9 +248,9 @@ int main(int argc, char* argv[]) {
   }
 
   if (kFindValueFromVector == way_to_find_value &&
-      (0 == num_order || num_order + 1 < num_best)) {
+      (0 == num_order || num_order < num_best - 1)) {
     std::ostringstream error_message;
-    error_message << "Length of vector must be larger than max(1, b - 1)";
+    error_message << "Length of vector must be greater than max(1, b - 1)";
     sptk::PrintErrorMessage("minmax", error_message);
     return 1;
   }

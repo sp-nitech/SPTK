@@ -109,7 +109,7 @@ int main(int argc, char* argv[]) {
             fft_length < 4 || fft_length % 2 == 1) {
           std::ostringstream error_message;
           error_message << "The argument for the -l option must be an even "
-                        << "integer larger than 2";
+                        << "integer greater than 2";
           sptk::PrintErrorMessage("symmetrize", error_message);
           return 1;
         }
