@@ -83,7 +83,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  options:" << std::endl;
   *stream << "       -l l  : length of vector     (   int)[" << std::setw(5) << std::right << kDefaultVectorLength    << "][ 1 <= l <=     ]" << std::endl;  // NOLINT
   *stream << "       -m m  : order of vector      (   int)[" << std::setw(5) << std::right << "l-1"                   << "][ 0 <= m <=     ]" << std::endl;  // NOLINT
-  *stream << "       -t t  : number of vector     (   int)[" << std::setw(5) << std::right << "N/A"                   << "][ 1 <= t <=     ]" << std::endl;  // NOLINT
+  *stream << "       -t t  : output interval      (   int)[" << std::setw(5) << std::right << "EOF"                   << "][ 1 <= t <=     ]" << std::endl;  // NOLINT
   *stream << "       -c c  : confidence level     (double)[" << std::setw(5) << std::right << kDefaultConfidenceLevel << "][ 0 <  c <  100 ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format        (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat    << "][ 0 <= o <= 6   ]" << std::endl;  // NOLINT
   *stream << "                 0 (mean and covariance)" << std::endl;
@@ -246,7 +246,7 @@ bool OutputStatistics(const sptk::StatisticsAccumulator& accumulator,
 
 int main(int argc, char* argv[]) {
   int vector_length(kDefaultVectorLength);
-  int num_vector(kMagicNumberForEndOfFile);
+  int output_interval(kMagicNumberForEndOfFile);
   double confidence_level(kDefaultConfidenceLevel);
   OutputFormats output_format(kDefaultOutputFormat);
   bool outputs_only_diagonal_elements(kDefaultOutputOnlyDiagonalElementsFlag);
@@ -280,8 +280,8 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 't': {
-        if (!sptk::ConvertStringToInteger(optarg, &num_vector) ||
-            num_vector <= 0) {
+        if (!sptk::ConvertStringToInteger(optarg, &output_interval) ||
+            output_interval <= 0) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -t option must be a positive integer";
@@ -372,8 +372,8 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    if (kMagicNumberForEndOfFile != num_vector &&
-        0 == vector_index % num_vector) {
+    if (kMagicNumberForEndOfFile != output_interval &&
+        0 == vector_index % output_interval) {
       if (!OutputStatistics(accumulator, buffer, vector_length, output_format,
                             confidence_level, outputs_only_diagonal_elements)) {
         std::ostringstream error_message;
@@ -393,7 +393,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  if (kMagicNumberForEndOfFile == num_vector && 0 < num_actual_vector) {
+  if (kMagicNumberForEndOfFile == output_interval && 0 < num_actual_vector) {
     if (!OutputStatistics(accumulator, buffer, vector_length, output_format,
                           confidence_level, outputs_only_diagonal_elements)) {
       std::ostringstream error_message;

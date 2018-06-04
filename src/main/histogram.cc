@@ -57,7 +57,7 @@
 
 namespace {
 
-const int kDefaultNumData(0);
+const int kMagicNumberForEndOfFile(-1);
 const int kDefaultNumBin(10);
 const double kDefaultLowerBound(0.0);
 const double kDefaultUpperBound(1.0);
@@ -71,7 +71,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       histogram [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -t t  : number of data     (   int)[" << std::setw(5) << std::right << "N/A"              << "][ 1 <= t <=   ]" << std::endl;  // NOLINT
+  *stream << "       -t t  : output interval    (   int)[" << std::setw(5) << std::right << "EOF"              << "][ 1 <= t <=   ]" << std::endl;  // NOLINT
   *stream << "       -b b  : number of bins     (   int)[" << std::setw(5) << std::right << kDefaultNumBin     << "][ 1 <= b <=   ]" << std::endl;  // NOLINT
   *stream << "       -l l  : lower bound        (double)[" << std::setw(5) << std::right << kDefaultLowerBound << "][   <= l <  u ]" << std::endl;  // NOLINT
   *stream << "       -u u  : upper bound        (double)[" << std::setw(5) << std::right << kDefaultUpperBound << "][ l <  u <=   ]" << std::endl;  // NOLINT
@@ -90,7 +90,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-  int num_data(kDefaultNumData);
+  int output_interval(kMagicNumberForEndOfFile);
   int num_bin(kDefaultNumBin);
   double lower_bound(kDefaultLowerBound);
   double upper_bound(kDefaultUpperBound);
@@ -102,7 +102,8 @@ int main(int argc, char* argv[]) {
 
     switch (option_char) {
       case 't': {
-        if (!sptk::ConvertStringToInteger(optarg, &num_data) || num_data <= 0) {
+        if (!sptk::ConvertStringToInteger(optarg, &output_interval) ||
+            output_interval <= 0) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -t option must be a positive integer";
@@ -183,7 +184,8 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
   // prepare for calculating histogram
-  const int data_length(0 == num_data ? 1 : num_data);
+  const int data_length(
+      kMagicNumberForEndOfFile == output_interval ? 1 : output_interval);
   sptk::HistogramCalculator histogram_calculator(data_length, num_bin,
                                                  lower_bound, upper_bound);
   if (!histogram_calculator.IsValid()) {
@@ -196,7 +198,7 @@ int main(int argc, char* argv[]) {
   std::vector<double> data(data_length);
   std::vector<double> histogram(num_bin);
 
-  if (0 == num_data) {
+  if (kMagicNumberForEndOfFile == output_interval) {
     sptk::StatisticsAccumulator statistics_accumulator(num_bin - 1, 1);
     sptk::StatisticsAccumulator::Buffer buffer;
     while (sptk::ReadStream(false, 0, 0, 1, &data, &input_stream, NULL)) {
@@ -242,7 +244,7 @@ int main(int argc, char* argv[]) {
     }
   } else {
     for (int frame_index(0);
-         sptk::ReadStream(false, 0, 0, num_data, &data, &input_stream, NULL);
+         sptk::ReadStream(false, 0, 0, data_length, &data, &input_stream, NULL);
          ++frame_index) {
       if (!histogram_calculator.Run(data, &histogram)) {
         std::ostringstream error_message;
