@@ -51,7 +51,7 @@
 
 namespace {
 
-const int kDefaultOutputLength(256);
+const int kMagicNumberForInfinity(-1);
 const double kDefaultStartValue(0.0);
 const double kDefaultStepSize(1.0);
 
@@ -63,16 +63,15 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       ramp [ options ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : output length      (   int)[" << std::setw(5) << std::right << kDefaultOutputLength << "][   <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -m m  : output order       (   int)[" << std::setw(5) << std::right << "l-1"                << "][   <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -s s  : start value        (double)[" << std::setw(5) << std::right << kDefaultStartValue   << "][   <= s <=   ]" << std::endl;  // NOLINT
-  *stream << "       -e e  : end value          (double)[" << std::setw(5) << std::right << "N/A"                << "][   <= e <=   ]" << std::endl;  // NOLINT
-  *stream << "       -t t  : step size          (double)[" << std::setw(5) << std::right << kDefaultStepSize     << "][   <= t <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : output length      (   int)[" << std::setw(5) << std::right << "INF"              << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : output order       (   int)[" << std::setw(5) << std::right << "l-1"              << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : start value        (double)[" << std::setw(5) << std::right << kDefaultStartValue << "][   <= s <=   ]" << std::endl;  // NOLINT
+  *stream << "       -e e  : end value          (double)[" << std::setw(5) << std::right << "N/A"              << "][   <= e <=   ]" << std::endl;  // NOLINT
+  *stream << "       -t t  : step size          (double)[" << std::setw(5) << std::right << kDefaultStepSize   << "][   <= t <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  stdout:" << std::endl;
   *stream << "       ramp sequence              (double)" << std::endl;
   *stream << "  notice:" << std::endl;
-  *stream << "       if l <= 0 or m < 0, generate infinite sequence" << std::endl;  // NOLINT
   *stream << "       if t = 0.0 and s = e, generate infinite sequence" << std::endl;  // NOLINT
   *stream << "       if 0.0 < t, value of e must be s <= e" << std::endl;  // NOLINT
   *stream << "       if t < 0.0, value of e must be e <= s" << std::endl;  // NOLINT
@@ -87,9 +86,9 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-  int output_length(kDefaultOutputLength);
+  int output_length(kMagicNumberForInfinity);
   double start_value(kDefaultStartValue);
-  double end_value(static_cast<double>(kDefaultOutputLength - 1));
+  double end_value(static_cast<double>(kMagicNumberForInfinity));
   double step_size(kDefaultStepSize);
   bool is_end_value_specified(false);
 
@@ -99,9 +98,11 @@ int main(int argc, char* argv[]) {
 
     switch (option_char) {
       case 'l': {
-        if (!sptk::ConvertStringToInteger(optarg, &output_length)) {
+        if (!sptk::ConvertStringToInteger(optarg, &output_length) ||
+            output_length <= 0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -l option must be an integer";
+          error_message
+              << "The argument for the -l option must be a positive integer";
           sptk::PrintErrorMessage("ramp", error_message);
           return 1;
         }
@@ -109,9 +110,11 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'm': {
-        if (!sptk::ConvertStringToInteger(optarg, &output_length)) {
+        if (!sptk::ConvertStringToInteger(optarg, &output_length) ||
+            output_length < 0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -m option must be an integer";
+          error_message << "The argument for the -m option must be a "
+                           "non-negative integer";
           sptk::PrintErrorMessage("ramp", error_message);
           return 1;
         }
@@ -179,7 +182,7 @@ int main(int argc, char* argv[]) {
       return 1;
     }
     if (0.0 == step_size && start_value == end_value) {
-      output_length = -1;
+      output_length = kMagicNumberForInfinity;
     } else {
       output_length =
           static_cast<int>((end_value - start_value) / step_size) + 1;
@@ -187,7 +190,8 @@ int main(int argc, char* argv[]) {
   }
 
   double output(start_value);
-  for (int i(0); output_length <= 0 || i < output_length; ++i) {
+  for (int i(0); kMagicNumberForInfinity == output_length || i < output_length;
+       ++i) {
     if (!sptk::WriteStream(output, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write ramp sequence";

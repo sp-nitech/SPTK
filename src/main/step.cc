@@ -51,7 +51,7 @@
 
 namespace {
 
-const int kDefaultOutputLength(256);
+const int kMagicNumberForInfinity(-1);
 const double kDefaultStepValue(1.0);
 
 void PrintUsage(std::ostream* stream) {
@@ -62,14 +62,12 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       step [ options ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : output length      (   int)[" << std::setw(5) << std::right << kDefaultOutputLength << "][   <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -m m  : output order       (   int)[" << std::setw(5) << std::right << "l-1"                << "][   <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -v v  : step value         (double)[" << std::setw(5) << std::right << kDefaultStepValue    << "][   <= v <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : output length      (   int)[" << std::setw(5) << std::right << "INF"             << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : output order       (   int)[" << std::setw(5) << std::right << "l-1"             << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -v v  : step value         (double)[" << std::setw(5) << std::right << kDefaultStepValue << "][   <= v <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  stdout:" << std::endl;
   *stream << "       step sequence              (double)" << std::endl;
-  *stream << "  notice:" << std::endl;
-  *stream << "       if l <= 0 or m < 0, generate infinite sequence" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -79,7 +77,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-  int output_length(kDefaultOutputLength);
+  int output_length(kMagicNumberForInfinity);
   double step_value(kDefaultStepValue);
 
   for (;;) {
@@ -88,18 +86,22 @@ int main(int argc, char* argv[]) {
 
     switch (option_char) {
       case 'l': {
-        if (!sptk::ConvertStringToInteger(optarg, &output_length)) {
+        if (!sptk::ConvertStringToInteger(optarg, &output_length) ||
+            output_length <= 0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -l option must be integer";
+          error_message
+              << "The argument for the -l option must be a positive integer";
           sptk::PrintErrorMessage("step", error_message);
           return 1;
         }
         break;
       }
       case 'm': {
-        if (!sptk::ConvertStringToInteger(optarg, &output_length)) {
+        if (!sptk::ConvertStringToInteger(optarg, &output_length) ||
+            output_length < 0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -m option must be integer";
+          error_message << "The argument for the -m option must be a "
+                           "non-negative integer";
           sptk::PrintErrorMessage("step", error_message);
           return 1;
         }
@@ -133,7 +135,8 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  for (int i(0); output_length <= 0 || i < output_length; ++i) {
+  for (int i(0); kMagicNumberForInfinity == output_length || i < output_length;
+       ++i) {
     if (!sptk::WriteStream(step_value, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write step sequence";

@@ -51,7 +51,7 @@
 
 namespace {
 
-const int kDefaultOutputLength(256);
+const int kMagicNumberForInfinity(-1);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -61,13 +61,11 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       impulse [ options ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : output length      (   int)[" << std::setw(5) << std::right << kDefaultOutputLength << "][   <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -m m  : output order       (   int)[" << std::setw(5) << std::right << "l-1"                << "][   <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : output length      (   int)[" << std::setw(5) << std::right << "INF" << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : output order       (   int)[" << std::setw(5) << std::right << "l-1" << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  stdout:" << std::endl;
   *stream << "       impulse sequence           (double)" << std::endl;
-  *stream << "  notice:" << std::endl;
-  *stream << "       if l <= 0 or m < 0, generate infinite sequence" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -77,7 +75,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-  int output_length(kDefaultOutputLength);
+  int output_length(kMagicNumberForInfinity);
 
   for (;;) {
     const int option_char(getopt_long(argc, argv, "l:m:h", NULL, NULL));
@@ -85,18 +83,22 @@ int main(int argc, char* argv[]) {
 
     switch (option_char) {
       case 'l': {
-        if (!sptk::ConvertStringToInteger(optarg, &output_length)) {
+        if (!sptk::ConvertStringToInteger(optarg, &output_length) ||
+            output_length <= 0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -l option must be integer";
+          error_message
+              << "The argument for the -l option must be a positive integer";
           sptk::PrintErrorMessage("impulse", error_message);
           return 1;
         }
         break;
       }
       case 'm': {
-        if (!sptk::ConvertStringToInteger(optarg, &output_length)) {
+        if (!sptk::ConvertStringToInteger(optarg, &output_length) ||
+            output_length < 0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -m option must be integer";
+          error_message << "The argument for the -m option must be a "
+                           "non-negative integer";
           sptk::PrintErrorMessage("impulse", error_message);
           return 1;
         }
@@ -128,7 +130,8 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  for (int i(1); output_length <= 0 || i < output_length; ++i) {
+  for (int i(1); kMagicNumberForInfinity == output_length || i < output_length;
+       ++i) {
     if (!sptk::WriteStream(0.0, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write impulse sequence";
