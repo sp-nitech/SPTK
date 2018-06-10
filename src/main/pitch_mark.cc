@@ -78,13 +78,13 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       pitch_mark [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -s s  : sampling rate [kHz]           (double)[" << std::setw(5) << std::right << kDefaultSamplingRate     << "][  6.0 <  s <= 98.0 ]" << std::endl;  // NOLINT
-  *stream << "       -L L  : minimum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultMinimumF0        << "][  0.0 <  L <  H    ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : sampling rate [kHz]           (double)[" << std::setw(5) << std::right << kDefaultSamplingRate     << "][  6.0 <  s <= 98.0  ]" << std::endl;  // NOLINT
+  *stream << "       -L L  : minimum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultMinimumF0        << "][ 10.0 <  L <  H     ]" << std::endl;  // NOLINT
   *stream << "               to search for [Hz]" << std::endl;
-  *stream << "       -H H  : maximum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultMaximumF0        << "][    L <  H <=      ]" << std::endl;  // NOLINT
+  *stream << "       -H H  : maximum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultMaximumF0        << "][    L <  H <  500*s ]" << std::endl;  // NOLINT
   *stream << "               to search for [Hz]" << std::endl;
-  *stream << "       -t t  : voicing threshold             (double)[" << std::setw(5) << std::right << kDefaultVoicingThreshold << "][ -0.5 <= t <= 1.6  ]" << std::endl;  // NOLINT
-  *stream << "       -o o  : output format                 (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat     << "][    0 <= o <= 2    ]" << std::endl;  // NOLINT
+  *stream << "       -t t  : voicing threshold             (double)[" << std::setw(5) << std::right << kDefaultVoicingThreshold << "][ -0.5 <= t <= 1.6   ]" << std::endl;  // NOLINT
+  *stream << "       -o o  : output format                 (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat     << "][    0 <= o <= 2     ]" << std::endl;  // NOLINT
   *stream << "                 0 (binary sequence)" << std::endl;
   *stream << "                 1 (position in seconds)" << std::endl;
   *stream << "                 2 (position)" << std::endl;
@@ -131,10 +131,10 @@ int main(int argc, char* argv[]) {
       }
       case 'L': {
         if (!sptk::ConvertStringToDouble(optarg, &minimum_f0) ||
-            minimum_f0 <= 0.0) {
+            minimum_f0 <= 10.0) {
           std::ostringstream error_message;
-          error_message
-              << "The argument for the -L option must be a positive number";
+          error_message << "The argument for the -L option must be a number "
+                        << "greater than 10";
           sptk::PrintErrorMessage("pitch_mark", error_message);
           return 1;
         }
@@ -188,6 +188,14 @@ int main(int argc, char* argv[]) {
         return 1;
       }
     }
+  }
+
+  if (1000.0 * sampling_rate / 2.0 <= maximum_f0) {
+    std::ostringstream error_message;
+    error_message
+        << "Maximum fundamental frequency must be less than Nyquist frequency";
+    sptk::PrintErrorMessage("pitch_mark", error_message);
+    return 1;
   }
 
   if (maximum_f0 <= minimum_f0) {
