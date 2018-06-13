@@ -69,9 +69,12 @@ enum LongOptions {
   kPOWX,
   kFLOOR,
   kCEIL,
-  kFIX,
+  kROUND,
+  kROUNDUP,
+  kROUNDDOWN,
   kUNIT,
   kRAMP,
+  kSIGN,
   kSIN,
   kCOS,
   kTAN,
@@ -88,44 +91,47 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       sopr [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -a a         : addition             (double)[  N/A][     x + a ]" << std::endl;  // NOLINT
-  *stream << "       -s s         : subtraction          (double)[  N/A][     x - s ]" << std::endl;  // NOLINT
-  *stream << "       -m m         : multiplication       (double)[  N/A][     x * m ]" << std::endl;  // NOLINT
-  *stream << "       -d d         : division             (double)[  N/A][     x / d ]" << std::endl;  // NOLINT
-  *stream << "       -r r         : modulo               (double)[  N/A][     x % r ]" << std::endl;  // NOLINT
-  *stream << "       -p p         : power                (double)[  N/A][     x ^ p ]" << std::endl;  // NOLINT
-  *stream << "       -l l         : lower bounding       (double)[  N/A][ max(x, l) ]" << std::endl;  // NOLINT
-  *stream << "       -u u         : upper bounding       (double)[  N/A][ min(x, u) ]" << std::endl;  // NOLINT
-  *stream << "       -ABS         : absolute                            [       |x| ]" << std::endl;  // NOLINT
-  *stream << "       -INV         : inverse                             [     1 / x ]" << std::endl;  // NOLINT
-  *stream << "       -SQR         : square                              [     x ^ 2 ]" << std::endl;  // NOLINT
-  *stream << "       -SQRT        : square root                         [   x ^ 0.5 ]" << std::endl;  // NOLINT
-  *stream << "       -LN          : natural logarithm                   [     ln(x) ]" << std::endl;  // NOLINT
-  *stream << "       -LOG2        : base 2 logarithm                    [   log2(x) ]" << std::endl;  // NOLINT
-  *stream << "       -LOG10       : base 10 logarithm                   [  log10(x) ]" << std::endl;  // NOLINT
-  *stream << "       -LOGX X      : base X logarithm     (double)[  N/A][   logX(x) ]" << std::endl;  // NOLINT
-  *stream << "       -EXP         : exponential                         [     e ^ x ]" << std::endl;  // NOLINT
-  *stream << "       -POW2        : power of 2                          [     2 ^ x ]" << std::endl;  // NOLINT
-  *stream << "       -POW10       : power of 10                         [    10 ^ x ]" << std::endl;  // NOLINT
-  *stream << "       -POWX X      : power of X           (double)[  N/A][     X ^ x ]" << std::endl;  // NOLINT
-  *stream << "       -FLOOR       : flooring                            [  floor(x) ]" << std::endl;  // NOLINT
-  *stream << "       -CEIL        : ceiling                             [   ceil(x) ]" << std::endl;  // NOLINT
-  *stream << "       -FIX         : rounding                            [  round(x) ]" << std::endl;  // NOLINT
-  *stream << "       -UNIT        : unit step                           [      u(x) ]" << std::endl;  // NOLINT
-  *stream << "       -RAMP        : rectifier                           [  x * u(x) ]" << std::endl;  // NOLINT
-  *stream << "       -SIN         : sine                                [    sin(x) ]" << std::endl;  // NOLINT
-  *stream << "       -COS         : cosine                              [    cos(x) ]" << std::endl;  // NOLINT
-  *stream << "       -TAN         : tangent                             [    tan(x) ]" << std::endl;  // NOLINT
-  *stream << "       -ATAN        : arctangent                          [   atan(x) ]" << std::endl;  // NOLINT
-  *stream << "       -magic magic : remove magic number  (double)[  N/A][           ]" << std::endl;  // NOLINT
-  *stream << "       -MAGIC MAGIC : replace magic number (double)[  N/A][     MAGIC ]" << std::endl;  // NOLINT
+  *stream << "       -a a         : addition             (double)[  N/A][      x + a ]" << std::endl;  // NOLINT
+  *stream << "       -s s         : subtraction          (double)[  N/A][      x - s ]" << std::endl;  // NOLINT
+  *stream << "       -m m         : multiplication       (double)[  N/A][      x * m ]" << std::endl;  // NOLINT
+  *stream << "       -d d         : division             (double)[  N/A][      x / d ]" << std::endl;  // NOLINT
+  *stream << "       -r r         : modulo               (double)[  N/A][      x % r ]" << std::endl;  // NOLINT
+  *stream << "       -p p         : power                (double)[  N/A][      x ^ p ]" << std::endl;  // NOLINT
+  *stream << "       -l l         : lower bounding       (double)[  N/A][  max(x, l) ]" << std::endl;  // NOLINT
+  *stream << "       -u u         : upper bounding       (double)[  N/A][  min(x, u) ]" << std::endl;  // NOLINT
+  *stream << "       -ABS         : absolute                            [        |x| ]" << std::endl;  // NOLINT
+  *stream << "       -INV         : inverse                             [      1 / x ]" << std::endl;  // NOLINT
+  *stream << "       -SQR         : square                              [      x ^ 2 ]" << std::endl;  // NOLINT
+  *stream << "       -SQRT        : square root                         [    x ^ 0.5 ]" << std::endl;  // NOLINT
+  *stream << "       -LN          : natural logarithm                   [      ln(x) ]" << std::endl;  // NOLINT
+  *stream << "       -LOG2        : base 2 logarithm                    [    log2(x) ]" << std::endl;  // NOLINT
+  *stream << "       -LOG10       : base 10 logarithm                   [   log10(x) ]" << std::endl;  // NOLINT
+  *stream << "       -LOGX X      : base X logarithm     (double)[  N/A][    logX(x) ]" << std::endl;  // NOLINT
+  *stream << "       -EXP         : exponential                         [      e ^ x ]" << std::endl;  // NOLINT
+  *stream << "       -POW2        : power of 2                          [      2 ^ x ]" << std::endl;  // NOLINT
+  *stream << "       -POW10       : power of 10                         [     10 ^ x ]" << std::endl;  // NOLINT
+  *stream << "       -POWX X      : power of X           (double)[  N/A][      X ^ x ]" << std::endl;  // NOLINT
+  *stream << "       -FLOOR       : flooring                            [   floor(x) ]" << std::endl;  // NOLINT
+  *stream << "       -CEIL        : ceiling                             [    ceil(x) ]" << std::endl;  // NOLINT
+  *stream << "       -ROUND       : rounding                            [   round(x) ]" << std::endl;  // NOLINT
+  *stream << "       -ROUNDUP     : rounding up                         [ roundup(x) ]" << std::endl;  // NOLINT
+  *stream << "       -ROUNDDOWN   : rounding down                       [     int(x) ]" << std::endl;  // NOLINT
+  *stream << "       -UNIT        : unit step                           [       u(x) ]" << std::endl;  // NOLINT
+  *stream << "       -RAMP        : rectifier                           [   x * u(x) ]" << std::endl;  // NOLINT
+  *stream << "       -SIGN        : sign                                [     sgn(x) ]" << std::endl;  // NOLINT
+  *stream << "       -SIN         : sine                                [     sin(x) ]" << std::endl;  // NOLINT
+  *stream << "       -COS         : cosine                              [     cos(x) ]" << std::endl;  // NOLINT
+  *stream << "       -TAN         : tangent                             [     tan(x) ]" << std::endl;  // NOLINT
+  *stream << "       -ATAN        : arctangent                          [    atan(x) ]" << std::endl;  // NOLINT
+  *stream << "       -magic magic : remove magic number  (double)[  N/A][            ]" << std::endl;  // NOLINT
+  *stream << "       -MAGIC MAGIC : replace magic number (double)[  N/A][      MAGIC ]" << std::endl;  // NOLINT
   *stream << "       -h           : print this message" << std::endl;
   *stream << "" << std::endl;
   *stream << "       the following strings can be used as the argument of -a, -s, -m," << std::endl;  // NOLINT
   *stream << "       -d, -p, -l, -u, -magic, or -MAGIC option:" << std::endl;
   *stream << "" << std::endl;
   *stream << "           pi       : 3.14159265..." << std::endl;
-  *stream << "           db       :   20 / ln(10)" << std::endl;
+  *stream << "           dB       :   20 / ln(10)" << std::endl;
   *stream << "           cent     : 1200 / ln(2)" << std::endl;
   *stream << "           semitone :   12 / ln(2)" << std::endl;
   *stream << "           octave   :    1 / ln(2)" << std::endl;
@@ -167,9 +173,12 @@ int main(int argc, char* argv[]) {
       {"POWX", required_argument, NULL, kPOWX},
       {"FLOOR", no_argument, NULL, kFLOOR},
       {"CEIL", no_argument, NULL, kCEIL},
-      {"FIX", no_argument, NULL, kFIX},
+      {"ROUND", no_argument, NULL, kROUND},
+      {"ROUNDUP", no_argument, NULL, kROUNDUP},
+      {"ROUNDDOWN", no_argument, NULL, kROUNDDOWN},
       {"UNIT", no_argument, NULL, kUNIT},
       {"RAMP", no_argument, NULL, kRAMP},
+      {"SIGN", no_argument, NULL, kSIGN},
       {"SIN", no_argument, NULL, kSIN},
       {"COS", no_argument, NULL, kCOS},
       {"TAN", no_argument, NULL, kTAN},
@@ -460,10 +469,28 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      case kFIX: {
+      case kROUND: {
         if (!scalar_operation.AddRoundingOperation()) {
           std::ostringstream error_message;
-          error_message << "Failed to add operation by -FIX option";
+          error_message << "Failed to add operation by -ROUND option";
+          sptk::PrintErrorMessage("sopr", error_message);
+          return 1;
+        }
+        break;
+      }
+      case kROUNDUP: {
+        if (!scalar_operation.AddRoundingUpOperation()) {
+          std::ostringstream error_message;
+          error_message << "Failed to add operation by -ROUNDUP option";
+          sptk::PrintErrorMessage("sopr", error_message);
+          return 1;
+        }
+        break;
+      }
+      case kROUNDDOWN: {
+        if (!scalar_operation.AddRoundingDownOperation()) {
+          std::ostringstream error_message;
+          error_message << "Failed to add operation by -ROUNDDOWN option";
           sptk::PrintErrorMessage("sopr", error_message);
           return 1;
         }
@@ -482,6 +509,15 @@ int main(int argc, char* argv[]) {
         if (!scalar_operation.AddLowerBoundingOperation(0.0)) {
           std::ostringstream error_message;
           error_message << "Failed to add operation by -RAMP option";
+          sptk::PrintErrorMessage("sopr", error_message);
+          return 1;
+        }
+        break;
+      }
+      case kSIGN: {
+        if (!scalar_operation.AddSignOperation()) {
+          std::ostringstream error_message;
+          error_message << "Failed to add operation by -SIGN option";
           sptk::PrintErrorMessage("sopr", error_message);
           return 1;
         }

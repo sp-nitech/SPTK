@@ -52,6 +52,7 @@ class OperationInterface {
  public:
   virtual ~OperationInterface() {
   }
+
   virtual bool Run(double* number) const = 0;
 };
 
@@ -353,22 +354,60 @@ class Rounding : public OperationInterface {
   DISALLOW_COPY_AND_ASSIGN(Rounding);
 };
 
+class RoundingUp : public OperationInterface {
+ public:
+  RoundingUp() {
+  }
+
+  virtual bool Run(double* number) const {
+    *number = (*number < 0.0) ? std::floor(*number) : std::ceil(*number);
+    return true;
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(RoundingUp);
+};
+
+class RoundingDown : public OperationInterface {
+ public:
+  RoundingDown() {
+  }
+
+  virtual bool Run(double* number) const {
+    *number = std::trunc(*number);
+    return true;
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(RoundingDown);
+};
+
 class UnitStep : public OperationInterface {
  public:
   UnitStep() {
   }
 
   virtual bool Run(double* number) const {
-    if (*number < 0.0) {
-      *number = 0.0;
-    } else {
-      *number = 1.0;
-    }
+    *number = (*number < 0.0) ? 0.0 : 1.0;
     return true;
   }
 
  private:
   DISALLOW_COPY_AND_ASSIGN(UnitStep);
+};
+
+class Sign : public OperationInterface {
+ public:
+  Sign() {
+  }
+
+  virtual bool Run(double* number) const {
+    *number = sptk::ExtractSign(*number);
+    return true;
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(Sign);
 };
 
 class Sine : public OperationInterface {
@@ -569,8 +608,23 @@ bool ScalarOperation::AddRoundingOperation() {
   return true;
 }
 
+bool ScalarOperation::AddRoundingUpOperation() {
+  modules_.push_back(new OperationPerformer(new RoundingUp()));
+  return true;
+}
+
+bool ScalarOperation::AddRoundingDownOperation() {
+  modules_.push_back(new OperationPerformer(new RoundingDown()));
+  return true;
+}
+
 bool ScalarOperation::AddUnitStepOperation() {
   modules_.push_back(new OperationPerformer(new UnitStep()));
+  return true;
+}
+
+bool ScalarOperation::AddSignOperation() {
+  modules_.push_back(new OperationPerformer(new Sign()));
   return true;
 }
 

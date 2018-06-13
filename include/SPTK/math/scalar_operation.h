@@ -58,6 +58,7 @@ class ScalarOperation {
    public:
     virtual ~ModuleInterface() {
     }
+
     virtual bool Run(double* number, bool* is_magic_number) const = 0;
   };
 
@@ -132,7 +133,16 @@ class ScalarOperation {
   bool AddRoundingOperation();
 
   //
+  bool AddRoundingUpOperation();
+
+  //
+  bool AddRoundingDownOperation();
+
+  //
   bool AddUnitStepOperation();
+
+  //
+  bool AddSignOperation();
 
   //
   bool AddSineOperation();
