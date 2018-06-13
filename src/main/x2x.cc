@@ -95,7 +95,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 1 (output the index to stderr)" << std::endl;
   *stream << "                 2 (output the index to stderr and" << std::endl;
   *stream << "                    exit immediately)" << std::endl;
-  *stream << "       -c c  : number of column                    (   int)[" << std::setw(5) << std::right << kDefaultNumColumn   << "][ 1 <= c <=   ]" << std::endl;  // NOLINT
+  *stream << "       -c c  : number of columns                   (   int)[" << std::setw(5) << std::right << kDefaultNumColumn   << "][ 1 <= c <=   ]" << std::endl;  // NOLINT
   *stream << "       -f f  : print format                        (string)[" << std::setw(5) << std::right << "N/A"               << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;

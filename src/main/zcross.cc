@@ -73,7 +73,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  options:" << std::endl;
   *stream << "       -l l  : frame length       (   int)[" << std::setw(5) << std::right << kDefaultFrameLength  << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format      (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 1 ]" << std::endl;  // NOLINT
-  *stream << "                 0 (number of zero-crossing)" << std::endl;
+  *stream << "                 0 (number of zero-crossings)" << std::endl;
   *stream << "                 1 (zero-crossing rate)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
@@ -99,10 +99,10 @@ int main(int argc, char* argv[]) {
     switch (option_char) {
       case 'l': {
         if (!sptk::ConvertStringToInteger(optarg, &frame_length) ||
-            frame_length < 1) {
+            frame_length <= 0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -l option must be greater "
-                        << "than 1";
+          error_message
+              << "The argument for the -l option must be a positive integer";
           sptk::PrintErrorMessage("zcross", error_message);
           return 1;
         }
