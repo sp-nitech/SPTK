@@ -296,7 +296,8 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  if (1000.0 * sampling_rate / 2.0 <= maximum_f0) {
+  const double sampling_rate_in_hz(1000.0 * sampling_rate);
+  if (sampling_rate_in_hz / 2.0 <= maximum_f0) {
     std::ostringstream error_message;
     error_message
         << "Maximum fundamental frequency must be less than Nyquist frequency";
@@ -334,9 +335,8 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
   // prepare for pitch extraction
-  const double sampling_rate_in_khz(1000.0 * sampling_rate);
   sptk::PitchExtraction pitch_extraction(
-      frame_shift, sampling_rate_in_khz, minimum_f0, maximum_f0,
+      frame_shift, sampling_rate_in_hz, minimum_f0, maximum_f0,
       voicing_thresholds[algorithm], algorithm);
   if (!pitch_extraction.IsValid()) {
     std::ostringstream error_message;
@@ -365,8 +365,8 @@ int main(int argc, char* argv[]) {
   switch (output_format) {
     case kPitch: {
       std::transform(f0.begin(), f0.end(), f0.begin(),
-                     [sampling_rate_in_khz](double x) {
-                       return (0.0 < x) ? sampling_rate_in_khz / x : 0.0;
+                     [sampling_rate_in_hz](double x) {
+                       return (0.0 < x) ? sampling_rate_in_hz / x : 0.0;
                      });
       break;
     }
@@ -376,7 +376,7 @@ int main(int argc, char* argv[]) {
     }
     case kLogF0: {
       std::transform(f0.begin(), f0.end(), f0.begin(),
-                     [sampling_rate_in_khz](double x) {
+                     [sampling_rate_in_hz](double x) {
                        return (0.0 < x) ? std::log(x) : sptk::kLogZero;
                      });
       break;

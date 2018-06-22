@@ -190,7 +190,8 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  if (1000.0 * sampling_rate / 2.0 <= maximum_f0) {
+  const double sampling_rate_in_hz(1000.0 * sampling_rate);
+  if (sampling_rate_in_hz / 2.0 <= maximum_f0) {
     std::ostringstream error_message;
     error_message
         << "Maximum fundamental frequency must be less than Nyquist frequency";
@@ -228,9 +229,8 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
   // prepare for pitch mark extraction
-  const double sampling_rate_in_khz(1000.0 * sampling_rate);
   sptk::PitchExtraction pitch_extraction(
-      1, sampling_rate_in_khz, minimum_f0, maximum_f0, voicing_threshold,
+      1, sampling_rate_in_hz, minimum_f0, maximum_f0, voicing_threshold,
       sptk::PitchExtraction::Algorithms::kReaper);
   if (!pitch_extraction.IsValid()) {
     std::ostringstream error_message;
@@ -260,7 +260,7 @@ int main(int argc, char* argv[]) {
   if (kBinarySequence == output_format || kPosition == output_format) {
     std::transform(
         pitch_mark.begin(), pitch_mark.end(), pitch_mark.begin(),
-        std::bind1st(std::multiplies<double>(), sampling_rate_in_khz));
+        std::bind1st(std::multiplies<double>(), sampling_rate_in_hz));
   }
 
   switch (output_format) {
