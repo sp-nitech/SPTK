@@ -191,7 +191,7 @@ int main(int argc, char* argv[]) {
   }
 
   const double sampling_rate_in_hz(1000.0 * sampling_rate);
-  if (sampling_rate_in_hz / 2.0 <= maximum_f0) {
+  if (0.5 * sampling_rate_in_hz <= maximum_f0) {
     std::ostringstream error_message;
     error_message
         << "Maximum fundamental frequency must be less than Nyquist frequency";

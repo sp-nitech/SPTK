@@ -211,7 +211,7 @@ bool OutputStatistics(const sptk::StatisticsAccumulator& accumulator,
     }
     double t;
     if (!sptk::ComputePercentagePointOfTDistribution(
-            (1.0 - confidence_level / 100.0) / 2.0, degrees_of_freedom, &t)) {
+            0.5 * (1.0 - confidence_level / 100.0), degrees_of_freedom, &t)) {
       return false;
     }
     std::vector<double> mean(vector_length);
