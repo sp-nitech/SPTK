@@ -63,10 +63,15 @@ class NormalDistributedRandomValueGeneration
   }
 
   //
-  void Reset();
+  virtual void Reset();
 
   //
-  bool Get(double* output);
+  virtual bool Get(double* output);
+
+  //
+  int GetSeed() const {
+    return seed_;
+  }
 
  private:
   //
@@ -74,7 +79,11 @@ class NormalDistributedRandomValueGeneration
 
   //
   std::uint64_t next_;
+
+  //
   bool switch_;
+
+  //
   double r1_, r2_, s_;
 
   //

@@ -78,33 +78,32 @@ const OutputGainType kDefaultOutputGainType(kLinearGain);
 const OutputFormats kDefaultOutputFormat(kNormalizedFrequencyInRadians);
 const int kDefaultNumSplit(256);
 const int kDefaultNumIteration(4);
-const double kDefaultEpsilon(1e-6);
+const double kDefaultConvergenceThreshold(1e-6);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " lpc2lsp - transform linear predictive coefficients to " << std::endl;  // NOLINT
-  *stream << "           line spectral pairs" << std::endl;
+  *stream << " lpc2lsp - transform linear predictive coefficients to line spectral pairs" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       lpc2lsp [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of linear predictive coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumOrder          << "][   0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -s s  : sampling frequency                      (double)[" << std::setw(5) << std::right << kDefaultSamplingFrequency << "][ 0.0 <  s <=   ]" << std::endl;  // NOLINT
-  *stream << "       -k k  : output gain type                        (   int)[" << std::setw(5) << std::right << kDefaultOutputGainType    << "][   0 <= k <= 2 ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of linear predictive coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumOrder             << "][   0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : sampling frequency                      (double)[" << std::setw(5) << std::right << kDefaultSamplingFrequency    << "][ 0.0 <  s <=   ]" << std::endl;  // NOLINT
+  *stream << "       -k k  : output gain type                        (   int)[" << std::setw(5) << std::right << kDefaultOutputGainType       << "][   0 <= k <= 2 ]" << std::endl;  // NOLINT
   *stream << "                 0 (linear gain)" << std::endl;
   *stream << "                 1 (log gain)" << std::endl;
   *stream << "                 2 (without gain)" << std::endl;
-  *stream << "       -o o  : output format                           (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat      << "][   0 <= o <= 3 ]" << std::endl;  // NOLINT
+  *stream << "       -o o  : output format                           (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat         << "][   0 <= o <= 3 ]" << std::endl;  // NOLINT
   *stream << "                 0 (normalized frequency [0...pi])" << std::endl;
   *stream << "                 1 (normalized frequency [0...1/2])" << std::endl;
   *stream << "                 2 (frequency [kHz])" << std::endl;
   *stream << "                 3 (frequency [Hz])" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "     (level 2)" << std::endl;
-  *stream << "       -n n  : split number of unit circle             (   int)[" << std::setw(5) << std::right << kDefaultNumSplit          << "][   0 <  n <=   ]" << std::endl;  // NOLINT
-  *stream << "       -i i  : maximum number of interpolation         (   int)[" << std::setw(5) << std::right << kDefaultNumIteration      << "][   0 <  i <=   ]" << std::endl;  // NOLINT
-  *stream << "       -d d  : end condition of interpolation          (double)[" << std::setw(5) << std::right << kDefaultEpsilon           << "][ 0.0 <= d <=   ]" << std::endl;  // NOLINT
+  *stream << "       -n n  : number of splits of unit circle         (   int)[" << std::setw(5) << std::right << kDefaultNumSplit             << "][   0 <  n <=   ]" << std::endl;  // NOLINT
+  *stream << "       -i i  : maximum number of iterations            (   int)[" << std::setw(5) << std::right << kDefaultNumIteration         << "][   0 <  i <=   ]" << std::endl;  // NOLINT
+  *stream << "       -d d  : convergence threshold                   (double)[" << std::setw(5) << std::right << kDefaultConvergenceThreshold << "][ 0.0 <= d <=   ]" << std::endl;  // NOLINT
   *stream << "  infile:" << std::endl;
   *stream << "       linear predictive coefficients                  (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
@@ -124,7 +123,7 @@ int main(int argc, char* argv[]) {
   OutputFormats output_format(kDefaultOutputFormat);
   int num_split(kDefaultNumSplit);
   int num_iteration(kDefaultNumIteration);
-  double epsilon(kDefaultEpsilon);
+  double convergence_threshold(kDefaultConvergenceThreshold);
 
   for (;;) {
     const int option_char(
@@ -207,7 +206,8 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'd': {
-        if (!sptk::ConvertStringToDouble(optarg, &epsilon) || epsilon < 0.0) {
+        if (!sptk::ConvertStringToDouble(optarg, &convergence_threshold) ||
+            convergence_threshold < 0.0) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -d option must be a non-negative number";
@@ -251,7 +251,7 @@ int main(int argc, char* argv[]) {
   // prepare to transform
   sptk::LinearPredictiveCoefficientsToLineSpectralPairs
       linear_predictive_coefficients_to_line_spectral_pairs(
-          num_order, num_split, num_iteration, epsilon);
+          num_order, num_split, num_iteration, convergence_threshold);
   sptk::LinearPredictiveCoefficientsToLineSpectralPairs::Buffer buffer;
   if (!linear_predictive_coefficients_to_line_spectral_pairs.IsValid()) {
     std::ostringstream error_message;

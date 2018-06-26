@@ -75,20 +75,20 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       root_pol [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of polynomial         (   int)[" << std::setw(5) << std::right << kDefaultNumOrder             << "][   1 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -i i  : maximum number of iteration (   int)[" << std::setw(5) << std::right << kDefaultNumIteration         << "][   1 <= i <=   ]" << std::endl;  // NOLINT
-  *stream << "       -d d  : end condition of iteration  (double)[" << std::setw(5) << std::right << kDefaultConvergenceThreshold << "][ 0.0 <= d <=   ]" << std::endl;  // NOLINT
-  *stream << "       -q q  : input format                (   int)[" << std::setw(5) << std::right << kDefaultInputFormat          << "][   0 <= q <= 1 ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of polynomial          (   int)[" << std::setw(5) << std::right << kDefaultNumOrder             << "][   1 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -i i  : maximum number of iterations (   int)[" << std::setw(5) << std::right << kDefaultNumIteration         << "][   1 <= i <=   ]" << std::endl;  // NOLINT
+  *stream << "       -d d  : convergence threshold        (double)[" << std::setw(5) << std::right << kDefaultConvergenceThreshold << "][ 0.0 <= d <=   ]" << std::endl;  // NOLINT
+  *stream << "       -q q  : input format                 (   int)[" << std::setw(5) << std::right << kDefaultInputFormat          << "][   0 <= q <= 1 ]" << std::endl;  // NOLINT
   *stream << "                 0 (forward order)" << std::endl;
   *stream << "                 1 (reverse order)" << std::endl;
-  *stream << "       -o o  : output format               (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat         << "][   0 <= o <= 1 ]" << std::endl;  // NOLINT
+  *stream << "       -o o  : output format                (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat         << "][   0 <= o <= 1 ]" << std::endl;  // NOLINT
   *stream << "                 0 (rectangular form)" << std::endl;
   *stream << "                 1 (polar form)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       coefficients of polynomial          (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       coefficients of polynomial           (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       roots of polynomial                 (double)" << std::endl;
+  *stream << "       roots of polynomial                  (double)" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
