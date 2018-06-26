@@ -80,7 +80,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -l l  : forgetting factor            (double)[" << std::setw(5) << std::right << kDefaultForgettingFactor << "][ 0.0 <= l <  1.0 ]" << std::endl;  // NOLINT
   *stream << "       -s s  : step-size factor             (double)[" << std::setw(5) << std::right << kDefaultStepSizeFactor   << "][ 0.0 <  s <  1.0 ]" << std::endl;  // NOLINT
   *stream << "       -p p  : output period                (   int)[" << std::setw(5) << std::right << kDefaultOutputPeriod     << "][   1 <= p <=     ]" << std::endl;  // NOLINT
-  *stream << "       -P P  : order of Pade approximation  (   int)[" << std::setw(5) << std::right << kDefaultNumPadeOrder     << "][   4 <= P <= 5   ]" << std::endl;  // NOLINT
+  *stream << "       -P P  : order of Pade approximation  (   int)[" << std::setw(5) << std::right << kDefaultNumPadeOrder     << "][   4 <= P <= 7   ]" << std::endl;  // NOLINT
   *stream << "       -A    : output averaged mel-cepstrum (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultAverageFlag) << "]" << std::endl;  // NOLINT
   *stream << "       -E E  : output file containing       (string)[" << std::setw(5) << std::right << "N/A"                    << "]" << std::endl;  // NOLINT
   *stream << "               double type prediction error" << std::endl;
@@ -192,7 +192,7 @@ int main(int argc, char* argv[]) {
       }
       case 'P': {
         const int min(4);
-        const int max(5);
+        const int max(7);
         if (!sptk::ConvertStringToInteger(optarg, &num_pade_order) ||
             !sptk::IsInRange(num_pade_order, min, max)) {
           std::ostringstream error_message;
@@ -222,7 +222,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  if (average_flag && 1 == output_period) {
+  if (1 == output_period) {
     average_flag = false;
   }
 
