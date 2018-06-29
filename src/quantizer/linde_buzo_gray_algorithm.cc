@@ -88,20 +88,13 @@ bool LindeBuzoGrayAlgorithm::Run(
   if (!is_valid_ ||
       num_input_vector <
           minimum_num_vector_in_cluster_ * target_codebook_size_ ||
-      NULL == codebook_vectors || NULL == codebook_index) {
+      NULL == codebook_vectors || NULL == codebook_index ||
+      codebook_vectors->size() !=
+          static_cast<std::size_t>(initial_codebook_size_)) {
     return false;
   }
 
   // prepare memory
-  if (codebook_vectors->size() !=
-      static_cast<std::size_t>(target_codebook_size_)) {
-    codebook_vectors->resize(target_codebook_size_);
-    for (std::vector<std::vector<double> >::iterator itr(
-             codebook_vectors->begin());
-         itr != codebook_vectors->end(); ++itr) {
-      itr->resize(num_order_ + 1);
-    }
-  }
   if (codebook_index->size() != static_cast<std::size_t>(num_input_vector)) {
     codebook_index->resize(num_input_vector);
   }
@@ -114,6 +107,12 @@ bool LindeBuzoGrayAlgorithm::Run(
   int current_codebook_size(initial_codebook_size_);
   while (2 * current_codebook_size <= target_codebook_size_) {
     // increase codebook size by two times
+    codebook_vectors->resize(2 * current_codebook_size);
+    for (std::vector<std::vector<double> >::iterator itr(
+             codebook_vectors->begin() + current_codebook_size);
+         itr != codebook_vectors->end(); ++itr) {
+      itr->resize(num_order_ + 1);
+    }
     for (int e(0); e < current_codebook_size; ++e) {
       for (int m(0); m <= num_order_; ++m) {
         double random_value;
@@ -156,6 +155,7 @@ bool LindeBuzoGrayAlgorithm::Run(
         }
         total_distance += distance;
       }
+      total_distance /= num_input_vector;
 
       // check convergence
       const double criterion_value(
@@ -219,7 +219,6 @@ bool LindeBuzoGrayAlgorithm::Run(
       return false;
     }
   }
-  codebook_vectors->resize(current_codebook_size);
 
   return true;
 }
