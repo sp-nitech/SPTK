@@ -60,19 +60,19 @@ bool InputSourcePreprocessingForFilterGain::Get(std::vector<double>* buffer) {
   }
 
   switch (gain_type_) {
-    case InputSourcePreprocessingForFilterGain::FilterGainType::kLinear: {
+    case kLinear: {
+      // nothing to do
       break;
     }
-    case InputSourcePreprocessingForFilterGain::FilterGainType::kLog: {
+    case kLog: {
       (*buffer)[0] = std::exp((*buffer)[0]);
       break;
     }
-    case InputSourcePreprocessingForFilterGain::FilterGainType::kUnity: {
+    case kUnity: {
       (*buffer)[0] = 1.0;
       break;
     }
-    case InputSourcePreprocessingForFilterGain::FilterGainType::
-        kUnityForAllZeroFilter: {
+    case kUnityForAllZeroFilter: {
       if (0.0 == (*buffer)[0]) return false;
       const double inverse_of_b0(1.0 / (*buffer)[0]);
       std::transform(buffer->begin(), buffer->end(), buffer->begin(),
