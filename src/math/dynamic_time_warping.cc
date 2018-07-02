@@ -222,7 +222,7 @@ bool DynamicTimeWarping::Run(
     int j(num_reference_vector - 1);
     viterbi_path->clear();
     viterbi_path->push_back(std::make_pair(i, j));
-    while (0 <= i || 0 <= j) {
+    while (0 <= i && 0 <= j) {
       const int prev_i(
           (includes_skip_transition && skip_transition)
               ? cell_for_skip_transition[i][j].horizontal_back_pointer
