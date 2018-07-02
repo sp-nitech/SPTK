@@ -189,7 +189,7 @@ int main(int argc, char* argv[]) {
   sptk::StatisticsAccumulator::Buffer buffer;
   sptk::DistanceCalculator distance_calculator(
       num_order - 1,
-      sptk::DistanceCalculator::DistanceMetric::kSquaredEuclidean);
+      sptk::DistanceCalculator::DistanceMetrics::kSquaredEuclidean);
   if (!statistics_accumulator.IsValid() || !distance_calculator.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for calculation";

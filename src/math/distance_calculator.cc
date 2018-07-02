@@ -50,7 +50,7 @@
 namespace sptk {
 
 DistanceCalculator::DistanceCalculator(int num_order,
-                                       DistanceMetric distance_metric)
+                                       DistanceMetrics distance_metric)
     : num_order_(num_order),
       distance_metric_(distance_metric),
       is_valid_(true) {

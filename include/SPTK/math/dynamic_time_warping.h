@@ -42,52 +42,88 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/quantizer/vector_quantization.h"
+#ifndef SPTK_MATH_DYNAMIC_TIME_WARPING_H_
+#define SPTK_MATH_DYNAMIC_TIME_WARPING_H_
 
-#include <cfloat>   // DBL_MAX
-#include <cstddef>  // std::size_t
+#include <utility>  // std::pair
+#include <vector>   // std::vector
+
+#include "SPTK/math/distance_calculator.h"
+#include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
-VectorQuantization::VectorQuantization(int num_order)
-    : num_order_(num_order),
-      distance_calculator_(
-          num_order_, DistanceCalculator::DistanceMetrics::kSquaredEuclidean),
-      is_valid_(true) {
-  if (num_order_ < 0 || !distance_calculator_.IsValid()) {
-    is_valid_ = false;
-  }
-}
+class DynamicTimeWarping {
+ public:
+  //
+  enum LocalPathConstraints {
+    kType1 = 0,
+    kType2,
+    kType3,
+    kType4,
+    kType5,
+    kType6,
+    kType7,
+    kNumTypes
+  };
 
-bool VectorQuantization::Run(
-    const std::vector<double>& input_vector,
-    const std::vector<std::vector<double> >& codebook_vectors,
-    int* codebook_index) const {
-  if (!is_valid_ ||
-      input_vector.size() != static_cast<std::size_t>(num_order_ + 1) ||
-      codebook_vectors.empty() || NULL == codebook_index) {
-    return false;
-  }
+  //
+  DynamicTimeWarping(int num_order, LocalPathConstraints local_path_constraint,
+                     DistanceCalculator::DistanceMetrics distance_metric);
 
-  const int codebook_size(codebook_vectors.size());
-  int index(0);
-  double minimum_distance(DBL_MAX);
-
-  for (int i(0); i < codebook_size; ++i) {
-    double distance;
-    if (!distance_calculator_.Run(input_vector, codebook_vectors[i],
-                                  &distance)) {
-      return false;
-    }
-    if (distance < minimum_distance) {
-      index = i;
-      minimum_distance = distance;
-    }
+  //
+  virtual ~DynamicTimeWarping() {
   }
 
-  *codebook_index = index;
+  //
+  int GetNumOrder() const {
+    return num_order_;
+  }
 
-  return true;
-}
+  //
+  LocalPathConstraints GetLocalPathConstraint() const {
+    return local_path_constraint_;
+  }
+
+  //
+  DistanceCalculator::DistanceMetrics GetDistanceMetric() const {
+    return distance_calculator_.GetDistanceMetric();
+  }
+
+  //
+  bool IsValid() const {
+    return is_valid_;
+  }
+
+  //
+  bool Run(const std::vector<std::vector<double> >& query_vector_sequence,
+           const std::vector<std::vector<double> >& reference_vector_sequence,
+           std::vector<std::pair<int, int> >* viterbi_path,
+           double* total_score) const;
+
+ private:
+  //
+  const int num_order_;
+
+  //
+  const LocalPathConstraints local_path_constraint_;
+
+  //
+  const DistanceCalculator distance_calculator_;
+
+  //
+  bool is_valid_;
+
+  //
+  std::vector<std::pair<int, int> > local_path_candidates_;
+
+  //
+  std::vector<double> local_path_weights_;
+
+  //
+  DISALLOW_COPY_AND_ASSIGN(DynamicTimeWarping);
+};
 
 }  // namespace sptk
+
+#endif  // SPTK_MATH_DYNAMIC_TIME_WARPING_H_

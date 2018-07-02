@@ -65,7 +65,7 @@ LindeBuzoGrayAlgorithm::LindeBuzoGrayAlgorithm(
       convergence_threshold_(convergence_threshold),
       splitting_factor_(splitting_factor),
       distance_calculator_(
-          num_order_, DistanceCalculator::DistanceMetric::kSquaredEuclidean),
+          num_order_, DistanceCalculator::DistanceMetrics::kSquaredEuclidean),
       statistics_accumulator_(num_order_, 1),
       vector_quantization_(num_order_),
       is_valid_(true) {

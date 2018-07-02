@@ -54,7 +54,7 @@ namespace sptk {
 class DistanceCalculator {
  public:
   //
-  enum DistanceMetric {
+  enum DistanceMetrics {
     kManhattan = 0,
     kEuclidean,
     kSquaredEuclidean,
@@ -63,7 +63,7 @@ class DistanceCalculator {
   };
 
   //
-  DistanceCalculator(int num_order, DistanceMetric distance_metric);
+  DistanceCalculator(int num_order, DistanceMetrics distance_metric);
 
   //
   virtual ~DistanceCalculator() {
@@ -75,7 +75,7 @@ class DistanceCalculator {
   }
 
   //
-  DistanceMetric GetDistanceMetric() const {
+  DistanceMetrics GetDistanceMetric() const {
     return distance_metric_;
   }
 
@@ -93,7 +93,7 @@ class DistanceCalculator {
   const int num_order_;
 
   //
-  const DistanceMetric distance_metric_;
+  const DistanceMetrics distance_metric_;
 
   //
   bool is_valid_;
