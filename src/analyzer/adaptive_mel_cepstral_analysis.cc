@@ -42,7 +42,7 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/analyzer/adaptive_mel_cepstral_analyzer.h"
+#include "SPTK/analyzer/adaptive_mel_cepstral_analysis.h"
 
 #include <algorithm>   // std::fill, std::transform
 #include <cmath>       // std::log
@@ -51,7 +51,7 @@
 
 namespace sptk {
 
-AdaptiveMelCepstralAnalyzer::AdaptiveMelCepstralAnalyzer(
+AdaptiveMelCepstralAnalysis::AdaptiveMelCepstralAnalysis(
     int num_order, int num_pade_order, double alpha, double minimum_epsilon,
     double momentum, double forgetting_factor, double step_size_factor)
     : minimum_epsilon_(minimum_epsilon),
@@ -70,10 +70,10 @@ AdaptiveMelCepstralAnalyzer::AdaptiveMelCepstralAnalyzer(
   }
 }
 
-bool AdaptiveMelCepstralAnalyzer::Run(
+bool AdaptiveMelCepstralAnalysis::Run(
     double input_signal, double* prediction_error,
     std::vector<double>* mel_cepstrum,
-    AdaptiveMelCepstralAnalyzer::Buffer* buffer) const {
+    AdaptiveMelCepstralAnalysis::Buffer* buffer) const {
   // check inputs
   if (!is_valid_ || NULL == prediction_error || NULL == mel_cepstrum ||
       NULL == buffer) {

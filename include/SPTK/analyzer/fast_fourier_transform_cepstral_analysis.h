@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2018  Nagoya Institute of Technology          //
+//                1996-2017  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,81 +42,64 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_ANALYZER_ADAPTIVE_MEL_CEPSTRAL_ANALYZER_H_
-#define SPTK_ANALYZER_ADAPTIVE_MEL_CEPSTRAL_ANALYZER_H_
+#ifndef SPTK_ANALYZER_FAST_FOURIER_TRANSFORM_CEPSTRAL_ANALYSIS_H_
+#define SPTK_ANALYZER_FAST_FOURIER_TRANSFORM_CEPSTRAL_ANALYSIS_H_
 
 #include <vector>  // std::vector
 
-#include "SPTK/converter/mlsa_digital_filter_coefficients_to_mel_cepstrum.h"
-#include "SPTK/filter/mlsa_digital_filter.h"
+#include "SPTK/math/fast_fourier_transform_for_real_sequence.h"
+#include "SPTK/math/inverse_fast_fourier_transform_for_real_sequence.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
-class AdaptiveMelCepstralAnalyzer {
+class FastFourierTransformCepstralAnalysis {
  public:
   class Buffer {
    public:
-    Buffer() : prev_prediction_error_(0.0), prev_epsilon_(1.0) {
+    Buffer() {
     }
     virtual ~Buffer() {
     }
 
    private:
-    std::vector<double> mlsa_digital_filter_coefficients_;
-    std::vector<double> inverse_mlsa_digital_filter_coefficients_;
-    std::vector<double> gradient_;
-    std::vector<double> buffer_for_phi_digital_filter_;
-    MlsaDigitalFilter::Buffer buffer_for_mlsa_digital_filter_;
-    double prev_prediction_error_;
-    double prev_epsilon_;
-    friend class AdaptiveMelCepstralAnalyzer;
+    FastFourierTransformForRealSequence::Buffer fast_fourier_transform_buffer_;
+    InverseFastFourierTransformForRealSequence::Buffer
+        inverse_fast_fourier_transform_buffer_;
+    std::vector<double> fast_fourier_transform_frequency_domain_;
+    std::vector<double> fast_fourier_transform_time_domain_;
+    std::vector<double> fast_fourier_transform_imaginary_part_output_;
+    friend class FastFourierTransformCepstralAnalysis;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
 
   //
-  AdaptiveMelCepstralAnalyzer(int num_order, int num_pade_order, double alpha,
-                              double minimum_epsilon, double momentum,
-                              double forgetting_factor,
-                              double step_size_factor);
+  FastFourierTransformCepstralAnalysis(int fft_length, int num_order,
+                                       int num_iteration,
+                                       double acceleration_factor);
 
   //
-  virtual ~AdaptiveMelCepstralAnalyzer() {
+  virtual ~FastFourierTransformCepstralAnalysis() {
+  }
+
+  //
+  int GetFftLength() const {
+    return fast_fourier_transform_.GetFftLength();
   }
 
   //
   int GetNumOrder() const {
-    return mlsa_digital_filter_.GetNumFilterOrder();
+    return num_order_;
   }
 
   //
-  int GetNumPadeOrder() const {
-    return mlsa_digital_filter_.GetNumPadeOrder();
+  int GetNumIteration() const {
+    return num_iteration_;
   }
 
   //
-  double GetAlpha() const {
-    return mlsa_digital_filter_.GetAlpha();
-  }
-
-  //
-  double GetMinimumEpsilon() const {
-    return minimum_epsilon_;
-  }
-
-  //
-  double GetMomentum() const {
-    return momentum_;
-  }
-
-  //
-  double GetForgettingFactor() const {
-    return forgetting_factor_;
-  }
-
-  //
-  double GetStepSizeFactor() const {
-    return step_size_factor_;
+  double GetAccelarationFactor() const {
+    return acceleration_factor_;
   }
 
   //
@@ -125,37 +108,34 @@ class AdaptiveMelCepstralAnalyzer {
   }
 
   //
-  bool Run(double input_signal, double* prediction_error,
-           std::vector<double>* mel_cepstrum,
-           AdaptiveMelCepstralAnalyzer::Buffer* buffer) const;
+  bool Run(const std::vector<double>& log_power_spectrum,
+           std::vector<double>* cepstrum,
+           FastFourierTransformCepstralAnalysis::Buffer* buffer) const;
 
  private:
   //
-  const double minimum_epsilon_;
+  const int num_order_;
 
   //
-  const double momentum_;
+  const int num_iteration_;
 
   //
-  const double forgetting_factor_;
+  const double acceleration_factor_;
 
   //
-  const double step_size_factor_;
+  const FastFourierTransformForRealSequence fast_fourier_transform_;
 
   //
-  const MlsaDigitalFilter mlsa_digital_filter_;
-
-  //
-  const MlsaDigitalFilterCoefficientsToMelCepstrum
-      mlsa_digital_filter_coefficients_to_mel_cepstrum_;
+  const InverseFastFourierTransformForRealSequence
+      inverse_fast_fourier_transform_;
 
   //
   bool is_valid_;
 
   //
-  DISALLOW_COPY_AND_ASSIGN(AdaptiveMelCepstralAnalyzer);
+  DISALLOW_COPY_AND_ASSIGN(FastFourierTransformCepstralAnalysis);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_ANALYZER_ADAPTIVE_MEL_CEPSTRAL_ANALYZER_H_
+#endif  // SPTK_ANALYZER_FAST_FOURIER_TRANSFORM_CEPSTRAL_ANALYSIS_H_

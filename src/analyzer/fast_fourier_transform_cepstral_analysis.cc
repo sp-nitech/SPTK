@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2018  Nagoya Institute of Technology          //
+//                1996-2017  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,49 +42,98 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/math/inverse_fast_fourier_transform_for_real_sequence.h"
+#include "SPTK/analyzer/fast_fourier_transform_cepstral_analysis.h"
 
-#include <algorithm>   // std::transform
-#include <cstddef>     // std::size_t
-#include <functional>  // std::bind1st, std::multiplies
+#include <cstddef>  // std::size_t
 
 namespace sptk {
 
-InverseFastFourierTransformForRealSequence::
-    InverseFastFourierTransformForRealSequence(int num_order, int fft_length)
-    : fast_fourier_transform_(num_order, fft_length) {
+FastFourierTransformCepstralAnalysis::FastFourierTransformCepstralAnalysis(
+    int fft_length, int num_order, int num_iteration,
+    double acceleration_factor)
+    : num_order_(num_order),
+      num_iteration_(num_iteration),
+      acceleration_factor_(acceleration_factor),
+      fast_fourier_transform_(fft_length - 1, fft_length),
+      inverse_fast_fourier_transform_(fft_length - 1, fft_length),
+      is_valid_(true) {
+  if (num_order_ < 0 || fft_length < 2 * num_order_ || num_iteration_ <= 0 ||
+      acceleration_factor_ < 0.0 || !fast_fourier_transform_.IsValid() ||
+      !inverse_fast_fourier_transform_.IsValid()) {
+    is_valid_ = false;
+  }
 }
 
-bool InverseFastFourierTransformForRealSequence::Run(
-    const std::vector<double>& real_part_input,
-    std::vector<double>* real_part_output,
-    std::vector<double>* imaginary_part_output,
-    InverseFastFourierTransformForRealSequence::Buffer* buffer) const {
+bool FastFourierTransformCepstralAnalysis::Run(
+    const std::vector<double>& log_power_spectrum,
+    std::vector<double>* cepstrum,
+    FastFourierTransformCepstralAnalysis::Buffer* buffer) const {
   // check inputs
-  if (!fast_fourier_transform_.IsValid() ||
-      real_part_input.size() !=
-          static_cast<std::size_t>(fast_fourier_transform_.GetNumOrder() + 1) ||
-      NULL == real_part_output || NULL == imaginary_part_output ||
-      NULL == buffer) {
-    return false;
-  }
-
-  if (!fast_fourier_transform_.Run(real_part_input, real_part_output,
-                                   imaginary_part_output,
-                                   &buffer->fast_fourier_transform_buffer_)) {
-    return false;
-  }
-
   const int fft_length(fast_fourier_transform_.GetFftLength());
-  const double inverse_fft_length(1.0 / fft_length);
-  std::transform(real_part_output->begin(),
-                 real_part_output->begin() + fft_length,
-                 real_part_output->begin(),
-                 std::bind1st(std::multiplies<double>(), inverse_fft_length));
-  std::transform(imaginary_part_output->begin(),
-                 imaginary_part_output->begin() + fft_length,
-                 imaginary_part_output->begin(),
-                 std::bind1st(std::multiplies<double>(), inverse_fft_length));
+  if (!is_valid_ ||
+      log_power_spectrum.size() != static_cast<std::size_t>(fft_length) ||
+      NULL == cepstrum || NULL == buffer) {
+    return false;
+  }
+
+  if (cepstrum->size() != static_cast<std::size_t>(num_order_ + 1)) {
+    cepstrum->resize(num_order_ + 1);
+  }
+
+  if (!inverse_fast_fourier_transform_.Run(
+          log_power_spectrum, &buffer->fast_fourier_transform_time_domain_,
+          &buffer->fast_fourier_transform_imaginary_part_output_,
+          &buffer->inverse_fast_fourier_transform_buffer_)) {
+    return false;
+  }
+
+  double* output(&((*cepstrum)[0]));
+  double* time_domain_error(&buffer->fast_fourier_transform_time_domain_[0]);
+  for (int m(0); m <= num_order_; ++m) {
+    output[m] = time_domain_error[m];
+    time_domain_error[m] = 0.0;
+  }
+
+  for (int i(1); i < num_iteration_; ++i) {
+    for (int m(1); m <= num_order_; ++m) {
+      time_domain_error[fft_length - m] = time_domain_error[m];
+    }
+
+    if (!fast_fourier_transform_.Run(
+            buffer->fast_fourier_transform_time_domain_,
+            &buffer->fast_fourier_transform_frequency_domain_,
+            &buffer->fast_fourier_transform_imaginary_part_output_,
+            &buffer->fast_fourier_transform_buffer_)) {
+      return false;
+    }
+
+    double* frequency_domain_error(
+        &buffer->fast_fourier_transform_frequency_domain_[0]);
+    for (int k(0); k < fft_length; ++k) {
+      if (frequency_domain_error[k] < 0.0) {
+        frequency_domain_error[k] = 0.0;
+      }
+    }
+
+    if (!inverse_fast_fourier_transform_.Run(
+            buffer->fast_fourier_transform_frequency_domain_,
+            &buffer->fast_fourier_transform_time_domain_,
+            &buffer->fast_fourier_transform_imaginary_part_output_,
+            &buffer->inverse_fast_fourier_transform_buffer_)) {
+      return false;
+    }
+
+    for (int m(0); m <= num_order_; ++m) {
+      const double t(time_domain_error[m] * (1.0 + acceleration_factor_));
+      output[m] += t;
+      time_domain_error[m] -= t;
+    }
+  }
+
+  output[0] *= 0.5;
+  if (fft_length / 2 == num_order_) {
+    output[num_order_] *= 0.5;
+  }
 
   return true;
 }

@@ -42,51 +42,120 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/math/inverse_fast_fourier_transform_for_real_sequence.h"
+#ifndef SPTK_ANALYZER_ADAPTIVE_MEL_CEPSTRAL_ANALYSIS_H_
+#define SPTK_ANALYZER_ADAPTIVE_MEL_CEPSTRAL_ANALYSIS_H_
 
-#include <algorithm>   // std::transform
-#include <cstddef>     // std::size_t
-#include <functional>  // std::bind1st, std::multiplies
+#include <vector>  // std::vector
+
+#include "SPTK/converter/mlsa_digital_filter_coefficients_to_mel_cepstrum.h"
+#include "SPTK/filter/mlsa_digital_filter.h"
+#include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
-InverseFastFourierTransformForRealSequence::
-    InverseFastFourierTransformForRealSequence(int num_order, int fft_length)
-    : fast_fourier_transform_(num_order, fft_length) {
-}
+class AdaptiveMelCepstralAnalysis {
+ public:
+  class Buffer {
+   public:
+    Buffer() : prev_prediction_error_(0.0), prev_epsilon_(1.0) {
+    }
+    virtual ~Buffer() {
+    }
 
-bool InverseFastFourierTransformForRealSequence::Run(
-    const std::vector<double>& real_part_input,
-    std::vector<double>* real_part_output,
-    std::vector<double>* imaginary_part_output,
-    InverseFastFourierTransformForRealSequence::Buffer* buffer) const {
-  // check inputs
-  if (!fast_fourier_transform_.IsValid() ||
-      real_part_input.size() !=
-          static_cast<std::size_t>(fast_fourier_transform_.GetNumOrder() + 1) ||
-      NULL == real_part_output || NULL == imaginary_part_output ||
-      NULL == buffer) {
-    return false;
+   private:
+    std::vector<double> mlsa_digital_filter_coefficients_;
+    std::vector<double> inverse_mlsa_digital_filter_coefficients_;
+    std::vector<double> gradient_;
+    std::vector<double> buffer_for_phi_digital_filter_;
+    MlsaDigitalFilter::Buffer buffer_for_mlsa_digital_filter_;
+    double prev_prediction_error_;
+    double prev_epsilon_;
+    friend class AdaptiveMelCepstralAnalysis;
+    DISALLOW_COPY_AND_ASSIGN(Buffer);
+  };
+
+  //
+  AdaptiveMelCepstralAnalysis(int num_order, int num_pade_order, double alpha,
+                              double minimum_epsilon, double momentum,
+                              double forgetting_factor,
+                              double step_size_factor);
+
+  //
+  virtual ~AdaptiveMelCepstralAnalysis() {
   }
 
-  if (!fast_fourier_transform_.Run(real_part_input, real_part_output,
-                                   imaginary_part_output,
-                                   &buffer->fast_fourier_transform_buffer_)) {
-    return false;
+  //
+  int GetNumOrder() const {
+    return mlsa_digital_filter_.GetNumFilterOrder();
   }
 
-  const int fft_length(fast_fourier_transform_.GetFftLength());
-  const double inverse_fft_length(1.0 / fft_length);
-  std::transform(real_part_output->begin(),
-                 real_part_output->begin() + fft_length,
-                 real_part_output->begin(),
-                 std::bind1st(std::multiplies<double>(), inverse_fft_length));
-  std::transform(imaginary_part_output->begin(),
-                 imaginary_part_output->begin() + fft_length,
-                 imaginary_part_output->begin(),
-                 std::bind1st(std::multiplies<double>(), inverse_fft_length));
+  //
+  int GetNumPadeOrder() const {
+    return mlsa_digital_filter_.GetNumPadeOrder();
+  }
 
-  return true;
-}
+  //
+  double GetAlpha() const {
+    return mlsa_digital_filter_.GetAlpha();
+  }
+
+  //
+  double GetMinimumEpsilon() const {
+    return minimum_epsilon_;
+  }
+
+  //
+  double GetMomentum() const {
+    return momentum_;
+  }
+
+  //
+  double GetForgettingFactor() const {
+    return forgetting_factor_;
+  }
+
+  //
+  double GetStepSizeFactor() const {
+    return step_size_factor_;
+  }
+
+  //
+  bool IsValid() const {
+    return is_valid_;
+  }
+
+  //
+  bool Run(double input_signal, double* prediction_error,
+           std::vector<double>* mel_cepstrum,
+           AdaptiveMelCepstralAnalysis::Buffer* buffer) const;
+
+ private:
+  //
+  const double minimum_epsilon_;
+
+  //
+  const double momentum_;
+
+  //
+  const double forgetting_factor_;
+
+  //
+  const double step_size_factor_;
+
+  //
+  const MlsaDigitalFilter mlsa_digital_filter_;
+
+  //
+  const MlsaDigitalFilterCoefficientsToMelCepstrum
+      mlsa_digital_filter_coefficients_to_mel_cepstrum_;
+
+  //
+  bool is_valid_;
+
+  //
+  DISALLOW_COPY_AND_ASSIGN(AdaptiveMelCepstralAnalysis);
+};
 
 }  // namespace sptk
+
+#endif  // SPTK_ANALYZER_ADAPTIVE_MEL_CEPSTRAL_ANALYSIS_H_

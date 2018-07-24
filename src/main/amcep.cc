@@ -49,7 +49,7 @@
 #include <sstream>
 #include <vector>
 
-#include "SPTK/analyzer/adaptive_mel_cepstral_analyzer.h"
+#include "SPTK/analyzer/adaptive_mel_cepstral_analysis.h"
 #include "SPTK/math/statistics_accumulator.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -260,10 +260,10 @@ int main(int argc, char* argv[]) {
   }
   std::ostream& output_stream(ofs);
 
-  sptk::AdaptiveMelCepstralAnalyzer analyzer(
+  sptk::AdaptiveMelCepstralAnalysis analyzer(
       num_order, num_pade_order, alpha, minimum_epsilon, momentum,
       forgetting_factor, step_size_factor);
-  sptk::AdaptiveMelCepstralAnalyzer::Buffer buffer_for_analyzer;
+  sptk::AdaptiveMelCepstralAnalysis::Buffer buffer_for_analyzer;
   if (!analyzer.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for analyze";
