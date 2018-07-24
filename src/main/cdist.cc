@@ -151,11 +151,11 @@ int main(int argc, char* argv[]) {
 
   const char* cepstrum1_file;
   const char* cepstrum2_file;
-  const int num_rest_args(argc - optind);
-  if (2 == num_rest_args) {
+  const int num_input_files(argc - optind);
+  if (2 == num_input_files) {
     cepstrum1_file = argv[argc - 2];
     cepstrum2_file = argv[argc - 1];
-  } else if (1 == num_rest_args) {
+  } else if (1 == num_input_files) {
     cepstrum1_file = argv[argc - 1];
     cepstrum2_file = NULL;
   } else {

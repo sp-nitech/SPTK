@@ -82,8 +82,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -p p  : output period                (   int)[" << std::setw(5) << std::right << kDefaultOutputPeriod     << "][   1 <= p <=     ]" << std::endl;  // NOLINT
   *stream << "       -P P  : order of Pade approximation  (   int)[" << std::setw(5) << std::right << kDefaultNumPadeOrder     << "][   4 <= P <= 7   ]" << std::endl;  // NOLINT
   *stream << "       -A    : output averaged mel-cepstrum (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultAverageFlag) << "]" << std::endl;  // NOLINT
-  *stream << "       -E E  : output file containing       (string)[" << std::setw(5) << std::right << "N/A"                    << "]" << std::endl;  // NOLINT
-  *stream << "               double type prediction error" << std::endl;
+  *stream << "       -E E  : output filename of double    (string)[" << std::setw(5) << std::right << "N/A"                    << "]" << std::endl;  // NOLINT
+  *stream << "               type prediction error" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       data sequence                        (double)[stdin]" << std::endl;  // NOLINT
@@ -227,14 +227,14 @@ int main(int argc, char* argv[]) {
   }
 
   // get input file
-  const int num_rest_args(argc - optind);
-  if (1 < num_rest_args) {
+  const int num_input_files(argc - optind);
+  if (1 < num_input_files) {
     std::ostringstream error_message;
     error_message << "Too many input files";
     sptk::PrintErrorMessage("amcep", error_message);
     return 1;
   }
-  const char* input_file(0 == num_rest_args ? NULL : argv[optind]);
+  const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
   // open input stream for input signal
   std::ifstream ifs;

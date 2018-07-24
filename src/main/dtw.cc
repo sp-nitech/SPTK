@@ -195,11 +195,11 @@ int main(int argc, char* argv[]) {
   // get input file
   const char* reference_file;
   const char* query_file;
-  const int num_rest_args(argc - optind);
-  if (2 == num_rest_args) {
+  const int num_input_files(argc - optind);
+  if (2 == num_input_files) {
     reference_file = argv[argc - 2];
     query_file = argv[argc - 1];
-  } else if (1 == num_rest_args) {
+  } else if (1 == num_input_files) {
     reference_file = argv[argc - 1];
     query_file = NULL;
   } else {

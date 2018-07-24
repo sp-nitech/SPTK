@@ -81,23 +81,23 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       minmax [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : length of vector         (   int)[" << std::setw(5) << std::right << kDefaultNumOrder + 1   << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -m m  : order of vector          (   int)[" << std::setw(5) << std::right << "l-1"                  << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -b b  : find N-best values       (   int)[" << std::setw(5) << std::right << kDefaultNumBest        << "][ 1 <= b <=   ]" << std::endl;  // NOLINT
-  *stream << "       -o o  : output format            (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat   << "][ 0 <= o <= 2 ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : length of vector            (   int)[" << std::setw(5) << std::right << kDefaultNumOrder + 1   << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of vector             (   int)[" << std::setw(5) << std::right << "l-1"                  << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -b b  : find N-best values          (   int)[" << std::setw(5) << std::right << kDefaultNumBest        << "][ 1 <= b <=   ]" << std::endl;  // NOLINT
+  *stream << "       -o o  : output format               (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat   << "][ 0 <= o <= 2 ]" << std::endl;  // NOLINT
   *stream << "                 0 (minimum and maximum)" << std::endl;
   *stream << "                 1 (minimum)" << std::endl;
   *stream << "                 2 (maximum)" << std::endl;
-  *stream << "       -f f  : way to find value        (   int)[" << std::setw(5) << std::right << kDefaultWayToFindValue << "][ 0 <= f <= 1 ]" << std::endl;  // NOLINT
+  *stream << "       -f f  : way to find value           (   int)[" << std::setw(5) << std::right << kDefaultWayToFindValue << "][ 0 <= f <= 1 ]" << std::endl;  // NOLINT
   *stream << "                 0 (find value from a vector)" << std::endl;
   *stream << "                 1 (find value from vector sequence for each dimension)" << std::endl;  // NOLINT
-  *stream << "       -p p  : output file containing   (string)[" << std::setw(5) << std::right << "N/A"                  << "]" << std::endl;  // NOLINT
-  *stream << "               position of found values" << std::endl;
+  *stream << "       -p p  : output filename of int type (string)[" << std::setw(5) << std::right << "N/A"                  << "]" << std::endl;  // NOLINT
+  *stream << "               position of found value" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       data sequence                    (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       data sequence                       (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       minimum and maximum values       (double)" << std::endl;
+  *stream << "       minimum and maximum values          (double)" << std::endl;
   *stream << "  notice:" << std::endl;
   *stream << "       if f = 0, l must be greater than max(1, b - 1)" << std::endl;  // NOLINT
   *stream << std::endl;
@@ -112,7 +112,7 @@ bool WriteMinMaxValues(
     OutputFormats output_format, std::ostream* stream_for_position) {
   const int vector_length(buffer.size());
 
-  if (output_format == kMinimumAndMaximum || output_format == kMinimum) {
+  if (kMinimumAndMaximum == output_format || kMinimum == output_format) {
     for (int rank(1); rank <= num_best; ++rank) {
       for (int vector_index(0); vector_index < vector_length; ++vector_index) {
         int position;
@@ -132,7 +132,7 @@ bool WriteMinMaxValues(
     }
   }
 
-  if (output_format == kMinimumAndMaximum || output_format == kMaximum) {
+  if (kMinimumAndMaximum == output_format || kMaximum == output_format) {
     for (int rank(1); rank <= num_best; ++rank) {
       for (int vector_index(0); vector_index < vector_length; ++vector_index) {
         int position;
@@ -256,14 +256,14 @@ int main(int argc, char* argv[]) {
   }
 
   // get input file
-  const int num_rest_args(argc - optind);
-  if (1 < num_rest_args) {
+  const int num_input_files(argc - optind);
+  if (1 < num_input_files) {
     std::ostringstream error_message;
     error_message << "Too many input files";
     sptk::PrintErrorMessage("minmax", error_message);
     return 1;
   }
-  const char* input_file(0 == num_rest_args ? NULL : argv[optind]);
+  const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
   // open input stream
   std::ifstream ifs;

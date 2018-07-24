@@ -153,14 +153,14 @@ int main(int argc, char* argv[]) {
   }
 
   // get input file
-  const int num_rest_args(argc - optind);
-  if (1 < num_rest_args) {
+  const int num_input_files(argc - optind);
+  if (1 < num_input_files) {
     std::ostringstream error_message;
     error_message << "Too many input files";
     sptk::PrintErrorMessage("fd", error_message);
     return 1;
   }
-  const char* input_file(0 == num_rest_args ? NULL : argv[optind]);
+  const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
   // open stream
   std::ifstream ifs;

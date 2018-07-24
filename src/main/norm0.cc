@@ -59,17 +59,17 @@ const int kDefaultNumOrder(25);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " norm0 - normalize coefficients" << std::endl;  // NOLINT
+  *stream << " norm0 - normalize coefficients" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       norm0 [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order              (   int)[" << std::setw(5) << std::right << kDefaultNumOrder << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumOrder << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       coefficients               (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       coefficients                  (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       normalized coefficients    (double)" << std::endl;
+  *stream << "       normalized coefficients       (double)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -109,14 +109,14 @@ int main(int argc, char* argv[]) {
   }
 
   // get input file
-  const int num_rest_args(argc - optind);
-  if (1 < num_rest_args) {
+  const int num_input_files(argc - optind);
+  if (1 < num_input_files) {
     std::ostringstream error_message;
     error_message << "Too many input files";
     sptk::PrintErrorMessage("norm0", error_message);
     return 1;
   }
-  const char* input_file(0 == num_rest_args ? NULL : argv[optind]);
+  const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
   // open stream
   std::ifstream ifs;

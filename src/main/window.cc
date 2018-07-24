@@ -68,13 +68,14 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       window [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : frame length of data sequence          (   int)[" << std::setw(5) << std::right << kDefaultFrameLength       << "][ 0 <  l <= L ]" << std::endl;  // NOLINT
-  *stream << "       -L L  : frame length of windowed data sequence (   int)[" << std::setw(5) << std::right << "l"                       << "][ l <= L <=   ]" << std::endl;  // NOLINT
-  *stream << "       -n n  : normalization type                     (   int)[" << std::setw(5) << std::right << kDefaultNormalizationType << "][ 0 <= n <= 2 ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : frame length of data sequence (   int)[" << std::setw(5) << std::right << kDefaultFrameLength       << "][ 0 <  l <= L ]" << std::endl;  // NOLINT
+  *stream << "       -L L  : frame length of windowed data (   int)[" << std::setw(5) << std::right << "l"                       << "][ l <= L <=   ]" << std::endl;  // NOLINT
+  *stream << "               sequence" << std::endl;
+  *stream << "       -n n  : normalization type            (   int)[" << std::setw(5) << std::right << kDefaultNormalizationType << "][ 0 <= n <= 2 ]" << std::endl;  // NOLINT
   *stream << "                 0 (none)" << std::endl;
   *stream << "                 1 (power)" << std::endl;
   *stream << "                 2 (magnitude)" << std::endl;
-  *stream << "       -w w  : window type                            (   int)[" << std::setw(5) << std::right << kDefaultWindowType        << "][ 0 <= w <= 5 ]" << std::endl;  // NOLINT
+  *stream << "       -w w  : window type                   (   int)[" << std::setw(5) << std::right << kDefaultWindowType        << "][ 0 <= w <= 5 ]" << std::endl;  // NOLINT
   *stream << "                 0 (Blackman)" << std::endl;
   *stream << "                 1 (Hamming)" << std::endl;
   *stream << "                 2 (Hanning)" << std::endl;
@@ -83,9 +84,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 5 (rectangular)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       data sequence                                  (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       data sequence                         (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       windowed data sequence                         (double)" << std::endl;  // NOLINT
+  *stream << "       windowed data sequence                (double)" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -189,14 +190,14 @@ int main(int argc, char* argv[]) {
   }
 
   // get input file
-  const int num_rest_args(argc - optind);
-  if (1 < num_rest_args) {
+  const int num_input_files(argc - optind);
+  if (1 < num_input_files) {
     std::ostringstream error_message;
     error_message << "Too many input files";
     sptk::PrintErrorMessage("window", error_message);
     return 1;
   }
-  const char* input_file(0 == num_rest_args ? NULL : argv[optind]);
+  const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
   // open stream
   std::ifstream ifs;

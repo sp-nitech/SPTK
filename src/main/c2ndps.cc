@@ -74,7 +74,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       c2ndps [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -m m  : order of cepstrum             (   int)[" << std::setw(5) << std::right << kDefaultNumOrder     << "][ 0 <= m <= l/2 ]" << std::endl;  // NOLINT
-  *stream << "       -l l  : FFT length                    (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 8 <= l <=     ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length                    (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 4 <= l <=     ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format                 (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 2   ]" << std::endl;  // NOLINT
   *stream << "                 0 (pole and zero parts)" << std::endl;
   *stream << "                 1 (pole part)" << std::endl;
@@ -163,14 +163,14 @@ int main(int argc, char* argv[]) {
   }
 
   // get input file
-  const int num_rest_args(argc - optind);
-  if (1 < num_rest_args) {
+  const int num_input_files(argc - optind);
+  if (1 < num_input_files) {
     std::ostringstream error_message;
     error_message << "Too many input files";
     sptk::PrintErrorMessage("c2ndps", error_message);
     return 1;
   }
-  const char* input_file(0 == num_rest_args ? NULL : argv[optind]);
+  const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
   // open stream
   std::ifstream ifs;
@@ -189,7 +189,7 @@ int main(int argc, char* argv[]) {
   sptk::CepstrumToNegativeDerivativeOfPhaseSpectrum::Buffer buffer;
   if (!cepstrum_to_negative_derivative_of_phase_spectrum.IsValid()) {
     std::ostringstream error_message;
-    error_message << "FFT length must be a power of 2 and greater than 4";
+    error_message << "FFT length must be a power of 2 and greater than 2";
     sptk::PrintErrorMessage("c2ndps", error_message);
     return 1;
   }

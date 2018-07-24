@@ -68,7 +68,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  options:" << std::endl;
   *stream << "       -m m  : order of cepstrum        (   int)[" << std::setw(5) << std::right << kDefaultNumInputOrder  << "][ 0 <= m <  l ]" << std::endl;  // NOLINT
   *stream << "       -M M  : order of autocorrelation (   int)[" << std::setw(5) << std::right << kDefaultNumOutputOrder << "][ 0 <= M <  l ]" << std::endl;  // NOLINT
-  *stream << "       -l l  : FFT length               (   int)[" << std::setw(5) << std::right << kDefaultFftLength      << "][ 8 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length               (   int)[" << std::setw(5) << std::right << kDefaultFftLength      << "][ 4 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       cepstrum                         (double)[stdin]" << std::endl;  // NOLINT
@@ -138,20 +138,20 @@ int main(int argc, char* argv[]) {
   if (fft_length <= num_input_order || fft_length <= num_output_order) {
     std::ostringstream error_message;
     error_message
-        << "The number of input/output orders must be smaller than FFT length";
+        << "The number of input/output orders must be less than FFT length";
     sptk::PrintErrorMessage("c2acr", error_message);
     return 1;
   }
 
   // get input file
-  const int num_rest_args(argc - optind);
-  if (1 < num_rest_args) {
+  const int num_input_files(argc - optind);
+  if (1 < num_input_files) {
     std::ostringstream error_message;
     error_message << "Too many input files";
     sptk::PrintErrorMessage("c2acr", error_message);
     return 1;
   }
-  const char* input_file(0 == num_rest_args ? NULL : argv[optind]);
+  const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
   // open stream
   std::ifstream ifs;
@@ -169,7 +169,7 @@ int main(int argc, char* argv[]) {
   sptk::CepstrumToAutocorrelation::Buffer buffer;
   if (!cepstrum_to_autocorrelation.IsValid()) {
     std::ostringstream error_message;
-    error_message << "FFT length must be a power of 2 and greater than 4";
+    error_message << "FFT length must be a power of 2 and greater than 2";
     sptk::PrintErrorMessage("c2acr", error_message);
     return 1;
   }

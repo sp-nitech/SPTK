@@ -154,11 +154,11 @@ int main(int argc, char* argv[]) {
   // get input file
   const char* input_file1(NULL);
   const char* input_file2(NULL);
-  const int num_rest_args(argc - optind);
-  if (2 == num_rest_args) {
+  const int num_input_files(argc - optind);
+  if (2 == num_input_files) {
     input_file1 = argv[argc - 2];
     input_file2 = argv[argc - 1];
-  } else if (1 == num_rest_args) {
+  } else if (1 == num_input_files) {
     input_file1 = argv[argc - 1];
     input_file2 = NULL;
   } else {

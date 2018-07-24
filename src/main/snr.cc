@@ -141,11 +141,11 @@ int main(int argc, char* argv[]) {
   // Get input file names.
   const char* signal_file;
   const char* signal_plus_noise_file;
-  const int num_rest_args(argc - optind);
-  if (2 == num_rest_args) {
+  const int num_input_files(argc - optind);
+  if (2 == num_input_files) {
     signal_file = argv[argc - 2];
     signal_plus_noise_file = argv[argc - 1];
-  } else if (1 == num_rest_args) {
+  } else if (1 == num_input_files) {
     signal_file = argv[argc - 1];
     signal_plus_noise_file = NULL;
   } else {

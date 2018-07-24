@@ -91,7 +91,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  stdout:" << std::endl;
   *stream << "       codebook                              (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
-  *stream << "       number of input vectors must be greater than or equal to n * e" << std::endl;  // NOLINT
+  *stream << "       number of input vectors must be equal to or greater than n * e" << std::endl;  // NOLINT
   *stream << "       final codebook size may not be e because codebook size is always doubled" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
@@ -226,14 +226,14 @@ int main(int argc, char* argv[]) {
   }
 
   // get input file
-  const int num_rest_args(argc - optind);
-  if (1 < num_rest_args) {
+  const int num_input_files(argc - optind);
+  if (1 < num_input_files) {
     std::ostringstream error_message;
     error_message << "Too many input files";
     sptk::PrintErrorMessage("lbg", error_message);
     return 1;
   }
-  const char* input_file(0 == num_rest_args ? NULL : argv[optind]);
+  const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
   // open stream
   std::ifstream ifs;

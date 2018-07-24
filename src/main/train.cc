@@ -74,7 +74,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -l l  : output length      (   int)[" << std::setw(5) << std::right << "INF"                     << "][   1 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -m m  : output order       (   int)[" << std::setw(5) << std::right << "l-1"                     << "][   0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -p p  : frame period       (double)[" << std::setw(5) << std::right << kDefaultPeriod            << "][ 1.0 <= p <=   ]" << std::endl;  // NOLINT
-  *stream << "       -N N  : normalization type (   int)[" << std::setw(5) << std::right << kDefaultNormalizationType << "][   0 <= N <= 2 ]" << std::endl;  // NOLINT
+  *stream << "       -n n  : normalization type (   int)[" << std::setw(5) << std::right << kDefaultNormalizationType << "][   0 <= n <= 2 ]" << std::endl;  // NOLINT
   *stream << "                 0 (none)" << std::endl;
   *stream << "                 1 (power)" << std::endl;
   *stream << "                 2 (magnitude)" << std::endl;
@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
   NormalizationType normalization_type(kDefaultNormalizationType);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:m:p:N:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:p:n:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -132,7 +132,7 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      case 'N': {
+      case 'n': {
         const int min(0);
         const int max(
             static_cast<int>(NormalizationType::kNumNormalizationTypes) - 1);
@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
         if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
             !sptk::IsInRange(tmp, min, max)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -N option must be an integer "
+          error_message << "The argument for the -n option must be an integer "
                         << "in the range of " << min << " to " << max;
           sptk::PrintErrorMessage("train", error_message);
           return 1;

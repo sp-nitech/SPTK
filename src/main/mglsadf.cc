@@ -334,11 +334,11 @@ int main(int argc, char* argv[]) {
   // Get input file names.
   const char* filter_coefficients_file;
   const char* filter_input_file;
-  const int num_rest_args(argc - optind);
-  if (2 == num_rest_args) {
+  const int num_input_files(argc - optind);
+  if (2 == num_input_files) {
     filter_coefficients_file = argv[argc - 2];
     filter_input_file = argv[argc - 1];
-  } else if (1 == num_rest_args) {
+  } else if (1 == num_input_files) {
     filter_coefficients_file = argv[argc - 1];
     filter_input_file = NULL;
   } else {

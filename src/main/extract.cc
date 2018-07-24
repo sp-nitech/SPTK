@@ -139,11 +139,11 @@ int main(int argc, char* argv[]) {
   // Get input file names.
   const char* index_file;
   const char* input_file;
-  const int num_rest_args(argc - optind);
-  if (2 == num_rest_args) {
+  const int num_input_files(argc - optind);
+  if (2 == num_input_files) {
     index_file = argv[argc - 2];
     input_file = argv[argc - 1];
-  } else if (1 == num_rest_args) {
+  } else if (1 == num_input_files) {
     index_file = argv[argc - 1];
     input_file = NULL;
   } else {

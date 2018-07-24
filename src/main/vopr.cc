@@ -237,11 +237,11 @@ int main(int argc, char* argv[]) {
     case kRecursive: {
       const char* infile;
       const char* file1;
-      const int num_rest_args(argc - optind);
-      if (2 == num_rest_args) {
+      const int num_input_files(argc - optind);
+      if (2 == num_input_files) {
         infile = argv[argc - 2];
         file1 = argv[argc - 1];
-      } else if (1 == num_rest_args) {
+      } else if (1 == num_input_files) {
         file1 = argv[argc - 1];
         infile = NULL;
       } else {
@@ -269,15 +269,15 @@ int main(int argc, char* argv[]) {
       break;
     }
     case kInterleaved: {
-      const int num_rest_args(argc - optind);
-      if (1 < num_rest_args) {
+      const int num_input_files(argc - optind);
+      if (1 < num_input_files) {
         std::ostringstream error_message;
         error_message << "Too many input files";
         sptk::PrintErrorMessage("vopr", error_message);
         return 1;
       }
 
-      const char* infile(0 == num_rest_args ? NULL : argv[optind]);
+      const char* infile(0 == num_input_files ? NULL : argv[optind]);
       infile_ifs.open(infile, std::ios::in | std::ios::binary);
       if (infile_ifs.fail() && NULL != infile) {
         std::ostringstream error_message;
