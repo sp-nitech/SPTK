@@ -55,8 +55,8 @@ FastFourierTransform::FastFourierTransform(int num_order, int fft_length)
       fft_length_(fft_length),
       half_fft_length_(fft_length_ / 2),
       is_valid_(true) {
-  if (!IsPowerOfTwo(fft_length_) || fft_length_ <= num_order_ ||
-      num_order_ < 0) {
+  if (num_order_ < 0 || fft_length_ <= num_order_ ||
+      !IsPowerOfTwo(fft_length_)) {
     is_valid_ = false;
     return;
   }
@@ -104,67 +104,75 @@ bool FastFourierTransform::Run(
   double* x(&((*real_part_output)[0]));
   double* y(&((*imaginary_part_output)[0]));
 
-  int lix(fft_length_);
-  int lmx(half_fft_length_);
-  int lf(1);
-  while (1 < lmx) {
-    double* sinp(const_cast<double*>(&(sine_table_[0])));
-    double* cosp(const_cast<double*>(&(sine_table_[0])) + fft_length_ / 4);
-    for (int i(0); i < lmx; ++i) {
-      double* xpi(&(x[i]));
-      double* ypi(&(y[i]));
-      for (int li(lix); li <= fft_length_; li += lix) {
-        const double t1(*(xpi) - *(xpi + lmx));
-        const double t2(*(ypi) - *(ypi + lmx));
-        *(xpi) += *(xpi + lmx);
-        *(ypi) += *(ypi + lmx);
-        *(xpi + lmx) = *cosp * t1 + *sinp * t2;
-        *(ypi + lmx) = *cosp * t2 - *sinp * t1;
-        xpi += lix;
-        ypi += lix;
+  {
+    int lix(fft_length_);
+    int lmx(half_fft_length_);
+    int lf(1);
+    while (1 < lmx) {
+      double* sinp(const_cast<double*>(&(sine_table_[0])));
+      double* cosp(const_cast<double*>(&(sine_table_[0])) + fft_length_ / 4);
+      for (int i(0); i < lmx; ++i) {
+        double* xpi(&(x[i]));
+        double* ypi(&(y[i]));
+        for (int li(lix); li <= fft_length_; li += lix) {
+          const double t1(*(xpi) - *(xpi + lmx));
+          const double t2(*(ypi) - *(ypi + lmx));
+          *(xpi) += *(xpi + lmx);
+          *(ypi) += *(ypi + lmx);
+          *(xpi + lmx) = *cosp * t1 + *sinp * t2;
+          *(ypi + lmx) = *cosp * t2 - *sinp * t1;
+          xpi += lix;
+          ypi += lix;
+        }
+        sinp += lf;
+        cosp += lf;
       }
-      sinp += lf;
-      cosp += lf;
+      lix = lmx;
+      lmx /= 2;
+      lf *= 2;
     }
-    lix = lmx;
-    lmx /= 2;
-    lf *= 2;
   }
 
-  double* xp(x);
-  double* yp(y);
-  for (int li(half_fft_length_); li--; xp += 2, yp += 2) {
-    const double t1(*(xp) - *(xp + 1));
-    const double t2(*(yp) - *(yp + 1));
-    *(xp) += *(xp + 1);
-    *(yp) += *(yp + 1);
-    *(xp + 1) = t1;
-    *(yp + 1) = t2;
+  {
+    double* xp(x);
+    double* yp(y);
+    for (int li(0); li < half_fft_length_; ++li) {
+      const double t1(*(xp) - *(xp + 1));
+      const double t2(*(yp) - *(yp + 1));
+      *(xp) += *(xp + 1);
+      *(yp) += *(yp + 1);
+      *(xp + 1) = t1;
+      *(yp + 1) = t2;
+      xp += 2;
+      yp += 2;
+    }
   }
 
   // bit reversal
-  xp = x;
-  yp = y;
-  const int dec_fft_length(fft_length_ - 1);
-  for (int lmx(0), j(0); lmx < dec_fft_length; ++lmx) {
-    const int lmxj(lmx - j);
-    if (lmxj < 0) {
-      const double t1(*(xp));
-      const double t2(*(yp));
-      *(xp) = *(xp + lmxj);
-      *(yp) = *(yp + lmxj);
-      *(xp + lmxj) = t1;
-      *(yp + lmxj) = t2;
-    }
+  {
+    double* xp(x);
+    double* yp(y);
+    const int dec_fft_length(fft_length_ - 1);
+    for (int lmx(0), j(0); lmx < dec_fft_length; ++lmx) {
+      const int lmxj(lmx - j);
+      if (lmxj < 0) {
+        const double t1(*(xp));
+        const double t2(*(yp));
+        *(xp) = *(xp + lmxj);
+        *(yp) = *(yp + lmxj);
+        *(xp + lmxj) = t1;
+        *(yp + lmxj) = t2;
+      }
 
-    int li(half_fft_length_);
-    while (li <= j) {
-      j -= li;
-      li /= 2;
+      int li(half_fft_length_);
+      while (li <= j) {
+        j -= li;
+        li /= 2;
+      }
+      j += li;
+      xp = x + j;
+      yp = y + j;
     }
-    j += li;
-    xp = x + j;
-    yp = y + j;
   }
 
   return true;

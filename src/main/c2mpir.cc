@@ -114,7 +114,7 @@ int main(int argc, char* argv[]) {
       }
       case 'l': {
         if (!sptk::ConvertStringToInteger(optarg, &num_output_order) ||
-            num_output_order < 1) {
+            num_output_order <= 0) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -l option must be a positive integer";

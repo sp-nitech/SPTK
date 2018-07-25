@@ -59,7 +59,7 @@ namespace sptk {
 
 ZeroCrossing::ZeroCrossing(int frame_length)
     : frame_length_(frame_length), is_valid_(true) {
-  if (frame_length < 1) {
+  if (frame_length <= 0) {
     is_valid_ = false;
   }
 }
