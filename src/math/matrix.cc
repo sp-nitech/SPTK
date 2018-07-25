@@ -137,14 +137,39 @@ bool Matrix::Transpose(Matrix* transposed_matrix) const {
     return false;
   }
 
-  if (num_column_ != transposed_matrix->num_row_ ||
-      num_row_ != transposed_matrix->num_column_) {
+  if (transposed_matrix->num_row_ != num_column_ ||
+      transposed_matrix->num_column_ != num_row_) {
     transposed_matrix->Resize(num_column_, num_row_);
   }
 
-  for (int i(0); i < num_row_; ++i) {
-    for (int j(0); j < num_column_; ++j) {
-      transposed_matrix->index_[j][i] = index_[i][j];
+  for (int i(0); i < num_column_; ++i) {
+    for (int j(0); j < num_row_; ++j) {
+      transposed_matrix->index_[i][j] = index_[j][i];
+    }
+  }
+
+  return true;
+}
+
+bool Matrix::GetSubmatrix(int row_offset, int num_row_of_submatrix,
+                          int column_offset, int num_column_of_submatrix,
+                          Matrix* submatrix) const {
+  if (row_offset < 0 || num_row_of_submatrix <= 0 ||
+      num_row_ < row_offset + num_row_of_submatrix || column_offset < 0 ||
+      num_column_of_submatrix <= 0 ||
+      num_column_ < column_offset + num_column_of_submatrix ||
+      NULL == submatrix) {
+    return false;
+  }
+
+  if (submatrix->num_row_ != num_row_of_submatrix ||
+      submatrix->num_column_ != num_column_of_submatrix) {
+    submatrix->Resize(num_row_of_submatrix, num_column_of_submatrix);
+  }
+
+  for (int i(0); i < num_row_of_submatrix; ++i) {
+    for (int j(0); j < num_column_of_submatrix; ++j) {
+      submatrix->index_[i][j] = index_[row_offset + i][column_offset + j];
     }
   }
 

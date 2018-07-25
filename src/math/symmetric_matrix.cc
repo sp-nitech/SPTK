@@ -151,7 +151,7 @@ bool SymmetricMatrix::Invert(SymmetricMatrix* inverse_matrix) const {
     }
   }
 
-  if (num_dimension_ != inverse_matrix->num_dimension_) {
+  if (inverse_matrix->num_dimension_ != num_dimension_) {
     inverse_matrix->Resize(num_dimension_);
   }
 

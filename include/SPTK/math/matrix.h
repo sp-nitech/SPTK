@@ -102,6 +102,10 @@ class Matrix {
   //
   bool Transpose(Matrix* transposed_matrix) const;
 
+  //
+  bool GetSubmatrix(int row_offset, int num_row_of_submatrix, int column_offset,
+                    int num_column_of_submatrix, Matrix* submatrix) const;
+
  private:
   //
   int num_row_;
