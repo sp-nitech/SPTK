@@ -68,7 +68,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       symmetrize [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : FFT length        (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 4 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length        (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 2 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -q q  : input format      (   int)[" << std::setw(5) << std::right << kDefaultInputFormat  << "][ 0 <= q <= 3 ]" << std::endl;  // NOLINT
   *stream << "                 0 ( x(0),     x(1),     ..., x(l/2)                                    )" << std::endl;  // NOLINT
   *stream << "                 1 ( x(0),     x(1),     ..., x(l/2), x(l/2-1), ..., x(1)               )" << std::endl;  // NOLINT
@@ -106,10 +106,10 @@ int main(int argc, char* argv[]) {
     switch (option_char) {
       case 'l': {
         if (!sptk::ConvertStringToInteger(optarg, &fft_length) ||
-            fft_length < 4 || fft_length % 2 == 1) {
+            fft_length < 2 || 1 == fft_length % 2) {
           std::ostringstream error_message;
-          error_message << "The argument for the -l option must be an even "
-                        << "integer greater than 2";
+          error_message << "The argument for the -l option must be a positive "
+                        << "even integer";
           sptk::PrintErrorMessage("symmetrize", error_message);
           return 1;
         }

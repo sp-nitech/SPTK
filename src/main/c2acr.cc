@@ -68,7 +68,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  options:" << std::endl;
   *stream << "       -m m  : order of cepstrum        (   int)[" << std::setw(5) << std::right << kDefaultNumInputOrder  << "][ 0 <= m <  l ]" << std::endl;  // NOLINT
   *stream << "       -M M  : order of autocorrelation (   int)[" << std::setw(5) << std::right << kDefaultNumOutputOrder << "][ 0 <= M <  l ]" << std::endl;  // NOLINT
-  *stream << "       -l l  : FFT length               (   int)[" << std::setw(5) << std::right << kDefaultFftLength      << "][ 4 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length               (   int)[" << std::setw(5) << std::right << kDefaultFftLength      << "][ 2 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       cepstrum                         (double)[stdin]" << std::endl;  // NOLINT
@@ -169,7 +169,7 @@ int main(int argc, char* argv[]) {
   sptk::CepstrumToAutocorrelation::Buffer buffer;
   if (!cepstrum_to_autocorrelation.IsValid()) {
     std::ostringstream error_message;
-    error_message << "FFT length must be a power of 2 and greater than 2";
+    error_message << "FFT length must be a power of 2 and greater than 1";
     sptk::PrintErrorMessage("c2acr", error_message);
     return 1;
   }

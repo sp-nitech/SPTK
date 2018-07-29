@@ -91,7 +91,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -n    : regard input as normalized                 (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultNormalizationFlag)  << "]" << std::endl;  // NOLINT
   *stream << "               mel-generalized cepstrum" << std::endl;
   *stream << "       -u    : regard input as multiplied by gamma        (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultMultiplicationFlag) << "]" << std::endl;  // NOLINT
-  *stream << "       -l l  : FFT length                                 (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 8 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length                                 (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 2 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format                              (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 6 ]" << std::endl;  // NOLINT
   *stream << "                 0 (20*log|H(z)|)" << std::endl;
   *stream << "                 1 (ln|H(z)|)" << std::endl;

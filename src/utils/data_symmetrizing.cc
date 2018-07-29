@@ -60,11 +60,11 @@ int CalculateDataLength(int fft_length,
       return fft_length;
     }
     case sptk::DataSymmetrizing::InputOutputFormats::
-        kSymmetricForFormingImpulseResponse: {
+        kSymmetricForPreservingFrequencyResponse: {
       return fft_length + 1;
     }
     case sptk::DataSymmetrizing::InputOutputFormats::
-        kSymmetricForPlottingImpulseResponse: {
+        kSymmetricForPlottingFrequencyResponse: {
       return fft_length + 1;
     }
     default: { return 0; }
@@ -84,7 +84,8 @@ DataSymmetrizing::DataSymmetrizing(int fft_length,
       input_length_(CalculateDataLength(fft_length_, input_format_)),
       output_length_(CalculateDataLength(fft_length_, output_format_)),
       is_valid_(true) {
-  if (fft_length_ < 4 || 0 == input_length_ || 0 == output_length_) {
+  if (fft_length_ < 2 || 1 == fft_length_ % 2 || 0 == input_length_ ||
+      0 == output_length_) {
     is_valid_ = false;
   }
 }
@@ -120,7 +121,7 @@ bool DataSymmetrizing::Run(
                             symmetrized_data_sequence->begin() + input_length_);
           break;
         }
-        case kSymmetricForFormingImpulseResponse: {
+        case kSymmetricForPreservingFrequencyResponse: {
           std::reverse_copy(data_sequence.begin(), data_sequence.end(),
                             symmetrized_data_sequence->begin());
           std::copy(data_sequence.begin() + 1, data_sequence.end(),
@@ -129,7 +130,7 @@ bool DataSymmetrizing::Run(
           (*symmetrized_data_sequence)[fft_length_] *= 0.5;
           break;
         }
-        case kSymmetricForPlottingImpulseResponse: {
+        case kSymmetricForPlottingFrequencyResponse: {
           std::reverse_copy(data_sequence.begin(), data_sequence.end(),
                             symmetrized_data_sequence->begin());
           std::copy(data_sequence.begin() + 1, data_sequence.end(),
@@ -154,7 +155,7 @@ bool DataSymmetrizing::Run(
                     symmetrized_data_sequence->begin());
           break;
         }
-        case kSymmetricForFormingImpulseResponse: {
+        case kSymmetricForPreservingFrequencyResponse: {
           std::copy(data_sequence.begin() + fft_length_ / 2,
                     data_sequence.end(), symmetrized_data_sequence->begin());
           std::copy(data_sequence.begin(),
@@ -164,7 +165,7 @@ bool DataSymmetrizing::Run(
           (*symmetrized_data_sequence)[fft_length_] *= 0.5;
           break;
         }
-        case kSymmetricForPlottingImpulseResponse: {
+        case kSymmetricForPlottingFrequencyResponse: {
           std::copy(data_sequence.begin() + fft_length_ / 2,
                     data_sequence.end(), symmetrized_data_sequence->begin());
           std::copy(data_sequence.begin(),
@@ -177,7 +178,7 @@ bool DataSymmetrizing::Run(
       break;
     }
 
-    case kSymmetricForFormingImpulseResponse: {
+    case kSymmetricForPreservingFrequencyResponse: {
       switch (output_format_) {
         case kStandard: {
           std::copy(data_sequence.begin() + fft_length_ / 2,
@@ -194,12 +195,12 @@ bool DataSymmetrizing::Run(
           (*symmetrized_data_sequence)[fft_length_ / 2] *= 2.0;
           break;
         }
-        case kSymmetricForFormingImpulseResponse: {
+        case kSymmetricForPreservingFrequencyResponse: {
           std::copy(data_sequence.begin(), data_sequence.end(),
                     symmetrized_data_sequence->begin());
           break;
         }
-        case kSymmetricForPlottingImpulseResponse: {
+        case kSymmetricForPlottingFrequencyResponse: {
           std::copy(data_sequence.begin(), data_sequence.end(),
                     symmetrized_data_sequence->begin());
           (*symmetrized_data_sequence)[0] *= 2.0;
@@ -211,7 +212,7 @@ bool DataSymmetrizing::Run(
       break;
     }
 
-    case kSymmetricForPlottingImpulseResponse: {
+    case kSymmetricForPlottingFrequencyResponse: {
       switch (output_format_) {
         case kStandard: {
           std::copy(data_sequence.begin() + fft_length_ / 2,
@@ -226,14 +227,14 @@ bool DataSymmetrizing::Run(
                     symmetrized_data_sequence->begin() + fft_length_ / 2 + 1);
           break;
         }
-        case kSymmetricForFormingImpulseResponse: {
+        case kSymmetricForPreservingFrequencyResponse: {
           std::copy(data_sequence.begin(), data_sequence.end(),
                     symmetrized_data_sequence->begin());
           (*symmetrized_data_sequence)[0] *= 0.5;
           (*symmetrized_data_sequence)[fft_length_] *= 0.5;
           break;
         }
-        case kSymmetricForPlottingImpulseResponse: {
+        case kSymmetricForPlottingFrequencyResponse: {
           std::copy(data_sequence.begin(), data_sequence.end(),
                     symmetrized_data_sequence->begin());
           break;

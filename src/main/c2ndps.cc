@@ -74,7 +74,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       c2ndps [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -m m  : order of cepstrum             (   int)[" << std::setw(5) << std::right << kDefaultNumOrder     << "][ 0 <= m <= l/2 ]" << std::endl;  // NOLINT
-  *stream << "       -l l  : FFT length                    (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 4 <= l <=     ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length                    (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 2 <= l <=     ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format                 (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 2   ]" << std::endl;  // NOLINT
   *stream << "                 0 (pole and zero parts)" << std::endl;
   *stream << "                 1 (pole part)" << std::endl;
@@ -189,7 +189,7 @@ int main(int argc, char* argv[]) {
   sptk::CepstrumToNegativeDerivativeOfPhaseSpectrum::Buffer buffer;
   if (!cepstrum_to_negative_derivative_of_phase_spectrum.IsValid()) {
     std::ostringstream error_message;
-    error_message << "FFT length must be a power of 2 and greater than 2";
+    error_message << "FFT length must be a power of 2 and greater than 1";
     sptk::PrintErrorMessage("c2ndps", error_message);
     return 1;
   }

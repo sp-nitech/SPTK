@@ -65,7 +65,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       ndps2c [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : FFT length                    (   int)[" << std::setw(5) << std::right << kDefaultFftLength << "][ 4 <= l <=     ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length                    (   int)[" << std::setw(5) << std::right << kDefaultFftLength << "][ 2 <= l <=     ]" << std::endl;  // NOLINT
   *stream << "       -m m  : order of cepstrum             (   int)[" << std::setw(5) << std::right << kDefaultNumOrder  << "][ 0 <= m <= l/2 ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
@@ -160,7 +160,7 @@ int main(int argc, char* argv[]) {
   sptk::NegativeDerivativeOfPhaseSpectrumToCepstrum::Buffer buffer;
   if (!negative_derivative_of_phase_spectrum_to_cepstrum.IsValid()) {
     std::ostringstream error_message;
-    error_message << "FFT length must be a power of 2 and greater than 2";
+    error_message << "FFT length must be a power of 2 and greater than 1";
     sptk::PrintErrorMessage("ndps2c", error_message);
     return 1;
   }

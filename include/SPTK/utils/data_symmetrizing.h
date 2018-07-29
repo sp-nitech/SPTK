@@ -57,8 +57,8 @@ class DataSymmetrizing {
   enum InputOutputFormats {
     kStandard = 0,
     kSymmetricForApplyingFourierTransform,
-    kSymmetricForFormingImpulseResponse,
-    kSymmetricForPlottingImpulseResponse,
+    kSymmetricForPreservingFrequencyResponse,
+    kSymmetricForPlottingFrequencyResponse,
     kNumInputOutputFormats
   };
 
@@ -68,6 +68,11 @@ class DataSymmetrizing {
 
   //
   virtual ~DataSymmetrizing() {
+  }
+
+  //
+  int GetFftLength() const {
+    return fft_length_;
   }
 
   //
