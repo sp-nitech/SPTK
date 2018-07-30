@@ -67,6 +67,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  options:" << std::endl;
   *stream << "       -s s  : start index        (   int)[" << std::setw(5) << std::right << kDefaultStartIndex       << "][ 0 <= s <=   ]" << std::endl;  // NOLINT
   *stream << "       -l l  : length of vector   (   int)[" << std::setw(5) << std::right << kDefaultVectorLength     << "][ 0 <  l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of vector    (   int)[" << std::setw(5) << std::right << "l-1"                    << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -p p  : decimation period  (   int)[" << std::setw(5) << std::right << kDefaultDecimationPeriod << "][ 0 <  p <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
@@ -87,7 +88,7 @@ int main(int argc, char* argv[]) {
   int decimation_period(kDefaultDecimationPeriod);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "s:l:p:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "s:l:m:p:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -111,6 +112,18 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("decimate", error_message);
           return 1;
         }
+        break;
+      }
+      case 'm': {
+        if (!sptk::ConvertStringToInteger(optarg, &vector_length) ||
+            vector_length < 0) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -m option must be a "
+                        << "non-negative integer";
+          sptk::PrintErrorMessage("decimate", error_message);
+          return 1;
+        }
+        ++vector_length;
         break;
       }
       case 'p': {

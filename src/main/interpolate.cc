@@ -70,6 +70,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  options:" << std::endl;
   *stream << "       -s s  : start index          (   int)[" << std::setw(5) << std::right << kDefaultStartIndex          << "][ 0 <= s <=   ]" << std::endl;  // NOLINT
   *stream << "       -l l  : length of vector     (   int)[" << std::setw(5) << std::right << kDefaultVectorLength        << "][ 0 <  l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of vector      (   int)[" << std::setw(5) << std::right << "l-1"                       << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -p p  : interpolation period (   int)[" << std::setw(5) << std::right << kDefaultInterpolationPeriod << "][ 0 <  p <=   ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format        (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat        << "][ 0 <= o <= 1 ]" << std::endl;  // NOLINT
   *stream << "                 0 ( x(0), 0,    ..., x(1), 0,    ..., )" << std::endl;  // NOLINT
@@ -94,7 +95,7 @@ int main(int argc, char* argv[]) {
   OutputFormats output_format(kDefaultOutputFormat);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "s:l:p:o:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "s:l:m:p:o:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -118,6 +119,18 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("interpolate", error_message);
           return 1;
         }
+        break;
+      }
+      case 'm': {
+        if (!sptk::ConvertStringToInteger(optarg, &vector_length) ||
+            vector_length < 0) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -m option must be a "
+                        << "non-negative integer";
+          sptk::PrintErrorMessage("interpolate", error_message);
+          return 1;
+        }
+        ++vector_length;
         break;
       }
       case 'p': {
