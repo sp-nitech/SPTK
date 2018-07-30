@@ -77,7 +77,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 1 ( x(0), x(0), ..., x(1), x(1), ..., )" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       data sequence                (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       data sequence                (double)[stdin]" << std::endl;
   *stream << "  stdout:" << std::endl;
   *stream << "       interpolated data sequence   (double)" << std::endl;
   *stream << std::endl;

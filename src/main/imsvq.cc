@@ -71,7 +71,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  cbfile:" << std::endl;
   *stream << "       codebook                   (double)" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       codebook index             (   int)[stdin]" << std::endl;  // NOLINT
+  *stream << "       codebook index             (   int)[stdin]" << std::endl;
   *stream << "  stdout:" << std::endl;
   *stream << "       reconstructed vector       (double)" << std::endl;
   *stream << std::endl;

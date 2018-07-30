@@ -73,10 +73,10 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       ramp sequence              (double)" << std::endl;
   *stream << "  notice:" << std::endl;
   *stream << "       if t = 0.0 and s = e, generate infinite sequence" << std::endl;  // NOLINT
-  *stream << "       if 0.0 < t, value of e must be s <= e" << std::endl;  // NOLINT
-  *stream << "       if t < 0.0, value of e must be e <= s" << std::endl;  // NOLINT
+  *stream << "       if 0.0 < t, value of e must be s <= e" << std::endl;
+  *stream << "       if t < 0.0, value of e must be e <= s" << std::endl;
   *stream << "       when two or more of -l, -m, or -e are specified," << std::endl;  // NOLINT
-  *stream << "       only the argument of the last option is used" << std::endl;  // NOLINT
+  *stream << "       only the argument of the last option is used" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
