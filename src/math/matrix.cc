@@ -44,13 +44,15 @@
 
 #include "SPTK/math/matrix.h"
 
-#include <algorithm>  // std::fill
-#include <stdexcept>  // std::out_of_range
+#include <algorithm>  // std::fill, std::transform
+#include <stdexcept>  // std::out_of_range, std::logic_error
 #include <string>     // std::string
 
 namespace {
 
-const std::string kErrorMessage("Matrix: Out of range");
+const std::string kErrorMessageForOutOfRange("Matrix: Out of range");
+const std::string kErrorMessageForLogicError(
+    "Matrix: Matrix sizes do not match");
 
 }  // namespace
 
@@ -116,16 +118,51 @@ void Matrix::Resize(int num_row, int num_column) {
 
 double& Matrix::At(int row, int column) {
   if (row < 0 || num_row_ <= row || column < 0 || num_column_ <= column) {
-    throw std::out_of_range(kErrorMessage);
+    throw std::out_of_range(kErrorMessageForOutOfRange);
   }
   return index_[row][column];
 }
 
 const double& Matrix::At(int row, int column) const {
   if (row < 0 || num_row_ <= row || column < 0 || num_column_ <= column) {
-    throw std::out_of_range(kErrorMessage);
+    throw std::out_of_range(kErrorMessageForOutOfRange);
   }
   return index_[row][column];
+}
+
+Matrix Matrix::operator+(const Matrix& matrix) const {
+  if (num_row_ != matrix.num_row_ || num_column_ != matrix.num_column_) {
+    throw std::logic_error(kErrorMessageForLogicError);
+  }
+  Matrix result(num_row_, num_column_);
+  std::transform(data_.begin(), data_.end(), matrix.data_.begin(),
+                 result.data_.begin(), std::plus<double>());
+  return result;
+}
+
+Matrix Matrix::operator-(const Matrix& matrix) const {
+  if (num_row_ != matrix.num_row_ || num_column_ != matrix.num_column_) {
+    throw std::logic_error(kErrorMessageForLogicError);
+  }
+  Matrix result(num_row_, num_column_);
+  std::transform(data_.begin(), data_.end(), matrix.data_.begin(),
+                 result.data_.begin(), std::minus<double>());
+  return result;
+}
+
+Matrix Matrix::operator*(const Matrix& matrix) const {
+  if (num_column_ != matrix.num_row_) {
+    throw std::logic_error(kErrorMessageForLogicError);
+  }
+  Matrix result(num_row_, matrix.num_column_);
+  for (int i(0); i < num_row_; ++i) {
+    for (int j(0); j < matrix.num_column_; ++j) {
+      for (int k(0); k < num_column_; ++k) {
+        result.index_[i][j] += index_[i][k] * matrix.index_[k][j];
+      }
+    }
+  }
+  return result;
 }
 
 void Matrix::FillZero() {

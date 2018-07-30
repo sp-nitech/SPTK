@@ -97,6 +97,15 @@ class Matrix {
   const double& At(int row, int column) const;
 
   //
+  Matrix operator+(const Matrix& matrix) const;
+
+  //
+  Matrix operator-(const Matrix& matrix) const;
+
+  //
+  Matrix operator*(const Matrix& matrix) const;
+
+  //
   void FillZero();
 
   //
