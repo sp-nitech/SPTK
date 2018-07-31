@@ -44,9 +44,10 @@
 
 #include "SPTK/filter/inverse_mglsa_digital_filter.h"
 
-#include <algorithm>  // std::fill
-#include <cmath>      // std::exp
-#include <cstddef>    // std::size_t
+#include <algorithm>   // std::fill, std::transform
+#include <cmath>       // std::exp
+#include <cstddef>     // std::size_t
+#include <functional>  // std::bind1st, std::multiplies
 
 namespace sptk {
 

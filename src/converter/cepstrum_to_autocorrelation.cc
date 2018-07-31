@@ -47,7 +47,7 @@
 #include <algorithm>   // std::copy, std::transform
 #include <cmath>       // std::exp
 #include <cstddef>     // std::size_t
-#include <functional>  // std::bind1st, std::multiplies, std::ptr_fun
+#include <functional>  // std::bind1st, std::multiplies
 
 namespace sptk {
 
@@ -99,11 +99,10 @@ bool CepstrumToAutocorrelation::Run(
     return false;
   }
 
-  std::transform(
-      buffer->fast_fourier_transform_frequency_domain_.begin(),
-      buffer->fast_fourier_transform_frequency_domain_.end(),
-      buffer->fast_fourier_transform_frequency_domain_.begin(),
-      std::ptr_fun<double, double>([](double x) { return std::exp(2.0 * x); }));
+  std::transform(buffer->fast_fourier_transform_frequency_domain_.begin(),
+                 buffer->fast_fourier_transform_frequency_domain_.end(),
+                 buffer->fast_fourier_transform_frequency_domain_.begin(),
+                 [](double x) { return std::exp(2.0 * x); });
 
   if (!fast_fourier_transform_.Run(
           buffer->fast_fourier_transform_frequency_domain_,

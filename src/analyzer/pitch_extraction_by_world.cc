@@ -79,7 +79,7 @@ bool PitchExtractionByWorld::Get(
   }
 
   if (NULL != f0) {
-    world::DioOption option({0});
+    world::DioOption option;
     world::InitializeDioOption(&option);
 
     const double frame_period((1000.0 * frame_shift_) / sampling_rate_);
