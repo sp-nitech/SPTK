@@ -74,10 +74,11 @@ bool InverseMultistageVectorQuantization::Run(
     return false;
   }
 
-  if (reconstructed_vector->size() < static_cast<std::size_t>(num_order_ + 1)) {
+  if (reconstructed_vector->size() !=
+      static_cast<std::size_t>(num_order_ + 1)) {
     reconstructed_vector->resize(num_order_ + 1);
   }
-  if (buffer->quantization_error_.size() <
+  if (buffer->quantization_error_.size() !=
       static_cast<std::size_t>(num_order_ + 1)) {
     buffer->quantization_error_.resize(num_order_ + 1);
   }

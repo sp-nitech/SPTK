@@ -173,12 +173,12 @@ int main(int argc, char* argv[]) {
     if (!generalized_cepstrum_gain_normalization.Run(
             generalized_cepstrum, &normalized_generalized_cepstrum)) {
       std::ostringstream error_message;
-      error_message << "Failed to normalize generalized ceptrum";
+      error_message << "Failed to normalize generalized cepstrum";
       sptk::PrintErrorMessage("gnorm", error_message);
       return 1;
     }
 
-    if (!sptk::WriteStream(length, 0, normalized_generalized_cepstrum,
+    if (!sptk::WriteStream(0, length, normalized_generalized_cepstrum,
                            &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to normalized generalized cepstrum";

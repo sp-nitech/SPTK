@@ -75,7 +75,7 @@ bool LineSpectralPairsToLinearPredictiveCoefficients::Run(
   }
 
   // prepare memory
-  if (linear_predictive_coefficients->size() <
+  if (linear_predictive_coefficients->size() !=
       static_cast<std::size_t>(num_order_ + 1)) {
     linear_predictive_coefficients->resize(num_order_ + 1);
   }
@@ -85,35 +85,35 @@ bool LineSpectralPairsToLinearPredictiveCoefficients::Run(
   if (0 == num_order_) return true;
 
   // prepare buffer
-  if (buffer->p_.size() <
+  if (buffer->p_.size() !=
       static_cast<std::size_t>(num_asymmetric_polynomial_order_)) {
     buffer->p_.resize(num_asymmetric_polynomial_order_);
   }
-  if (buffer->q_.size() <
+  if (buffer->q_.size() !=
       static_cast<std::size_t>(num_symmetric_polynomial_order_)) {
     buffer->q_.resize(num_symmetric_polynomial_order_);
   }
-  if (buffer->a0_.size() <
+  if (buffer->a0_.size() !=
       static_cast<std::size_t>(num_asymmetric_polynomial_order_ + 1)) {
     buffer->a0_.resize(num_asymmetric_polynomial_order_ + 1);
   }
-  if (buffer->a1_.size() <
+  if (buffer->a1_.size() !=
       static_cast<std::size_t>(num_asymmetric_polynomial_order_)) {
     buffer->a1_.resize(num_asymmetric_polynomial_order_);
   }
-  if (buffer->a2_.size() <
+  if (buffer->a2_.size() !=
       static_cast<std::size_t>(num_asymmetric_polynomial_order_)) {
     buffer->a2_.resize(num_asymmetric_polynomial_order_);
   }
-  if (buffer->b0_.size() <
+  if (buffer->b0_.size() !=
       static_cast<std::size_t>(num_symmetric_polynomial_order_ + 1)) {
     buffer->b0_.resize(num_symmetric_polynomial_order_ + 1);
   }
-  if (buffer->b1_.size() <
+  if (buffer->b1_.size() !=
       static_cast<std::size_t>(num_symmetric_polynomial_order_)) {
     buffer->b1_.resize(num_symmetric_polynomial_order_);
   }
-  if (buffer->b2_.size() <
+  if (buffer->b2_.size() !=
       static_cast<std::size_t>(num_symmetric_polynomial_order_)) {
     buffer->b2_.resize(num_symmetric_polynomial_order_);
   }

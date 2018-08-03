@@ -82,24 +82,24 @@ bool AdaptiveMelCepstralAnalysis::Run(
 
   // prepare memories
   const int num_order(GetNumOrder());
-  if (buffer->mlsa_digital_filter_coefficients_.size() <
+  if (buffer->mlsa_digital_filter_coefficients_.size() !=
       static_cast<std::size_t>(num_order + 1)) {
     buffer->mlsa_digital_filter_coefficients_.resize(num_order + 1);
     std::fill(buffer->mlsa_digital_filter_coefficients_.begin(),
               buffer->mlsa_digital_filter_coefficients_.end(), 0.0);
   }
-  if (buffer->inverse_mlsa_digital_filter_coefficients_.size() <
+  if (buffer->inverse_mlsa_digital_filter_coefficients_.size() !=
       static_cast<std::size_t>(num_order + 1)) {
     buffer->inverse_mlsa_digital_filter_coefficients_.resize(num_order + 1);
     buffer->inverse_mlsa_digital_filter_coefficients_[0] = 0.0;
   }
-  if (buffer->buffer_for_phi_digital_filter_.size() <
+  if (buffer->buffer_for_phi_digital_filter_.size() !=
       static_cast<std::size_t>(num_order + 1)) {
     buffer->buffer_for_phi_digital_filter_.resize(num_order + 1);
     std::fill(buffer->buffer_for_phi_digital_filter_.begin(),
               buffer->buffer_for_phi_digital_filter_.end(), 0.0);
   }
-  if (buffer->gradient_.size() < static_cast<std::size_t>(num_order)) {
+  if (buffer->gradient_.size() != static_cast<std::size_t>(num_order)) {
     buffer->gradient_.resize(num_order);
     std::fill(buffer->gradient_.begin(), buffer->gradient_.end(), 0.0);
   }

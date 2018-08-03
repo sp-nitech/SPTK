@@ -87,11 +87,11 @@ bool InverseDiscreteCosineTransform::Run(
 
   // prepare buffer
   const int dft_length(2 * dct_length_);
-  if (buffer->fourier_transform_real_part_input_.size() <
+  if (buffer->fourier_transform_real_part_input_.size() !=
       static_cast<std::size_t>(dft_length)) {
     buffer->fourier_transform_real_part_input_.resize(dft_length);
   }
-  if (buffer->fourier_transform_imaginary_part_input_.size() <
+  if (buffer->fourier_transform_imaginary_part_input_.size() !=
       static_cast<std::size_t>(dft_length)) {
     buffer->fourier_transform_imaginary_part_input_.resize(dft_length);
   }

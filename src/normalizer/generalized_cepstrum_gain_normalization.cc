@@ -67,7 +67,7 @@ bool GeneralizedCepstrumGainNormalization::Run(
     return false;
   }
 
-  if (normalized_generalized_cepstrum->size() <
+  if (normalized_generalized_cepstrum->size() !=
       static_cast<std::size_t>(num_order_ + 1)) {
     normalized_generalized_cepstrum->resize(num_order_ + 1);
   }

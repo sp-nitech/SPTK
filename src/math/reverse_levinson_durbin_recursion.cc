@@ -71,15 +71,15 @@ bool ReverseLevinsonDurbinRecursion::Run(
   }
 
   // prepare memories
-  if (autocorrelation_sequence->size() < static_cast<std::size_t>(length)) {
+  if (autocorrelation_sequence->size() != static_cast<std::size_t>(length)) {
     autocorrelation_sequence->resize(length);
   }
 
   // prepare buffer
-  if (buffer->u_.GetNumDimension() < length) {
+  if (buffer->u_.GetNumDimension() != length) {
     buffer->u_.Resize(length);
   }
-  if (buffer->e_.size() < static_cast<std::size_t>(length)) {
+  if (buffer->e_.size() != static_cast<std::size_t>(length)) {
     buffer->e_.resize(length);
   }
 

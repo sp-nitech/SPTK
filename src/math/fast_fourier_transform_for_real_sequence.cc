@@ -94,11 +94,12 @@ bool FastFourierTransformForRealSequence::Run(
       static_cast<std::size_t>(half_fft_length_)) {
     buffer->imaginary_part_input_.resize(half_fft_length_);
   }
-  if (real_part_output->size() < static_cast<std::size_t>(fft_length_)) {
-    real_part_output->resize(fft_length_);
+  if (real_part_output->capacity() < static_cast<std::size_t>(fft_length_)) {
+    real_part_output->reserve(fft_length_);
   }
-  if (imaginary_part_output->size() < static_cast<std::size_t>(fft_length_)) {
-    imaginary_part_output->resize(fft_length_);
+  if (imaginary_part_output->capacity() <
+      static_cast<std::size_t>(fft_length_)) {
+    imaginary_part_output->reserve(fft_length_);
   }
 
   // get values and fill zero
@@ -119,6 +120,8 @@ bool FastFourierTransformForRealSequence::Run(
                                    real_part_output, imaginary_part_output)) {
     return false;
   }
+  real_part_output->resize(fft_length_);
+  imaginary_part_output->resize(fft_length_);
 
   double* x(&((*real_part_output)[0]));
   double* y(&((*imaginary_part_output)[0]));

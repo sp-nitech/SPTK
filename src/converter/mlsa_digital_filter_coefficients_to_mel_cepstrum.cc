@@ -66,7 +66,7 @@ bool MlsaDigitalFilterCoefficientsToMelCepstrum::Run(
   }
 
   // prepare memory
-  if (mel_cepstrum->size() < static_cast<std::size_t>(num_order_ + 1)) {
+  if (mel_cepstrum->size() != static_cast<std::size_t>(num_order_ + 1)) {
     mel_cepstrum->resize(num_order_ + 1);
   }
 

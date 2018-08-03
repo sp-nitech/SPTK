@@ -62,7 +62,7 @@ bool ParcorCoefficientsToLinearPredictiveCoefficients::Run(
 
   // prepare memory
   const int output_length(num_order_ + 1);
-  if (linear_predictive_coefficients->size() <
+  if (linear_predictive_coefficients->size() !=
       static_cast<std::size_t>(output_length)) {
     linear_predictive_coefficients->resize(output_length);
   }
@@ -73,7 +73,7 @@ bool ParcorCoefficientsToLinearPredictiveCoefficients::Run(
   }
 
   // prepare buffer
-  if (buffer->k_.size() < static_cast<std::size_t>(output_length)) {
+  if (buffer->k_.size() != static_cast<std::size_t>(output_length)) {
     buffer->k_.resize(output_length);
   }
 

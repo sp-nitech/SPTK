@@ -79,7 +79,7 @@ bool StatisticsAccumulator::GetSum(const StatisticsAccumulator::Buffer& buffer,
     return false;
   }
 
-  if (sum->size() < static_cast<std::size_t>(num_order_ + 1)) {
+  if (sum->size() != static_cast<std::size_t>(num_order_ + 1)) {
     sum->resize(num_order_ + 1);
   }
 
@@ -96,7 +96,7 @@ bool StatisticsAccumulator::GetMean(const StatisticsAccumulator::Buffer& buffer,
     return false;
   }
 
-  if (mean->size() < static_cast<std::size_t>(num_order_ + 1)) {
+  if (mean->size() != static_cast<std::size_t>(num_order_ + 1)) {
     mean->resize(num_order_ + 1);
   }
 
@@ -116,7 +116,7 @@ bool StatisticsAccumulator::GetDiagonalCovariance(
     return false;
   }
 
-  if (diagonal_covariance->size() < static_cast<std::size_t>(num_order_ + 1)) {
+  if (diagonal_covariance->size() != static_cast<std::size_t>(num_order_ + 1)) {
     diagonal_covariance->resize(num_order_ + 1);
   }
 
@@ -162,7 +162,7 @@ bool StatisticsAccumulator::GetFullCovariance(
     return false;
   }
 
-  if (full_covariance->GetNumDimension() < num_order_ + 1) {
+  if (full_covariance->GetNumDimension() != num_order_ + 1) {
     full_covariance->Resize(num_order_ + 1);
   }
 
@@ -224,12 +224,12 @@ bool StatisticsAccumulator::Run(const std::vector<double>& data,
 
   // prepare buffer
   if (1 <= num_statistics_order_ &&
-      buffer->first_order_statistics_.size() <
+      buffer->first_order_statistics_.size() !=
           static_cast<std::size_t>(length)) {
     buffer->first_order_statistics_.resize(length);
   }
   if (2 <= num_statistics_order_ &&
-      buffer->second_order_statistics_.GetNumDimension() < length) {
+      buffer->second_order_statistics_.GetNumDimension() != length) {
     buffer->second_order_statistics_.Resize(length);
   }
 

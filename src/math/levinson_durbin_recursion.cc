@@ -70,13 +70,13 @@ bool LevinsonDurbinRecursion::Run(
   }
 
   // prepare memories
-  if (linear_predictive_coefficients->size() <
+  if (linear_predictive_coefficients->size() !=
       static_cast<std::size_t>(length)) {
     linear_predictive_coefficients->resize(length);
   }
 
   // prepare buffer
-  if (buffer->c_.size() < static_cast<std::size_t>(length)) {
+  if (buffer->c_.size() != static_cast<std::size_t>(length)) {
     buffer->c_.resize(length);
   }
 

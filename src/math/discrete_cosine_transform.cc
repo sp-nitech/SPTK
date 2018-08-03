@@ -85,18 +85,18 @@ bool DiscreteCosineTransform::Run(
   }
 
   const int dft_length(2 * dct_length_);
-  if (buffer->fourier_transform_real_part_input_.size() <
+  if (buffer->fourier_transform_real_part_input_.size() !=
       static_cast<std::size_t>(dft_length)) {
     buffer->fourier_transform_real_part_input_.resize(dft_length);
   }
-  if (buffer->fourier_transform_imaginary_part_input_.size() <
+  if (buffer->fourier_transform_imaginary_part_input_.size() !=
       static_cast<std::size_t>(dft_length)) {
     buffer->fourier_transform_imaginary_part_input_.resize(dft_length);
   }
-  if (real_part_output->size() < static_cast<std::size_t>(dct_length_)) {
+  if (real_part_output->size() != static_cast<std::size_t>(dct_length_)) {
     real_part_output->resize(dct_length_);
   }
-  if (imaginary_part_output->size() < static_cast<std::size_t>(dct_length_)) {
+  if (imaginary_part_output->size() != static_cast<std::size_t>(dct_length_)) {
     imaginary_part_output->resize(dct_length_);
   }
 

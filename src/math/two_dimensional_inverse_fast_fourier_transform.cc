@@ -79,35 +79,36 @@ bool TwoDimensionalInverseFastFourierTransform::Run(
   }
 
   // prepare memories
-  if (buffer->real_part_input_.size() < static_cast<std::size_t>(fft_length_)) {
+  if (buffer->real_part_input_.size() !=
+      static_cast<std::size_t>(fft_length_)) {
     buffer->real_part_input_.resize(fft_length_);
   }
-  if (buffer->imaginary_part_input_.size() <
+  if (buffer->imaginary_part_input_.size() !=
       static_cast<std::size_t>(fft_length_)) {
     buffer->imaginary_part_input_.resize(fft_length_);
   }
-  if (buffer->first_real_part_outputs_.size() <
+  if (buffer->first_real_part_outputs_.size() !=
       static_cast<std::size_t>(fft_length_)) {
     buffer->first_real_part_outputs_.resize(fft_length_);
   }
-  if (buffer->first_imaginary_part_outputs_.size() <
+  if (buffer->first_imaginary_part_outputs_.size() !=
       static_cast<std::size_t>(fft_length_)) {
     buffer->first_imaginary_part_outputs_.resize(fft_length_);
   }
-  if (buffer->second_real_part_outputs_.size() <
+  if (buffer->second_real_part_outputs_.size() !=
       static_cast<std::size_t>(fft_length_)) {
     buffer->second_real_part_outputs_.resize(fft_length_);
   }
-  if (buffer->second_imaginary_part_outputs_.size() <
+  if (buffer->second_imaginary_part_outputs_.size() !=
       static_cast<std::size_t>(fft_length_)) {
     buffer->second_imaginary_part_outputs_.resize(fft_length_);
   }
-  if (real_part_output->GetNumRow() < fft_length_ ||
-      real_part_output->GetNumColumn() < fft_length_) {
+  if (real_part_output->GetNumRow() != fft_length_ ||
+      real_part_output->GetNumColumn() != fft_length_) {
     real_part_output->Resize(fft_length_, fft_length_);
   }
-  if (imaginary_part_output->GetNumRow() < fft_length_ ||
-      imaginary_part_output->GetNumColumn() < fft_length_) {
+  if (imaginary_part_output->GetNumRow() != fft_length_ ||
+      imaginary_part_output->GetNumColumn() != fft_length_) {
     imaginary_part_output->Resize(fft_length_, fft_length_);
   }
 

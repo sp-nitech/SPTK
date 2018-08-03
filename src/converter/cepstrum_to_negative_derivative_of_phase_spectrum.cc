@@ -73,7 +73,7 @@ bool CepstrumToNegativeDerivativeOfPhaseSpectrum::Run(
 
   // prepare memories
   const int fft_length(fast_fourier_transform_.GetFftLength());
-  if (buffer->fast_fourier_transform_input_.size() <
+  if (buffer->fast_fourier_transform_input_.size() !=
       static_cast<std::size_t>(fft_length)) {
     buffer->fast_fourier_transform_input_.resize(fft_length);
   }

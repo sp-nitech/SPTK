@@ -60,7 +60,7 @@ bool WaveformToAutocorrelation::Run(
   }
 
   // prepare memories
-  if (autocorrelation->size() < static_cast<std::size_t>(num_order_ + 1)) {
+  if (autocorrelation->size() != static_cast<std::size_t>(num_order_ + 1)) {
     autocorrelation->resize(num_order_ + 1);
   }
 

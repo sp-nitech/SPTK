@@ -101,7 +101,7 @@ bool DataSymmetrizing::Run(
   }
 
   // prepare memory
-  if (symmetrized_data_sequence->size() <
+  if (symmetrized_data_sequence->size() !=
       static_cast<std::size_t>(output_length_)) {
     symmetrized_data_sequence->resize(output_length_);
   }

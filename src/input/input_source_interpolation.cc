@@ -105,7 +105,7 @@ bool InputSourceInterpolation::Get(std::vector<double>* buffer) {
     return false;
   }
 
-  if (buffer->size() < static_cast<std::size_t>(data_length_)) {
+  if (buffer->size() != static_cast<std::size_t>(data_length_)) {
     buffer->resize(data_length_);
   }
 

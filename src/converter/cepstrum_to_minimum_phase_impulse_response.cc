@@ -60,7 +60,7 @@ bool CepstrumToMinimumPhaseImpulseResponse::Run(
   }
 
   // prepare memory
-  if (minimum_phase_impulse_response->size() <
+  if (minimum_phase_impulse_response->size() !=
       static_cast<std::size_t>(num_output_order_ + 1)) {
     minimum_phase_impulse_response->resize(num_output_order_ + 1);
   }

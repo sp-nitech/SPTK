@@ -77,12 +77,12 @@ bool CepstrumToAutocorrelation::Run(
 
   // prepare memories
   const int fft_length(fast_fourier_transform_.GetFftLength());
-  if (buffer->fast_fourier_transform_time_domain_.size() <
+  if (buffer->fast_fourier_transform_time_domain_.size() !=
       static_cast<std::size_t>(fft_length)) {
     buffer->fast_fourier_transform_time_domain_.resize(fft_length);
   }
   const int output_length(num_output_order_ + 1);
-  if (autocorrelation->size() < static_cast<std::size_t>(output_length)) {
+  if (autocorrelation->size() != static_cast<std::size_t>(output_length)) {
     autocorrelation->resize(output_length);
   }
 

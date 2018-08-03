@@ -139,7 +139,7 @@ bool DataWindowing::Run(const std::vector<double>& data_sequence,
 
   // prepare memory
   const int output_length(num_output_order_ + 1);
-  if (windowed_data_sequence->size() <
+  if (windowed_data_sequence->size() !=
       static_cast<std::size_t>(output_length)) {
     windowed_data_sequence->resize(output_length);
   }

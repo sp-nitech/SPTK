@@ -54,7 +54,7 @@ bool InputSourceFromMatrix::Get(std::vector<double>* buffer) {
     return false;
   }
 
-  if (buffer->size() < static_cast<std::size_t>(row_size_)) {
+  if (buffer->size() != static_cast<std::size_t>(row_size_)) {
     buffer->resize(row_size_);
   }
 

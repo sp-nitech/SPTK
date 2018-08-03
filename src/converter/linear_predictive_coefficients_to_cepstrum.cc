@@ -72,7 +72,7 @@ bool LinearPredictiveCoefficientsToCepstrum::Run(
 
   // prepare memory
   const int output_length(num_output_order_ + 1);
-  if (cepstrum->size() < static_cast<std::size_t>(output_length)) {
+  if (cepstrum->size() != static_cast<std::size_t>(output_length)) {
     cepstrum->resize(output_length);
   }
 

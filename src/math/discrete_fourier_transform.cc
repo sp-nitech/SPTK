@@ -70,10 +70,10 @@ bool DiscreteFourierTransform::Run(
   }
 
   // prepare memories
-  if (real_part_output->size() < static_cast<std::size_t>(dft_length_)) {
+  if (real_part_output->size() != static_cast<std::size_t>(dft_length_)) {
     real_part_output->resize(dft_length_);
   }
-  if (imaginary_part_output->size() < static_cast<std::size_t>(dft_length_)) {
+  if (imaginary_part_output->size() != static_cast<std::size_t>(dft_length_)) {
     imaginary_part_output->resize(dft_length_);
   }
 

@@ -73,10 +73,10 @@ bool MultistageVectorQuantization::Run(
     return false;
   }
 
-  if (codebook_index->size() < static_cast<std::size_t>(num_stage_)) {
+  if (codebook_index->size() != static_cast<std::size_t>(num_stage_)) {
     codebook_index->resize(num_stage_);
   }
-  if (buffer->quantization_error_.size() <
+  if (buffer->quantization_error_.size() !=
       static_cast<std::size_t>(num_order_ + 1)) {
     buffer->quantization_error_.resize(num_order_ + 1);
   }

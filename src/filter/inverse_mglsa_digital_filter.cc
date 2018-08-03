@@ -83,7 +83,7 @@ bool InverseMglsaDigitalFilter::Run(
   }
 
   if (0 == num_stage_) {
-    if (buffer->inverse_filter_coefficients_.size() <
+    if (buffer->inverse_filter_coefficients_.size() !=
         static_cast<std::size_t>(num_filter_order_ + 1)) {
       buffer->inverse_filter_coefficients_.resize(num_filter_order_ + 1);
     }

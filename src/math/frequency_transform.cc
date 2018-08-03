@@ -73,7 +73,7 @@ bool FrequencyTransform::Run(const std::vector<double>& minimum_phase_sequence,
 
   // prepare memory
   const int output_length(num_output_order_ + 1);
-  if (warped_sequence->size() < static_cast<std::size_t>(output_length)) {
+  if (warped_sequence->size() != static_cast<std::size_t>(output_length)) {
     warped_sequence->resize(output_length);
   }
 
@@ -84,10 +84,10 @@ bool FrequencyTransform::Run(const std::vector<double>& minimum_phase_sequence,
   }
 
   // prepare buffer
-  if (buffer->d_.size() < static_cast<std::size_t>(output_length)) {
+  if (buffer->d_.size() != static_cast<std::size_t>(output_length)) {
     buffer->d_.resize(output_length);
   }
-  if (buffer->g_.size() < static_cast<std::size_t>(output_length)) {
+  if (buffer->g_.size() != static_cast<std::size_t>(output_length)) {
     buffer->g_.resize(output_length);
   }
 

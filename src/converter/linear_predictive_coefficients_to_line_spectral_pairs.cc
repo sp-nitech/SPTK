@@ -105,7 +105,7 @@ bool LinearPredictiveCoefficientsToLineSpectralPairs::Run(
   }
 
   // prepare memory
-  if (line_spectral_pairs->size() < static_cast<std::size_t>(num_order_ + 1)) {
+  if (line_spectral_pairs->size() != static_cast<std::size_t>(num_order_ + 1)) {
     line_spectral_pairs->resize(num_order_ + 1);
   }
 
@@ -113,11 +113,11 @@ bool LinearPredictiveCoefficientsToLineSpectralPairs::Run(
   if (0 == num_order_) return true;
 
   // prepare buffer
-  if (buffer->c1_.size() <
+  if (buffer->c1_.size() !=
       static_cast<std::size_t>(num_symmetric_polynomial_order_ + 1)) {
     buffer->c1_.resize(num_symmetric_polynomial_order_ + 1);
   }
-  if (buffer->c2_.size() <
+  if (buffer->c2_.size() !=
       static_cast<std::size_t>(num_asymmetric_polynomial_order_ + 1)) {
     buffer->c2_.resize(num_asymmetric_polynomial_order_ + 1);
   }

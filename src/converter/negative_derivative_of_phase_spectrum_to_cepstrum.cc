@@ -75,10 +75,10 @@ bool NegativeDerivativeOfPhaseSpectrumToCepstrum::Run(
   }
 
   // prepare memories
-  if (cepstrum->size() < static_cast<std::size_t>(num_order_ + 1)) {
+  if (cepstrum->size() != static_cast<std::size_t>(num_order_ + 1)) {
     cepstrum->resize(num_order_ + 1);
   }
-  if (buffer->fast_fourier_transform_input_.size() <
+  if (buffer->fast_fourier_transform_input_.size() !=
       static_cast<std::size_t>(fft_length)) {
     buffer->fast_fourier_transform_input_.resize(fft_length);
   }

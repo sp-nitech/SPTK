@@ -67,7 +67,7 @@ bool FilterCoefficientNormalization::Run(
   }
 
   // prepare memory
-  if (normalized_filter_coefficients->size() <
+  if (normalized_filter_coefficients->size() !=
       static_cast<std::size_t>(num_order_ + 1)) {
     normalized_filter_coefficients->resize(num_order_ + 1);
   }

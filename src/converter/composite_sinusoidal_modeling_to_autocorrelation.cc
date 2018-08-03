@@ -70,7 +70,7 @@ bool CompositeSinusoidalModelingToAutocorrelation::Run(
   }
 
   // prepare memory
-  if (autocorrelation->size() < static_cast<std::size_t>(output_length)) {
+  if (autocorrelation->size() != static_cast<std::size_t>(output_length)) {
     autocorrelation->resize(output_length);
   }
 

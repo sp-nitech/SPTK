@@ -84,10 +84,10 @@ bool FastFourierTransform::Run(
   }
 
   // prepare memories
-  if (real_part_output->size() < static_cast<std::size_t>(fft_length_)) {
+  if (real_part_output->size() != static_cast<std::size_t>(fft_length_)) {
     real_part_output->resize(fft_length_);
   }
-  if (imaginary_part_output->size() < static_cast<std::size_t>(fft_length_)) {
+  if (imaginary_part_output->size() != static_cast<std::size_t>(fft_length_)) {
     imaginary_part_output->resize(fft_length_);
   }
 

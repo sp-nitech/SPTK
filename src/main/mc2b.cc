@@ -69,9 +69,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -a a  : all-pass constant     (double)[" << std::setw(5) << std::right << kDefaultAlpha    << "][   <= a <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       MLSA filter coefficients      (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       mel-cepstrum                  (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       mel-cepstrum                  (double)" << std::endl;
+  *stream << "       MLSA filter coefficients      (double)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;

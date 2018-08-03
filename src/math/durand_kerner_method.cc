@@ -83,7 +83,7 @@ bool DurandKernerMethod::Run(const std::vector<double>& coefficients,
   }
 
   // prepare memories
-  if (roots->size() < static_cast<std::size_t>(num_order_)) {
+  if (roots->size() != static_cast<std::size_t>(num_order_)) {
     roots->resize(num_order_);
   }
 

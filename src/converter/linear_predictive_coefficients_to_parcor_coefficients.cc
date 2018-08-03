@@ -74,7 +74,7 @@ bool LinearPredictiveCoefficientsToParcorCoefficients::Run(
 
   // prepare memory
   const int output_length(num_order_ + 1);
-  if (parcor_coefficients->size() < static_cast<std::size_t>(output_length)) {
+  if (parcor_coefficients->size() != static_cast<std::size_t>(output_length)) {
     parcor_coefficients->resize(output_length);
   }
 
@@ -91,7 +91,7 @@ bool LinearPredictiveCoefficientsToParcorCoefficients::Run(
   }
 
   // prepare buffer
-  if (buffer->a_.size() < static_cast<std::size_t>(output_length)) {
+  if (buffer->a_.size() != static_cast<std::size_t>(output_length)) {
     buffer->a_.resize(output_length);
   }
 

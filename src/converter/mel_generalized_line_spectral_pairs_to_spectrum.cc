@@ -76,7 +76,7 @@ bool MelGeneralizedLineSpectralPairsToSpectrum::Run(
 
   // prepare memory
   const int output_length(num_output_order_ + 1);
-  if (spectrum->size() < static_cast<std::size_t>(output_length)) {
+  if (spectrum->size() != static_cast<std::size_t>(output_length)) {
     spectrum->resize(output_length);
   }
 

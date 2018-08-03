@@ -437,7 +437,7 @@ bool MelGeneralizedCepstrumToMelGeneralizedCepstrum::Run(
   }
 
   if (modules_.empty()) {
-    if (output->size() < static_cast<std::size_t>(num_output_order_ + 1)) {
+    if (output->size() != static_cast<std::size_t>(num_output_order_ + 1)) {
       output->resize(num_output_order_ + 1);
     }
     std::copy(input.begin(), input.end(), output->begin());

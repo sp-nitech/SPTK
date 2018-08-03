@@ -59,7 +59,7 @@ bool InputSourceFromVector::Get(std::vector<double>* buffer) {
     return false;
   }
 
-  if (buffer->size() < static_cast<std::size_t>(read_size_)) {
+  if (buffer->size() != static_cast<std::size_t>(read_size_)) {
     buffer->resize(read_size_);
   }
 
