@@ -44,7 +44,7 @@
 
 #include "SPTK/math/frequency_transform.h"
 
-#include <algorithm>  // std::copy, std::fill_n
+#include <algorithm>  // std::copy, std::fill
 #include <cstddef>    // std::size_t
 
 namespace sptk {
@@ -64,9 +64,9 @@ bool FrequencyTransform::Run(const std::vector<double>& minimum_phase_sequence,
                              std::vector<double>* warped_sequence,
                              FrequencyTransform::Buffer* buffer) const {
   // check inputs
+  const int input_length(num_input_order_ + 1);
   if (!is_valid_ ||
-      minimum_phase_sequence.size() !=
-          static_cast<std::size_t>(num_input_order_ + 1) ||
+      minimum_phase_sequence.size() != static_cast<std::size_t>(input_length) ||
       NULL == warped_sequence || NULL == buffer) {
     return false;
   }
@@ -77,9 +77,18 @@ bool FrequencyTransform::Run(const std::vector<double>& minimum_phase_sequence,
     warped_sequence->resize(output_length);
   }
 
-  if (0.0 == alpha_ && num_input_order_ == num_output_order_) {
-    std::copy(minimum_phase_sequence.begin(), minimum_phase_sequence.end(),
-              warped_sequence->begin());
+  // handle specific case
+  if (0.0 == alpha_) {
+    if (num_input_order_ < num_output_order_) {
+      std::copy(minimum_phase_sequence.begin(), minimum_phase_sequence.end(),
+                warped_sequence->begin());
+      std::fill(warped_sequence->begin() + input_length, warped_sequence->end(),
+                0.0);
+    } else {
+      std::copy(minimum_phase_sequence.begin(),
+                minimum_phase_sequence.begin() + output_length,
+                warped_sequence->begin());
+    }
     return true;
   }
 
@@ -93,7 +102,6 @@ bool FrequencyTransform::Run(const std::vector<double>& minimum_phase_sequence,
 
   // get values
   const double* input(&(minimum_phase_sequence[0]));
-  double* output(&((*warped_sequence)[0]));
   double* d(&buffer->d_[0]);
   double* g(&buffer->g_[0]);
 
@@ -101,7 +109,7 @@ bool FrequencyTransform::Run(const std::vector<double>& minimum_phase_sequence,
   const double beta(1.0 - alpha_ * alpha_);
 
   // fill zero
-  std::fill_n(g, output_length, 0.0);
+  std::fill(buffer->g_.begin(), buffer->g_.end(), 0.0);
 
   // transform
   for (int i(0); i <= num_input_order_; ++i) {
@@ -118,9 +126,7 @@ bool FrequencyTransform::Run(const std::vector<double>& minimum_phase_sequence,
   }
 
   // save results
-  for (int j(0); j <= num_output_order_; ++j) {
-    output[j] = g[j];
-  }
+  std::copy(buffer->g_.begin(), buffer->g_.end(), warped_sequence->begin());
 
   return true;
 }
