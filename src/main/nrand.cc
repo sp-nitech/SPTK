@@ -139,7 +139,8 @@ int main(int argc, char* argv[]) {
         double variance;
         if (!sptk::ConvertStringToDouble(optarg, &variance) || variance < 0.0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -v option must be double";
+          error_message
+              << "The argument for the -v option must be a non-negative number";
           sptk::PrintErrorMessage("nrand", error_message);
           return 1;
         }
@@ -150,7 +151,8 @@ int main(int argc, char* argv[]) {
         if (!sptk::ConvertStringToDouble(optarg, &standard_deviation) ||
             standard_deviation < 0.0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -d option must be double";
+          error_message
+              << "The argument for the -d option must be a non-negative number";
           sptk::PrintErrorMessage("nrand", error_message);
           return 1;
         }
