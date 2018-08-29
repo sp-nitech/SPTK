@@ -81,7 +81,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       x2x [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       +type : input and output data types                 [" << std::setw(5) << std::right << kDefaultDataTypes  << "]" << std::endl;  // NOLINT
+  *stream << "       +type : input and output data types                [" << std::setw(5) << std::right << kDefaultDataTypes  << "]" << std::endl;  // NOLINT
   *stream << "                 "; sptk::PrintDataType("c", stream); sptk::PrintDataType("C", stream); *stream << std::endl;  // NOLINT
   *stream << "                 "; sptk::PrintDataType("s", stream); sptk::PrintDataType("S", stream); *stream << std::endl;  // NOLINT
   *stream << "                 "; sptk::PrintDataType("h", stream); sptk::PrintDataType("H", stream); *stream << std::endl;  // NOLINT
@@ -89,17 +89,17 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 "; sptk::PrintDataType("l", stream); sptk::PrintDataType("L", stream); *stream << std::endl;  // NOLINT
   *stream << "                 "; sptk::PrintDataType("f", stream); sptk::PrintDataType("d", stream); *stream << std::endl;  // NOLINT
   *stream << "                 "; sptk::PrintDataType("e", stream); sptk::PrintDataType("a", stream); *stream << std::endl;  // NOLINT
-  *stream << "       -r    : rounding                            (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultRoundingFlag) << "]" << std::endl;  // NOLINT
-  *stream << "       -e e  : warning type of out-of-range value  (   int)[" << std::setw(5) << std::right << kDefaultWarningType << "][ 0 <= e <= 2 ]" << std::endl;  // NOLINT
-  *stream << "                 0 (nothing to do)" << std::endl;
+  *stream << "       -r    : rounding                           (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultRoundingFlag) << "]" << std::endl;  // NOLINT
+  *stream << "       -e e  : warning type of out-of-range value (   int)[" << std::setw(5) << std::right << kDefaultWarningType << "][ 0 <= e <= 2 ]" << std::endl;  // NOLINT
+  *stream << "                 0 (no warning)" << std::endl;
   *stream << "                 1 (output the index to stderr)" << std::endl;
-  *stream << "                 2 (output the index to stderr and" << std::endl;
-  *stream << "                    exit immediately)" << std::endl;
-  *stream << "       -c c  : number of columns                   (   int)[" << std::setw(5) << std::right << kDefaultNumColumn   << "][ 1 <= c <=   ]" << std::endl;  // NOLINT
-  *stream << "       -f f  : print format                        (string)[" << std::setw(5) << std::right << "N/A"               << "]" << std::endl;  // NOLINT
+  *stream << "                 2 (output the index to stderr" << std::endl;
+  *stream << "                    and exit immediately)" << std::endl;
+  *stream << "       -c c  : number of columns                  (   int)[" << std::setw(5) << std::right << kDefaultNumColumn   << "][ 1 <= c <=   ]" << std::endl;  // NOLINT
+  *stream << "       -f f  : print format                       (string)[" << std::setw(5) << std::right << "N/A"               << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       data sequence                                       [stdin]" << std::endl;  // NOLINT
+  *stream << "       data sequence                                      [stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
   *stream << "       transformed data sequence" << std::endl;
   *stream << "  notice:" << std::endl;

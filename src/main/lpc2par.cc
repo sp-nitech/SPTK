@@ -72,10 +72,10 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -g g  : gamma of generalized cepstrum           (double)[" << std::setw(5) << std::right << kDefaultGamma       << "][   <= g <=   ]" << std::endl;  // NOLINT
   *stream << "       -c c  : gamma of generalized cepstrum = -1 / c  (   int)[" << std::setw(5) << std::right << "N/A"               << "][ 1 <= c <=   ]" << std::endl;  // NOLINT
   *stream << "       -e e  : warning type of unstable index          (   int)[" << std::setw(5) << std::right << kDefaultWarningType << "][ 0 <= e <= 2 ]" << std::endl;  // NOLINT
-  *stream << "                 0 (nothing to do)" << std::endl;
+  *stream << "                 0 (no warning)" << std::endl;
   *stream << "                 1 (output the index to stderr)" << std::endl;
-  *stream << "                 2 (output the index to stderr and" << std::endl;
-  *stream << "                    exit immediately)" << std::endl;
+  *stream << "                 2 (output the index to stderr" << std::endl;
+  *stream << "                    and exit immediately)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       linear predictive coefficients                  (double)[stdin]" << std::endl;  // NOLINT

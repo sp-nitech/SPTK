@@ -69,19 +69,19 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       levdur [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of autocorrelation            (   int)[" << std::setw(5) << std::right << kDefaultNumOrder    << "][   0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -f f  : minimum value of the determinant of (double)[" << std::setw(5) << std::right << kDefaultEpsilon     << "][ 0.0 <= f <=   ]" << std::endl;  // NOLINT
-  *stream << "               normal matrix" << std::endl;
-  *stream << "       -e e  : warning type of unstable index      (   int)[" << std::setw(5) << std::right << kDefaultWarningType << "][   0 <= e <= 2 ]" << std::endl;  // NOLINT
-  *stream << "                 0 (nothing to do)" << std::endl;
+  *stream << "       -m m  : order of autocorrelation         (   int)[" << std::setw(5) << std::right << kDefaultNumOrder    << "][   0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -f f  : minimum value of the determinant (double)[" << std::setw(5) << std::right << kDefaultEpsilon     << "][ 0.0 <= f <=   ]" << std::endl;  // NOLINT
+  *stream << "               of normal matrix" << std::endl;
+  *stream << "       -e e  : warning type of unstable index   (   int)[" << std::setw(5) << std::right << kDefaultWarningType << "][   0 <= e <= 2 ]" << std::endl;  // NOLINT
+  *stream << "                 0 (no warning)" << std::endl;
   *stream << "                 1 (output the index to stderr)" << std::endl;
-  *stream << "                 2 (output the index to stderr and" << std::endl;
-  *stream << "                    exit immediately)" << std::endl;
+  *stream << "                 2 (output the index to stderr" << std::endl;
+  *stream << "                    and exit immediately)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       autocorrelation sequence                    (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       autocorrelation sequence                 (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       linear predictive coefficients              (double)" << std::endl;  // NOLINT
+  *stream << "       linear predictive coefficients           (double)" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;

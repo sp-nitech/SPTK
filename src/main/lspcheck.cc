@@ -103,7 +103,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 2 (frequency [kHz])" << std::endl;
   *stream << "                 3 (frequency [Hz])" << std::endl;
   *stream << "       -e e  : warning type of unstable index        (   int)[" << std::setw(5) << std::right << kDefaultWarningType       << "][   0 <= e <= 2   ]" << std::endl;  // NOLINT
-  *stream << "                 0 (nothing to do)" << std::endl;
+  *stream << "                 0 (no warning)" << std::endl;
   *stream << "                 1 (output the index to stderr)" << std::endl;
   *stream << "                 2 (output the index to stderr and" << std::endl;
   *stream << "                    exit immediately)" << std::endl;

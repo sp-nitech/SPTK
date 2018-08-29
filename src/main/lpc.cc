@@ -75,7 +75,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -f f  : minimum value of the determinant of     (double)[" << std::setw(5) << std::right << kDefaultEpsilon     << "][ 0.0 <= f <=   ]" << std::endl;  // NOLINT
   *stream << "               normal matrix" << std::endl;
   *stream << "       -e e  : warning type of unstable index          (   int)[" << std::setw(5) << std::right << kDefaultWarningType << "][   0 <= e <= 2 ]" << std::endl;  // NOLINT
-  *stream << "                 0 (nothing to do)" << std::endl;
+  *stream << "                 0 (no warning)" << std::endl;
   *stream << "                 1 (output the index to stderr)" << std::endl;
   *stream << "                 2 (output the index to stderr and" << std::endl;
   *stream << "                    exit immediately)" << std::endl;
