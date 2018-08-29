@@ -50,12 +50,12 @@
 namespace sptk {
 
 bool CepstrumToMinimumPhaseImpulseResponse::Run(
-    const std::vector<double>& cepstrum_coefficient,
+    const std::vector<double>& cepstrum,
     std::vector<double>* minimum_phase_impulse_response) const {
   // check inputs
-  if (cepstrum_coefficient.size() !=
-          static_cast<std::size_t>(num_input_order_ + 1) ||
-      NULL == minimum_phase_impulse_response || !is_valid_) {
+  if (!is_valid_ ||
+      cepstrum.size() != static_cast<std::size_t>(num_input_order_ + 1) ||
+      NULL == minimum_phase_impulse_response) {
     return false;
   }
 
@@ -65,15 +65,13 @@ bool CepstrumToMinimumPhaseImpulseResponse::Run(
     minimum_phase_impulse_response->resize(num_output_order_ + 1);
   }
 
-  const double* c(&cepstrum_coefficient[0]);
+  const double* c(&cepstrum[0]);
   double* h(&((*minimum_phase_impulse_response)[0]));
-  int upl;
-  double d;
 
   h[0] = std::exp(c[0]);
   for (int n(1); n <= num_output_order_; ++n) {
-    d = 0;
-    upl = (n > num_input_order_) ? num_input_order_ : n;
+    double d(0);
+    const int upl((num_input_order_ < n) ? num_input_order_ : n);
     for (int k(1); k <= upl; ++k) {
       d += k * c[k] * h[n - k];
     }

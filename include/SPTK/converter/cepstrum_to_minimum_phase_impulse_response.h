@@ -84,7 +84,7 @@ class CepstrumToMinimumPhaseImpulseResponse {
   }
 
   //
-  bool Run(const std::vector<double>& cepstrum_coefficient,
+  bool Run(const std::vector<double>& cepstrum,
            std::vector<double>* minimum_phase_sequense) const;
 
  private:

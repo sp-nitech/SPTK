@@ -54,8 +54,7 @@ DistanceCalculator::DistanceCalculator(int num_order,
     : num_order_(num_order),
       distance_metric_(distance_metric),
       is_valid_(true) {
-  if (num_order_ < 0 || distance_metric_ < 0 ||
-      kNumMetrics <= distance_metric_) {
+  if (num_order_ < 0 || kNumMetrics == distance_metric_) {
     is_valid_ = false;
   }
 }
