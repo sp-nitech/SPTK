@@ -44,7 +44,7 @@
 
 #include "SPTK/converter/linear_predictive_coefficients_to_parcor_coefficients.h"
 
-#include <algorithm>   // std::copy, std::fill_n, std::transform
+#include <algorithm>   // std::copy, std::fill, std::transform
 #include <cmath>       // std::fabs
 #include <cstddef>     // std::size_t
 #include <functional>  // std::bind1st, std::multiplies
@@ -86,7 +86,8 @@ bool LinearPredictiveCoefficientsToParcorCoefficients::Run(
     return true;
   }
   if (0.0 == gamma_) {
-    std::fill_n(parcor_coefficients->begin() + 1, num_order_, 0.0);
+    std::fill(parcor_coefficients->begin() + 1, parcor_coefficients->end(),
+              0.0);
     return true;
   }
 

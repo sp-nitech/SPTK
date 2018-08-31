@@ -112,9 +112,9 @@ bool FrequencyTransform::Run(const std::vector<double>& minimum_phase_sequence,
   std::fill(buffer->g_.begin(), buffer->g_.end(), 0.0);
 
   // transform
-  for (int i(0); i <= num_input_order_; ++i) {
+  for (int i(num_input_order_); 0 <= i; --i) {
     d[0] = g[0];
-    g[0] = input[num_input_order_ - i] + alpha_ * d[0];
+    g[0] = input[i] + alpha_ * d[0];
     if (1 <= num_output_order_) {
       d[1] = g[1];
       g[1] = beta * d[0] + alpha_ * d[1];
