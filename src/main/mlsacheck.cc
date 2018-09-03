@@ -296,30 +296,23 @@ int main(int argc, char* argv[]) {
   const int length(num_filter_order + 1);
   std::vector<double> input_mel_cepstrum(length);
   std::vector<double> output_mel_cepstrum(length);
+  std::vector<double>* output_ptr(modification_flag ? &output_mel_cepstrum
+                                                    : NULL);
+  std::vector<double>* write_ptr(modification_flag ? &output_mel_cepstrum
+                                                   : &input_mel_cepstrum);
 
   for (int frame_index(0); sptk::ReadStream(
            false, 0, 0, length, &input_mel_cepstrum, &input_stream, NULL);
        ++frame_index) {
     bool is_stable(false);
     double maximum_amplitude(0.0);
-    if (modification_flag) {
-      if (!mlsa_digital_filter_stability_check.Run(
-              input_mel_cepstrum, &output_mel_cepstrum, &is_stable,
-              &maximum_amplitude, &buffer)) {
-        std::ostringstream error_message;
-        error_message << "Failed to check stability of MLSA digital filter";
-        sptk::PrintErrorMessage("mlsacheck", error_message);
-        return 1;
-      }
-    } else {
-      if (!mlsa_digital_filter_stability_check.Run(
-              input_mel_cepstrum, NULL, &is_stable, &maximum_amplitude,
-              &buffer)) {
-        std::ostringstream error_message;
-        error_message << "Failed to check stability of MLSA digital filter";
-        sptk::PrintErrorMessage("mlsacheck", error_message);
-        return 1;
-      }
+    if (!mlsa_digital_filter_stability_check.Run(input_mel_cepstrum, output_ptr,
+                                                 &is_stable, &maximum_amplitude,
+                                                 &buffer)) {
+      std::ostringstream error_message;
+      error_message << "Failed to check stability of MLSA digital filter";
+      sptk::PrintErrorMessage("mlsacheck", error_message);
+      return 1;
     }
 
     if (!is_stable && kIgnore != warning_type) {
@@ -331,21 +324,11 @@ int main(int argc, char* argv[]) {
       if (kExit == warning_type) return 1;
     }
 
-    if (modification_flag) {
-      if (!sptk::WriteStream(0, length, output_mel_cepstrum, &std::cout,
-                             NULL)) {
-        std::ostringstream error_message;
-        error_message << "Failed to write mel-cepstrum";
-        sptk::PrintErrorMessage("mlsacheck", error_message);
-        return 1;
-      }
-    } else {
-      if (!sptk::WriteStream(0, length, input_mel_cepstrum, &std::cout, NULL)) {
-        std::ostringstream error_message;
-        error_message << "Failed to write mel-cepstrum";
-        sptk::PrintErrorMessage("mlsacheck", error_message);
-        return 1;
-      }
+    if (!sptk::WriteStream(0, length, *write_ptr, &std::cout, NULL)) {
+      std::ostringstream error_message;
+      error_message << "Failed to write mel-cepstrum";
+      sptk::PrintErrorMessage("mlsacheck", error_message);
+      return 1;
     }
   }
 

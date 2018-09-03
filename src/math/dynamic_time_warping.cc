@@ -133,7 +133,8 @@ bool DynamicTimeWarping::Run(
     double* total_score) const {
   // check inputs
   if (!is_valid_ || query_vector_sequence.empty() ||
-      reference_vector_sequence.empty() || NULL == viterbi_path) {
+      reference_vector_sequence.empty() || NULL == viterbi_path ||
+      NULL == total_score) {
     return false;
   }
 
@@ -211,10 +212,8 @@ bool DynamicTimeWarping::Run(
     return false;
   }
 
-  if (NULL != total_score) {
-    *total_score = cell[num_query_vector - 1][num_reference_vector - 1].score /
-                   (num_query_vector + num_reference_vector);
-  }
+  *total_score = cell[num_query_vector - 1][num_reference_vector - 1].score /
+                 (num_query_vector + num_reference_vector);
 
   {
     bool skip_transition(false);

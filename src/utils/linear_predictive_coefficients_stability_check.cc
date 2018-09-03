@@ -42,59 +42,84 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_UTILS_LINE_SPECTRAL_PAIRS_STABILITY_CHECK_H_
-#define SPTK_UTILS_LINE_SPECTRAL_PAIRS_STABILITY_CHECK_H_
+#include "SPTK/utils/linear_predictive_coefficients_stability_check.h"
 
-#include <vector>  // std::vector
+#include <cmath>    // std::fabs
+#include <cstddef>  // std::size_t
 
-#include "SPTK/utils/sptk_utils.h"
+namespace {
+
+const double kMinimumMargin(1e-16);
+
+}  // namespace
 
 namespace sptk {
 
-class LineSpectralPairsStabilityCheck {
- public:
-  //
-  LineSpectralPairsStabilityCheck(int num_order, double minimum_distance);
+LinearPredictiveCoefficientsStabilityCheck::
+    LinearPredictiveCoefficientsStabilityCheck(int num_order, double margin)
+    : num_order_(num_order),
+      margin_(margin),
+      linear_predictive_coefficients_to_parcor_coefficients_(num_order_, 1.0),
+      parcor_coefficients_to_linear_predictive_coefficients_(num_order_),
+      is_valid_(true) {
+  if (num_order_ < 0 || margin_ < kMinimumMargin || 1.0 <= margin_ ||
+      !linear_predictive_coefficients_to_parcor_coefficients_.IsValid() ||
+      !parcor_coefficients_to_linear_predictive_coefficients_.IsValid()) {
+    is_valid_ = false;
+  }
+}
 
-  //
-  virtual ~LineSpectralPairsStabilityCheck() {
+bool LinearPredictiveCoefficientsStabilityCheck::Run(
+    const std::vector<double>& linear_predictive_coefficients,
+    std::vector<double>* modified_linear_predictive_coefficients,
+    bool* is_stable,
+    LinearPredictiveCoefficientsStabilityCheck::Buffer* buffer) const {
+  if (!is_valid_ ||
+      linear_predictive_coefficients.size() !=
+          static_cast<std::size_t>(num_order_ + 1) ||
+      NULL == is_stable || NULL == buffer) {
+    return false;
   }
 
-  //
-  int GetNumOrder() const {
-    return num_order_;
+  if (NULL != modified_linear_predictive_coefficients &&
+      modified_linear_predictive_coefficients->size() !=
+          static_cast<std::size_t>(num_order_ + 1)) {
+    modified_linear_predictive_coefficients->resize(num_order_ + 1);
   }
 
-  //
-  double GetMinimumDistance() const {
-    return minimum_distance_;
+  *is_stable = true;
+  if (0 == num_order_) {
+    if (NULL != modified_linear_predictive_coefficients) {
+      (*modified_linear_predictive_coefficients)[0] =
+          linear_predictive_coefficients[0];
+    }
+    return true;
   }
 
-  //
-  bool IsValid() const {
-    return is_valid_;
+  if (!linear_predictive_coefficients_to_parcor_coefficients_.Run(
+          linear_predictive_coefficients, &buffer->parcor_coefficients_,
+          is_stable, &buffer->conversion_buffer_)) {
+    return false;
   }
 
-  // Check stability of line spectral pairs.
-  // The 2nd argument of this function is allowed to be NULL.
-  bool Run(const std::vector<double>& line_spectral_pairs,
-           std::vector<double>* modified_line_spectral_pairs,
-           bool* is_stable) const;
+  if (NULL != modified_linear_predictive_coefficients) {
+    double* parcor_coefficients(&buffer->parcor_coefficients_[0]);
+    const double bound(1.0 - margin_);
+    for (int i(1); i <= num_order_; ++i) {
+      if (bound < std::fabs(parcor_coefficients[i])) {
+        parcor_coefficients[i] =
+            (0.0 < parcor_coefficients[i]) ? bound : -bound;
+      }
+    }
+    if (!parcor_coefficients_to_linear_predictive_coefficients_.Run(
+            buffer->parcor_coefficients_,
+            modified_linear_predictive_coefficients,
+            &buffer->reconversion_buffer_)) {
+      return false;
+    }
+  }
 
- private:
-  //
-  const int num_order_;
-
-  //
-  const double minimum_distance_;
-
-  //
-  bool is_valid_;
-
-  //
-  DISALLOW_COPY_AND_ASSIGN(LineSpectralPairsStabilityCheck);
-};
+  return true;
+}
 
 }  // namespace sptk
-
-#endif  // SPTK_UTILS_LINE_SPECTRAL_PAIRS_STABILITY_CHECK_H_
