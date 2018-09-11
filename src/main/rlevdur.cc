@@ -54,20 +54,17 @@
 namespace {
 
 const int kDefaultNumOrder(25);
-const double kDefaultEpsilon(0.0);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
   *stream << " rlevdur - solve an autocorrelation normal equation" << std::endl;
-  *stream << "           using Reverse Levinson-Durbin recursion" << std::endl;
+  *stream << "           using reverse Levinson-Durbin recursion" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       rlevdur [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of linear predictive coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumOrder << "][   0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -f f  : minimum value of the determinant of     (double)[" << std::setw(5) << std::right << kDefaultEpsilon  << "][ 0.0 <= f <=   ]" << std::endl;  // NOLINT
-  *stream << "               normal matrix" << std::endl;
+  *stream << "       -m m  : order of linear predictive coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumOrder << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       linear predictive coefficients                  (double)[stdin]" << std::endl;  // NOLINT
@@ -83,10 +80,9 @@ void PrintUsage(std::ostream* stream) {
 
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
-  double epsilon(kDefaultEpsilon);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "m:f:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "m:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -96,16 +92,6 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -m option must be a "
                         << "non-negative integer";
-          sptk::PrintErrorMessage("rlevdur", error_message);
-          return 1;
-        }
-        break;
-      }
-      case 'f': {
-        if (!sptk::ConvertStringToDouble(optarg, &epsilon) || epsilon < 0.0) {
-          std::ostringstream error_message;
-          error_message
-              << "The argument for the -f option must be a non-negative number";
           sptk::PrintErrorMessage("rlevdur", error_message);
           return 1;
         }
@@ -144,7 +130,7 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
   sptk::ReverseLevinsonDurbinRecursion reverse_levinson_durbin_recursion(
-      num_order, epsilon);
+      num_order);
   sptk::ReverseLevinsonDurbinRecursion::Buffer buffer;
   if (!reverse_levinson_durbin_recursion.IsValid()) {
     std::ostringstream error_message;

@@ -44,15 +44,13 @@
 
 #include "SPTK/math/reverse_levinson_durbin_recursion.h"
 
-#include <cmath>    // std::fabs
 #include <cstddef>  // std::size_t
 
 namespace sptk {
 
-ReverseLevinsonDurbinRecursion::ReverseLevinsonDurbinRecursion(int num_order,
-                                                               double epsilon)
-    : num_order_(num_order), epsilon_(epsilon), is_valid_(true) {
-  if (num_order_ < 0 || epsilon_ < 0.0) {
+ReverseLevinsonDurbinRecursion::ReverseLevinsonDurbinRecursion(int num_order)
+    : num_order_(num_order), is_valid_(true) {
+  if (num_order_ < 0) {
     is_valid_ = false;
   }
 }
@@ -104,7 +102,7 @@ bool ReverseLevinsonDurbinRecursion::Run(
 
   for (int i(num_order_ - 1); 0 < i; --i) {
     const double rmd(1.0 - buffer->u_[i + 1][0] * buffer->u_[i + 1][0]);
-    if (std::fabs(rmd) <= epsilon_) {
+    if (0.0 == rmd) {
       return false;
     }
     const double inverse_rmd(1.0 / rmd);

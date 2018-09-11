@@ -67,7 +67,7 @@ class LevinsonDurbinRecursion {
   };
 
   //
-  LevinsonDurbinRecursion(int num_order, double epsilon);
+  LevinsonDurbinRecursion(int num_order);
 
   //
   virtual ~LevinsonDurbinRecursion() {
@@ -76,11 +76,6 @@ class LevinsonDurbinRecursion {
   //
   int GetNumOrder() const {
     return num_order_;
-  }
-
-  //
-  double GetEpsilon() const {
-    return epsilon_;
   }
 
   //
@@ -96,9 +91,6 @@ class LevinsonDurbinRecursion {
  private:
   //
   const int num_order_;
-
-  //
-  const double epsilon_;
 
   //
   bool is_valid_;

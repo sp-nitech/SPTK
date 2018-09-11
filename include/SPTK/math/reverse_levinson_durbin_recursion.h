@@ -69,7 +69,7 @@ class ReverseLevinsonDurbinRecursion {
   };
 
   //
-  ReverseLevinsonDurbinRecursion(int num_order, double epsilon);
+  ReverseLevinsonDurbinRecursion(int num_order);
 
   //
   virtual ~ReverseLevinsonDurbinRecursion() {
@@ -78,11 +78,6 @@ class ReverseLevinsonDurbinRecursion {
   //
   int GetNumOrder() const {
     return num_order_;
-  }
-
-  //
-  double GetEpsilon() const {
-    return epsilon_;
   }
 
   //
@@ -98,9 +93,6 @@ class ReverseLevinsonDurbinRecursion {
  private:
   //
   const int num_order_;
-
-  //
-  const double epsilon_;
 
   //
   bool is_valid_;

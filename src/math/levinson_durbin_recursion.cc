@@ -49,9 +49,9 @@
 
 namespace sptk {
 
-LevinsonDurbinRecursion::LevinsonDurbinRecursion(int num_order, double epsilon)
-    : num_order_(num_order), epsilon_(epsilon), is_valid_(true) {
-  if (num_order_ < 0 || epsilon_ < 0.0) {
+LevinsonDurbinRecursion::LevinsonDurbinRecursion(int num_order)
+    : num_order_(num_order), is_valid_(true) {
+  if (num_order_ < 0) {
     is_valid_ = false;
   }
 }
@@ -89,7 +89,7 @@ bool LevinsonDurbinRecursion::Run(
   *is_stable = true;
 
   double rmd(input[0]);
-  if (std::fabs(rmd) <= epsilon_ || std::isnan(rmd)) {
+  if (0.0 == rmd || std::isnan(rmd)) {
     return false;
   }
 
@@ -108,7 +108,7 @@ bool LevinsonDurbinRecursion::Run(
     output[i] = mue;
 
     rmd *= 1.0 - mue * mue;
-    if (std::fabs(rmd) <= epsilon_ || std::isnan(rmd)) {
+    if (0.0 == rmd || std::isnan(rmd)) {
       return false;
     }
 
