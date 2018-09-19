@@ -47,14 +47,13 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <vector>
 
 #include "SPTK/quantizer/mu_law_compression.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
 
-const double kDefaultAbsoluteMaxValue(32768);
+const double kDefaultAbsoluteMaximumValue(32768);
 const int kDefaultCompressionFactor(255);
 
 void PrintUsage(std::ostream* stream) {
@@ -65,8 +64,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       ulaw [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -v v  : absolute maximum of input (double)[" << std::setw(5) << std::right << kDefaultAbsoluteMaxValue  << "][ 0.0 <  v <=   ]" << std::endl;  // NOLINT
-  *stream << "       -u u  : compression factor        (   int)[" << std::setw(5) << std::right << kDefaultCompressionFactor << "][   0 <  u <=   ]" << std::endl;  // NOLINT
+  *stream << "       -v v  : absolute maximum of input (double)[" << std::setw(5) << std::right << kDefaultAbsoluteMaximumValue << "][ 0.0 <  v <=   ]" << std::endl;  // NOLINT
+  *stream << "       -u u  : compression factor        (   int)[" << std::setw(5) << std::right << kDefaultCompressionFactor    << "][   0 <  u <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       input sequence                    (double)[stdin]" << std::endl;  // NOLINT
@@ -81,7 +80,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-  double absolute_max_value(kDefaultAbsoluteMaxValue);
+  double absolute_maximum_value(kDefaultAbsoluteMaximumValue);
   int compression_factor(kDefaultCompressionFactor);
 
   for (;;) {
@@ -90,8 +89,8 @@ int main(int argc, char* argv[]) {
 
     switch (option_char) {
       case 'v': {
-        if (!sptk::ConvertStringToDouble(optarg, &absolute_max_value) ||
-            absolute_max_value <= 0.0) {
+        if (!sptk::ConvertStringToDouble(optarg, &absolute_maximum_value) ||
+            absolute_maximum_value <= 0.0) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -v option must be a positive number";
@@ -144,7 +143,7 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
   // prepare for u-law compression
-  sptk::MuLawCompression mu_law_compression(absolute_max_value,
+  sptk::MuLawCompression mu_law_compression(absolute_maximum_value,
                                             compression_factor);
   if (!mu_law_compression.IsValid()) {
     std::ostringstream error_message;

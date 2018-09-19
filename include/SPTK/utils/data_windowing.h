@@ -58,7 +58,7 @@ class DataWindowing {
     kNone = 0,
     kPower,
     kMagnitude,
-    kNumNormalizationTypes,
+    kNumNormalizationTypes
   };
 
   //
@@ -69,7 +69,7 @@ class DataWindowing {
     kBartlett,
     kTrapezoidal,
     kRectangular,
-    kNumWindowTypes,
+    kNumWindowTypes
   };
 
   //
