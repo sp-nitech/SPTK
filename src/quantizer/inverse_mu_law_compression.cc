@@ -48,12 +48,12 @@
 
 namespace sptk {
 
-InverseMuLawCompression::InverseMuLawCompression(double absolute_max_value,
+InverseMuLawCompression::InverseMuLawCompression(double absolute_maximum_value,
                                                  int compression_factor)
-    : absolute_max_value_(absolute_max_value),
+    : absolute_maximum_value_(absolute_maximum_value),
       compression_factor_(compression_factor),
       is_valid_(true) {
-  if (absolute_max_value_ <= 0.0 || compression_factor_ <= 0) {
+  if (absolute_maximum_value_ <= 0.0 || compression_factor_ <= 0) {
     is_valid_ = false;
   }
 }
@@ -63,8 +63,8 @@ bool InverseMuLawCompression::Run(double input, double* output) const {
     return false;
   }
 
-  const double ratio(std::fabs(input) / absolute_max_value_);
-  *output = sptk::ExtractSign(input) * absolute_max_value_ *
+  const double ratio(std::fabs(input) / absolute_maximum_value_);
+  *output = sptk::ExtractSign(input) * absolute_maximum_value_ *
             (std::pow(1.0 + compression_factor_, ratio) - 1.0) /
             compression_factor_;
 

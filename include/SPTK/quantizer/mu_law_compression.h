@@ -52,15 +52,15 @@ namespace sptk {
 class MuLawCompression {
  public:
   //
-  MuLawCompression(double absolute_max_value, int compression_factor);
+  MuLawCompression(double absolute_maximum_value, int compression_factor);
 
   //
   virtual ~MuLawCompression() {
   }
 
   //
-  double GetAbsoluteMaxValue() const {
-    return absolute_max_value_;
+  double GetAbsoluteMaximumValue() const {
+    return absolute_maximum_value_;
   }
 
   //
@@ -78,7 +78,7 @@ class MuLawCompression {
 
  private:
   //
-  const double absolute_max_value_;
+  const double absolute_maximum_value_;
 
   //
   const int compression_factor_;
