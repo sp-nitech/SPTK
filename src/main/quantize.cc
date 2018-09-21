@@ -48,29 +48,40 @@
 #include <iostream>
 #include <sstream>
 
-#include "SPTK/quantizer/inverse_mu_law_compression.h"
+#include "SPTK/quantizer/uniform_quantization.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
 
+enum OutputFormats { kNonNegativeInteger, kInteger, kNumOutputFormats };
+
 const double kDefaultAbsoluteMaximumValue(32768.0);
-const int kDefaultCompressionFactor(255);
+const int kDefaultNumBit(8);
+const sptk::UniformQuantization::QuantizationType kDefaultQuantizationType(
+    sptk::UniformQuantization::QuantizationType::kMidRise);
+const OutputFormats kDefaultOutputFormat(kNonNegativeInteger);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " iulaw - inverse u-law pulse code modulation" << std::endl;
+  *stream << " quantize - uniform quantization" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
-  *stream << "       iulaw [ options ] [ infile ] > stdout" << std::endl;
+  *stream << "       quantize [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -v v  : absolute maximum of input (double)[" << std::setw(5) << std::right << kDefaultAbsoluteMaximumValue << "][ 0.0 <  v <=   ]" << std::endl;  // NOLINT
-  *stream << "       -u u  : compression factor        (   int)[" << std::setw(5) << std::right << kDefaultCompressionFactor    << "][   0 <  u <=   ]" << std::endl;  // NOLINT
+  *stream << "       -b b  : number of bits per sample (   int)[" << std::setw(5) << std::right << kDefaultNumBit               << "][   1 <= b <=   ]" << std::endl;  // NOLINT
+  *stream << "       -t t  : quantization type         (   int)[" << std::setw(5) << std::right << kDefaultQuantizationType     << "][   0 <= t <= 1 ]" << std::endl;  // NOLINT
+  *stream << "                 0 (mid-rise)"  << std::endl;
+  *stream << "                 1 (mid-tread)"  << std::endl;
+  *stream << "       -o o  : output format             (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat         << "][   0 <= o <= 1 ]" << std::endl;  // NOLINT
+  *stream << "                 0 (non-negative integer)"  << std::endl;
+  *stream << "                 1 (integer)"  << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       input sequence                    (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       decompressed sequence             (double)" << std::endl;
+  *stream << "       quantized sequence                (   int)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -81,10 +92,13 @@ void PrintUsage(std::ostream* stream) {
 
 int main(int argc, char* argv[]) {
   double absolute_maximum_value(kDefaultAbsoluteMaximumValue);
-  int compression_factor(kDefaultCompressionFactor);
+  int num_bit(kDefaultNumBit);
+  sptk::UniformQuantization::QuantizationType quantization_type(
+      kDefaultQuantizationType);
+  OutputFormats output_format(kDefaultOutputFormat);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "v:u:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "v:b:t:o:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -94,20 +108,53 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -v option must be a positive number";
-          sptk::PrintErrorMessage("iulaw", error_message);
+          sptk::PrintErrorMessage("quantize", error_message);
           return 1;
         }
         break;
       }
-      case 'u': {
-        if (!sptk::ConvertStringToInteger(optarg, &compression_factor) ||
-            compression_factor <= 0) {
+      case 'b': {
+        if (!sptk::ConvertStringToInteger(optarg, &num_bit) || num_bit <= 0) {
           std::ostringstream error_message;
           error_message
-              << "The argument for the -u option must be a positive integer";
-          sptk::PrintErrorMessage("iulaw", error_message);
+              << "The argument for the -b option must be a positive integer";
+          sptk::PrintErrorMessage("quantize", error_message);
           return 1;
         }
+        break;
+      }
+      case 't': {
+        const int min(0);
+        const int max(
+            static_cast<int>(sptk::UniformQuantization::QuantizationType::
+                                 kNumQuantizationTypes) -
+            1);
+        int tmp;
+        if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
+            !sptk::IsInRange(tmp, min, max)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -t option must be an integer "
+                        << "in the range of " << min << " to " << max;
+          sptk::PrintErrorMessage("quantize", error_message);
+          return 1;
+        }
+        quantization_type =
+            static_cast<sptk::UniformQuantization::QuantizationType>(tmp);
+        break;
+      }
+      case 'o': {
+        const int min(0);
+        const int max(static_cast<int>(kNumOutputFormats) - 1);
+        int tmp;
+        if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
+            !sptk::IsInRange(tmp, min, max)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -o option must be an integer "
+                        << "in the range of " << min << " to " << max;
+          sptk::PrintErrorMessage("quantize", error_message);
+          return 1;
+        }
+        output_format = static_cast<OutputFormats>(tmp);
         break;
       }
       case 'h': {
@@ -126,7 +173,7 @@ int main(int argc, char* argv[]) {
   if (1 < num_input_files) {
     std::ostringstream error_message;
     error_message << "Too many input files";
-    sptk::PrintErrorMessage("iulaw", error_message);
+    sptk::PrintErrorMessage("quantize", error_message);
     return 1;
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
@@ -137,36 +184,40 @@ int main(int argc, char* argv[]) {
   if (ifs.fail() && NULL != input_file) {
     std::ostringstream error_message;
     error_message << "Cannot open file " << input_file;
-    sptk::PrintErrorMessage("iulaw", error_message);
+    sptk::PrintErrorMessage("quantize", error_message);
     return 1;
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for u-law decompression
-  sptk::InverseMuLawCompression inverse_mu_law_compression(
-      absolute_maximum_value, compression_factor);
-  if (!inverse_mu_law_compression.IsValid()) {
+  // prepare for quantization
+  sptk::UniformQuantization uniform_quantization(absolute_maximum_value,
+                                                 num_bit, quantization_type);
+  if (!uniform_quantization.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for u-Law decompression";
-    sptk::PrintErrorMessage("iulaw", error_message);
+    error_message << "Failed to set condition for quantization";
+    sptk::PrintErrorMessage("quantize", error_message);
     return 1;
   }
 
   double input;
-  double output;
+  int output;
 
   while (sptk::ReadStream(&input, &input_stream)) {
-    if (!inverse_mu_law_compression.Run(input, &output)) {
+    if (!uniform_quantization.Run(input, &output)) {
       std::ostringstream error_message;
-      error_message << "Failed to decompress";
-      sptk::PrintErrorMessage("iulaw", error_message);
+      error_message << "Failed to quantize";
+      sptk::PrintErrorMessage("quantize", error_message);
       return 1;
+    }
+
+    if (kInteger == output_format) {
+      output -= uniform_quantization.GetQuantizationLevels() / 2;
     }
 
     if (!sptk::WriteStream(output, &std::cout)) {
       std::ostringstream error_message;
-      error_message << "Failed to write a decompressed sequence";
-      sptk::PrintErrorMessage("iulaw", error_message);
+      error_message << "Failed to write a quantized sequence";
+      sptk::PrintErrorMessage("quantize", error_message);
       return 1;
     }
   }

@@ -53,7 +53,7 @@
 
 namespace {
 
-const double kDefaultAbsoluteMaximumValue(32768);
+const double kDefaultAbsoluteMaximumValue(32768.0);
 const int kDefaultCompressionFactor(255);
 
 void PrintUsage(std::ostream* stream) {

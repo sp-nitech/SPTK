@@ -42,40 +42,38 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_MATH_LEVINSON_DURBIN_RECURSION_H_
-#define SPTK_MATH_LEVINSON_DURBIN_RECURSION_H_
+#ifndef SPTK_QUANTIZER_INVERSE_UNIFORM_QUANTIZATION_H_
+#define SPTK_QUANTIZER_INVERSE_UNIFORM_QUANTIZATION_H_
 
-#include <vector>  // std::vector
-
+#include "SPTK/quantizer/uniform_quantization.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
-class LevinsonDurbinRecursion {
+class InverseUniformQuantization {
  public:
-  class Buffer {
-   public:
-    Buffer() {
-    }
-    virtual ~Buffer() {
-    }
-
-   private:
-    std::vector<double> c_;
-    friend class LevinsonDurbinRecursion;
-    DISALLOW_COPY_AND_ASSIGN(Buffer);
-  };
+  //
+  InverseUniformQuantization(
+      double absolute_maximum_value, int num_bit,
+      UniformQuantization::QuantizationType quantization_type);
 
   //
-  explicit LevinsonDurbinRecursion(int num_order);
-
-  //
-  virtual ~LevinsonDurbinRecursion() {
+  virtual ~InverseUniformQuantization() {
   }
 
   //
-  int GetNumOrder() const {
-    return num_order_;
+  double GetAbsoluteMaximumValue() const {
+    return absolute_maximum_value_;
+  }
+
+  //
+  int GetNumBit() const {
+    return num_bit_;
+  }
+
+  //
+  UniformQuantization::QuantizationType GetQuantizationType() const {
+    return quantization_type_;
   }
 
   //
@@ -84,21 +82,36 @@ class LevinsonDurbinRecursion {
   }
 
   //
-  bool Run(const std::vector<double>& autocorrelation_sequence,
-           std::vector<double>* linear_predictive_coefficients, bool* is_stable,
-           LevinsonDurbinRecursion::Buffer* buffer) const;
+  int GetQuantizationLevels() const {
+    return quantization_levels_;
+  }
+
+  //
+  bool Run(int input, double* output) const;
 
  private:
   //
-  const int num_order_;
+  const double absolute_maximum_value_;
+
+  //
+  const int num_bit_;
+
+  //
+  const UniformQuantization::QuantizationType quantization_type_;
 
   //
   bool is_valid_;
 
   //
-  DISALLOW_COPY_AND_ASSIGN(LevinsonDurbinRecursion);
+  int quantization_levels_;
+
+  //
+  double step_size_;
+
+  //
+  DISALLOW_COPY_AND_ASSIGN(InverseUniformQuantization);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_MATH_LEVINSON_DURBIN_RECURSION_H_
+#endif  // SPTK_QUANTIZER_INVERSE_UNIFORM_QUANTIZATION_H_

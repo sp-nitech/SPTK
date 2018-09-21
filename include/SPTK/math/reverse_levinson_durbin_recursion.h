@@ -69,7 +69,7 @@ class ReverseLevinsonDurbinRecursion {
   };
 
   //
-  ReverseLevinsonDurbinRecursion(int num_order);
+  explicit ReverseLevinsonDurbinRecursion(int num_order);
 
   //
   virtual ~ReverseLevinsonDurbinRecursion() {

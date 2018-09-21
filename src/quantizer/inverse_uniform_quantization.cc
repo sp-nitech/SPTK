@@ -42,63 +42,68 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_MATH_LEVINSON_DURBIN_RECURSION_H_
-#define SPTK_MATH_LEVINSON_DURBIN_RECURSION_H_
+#include "SPTK/quantizer/inverse_uniform_quantization.h"
 
-#include <vector>  // std::vector
-
-#include "SPTK/utils/sptk_utils.h"
+#include <cmath>  // std::pow
 
 namespace sptk {
 
-class LevinsonDurbinRecursion {
- public:
-  class Buffer {
-   public:
-    Buffer() {
+InverseUniformQuantization::InverseUniformQuantization(
+    double absolute_maximum_value, int num_bit,
+    UniformQuantization::QuantizationType quantization_type)
+    : absolute_maximum_value_(absolute_maximum_value),
+      num_bit_(num_bit),
+      quantization_type_(quantization_type),
+      is_valid_(true) {
+  if (absolute_maximum_value_ <= 0.0 || num_bit_ <= 0) {
+    is_valid_ = false;
+  }
+
+  switch (quantization_type_) {
+    case UniformQuantization::QuantizationType::kMidRise: {
+      quantization_levels_ = static_cast<int>(std::pow(2.0, num_bit_));
+      break;
     }
-    virtual ~Buffer() {
+    case UniformQuantization::QuantizationType::kMidTread: {
+      quantization_levels_ = static_cast<int>(std::pow(2.0, num_bit_)) - 1;
+      break;
     }
-
-   private:
-    std::vector<double> c_;
-    friend class LevinsonDurbinRecursion;
-    DISALLOW_COPY_AND_ASSIGN(Buffer);
-  };
-
-  //
-  explicit LevinsonDurbinRecursion(int num_order);
-
-  //
-  virtual ~LevinsonDurbinRecursion() {
+    default: {
+      is_valid_ = false;
+      return;
+    }
   }
 
-  //
-  int GetNumOrder() const {
-    return num_order_;
+  step_size_ = (2.0 * absolute_maximum_value_) / quantization_levels_;
+}
+
+bool InverseUniformQuantization::Run(int input, double* output) const {
+  if (!is_valid_ || NULL == output) {
+    return false;
   }
 
-  //
-  bool IsValid() const {
-    return is_valid_;
+  double value;
+  switch (quantization_type_) {
+    case UniformQuantization::QuantizationType::kMidRise: {
+      value = (input - quantization_levels_ / 2 + 0.5) * step_size_;
+      break;
+    }
+    case UniformQuantization::QuantizationType::kMidTread: {
+      value = (input - (quantization_levels_ - 1) / 2) * step_size_;
+      break;
+    }
+    default: { return false; }
   }
 
-  //
-  bool Run(const std::vector<double>& autocorrelation_sequence,
-           std::vector<double>* linear_predictive_coefficients, bool* is_stable,
-           LevinsonDurbinRecursion::Buffer* buffer) const;
+  if (value < -absolute_maximum_value_) {
+    value = -absolute_maximum_value_;
+  } else if (absolute_maximum_value_ < value) {
+    value = absolute_maximum_value_;
+  }
 
- private:
-  //
-  const int num_order_;
+  *output = value;
 
-  //
-  bool is_valid_;
-
-  //
-  DISALLOW_COPY_AND_ASSIGN(LevinsonDurbinRecursion);
-};
+  return true;
+}
 
 }  // namespace sptk
-
-#endif  // SPTK_MATH_LEVINSON_DURBIN_RECURSION_H_
