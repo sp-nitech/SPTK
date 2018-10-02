@@ -59,7 +59,6 @@ enum WarningType { kIgnore = 0, kWarn, kExit, kNumWarningTypes };
 
 const int kDefaultFrameLength(256);
 const int kDefaultNumOrder(25);
-const double kDefaultEpsilon(0.0);
 const WarningType kDefaultWarningType(kIgnore);
 
 void PrintUsage(std::ostream* stream) {
@@ -70,11 +69,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       lpc [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : frame length                            (   int)[" << std::setw(5) << std::right << kDefaultFrameLength << "][   0 <  l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -m m  : order of linear predictive coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumOrder    << "][   0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -f f  : minimum value of the determinant of     (double)[" << std::setw(5) << std::right << kDefaultEpsilon     << "][ 0.0 <= f <=   ]" << std::endl;  // NOLINT
-  *stream << "               normal matrix" << std::endl;
-  *stream << "       -e e  : warning type of unstable index          (   int)[" << std::setw(5) << std::right << kDefaultWarningType << "][   0 <= e <= 2 ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : frame length                            (   int)[" << std::setw(5) << std::right << kDefaultFrameLength << "][ 0 <  l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of linear predictive coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumOrder    << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -e e  : warning type of unstable index          (   int)[" << std::setw(5) << std::right << kDefaultWarningType << "][ 0 <= e <= 2 ]" << std::endl;  // NOLINT
   *stream << "                 0 (no warning)" << std::endl;
   *stream << "                 1 (output the index to stderr)" << std::endl;
   *stream << "                 2 (output the index to stderr and" << std::endl;
@@ -95,11 +92,10 @@ void PrintUsage(std::ostream* stream) {
 int main(int argc, char* argv[]) {
   int frame_length(kDefaultFrameLength);
   int num_order(kDefaultNumOrder);
-  double epsilon(kDefaultEpsilon);
   WarningType warning_type(kDefaultWarningType);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:m:f:e:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:e:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -120,16 +116,6 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -m option must be a "
                         << "non-negative integer";
-          sptk::PrintErrorMessage("lpc", error_message);
-          return 1;
-        }
-        break;
-      }
-      case 'f': {
-        if (!sptk::ConvertStringToDouble(optarg, &epsilon) || epsilon < 0.0) {
-          std::ostringstream error_message;
-          error_message
-              << "The argument for the -f option must be a non-negative number";
           sptk::PrintErrorMessage("lpc", error_message);
           return 1;
         }
@@ -191,7 +177,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  sptk::LevinsonDurbinRecursion levinson_durbin_recursion(num_order, epsilon);
+  sptk::LevinsonDurbinRecursion levinson_durbin_recursion(num_order);
   sptk::LevinsonDurbinRecursion::Buffer buffer;
   if (!levinson_durbin_recursion.IsValid()) {
     std::ostringstream error_message;
