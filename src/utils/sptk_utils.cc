@@ -211,14 +211,33 @@ bool SnPrintf(T data, const std::string& print_format, std::size_t buffer_size,
     return false;
   }
 
-  if (3 == sizeof(T)) {  // int24_t and uint24_t
-    return (std::snprintf(buffer, buffer_size, print_format.c_str(),
-                          static_cast<int>(data)) < 0)
-               ? false
-               : true;
+  return (std::snprintf(buffer, buffer_size, print_format.c_str(), data) < 0)
+             ? false
+             : true;
+}
+
+template <>
+bool SnPrintf(int24_t data, const std::string& print_format,
+              std::size_t buffer_size, char* buffer) {
+  if (print_format.empty() || buffer_size <= 0 || NULL == buffer) {
+    return false;
   }
 
-  return (std::snprintf(buffer, buffer_size, print_format.c_str(), data) < 0)
+  return (std::snprintf(buffer, buffer_size, print_format.c_str(),
+                        static_cast<int>(data)) < 0)
+             ? false
+             : true;
+}
+
+template <>
+bool SnPrintf(uint24_t data, const std::string& print_format,
+              std::size_t buffer_size, char* buffer) {
+  if (print_format.empty() || buffer_size <= 0 || NULL == buffer) {
+    return false;
+  }
+
+  return (std::snprintf(buffer, buffer_size, print_format.c_str(),
+                        static_cast<int>(data)) < 0)
              ? false
              : true;
 }

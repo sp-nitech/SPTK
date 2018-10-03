@@ -15,7 +15,7 @@ limitations under the License.
 */
 // Author: David Talkin (dtalkin@google.com)
 
-#include "epoch_tracker/fft.h"
+#include "epoch_tracker/fft_reaper.h"
 
 #if 1
 namespace sptk {

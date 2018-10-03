@@ -27,7 +27,7 @@ limitations under the License.
 
 #include "epoch_tracker/fd_filter.h"
 #include "epoch_tracker/lpc_analyzer.h"
-#include "epoch_tracker/fft.h"
+#include "epoch_tracker/fft_reaper.h"
 
 #if 1
 namespace sptk {

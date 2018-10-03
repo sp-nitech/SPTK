@@ -49,7 +49,7 @@ for a test harness and use examples.
 #include <stdio.h>
 #include <math.h>
 
-#include "epoch_tracker/fft.h"
+#include "epoch_tracker/fft_reaper.h"
 
 #if 1
 namespace sptk {

@@ -6,7 +6,7 @@
 #ifndef WORLD_COMMON_H_
 #define WORLD_COMMON_H_
 
-#include "world/fft.h"
+#include "world/fft_world.h"
 #include "world/macrodefinitions.h"
 
 #if 1
