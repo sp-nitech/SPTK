@@ -1040,7 +1040,11 @@ bool EpochTracker::BacktrackAndSaveOutput(void) {
   // First, find a terminal peak which is the end of more than one
   // period candidate.
   size_t end = 0;
+#if 0
   for (size_t peak = resid_peaks_.size() - 1; peak > 0; --peak) {
+#else
+  for (size_t peak = resid_peaks_.empty() ? 0 : resid_peaks_.size() - 1; peak > 0; --peak) {
+#endif
     if ((resid_peaks_[peak].past.size() > 1)) {
       for (size_t ind = 0; ind < resid_peaks_[peak].past.size(); ++ind) {
         if (resid_peaks_[peak].past[ind]->cost_sum < min_cost) {
@@ -1053,7 +1057,9 @@ bool EpochTracker::BacktrackAndSaveOutput(void) {
     }
   }
   if (end == 0) {
+#if 0
     fprintf(stderr, "No terminal peak found in DynamicProgramming\n");
+#endif
     return false;
   }
   output_.clear();
