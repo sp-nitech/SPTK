@@ -46,6 +46,7 @@
 
 #include <algorithm>  // std::reverse
 #include <cfloat>     // DBL_MAX
+#include <utility>    // std::make_pair
 
 namespace {
 

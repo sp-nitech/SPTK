@@ -45,8 +45,8 @@
 #include "SPTK/converter/mel_generalized_cepstrum_to_mel_generalized_cepstrum.h"
 
 #include <algorithm>   // std::copy, std::transform
+#include <cstddef>     // std::size_t
 #include <functional>  // std::bind1st, std::multiplies
-#include <vector>      // std::vector
 
 #include "SPTK/math/frequency_transform.h"
 #include "SPTK/normalizer/generalized_cepstrum_gain_normalization.h"

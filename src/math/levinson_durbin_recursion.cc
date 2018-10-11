@@ -44,7 +44,7 @@
 
 #include "SPTK/math/levinson_durbin_recursion.h"
 
-#include <cmath>    // std::fabs, std::sqrt
+#include <cmath>    // std::fabs, std::isnan, std::sqrt
 #include <cstddef>  // std::size_t
 
 namespace sptk {

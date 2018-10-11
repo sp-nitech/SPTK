@@ -44,10 +44,10 @@
 
 #include "SPTK/math/statistics_accumulator.h"
 
-#include <algorithm>   // std::copy, std::fill, std::transform
+#include <algorithm>   // std::copy, std::transform
 #include <cmath>       // std::sqrt
 #include <cstddef>     // std::size_t
-#include <functional>  // std::bind1st, std::multiplies, std::plus, etc.
+#include <functional>  // std::bind1st, std::multiplies, std::plus, std::ptr_fun
 
 namespace sptk {
 

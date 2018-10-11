@@ -45,6 +45,7 @@
 #include "SPTK/normalizer/filter_coefficient_normalization.h"
 
 #include <algorithm>   // std::transform
+#include <cstddef>     // std::size_t
 #include <functional>  // std::bind1st, std::multiplies
 
 namespace sptk {

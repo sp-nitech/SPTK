@@ -46,6 +46,7 @@
 
 #include <algorithm>  // std::copy, std::fill
 #include <cmath>      // std::pow, std::sqrt
+#include <cstddef>    // std::size_t
 #include <numeric>    // std::accumulate
 
 namespace sptk {

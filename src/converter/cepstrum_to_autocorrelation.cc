@@ -44,7 +44,7 @@
 
 #include "SPTK/converter/cepstrum_to_autocorrelation.h"
 
-#include <algorithm>   // std::copy, std::transform
+#include <algorithm>   // std::copy, std::fill, std::transform
 #include <cmath>       // std::exp
 #include <cstddef>     // std::size_t
 #include <functional>  // std::bind1st, std::multiplies

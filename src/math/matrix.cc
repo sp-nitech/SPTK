@@ -44,9 +44,10 @@
 
 #include "SPTK/math/matrix.h"
 
-#include <algorithm>  // std::fill, std::transform
-#include <stdexcept>  // std::logic_error, std::out_of_range
-#include <string>     // std::string
+#include <algorithm>   // std::fill, std::transform
+#include <functional>  // std::minus, std::plus
+#include <stdexcept>   // std::logic_error, std::out_of_range
+#include <string>      // std::string
 
 namespace {
 

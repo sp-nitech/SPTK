@@ -44,6 +44,8 @@
 
 #include "SPTK/converter/mel_generalized_cepstrum_to_spectrum.h"
 
+#include <cstddef>  // std::size_t
+
 namespace sptk {
 
 MelGeneralizedCepstrumToSpectrum::MelGeneralizedCepstrumToSpectrum(

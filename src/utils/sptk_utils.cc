@@ -47,11 +47,14 @@
 #include <algorithm>  // std::fill_n, std::transform
 #include <cctype>     // std::tolower
 #include <cerrno>     // errno, ERANGE
-#include <cmath>      // std::ceil, std::exp, std::log, etc.
-#include <cstdint>    // int8_t, etc.
+#include <cmath>      // std::atan, std::ceil, std::exp, std::log, etc.
+#include <cstddef>    // std::size_t
+#include <cstdint>    // int8_t, int16_t, int32_t, int64_t, etc.
 #include <cstdio>     // std::snprintf
-#include <cstdlib>    // std::size_t, std::strtod, std::strtol
+#include <cstdlib>    // std::strtod, std::strtol
 #include <iomanip>    // std::setw
+#include <ios>        // std::left
+#include <iostream>   // std::cerr, std::endl
 
 #include "SPTK/utils/int24_t.h"
 #include "SPTK/utils/uint24_t.h"
@@ -194,7 +197,7 @@ bool WriteStream(int write_point, int write_size,
       reinterpret_cast<const char*>(&(sequence_to_write[0]) + write_point),
       sizeof(sequence_to_write[0]) * write_size);
 
-  // When output_stream is std::cout, actual_write_size is always zero.
+  // When output_stream is cout, actual_write_size is always zero.
   if (NULL != actual_write_size) {
     const int after(output_stream->tellp());
     const int type_byte(sizeof(sequence_to_write[0]));

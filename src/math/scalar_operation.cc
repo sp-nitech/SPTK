@@ -44,7 +44,7 @@
 
 #include "SPTK/math/scalar_operation.h"
 
-#include <cmath>  // std::exp, std::fabs, std::log, std::pow, std::sqrt, etc.
+#include <cmath>  // std::atan, std::ceil, std::cos, std::exp, std::fabs, etc.
 
 namespace {
 

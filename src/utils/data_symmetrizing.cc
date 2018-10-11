@@ -44,7 +44,7 @@
 
 #include "SPTK/utils/data_symmetrizing.h"
 
-#include <algorithm>  // std::copy
+#include <algorithm>  // std::copy, std::reverse_copy
 #include <cstddef>    // std::size_t
 
 namespace {

@@ -46,7 +46,7 @@
 
 #include <algorithm>  // std::copy
 #include <cmath>      // std::pow, std::exp
-#include <vector>     // std::vector
+#include <cstddef>    // std::size_t
 
 namespace sptk {
 
