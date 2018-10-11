@@ -375,10 +375,9 @@ int main(int argc, char* argv[]) {
       break;
     }
     case kLogF0: {
-      std::transform(f0.begin(), f0.end(), f0.begin(),
-                     [sampling_rate_in_hz](double x) {
-                       return (0.0 < x) ? std::log(x) : sptk::kLogZero;
-                     });
+      std::transform(f0.begin(), f0.end(), f0.begin(), [](double x) {
+        return (0.0 < x) ? std::log(x) : sptk::kLogZero;
+      });
       break;
     }
     default: { break; }

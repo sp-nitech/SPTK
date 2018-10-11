@@ -43,7 +43,6 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
-#include <getopt.h>
 #include <cmath>     // std::sqrt
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
