@@ -42,96 +42,64 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_MATH_MATRIX_H_
-#define SPTK_MATH_MATRIX_H_
+#ifndef SPTK_MATH_VANDERMONDE_SYSTEM_SOLVER_H_
+#define SPTK_MATH_VANDERMONDE_SYSTEM_SOLVER_H_
 
 #include <vector>  // std::vector
 
+#include "SPTK/utils/sptk_utils.h"
+
 namespace sptk {
 
-class Matrix {
+class VandermondeSystemSolver {
  public:
-  //
-  explicit Matrix(int num_row = 0, int num_column = 0);
+  class Buffer {
+   public:
+    Buffer() {
+    }
+    virtual ~Buffer() {
+    }
+
+   private:
+    std::vector<double> d_;
+    friend class VandermondeSystemSolver;
+    DISALLOW_COPY_AND_ASSIGN(Buffer);
+  };
 
   //
-  Matrix(int num_row, int num_column, const std::vector<double>& vector);
+  explicit VandermondeSystemSolver(int num_order);
 
   //
-  Matrix(const Matrix& matrix);
-
-  //
-  Matrix& operator=(const Matrix& matrix);
-
-  //
-  virtual ~Matrix() {
+  virtual ~VandermondeSystemSolver() {
   }
 
   //
-  int GetNumRow() const {
-    return num_row_;
+  int GetNumOrder() const {
+    return num_order_;
   }
 
   //
-  int GetNumColumn() const {
-    return num_column_;
+  bool IsValid() const {
+    return is_valid_;
   }
 
   //
-  void Resize(int num_row, int num_column);
-
-  //
-  double* operator[](int row) {
-    return index_[row];
-  }
-
-  //
-  const double* operator[](int row) const {
-    return index_[row];
-  }
-
-  //
-  double& At(int row, int column);
-
-  //
-  const double& At(int row, int column) const;
-
-  //
-  Matrix operator+(const Matrix& matrix) const;
-
-  //
-  Matrix operator-(const Matrix& matrix) const;
-
-  //
-  Matrix operator*(const Matrix& matrix) const;
-
-  //
-  void FillZero();
-
-  //
-  bool Transpose(Matrix* transposed_matrix) const;
-
-  //
-  bool GetSubmatrix(int row_offset, int num_row_of_submatrix, int column_offset,
-                    int num_column_of_submatrix, Matrix* submatrix) const;
-
-  //
-  bool GetDeterminant(double* determinant) const;
+  bool Run(const std::vector<double>& coefficient_vector,
+           const std::vector<double>& constant_vector,
+           std::vector<double>* solution_vector,
+           VandermondeSystemSolver::Buffer* buffer) const;
 
  private:
   //
-  int num_row_;
+  const int num_order_;
 
   //
-  int num_column_;
+  bool is_valid_;
 
   //
-  std::vector<double> data_;
-
-  //
-  std::vector<double*> index_;
+  DISALLOW_COPY_AND_ASSIGN(VandermondeSystemSolver);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_MATH_MATRIX_H_
+#endif  // SPTK_MATH_VANDERMONDE_SYSTEM_SOLVER_H_

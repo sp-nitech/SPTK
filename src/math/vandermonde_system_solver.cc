@@ -42,96 +42,75 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_MATH_MATRIX_H_
-#define SPTK_MATH_MATRIX_H_
+#include "SPTK/math/vandermonde_system_solver.h"
 
-#include <vector>  // std::vector
+#include <algorithm>  // std::fill
+#include <cstddef>    // std::size_t
 
 namespace sptk {
 
-class Matrix {
- public:
-  //
-  explicit Matrix(int num_row = 0, int num_column = 0);
+VandermondeSystemSolver::VandermondeSystemSolver(int num_order)
+    : num_order_(num_order), is_valid_(true) {
+  if (num_order_ < 0) {
+    is_valid_ = false;
+  }
+}
 
-  //
-  Matrix(int num_row, int num_column, const std::vector<double>& vector);
-
-  //
-  Matrix(const Matrix& matrix);
-
-  //
-  Matrix& operator=(const Matrix& matrix);
-
-  //
-  virtual ~Matrix() {
+bool VandermondeSystemSolver::Run(
+    const std::vector<double>& coefficient_vector,
+    const std::vector<double>& constant_vector,
+    std::vector<double>* solution_vector,
+    VandermondeSystemSolver::Buffer* buffer) const {
+  // check inputs
+  const int length(num_order_ + 1);
+  if (!is_valid_ ||
+      coefficient_vector.size() != static_cast<std::size_t>(length) ||
+      constant_vector.size() != static_cast<std::size_t>(length) ||
+      NULL == solution_vector || NULL == buffer) {
+    return false;
   }
 
-  //
-  int GetNumRow() const {
-    return num_row_;
+  // prepare memories
+  if (solution_vector->size() != static_cast<std::size_t>(length)) {
+    solution_vector->resize(length);
   }
 
-  //
-  int GetNumColumn() const {
-    return num_column_;
+  // prepare buffer
+  if (buffer->d_.size() != static_cast<std::size_t>(length)) {
+    buffer->d_.resize(length);
   }
 
-  //
-  void Resize(int num_row, int num_column);
+  // get values
+  const double* a(&coefficient_vector[0]);
+  const double* b(&constant_vector[0]);
+  double* x(&((*solution_vector)[0]));
+  double* d(&buffer->d_[0]);
 
-  //
-  double* operator[](int row) {
-    return index_[row];
+  std::fill(buffer->d_.begin(), buffer->d_.end(), 0.0);
+  for (int i(0); i < length; ++i) {
+    for (int j(i); 0 < j; --j) {
+      d[j] -= a[i] * d[j - 1];
+    }
+    d[0] -= a[i];
   }
 
-  //
-  const double* operator[](int row) const {
-    return index_[row];
+  for (int i(0); i <= num_order_; ++i) {
+    double tmp(1.0);
+    double numerator(b[num_order_]);
+    double denominator(1.0);
+    for (int j(0); j < num_order_; ++j) {
+      tmp = d[j] + a[i] * tmp;
+      numerator = numerator + b[num_order_ - j - 1] * tmp;
+      denominator = denominator * a[i] + tmp;
+    }
+
+    if (0.0 == denominator) {
+      return false;
+    }
+    x[i] = numerator / denominator;
   }
 
-  //
-  double& At(int row, int column);
-
-  //
-  const double& At(int row, int column) const;
-
-  //
-  Matrix operator+(const Matrix& matrix) const;
-
-  //
-  Matrix operator-(const Matrix& matrix) const;
-
-  //
-  Matrix operator*(const Matrix& matrix) const;
-
-  //
-  void FillZero();
-
-  //
-  bool Transpose(Matrix* transposed_matrix) const;
-
-  //
-  bool GetSubmatrix(int row_offset, int num_row_of_submatrix, int column_offset,
-                    int num_column_of_submatrix, Matrix* submatrix) const;
-
-  //
-  bool GetDeterminant(double* determinant) const;
-
- private:
-  //
-  int num_row_;
-
-  //
-  int num_column_;
-
-  //
-  std::vector<double> data_;
-
-  //
-  std::vector<double*> index_;
-};
+  return true;
+}
 
 }  // namespace sptk
-
-#endif  // SPTK_MATH_MATRIX_H_

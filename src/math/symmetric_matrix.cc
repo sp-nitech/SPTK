@@ -44,6 +44,8 @@
 
 #include "SPTK/math/symmetric_matrix.h"
 
+#include "SPTK/math/matrix.h"
+
 #include <algorithm>  // std::fill, std::swap
 #include <stdexcept>  // std::out_of_range
 #include <string>     // std::string
@@ -141,24 +143,46 @@ void SymmetricMatrix::FillZero() {
 }
 
 bool SymmetricMatrix::Invert(SymmetricMatrix* inverse_matrix) const {
-  if (NULL == inverse_matrix) {
+  if (NULL == inverse_matrix || this == inverse_matrix) {
     return false;
-  }
-
-  for (int i(0); i < num_dimension_; ++i) {
-    if (0.0 == index_[i][i]) {
-      return false;
-    }
   }
 
   if (inverse_matrix->num_dimension_ != num_dimension_) {
     inverse_matrix->Resize(num_dimension_);
   }
 
-  std::vector<double> diagonal_elements(num_dimension_);
-  SymmetricMatrix lower_triangular_matrix(num_dimension_);
+  Matrix matrix(num_dimension_, num_dimension_);
+  for (int row(0); row < num_dimension_; ++row) {
+    for (int column(0); column < num_dimension_; ++column) {
+      matrix[row][column] = index_[row][column];
+    }
+    for (int column(row); column < num_dimension_; ++column) {
+      matrix[row][column] = index_[column][row];
+    }
+  }
 
-  diagonal_elements[0] = index_[0][0];
+  std::vector<double> leading_principal_minor(num_dimension_ + 1);
+  std::vector<double> diagonal_elements(num_dimension_);
+  std::vector<double> inverse_diagonal_elements(num_dimension_);
+  leading_principal_minor[0] = 1.0;
+  for (int i(1); i <= num_dimension_; ++i) {
+    Matrix submatrix;
+    if (!matrix.GetSubmatrix(0, i, 0, i, &submatrix)) {
+      return false;
+    }
+    if (!submatrix.GetDeterminant(&leading_principal_minor[i])) {
+      return false;
+    }
+    if (0.0 == leading_principal_minor[i]) {
+      return false;
+    }
+    diagonal_elements[i - 1] =
+        leading_principal_minor[i] / leading_principal_minor[i - 1];
+    inverse_diagonal_elements[i - 1] =
+        leading_principal_minor[i - 1] / leading_principal_minor[i];
+  }
+
+  SymmetricMatrix lower_triangular_matrix(num_dimension_);
   lower_triangular_matrix.index_[0][0] = 1.0;
   for (int i(1); i < num_dimension_; ++i) {
     for (int j(0); j < i; ++j) {
@@ -167,14 +191,7 @@ bool SymmetricMatrix::Invert(SymmetricMatrix* inverse_matrix) const {
         tmp -= lower_triangular_matrix.index_[i][k] *
                lower_triangular_matrix.index_[j][k] * diagonal_elements[k];
       }
-      lower_triangular_matrix.index_[i][j] = tmp / diagonal_elements[j];
-    }
-
-    diagonal_elements[i] = index_[i][i];
-    for (int j(0); j < i; ++j) {
-      diagonal_elements[i] -= lower_triangular_matrix.index_[i][j] *
-                              lower_triangular_matrix.index_[i][j] *
-                              diagonal_elements[j];
+      lower_triangular_matrix.index_[i][j] = tmp * inverse_diagonal_elements[j];
     }
     lower_triangular_matrix.index_[i][i] = 1.0;
   }
@@ -190,11 +207,6 @@ bool SymmetricMatrix::Invert(SymmetricMatrix* inverse_matrix) const {
       }
       inverse_matrix->index_[j][i] *= -inverse_matrix->index_[j][j];
     }
-  }
-
-  std::vector<double> inverse_diagonal_elements(num_dimension_);
-  for (int i(0); i < num_dimension_; ++i) {
-    inverse_diagonal_elements[i] = 1.0 / diagonal_elements[i];
   }
 
   for (int i(0); i < num_dimension_; ++i) {

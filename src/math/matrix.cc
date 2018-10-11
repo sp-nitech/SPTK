@@ -171,7 +171,7 @@ void Matrix::FillZero() {
 }
 
 bool Matrix::Transpose(Matrix* transposed_matrix) const {
-  if (NULL == transposed_matrix) {
+  if (NULL == transposed_matrix || this == transposed_matrix) {
     return false;
   }
 
@@ -196,7 +196,7 @@ bool Matrix::GetSubmatrix(int row_offset, int num_row_of_submatrix,
       num_row_ < row_offset + num_row_of_submatrix || column_offset < 0 ||
       num_column_of_submatrix <= 0 ||
       num_column_ < column_offset + num_column_of_submatrix ||
-      NULL == submatrix) {
+      NULL == submatrix || this == submatrix) {
     return false;
   }
 
@@ -211,6 +211,39 @@ bool Matrix::GetSubmatrix(int row_offset, int num_row_of_submatrix,
     }
   }
 
+  return true;
+}
+
+bool Matrix::GetDeterminant(double* determinant) const {
+  if (num_row_ != num_column_ || num_row_ <= 0 || NULL == determinant) {
+    return false;
+  }
+
+  const int num_dimension(num_row_);
+  if (1 == num_dimension) {
+    *determinant = index_[0][0];
+    return true;
+  }
+
+  const int num_order(num_dimension - 1);
+  Matrix submatrix(num_order, num_order);
+  *determinant = 0.0;
+  for (int i(0); i < num_dimension; ++i) {
+    for (int row(0), offset(0); row < num_order; ++row) {
+      if (i == row) {
+        offset = 1;
+      }
+      for (int column(0); column < num_order; ++column) {
+        submatrix[row][column] = index_[row + offset][column + 1];
+      }
+    }
+    double determinant_of_submatrix;
+    if (!submatrix.GetDeterminant(&determinant_of_submatrix)) {
+      return false;
+    }
+    *determinant += ((0 == i % 2) ? index_[i][0] : -index_[i][0]) *
+                    determinant_of_submatrix;
+  }
   return true;
 }
 

@@ -42,96 +42,57 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_MATH_MATRIX_H_
-#define SPTK_MATH_MATRIX_H_
+#include "SPTK/math/cholesky_solver.h"
 
-#include <vector>  // std::vector
+#include <cstddef>  // std::size_t
 
 namespace sptk {
 
-class Matrix {
- public:
-  //
-  explicit Matrix(int num_row = 0, int num_column = 0);
+CholeskySolver::CholeskySolver(int num_order)
+    : num_order_(num_order), is_valid_(true) {
+  if (num_order_ < 0) {
+    is_valid_ = false;
+  }
+}
 
-  //
-  Matrix(int num_row, int num_column, const std::vector<double>& vector);
-
-  //
-  Matrix(const Matrix& matrix);
-
-  //
-  Matrix& operator=(const Matrix& matrix);
-
-  //
-  virtual ~Matrix() {
+bool CholeskySolver::Run(const SymmetricMatrix& coefficient_matrix,
+                         const std::vector<double>& constant_vector,
+                         std::vector<double>* solution_vector,
+                         CholeskySolver::Buffer* buffer) const {
+  // check inputs
+  const int length(num_order_ + 1);
+  if (!is_valid_ || coefficient_matrix.GetNumDimension() != length ||
+      constant_vector.size() != static_cast<std::size_t>(length) ||
+      NULL == solution_vector || NULL == buffer) {
+    return false;
   }
 
-  //
-  int GetNumRow() const {
-    return num_row_;
+  // prepare memories
+  if (solution_vector->size() != static_cast<std::size_t>(length)) {
+    solution_vector->resize(length);
   }
 
-  //
-  int GetNumColumn() const {
-    return num_column_;
+  // prepare buffer
+  if (buffer->inverse_matrix_.GetNumDimension() != length) {
+    buffer->inverse_matrix_.Resize(length);
   }
 
-  //
-  void Resize(int num_row, int num_column);
+  // get values
+  const double* b(&constant_vector[0]);
+  double* x(&((*solution_vector)[0]));
 
-  //
-  double* operator[](int row) {
-    return index_[row];
+  if (!coefficient_matrix.Invert(&buffer->inverse_matrix_)) {
+    return false;
   }
 
-  //
-  const double* operator[](int row) const {
-    return index_[row];
+  for (int i(0); i < length; ++i) {
+    x[i] = 0.0;
+    for (int j(0); j < length; ++j) {
+      x[i] += buffer->inverse_matrix_[i][j] * b[j];
+    }
   }
 
-  //
-  double& At(int row, int column);
-
-  //
-  const double& At(int row, int column) const;
-
-  //
-  Matrix operator+(const Matrix& matrix) const;
-
-  //
-  Matrix operator-(const Matrix& matrix) const;
-
-  //
-  Matrix operator*(const Matrix& matrix) const;
-
-  //
-  void FillZero();
-
-  //
-  bool Transpose(Matrix* transposed_matrix) const;
-
-  //
-  bool GetSubmatrix(int row_offset, int num_row_of_submatrix, int column_offset,
-                    int num_column_of_submatrix, Matrix* submatrix) const;
-
-  //
-  bool GetDeterminant(double* determinant) const;
-
- private:
-  //
-  int num_row_;
-
-  //
-  int num_column_;
-
-  //
-  std::vector<double> data_;
-
-  //
-  std::vector<double*> index_;
-};
+  return true;
+}
 
 }  // namespace sptk
-
-#endif  // SPTK_MATH_MATRIX_H_
