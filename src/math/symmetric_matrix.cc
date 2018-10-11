@@ -44,11 +44,11 @@
 
 #include "SPTK/math/symmetric_matrix.h"
 
-#include "SPTK/math/matrix.h"
-
 #include <algorithm>  // std::fill, std::swap
 #include <stdexcept>  // std::out_of_range
 #include <string>     // std::string
+
+#include "SPTK/math/matrix.h"
 
 namespace {
 
