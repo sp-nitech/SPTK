@@ -42,11 +42,12 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
+#include <getopt.h>   // getopt_long
+#include <exception>  // std::exception
+#include <fstream>    // std::ifstream
+#include <iomanip>    // std::setw
+#include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>    // std::ostringstream
 
 #include "SPTK/generator/excitation_generation.h"
 #include "SPTK/generator/m_sequence_generation.h"

@@ -42,15 +42,15 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>
-#include <algorithm>
-#include <cmath>
-#include <fstream>
-#include <functional>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <vector>
+#include <getopt.h>    // getopt_long_only
+#include <algorithm>   // std::max, std::min, std::transform
+#include <cmath>       // std::atan2, std::sqrt
+#include <fstream>     // std::ifstream
+#include <functional>  // std::divides, std::minus, std::multiplies, std::plus
+#include <iomanip>     // std::setw
+#include <iostream>    // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>     // std::ostringstream
+#include <vector>      // std::vector
 
 #include "SPTK/utils/sptk_utils.h"
 

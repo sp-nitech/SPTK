@@ -42,12 +42,12 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>
-#include <cfloat>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
+#include <getopt.h>  // getopt_long
+#include <cfloat>    // DBL_MAX
+#include <fstream>   // std::ifstream
+#include <iomanip>   // std::setw
+#include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>   // std::ostringstream
 
 #include "SPTK/math/scalar_operation.h"
 #include "SPTK/utils/sptk_utils.h"
@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
   double upper_bound(kDefaultUpperBound);
 
   for (;;) {
-    const int option_char(getopt_long_only(argc, argv, "l:u:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:u:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {

@@ -42,12 +42,12 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <vector>
+#include <getopt.h>  // getopt_long
+#include <fstream>   // std::ifstream
+#include <iomanip>   // std::setw
+#include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>   // std::ostringstream
+#include <vector>    // std::vector
 
 #include "SPTK/converter/linear_predictive_coefficients_to_cepstrum.h"
 #include "SPTK/utils/sptk_utils.h"

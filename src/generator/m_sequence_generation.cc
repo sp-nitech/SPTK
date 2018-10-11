@@ -51,7 +51,6 @@ const int kB0(0x00000001);
 const int kB28(0x10000000);
 const int kB31(0x80000000);
 const int kB31F(0x7fffffff);
-const int kZ(0x00000000);
 
 }  // namespace
 

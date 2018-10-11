@@ -42,12 +42,14 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>
-#include <cctype>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
+#include <getopt.h>  // getopt_long
+#include <cctype>    // std::isprint
+#include <fstream>   // std::ifstream
+#include <iomanip>   // std::setfill, std::setw
+#include <ios>       // std::dec, std::hex, std::oct
+#include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>   // std::ostringstream
+#include <string>    // std::string
 
 #include "SPTK/utils/sptk_utils.h"
 
@@ -61,7 +63,6 @@ enum AddressFormats {
   kNumAddressFormats
 };
 
-const int kBufferSize(128);
 const int kDefaultStartIndex(0);
 const int kDefaultNumColumn(16);
 const AddressFormats kDefaultAddressFormat(kNone);

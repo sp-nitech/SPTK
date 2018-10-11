@@ -42,15 +42,15 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>
-#include <cstdint>
-#include <cstring>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <vector>
+#include <getopt.h>  // getopt_long
+#include <cstdint>   // int8_t, int16_t, int32_t, int64_t, etc.
+#include <cstring>   // std::strncmp
+#include <fstream>   // std::ifstream
+#include <iomanip>   // std::setw
+#include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>   // std::ostringstream
+#include <string>    // std::string
+#include <vector>    // std::vector
 
 #include "SPTK/utils/int24_t.h"
 #include "SPTK/utils/sptk_utils.h"

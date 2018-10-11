@@ -42,12 +42,12 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <vector>
+#include <getopt.h>  // getopt_long
+#include <fstream>   // std::ifstream, std::ofstream
+#include <iomanip>   // std::setw
+#include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>   // std::ostringstream
+#include <vector>    // std::vector
 
 #include "SPTK/math/statistics_accumulator.h"
 #include "SPTK/quantizer/linde_buzo_gray_algorithm.h"

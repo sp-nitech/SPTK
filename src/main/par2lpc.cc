@@ -42,12 +42,12 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <unistd.h>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <vector>
+#include <getopt.h>  // getopt_long
+#include <fstream>   // std::ifstream
+#include <iomanip>   // std::setw
+#include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>   // std::ostringstream
+#include <vector>    // std::vector
 
 #include "SPTK/converter/parcor_coefficients_to_linear_predictive_coefficients.h"
 #include "SPTK/utils/sptk_utils.h"
@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
 
   for (;;) {
-    const char option_char(getopt(argc, argv, "m:h"));
+    const int option_char(getopt_long(argc, argv, "m:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {

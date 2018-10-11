@@ -42,12 +42,12 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>
-#include <cmath>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
+#include <getopt.h>  // getopt_long
+#include <cmath>     // std::sqrt
+#include <fstream>   // std::ifstream
+#include <iomanip>   // std::setw
+#include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>   // std::ostringstream
 
 #include "SPTK/math/matrix.h"
 #include "SPTK/math/two_dimensional_fast_fourier_transform_for_real_sequence.h"

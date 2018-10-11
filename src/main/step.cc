@@ -42,10 +42,10 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
+#include <getopt.h>  // getopt_long
+#include <iomanip>   // std::setw
+#include <iostream>  // std::cerr, std::cout, std::endl, etc.
+#include <sstream>   // std::ostringstream
 
 #include "SPTK/utils/sptk_utils.h"
 

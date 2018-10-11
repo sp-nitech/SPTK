@@ -47,14 +47,13 @@
 #include <algorithm>  // std::fill_n, std::transform
 #include <cctype>     // std::tolower
 #include <cerrno>     // errno, ERANGE
-#include <cmath>      // std::atan, std::ceil, std::exp, std::log, etc.
+#include <cmath>      // std::ceil, std::exp, std::log, std::sqrt, etc.
 #include <cstddef>    // std::size_t
 #include <cstdint>    // int8_t, int16_t, int32_t, int64_t, etc.
 #include <cstdio>     // std::snprintf
 #include <cstdlib>    // std::strtod, std::strtol
 #include <iomanip>    // std::setw
-#include <ios>        // std::left
-#include <iostream>   // std::cerr, std::endl
+#include <iostream>   // std::cerr, std::endl, std::left
 
 #include "SPTK/utils/int24_t.h"
 #include "SPTK/utils/uint24_t.h"
@@ -611,12 +610,10 @@ template bool WriteStream<double>(int, int, const std::vector<double>&, std::ost
 template bool WriteStream<long double>(int, int, const std::vector<long double>&, std::ostream*, int*);  // NOLINT
 template bool SnPrintf(int8_t, const std::string&, std::size_t, char*);
 template bool SnPrintf(int16_t, const std::string&, std::size_t, char*);
-template bool SnPrintf(int24_t, const std::string&, std::size_t, char*);
 template bool SnPrintf(int32_t, const std::string&, std::size_t, char*);
 template bool SnPrintf(int64_t, const std::string&, std::size_t, char*);
 template bool SnPrintf(uint8_t, const std::string&, std::size_t, char*);
 template bool SnPrintf(uint16_t, const std::string&, std::size_t, char*);
-template bool SnPrintf(uint24_t, const std::string&, std::size_t, char*);
 template bool SnPrintf(uint32_t, const std::string&, std::size_t, char*);
 template bool SnPrintf(uint64_t, const std::string&, std::size_t, char*);
 template bool SnPrintf(float, const std::string&, std::size_t, char*);

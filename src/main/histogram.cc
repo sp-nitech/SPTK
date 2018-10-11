@@ -42,14 +42,15 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>
-#include <algorithm>
-#include <fstream>
-#include <functional>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <vector>
+#include <getopt.h>    // getopt_long
+#include <algorithm>   // std::transform
+#include <fstream>     // std::ifstream
+#include <functional>  // std::bind1st, std::multiplies
+#include <iomanip>     // std::setw
+#include <iostream>    // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <numeric>     // std::accumulate
+#include <sstream>     // std::ostringstream
+#include <vector>      // std::vector
 
 #include "SPTK/math/histogram_calculator.h"
 #include "SPTK/math/statistics_accumulator.h"

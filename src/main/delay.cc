@@ -42,12 +42,12 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <queue>
-#include <sstream>
+#include <getopt.h>  // getopt_long
+#include <fstream>   // std::ifstream
+#include <iomanip>   // std::setw
+#include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <queue>     // std::queue
+#include <sstream>   // std::ostringstream
 
 #include "SPTK/utils/sptk_utils.h"
 

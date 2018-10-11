@@ -42,12 +42,10 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <vector>
+#include <getopt.h>  // getopt_long_only
+#include <fstream>   // std::ifstream
+#include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>   // std::ostringstream
 
 #include "SPTK/math/scalar_operation.h"
 #include "SPTK/utils/sptk_utils.h"
