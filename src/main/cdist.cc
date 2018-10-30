@@ -258,7 +258,7 @@ int main(int argc, char* argv[]) {
     if (!statistics_accumulator.GetMean(buffer, &average_distance)) {
       std::ostringstream error_message;
       error_message << "Failed to calculate distance";
-      sptk::PrintErrorMessage("average", error_message);
+      sptk::PrintErrorMessage("cdist", error_message);
       return 1;
     }
 
