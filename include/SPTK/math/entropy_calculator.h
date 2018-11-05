@@ -42,75 +42,59 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_UTILS_SPTK_UTILS_H_
-#define SPTK_UTILS_SPTK_UTILS_H_
+#ifndef SPTK_MATH_ENTROPY_CALCULATOR_H_
+#define SPTK_MATH_ENTROPY_CALCULATOR_H_
 
-#include <iostream>  // std::istream, std::ostream
-#include <sstream>   // std::ostringstream
-#include <string>    // std::string
-#include <vector>    // std::vector
+#include <vector>  // std::vector
 
-#include "SPTK/math/matrix.h"
-
-#ifndef DISALLOW_COPY_AND_ASSIGN
-#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-  TypeName(const TypeName&);               \
-  void operator=(const TypeName&)
-#endif
+#include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
-static const char* const kVersion("4.0");
-static const double kPi(3.141592653589793);
-static const double kTwoPi(6.283185307179586);
-static const double kNeper(8.685889638065035);   // 1 Np = 20 / ln(10) dB
-static const double kOctave(1.442695040888963);  // 1 / ln(2)
-static const double kLogTwo(0.693147180559945);
-static const double kLogZero(-1.0e+10);
+class EntropyCalculator {
+ public:
+  //
+  enum EntropyUnits { kBit = 0, kNat, kDit, kNumUnits };
 
-template <typename T>
-bool ReadStream(T* data_to_read, std::istream* input_stream);
-template <>
-bool ReadStream(sptk::Matrix* matrix_to_read, std::istream* input_stream);
-template <typename T>
-bool ReadStream(bool zero_padding, int stream_skip, int read_point,
-                int read_size, std::vector<T>* sequence_to_read,
-                std::istream* input_stream, int* actual_read_size);
-template <typename T>
-bool WriteStream(T data_to_write, std::ostream* output_stream);
-bool WriteStream(const sptk::Matrix& matrix_to_write,
-                 std::ostream* output_stream);
-template <typename T>
-bool WriteStream(int write_point, int write_size,
-                 const std::vector<T>& sequence_to_write,
-                 std::ostream* output_stream, int* actual_write_size);
-template <typename T>
-bool SnPrintf(T data, const std::string& print_format, size_t buffer_size,
-              char* buffer);
-const char* ConvertBooleanToString(bool input);
-bool ConvertStringToInteger(const std::string& input, int* output);
-bool ConvertStringToDouble(const std::string& input, double* output);
-bool ConvertSpecialStringToDouble(const std::string& input, double* output);
-bool IsInRange(int num, int min, int max);
-bool IsInRange(double num, double min, double max);
-bool IsPowerOfTwo(int num);
-int ExtractSign(double x);
-double FloorLog(double x);
-double FloorLog2(double x);
-double FloorLog10(double x);
-double AddInLogSpace(double log_x, double log_y);
-bool ComputePercentagePointOfStandardNormalDistribution(
-    double probability, double* percentage_point);
-bool ComputeProbabilityOfTDistribution(double percentage_point,
-                                       int degrees_of_freedom,
-                                       double* probability);
-bool ComputePercentagePointOfTDistribution(double probability,
-                                           int degrees_of_freedom,
-                                           double* percentage_point);
-void PrintDataType(const std::string& symbol, std::ostream* stream);
-void PrintErrorMessage(const std::string& program_name,
-                       const std::ostringstream& message);
+  //
+  EntropyCalculator(int num_element, EntropyUnits entropy_unit);
+
+  //
+  virtual ~EntropyCalculator() {
+  }
+
+  //
+  int GetNumElement() const {
+    return num_element_;
+  }
+
+  //
+  EntropyUnits GetEntropyUnit() const {
+    return entropy_unit_;
+  }
+
+  //
+  bool IsValid() const {
+    return is_valid_;
+  }
+
+  //
+  bool Run(const std::vector<double>& probability, double* entropy) const;
+
+ private:
+  //
+  const int num_element_;
+
+  //
+  const EntropyUnits entropy_unit_;
+
+  //
+  bool is_valid_;
+
+  //
+  DISALLOW_COPY_AND_ASSIGN(EntropyCalculator);
+};
 
 }  // namespace sptk
 
-#endif  // SPTK_UTILS_SPTK_UTILS_H_
+#endif  // SPTK_MATH_ENTROPY_CALCULATOR_H_

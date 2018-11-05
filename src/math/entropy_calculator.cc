@@ -42,75 +42,57 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_UTILS_SPTK_UTILS_H_
-#define SPTK_UTILS_SPTK_UTILS_H_
+#include "SPTK/math/entropy_calculator.h"
 
-#include <iostream>  // std::istream, std::ostream
-#include <sstream>   // std::ostringstream
-#include <string>    // std::string
-#include <vector>    // std::vector
-
-#include "SPTK/math/matrix.h"
-
-#ifndef DISALLOW_COPY_AND_ASSIGN
-#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-  TypeName(const TypeName&);               \
-  void operator=(const TypeName&)
-#endif
+#include <cmath>    // std::log, std::log10, std::log2
+#include <cstddef>  // std::size_t
 
 namespace sptk {
 
-static const char* const kVersion("4.0");
-static const double kPi(3.141592653589793);
-static const double kTwoPi(6.283185307179586);
-static const double kNeper(8.685889638065035);   // 1 Np = 20 / ln(10) dB
-static const double kOctave(1.442695040888963);  // 1 / ln(2)
-static const double kLogTwo(0.693147180559945);
-static const double kLogZero(-1.0e+10);
+EntropyCalculator::EntropyCalculator(int num_element, EntropyUnits entropy_unit)
+    : num_element_(num_element), entropy_unit_(entropy_unit), is_valid_(true) {
+  if (num_element_ <= 0 || kNumUnits == entropy_unit_) {
+    is_valid_ = false;
+  }
+}
 
-template <typename T>
-bool ReadStream(T* data_to_read, std::istream* input_stream);
-template <>
-bool ReadStream(sptk::Matrix* matrix_to_read, std::istream* input_stream);
-template <typename T>
-bool ReadStream(bool zero_padding, int stream_skip, int read_point,
-                int read_size, std::vector<T>* sequence_to_read,
-                std::istream* input_stream, int* actual_read_size);
-template <typename T>
-bool WriteStream(T data_to_write, std::ostream* output_stream);
-bool WriteStream(const sptk::Matrix& matrix_to_write,
-                 std::ostream* output_stream);
-template <typename T>
-bool WriteStream(int write_point, int write_size,
-                 const std::vector<T>& sequence_to_write,
-                 std::ostream* output_stream, int* actual_write_size);
-template <typename T>
-bool SnPrintf(T data, const std::string& print_format, size_t buffer_size,
-              char* buffer);
-const char* ConvertBooleanToString(bool input);
-bool ConvertStringToInteger(const std::string& input, int* output);
-bool ConvertStringToDouble(const std::string& input, double* output);
-bool ConvertSpecialStringToDouble(const std::string& input, double* output);
-bool IsInRange(int num, int min, int max);
-bool IsInRange(double num, double min, double max);
-bool IsPowerOfTwo(int num);
-int ExtractSign(double x);
-double FloorLog(double x);
-double FloorLog2(double x);
-double FloorLog10(double x);
-double AddInLogSpace(double log_x, double log_y);
-bool ComputePercentagePointOfStandardNormalDistribution(
-    double probability, double* percentage_point);
-bool ComputeProbabilityOfTDistribution(double percentage_point,
-                                       int degrees_of_freedom,
-                                       double* probability);
-bool ComputePercentagePointOfTDistribution(double probability,
-                                           int degrees_of_freedom,
-                                           double* percentage_point);
-void PrintDataType(const std::string& symbol, std::ostream* stream);
-void PrintErrorMessage(const std::string& program_name,
-                       const std::ostringstream& message);
+bool EntropyCalculator::Run(const std::vector<double>& probability,
+                            double* entropy) const {
+  // check inputs
+  if (!is_valid_ ||
+      probability.size() != static_cast<std::size_t>(num_element_) ||
+      NULL == entropy) {
+    return false;
+  }
+
+  const double* p(&(probability[0]));
+  double sum(0.0);
+
+  switch (entropy_unit_) {
+    case kBit: {
+      for (int i(0); i < num_element_; ++i) {
+        sum += p[i] * FloorLog2(p[i]);
+      }
+      break;
+    }
+    case kNat: {
+      for (int i(0); i < num_element_; ++i) {
+        sum += p[i] * FloorLog(p[i]);
+      }
+      break;
+    }
+    case kDit: {
+      for (int i(0); i < num_element_; ++i) {
+        sum += p[i] * FloorLog10(p[i]);
+      }
+      break;
+    }
+    default: { return false; }
+  }
+
+  *entropy = -sum;
+
+  return true;
+}
 
 }  // namespace sptk
-
-#endif  // SPTK_UTILS_SPTK_UTILS_H_

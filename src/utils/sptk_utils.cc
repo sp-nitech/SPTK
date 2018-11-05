@@ -350,6 +350,14 @@ double FloorLog(double x) {
   return (x <= 0.0) ? kLogZero : std::log(x);
 }
 
+double FloorLog2(double x) {
+  return (x <= 0.0) ? kLogZero : std::log2(x);
+}
+
+double FloorLog10(double x) {
+  return (x <= 0.0) ? kLogZero : std::log10(x);
+}
+
 // compute log(x + y) given log(x) and log(y).
 double AddInLogSpace(double log_x, double log_y) {
   if (log_x == log_y) return log_x + kLogTwo;
