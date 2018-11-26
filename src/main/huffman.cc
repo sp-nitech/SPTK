@@ -60,7 +60,7 @@ const int kDefaultStartIndex(0);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " huffman - huffman coding" << std::endl;
+  *stream << " huffman - Huffman coding" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       huffman [ options ] [ infile ] > stdout" << std::endl;

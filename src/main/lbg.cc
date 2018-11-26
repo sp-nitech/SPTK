@@ -49,8 +49,8 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/math/statistics_accumulator.h"
 #include "SPTK/compressor/linde_buzo_gray_algorithm.h"
+#include "SPTK/math/statistics_accumulator.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
