@@ -206,6 +206,35 @@ bool WriteStream(int write_point, int write_size,
   return !output_stream->fail();
 }
 
+template <>
+bool WriteStream(int write_point, int write_size,
+                 const std::vector<std::string>& sequence_to_write,
+                 std::ostream* output_stream, int* actual_write_size) {
+  if (write_point < 0 || write_size <= 0 || NULL == output_stream) {
+    return false;
+  }
+
+  const int end(write_point + write_size);
+  if (sequence_to_write.size() < static_cast<std::size_t>(end)) {
+    return false;
+  }
+
+  const int before((NULL == actual_write_size)
+                       ? 0
+                       : static_cast<int>(output_stream->tellp()));
+
+  for (int i(write_point); i < end; ++i) {
+    *output_stream << sequence_to_write[i] << std::endl;
+  }
+
+  if (NULL != actual_write_size) {
+    const int after(output_stream->tellp());
+    *actual_write_size = after - before;
+  }
+
+  return !output_stream->fail();
+}
+
 template <typename T>
 bool SnPrintf(T data, const std::string& print_format, std::size_t buffer_size,
               char* buffer) {

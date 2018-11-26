@@ -42,31 +42,143 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/quantizer/mu_law_compression.h"
+#include "SPTK/compressor/huffman_coding.h"
 
-#include <cmath>  // std::fabs, std::log
+#include <cstddef>  // std::size_t
+#include <queue>    // std::priority_queue
+
+namespace {
+
+class Node {
+ public:
+  // Leaf node
+  Node(int symbol, double probability)
+      : symbol_(symbol), probability_(probability), left_(NULL), right_(NULL) {
+  }
+
+  // Internal node
+  Node(const Node* left, const Node* right)
+      : symbol_(-1),
+        probability_((NULL == left || NULL == right)
+                         ? 0.0
+                         : left->GetProbability() + right->GetProbability()),
+        left_(left),
+        right_(right) {
+  }
+
+  virtual ~Node() {
+  }
+
+  int GetSymbol() const {
+    return symbol_;
+  }
+
+  double GetProbability() const {
+    return probability_;
+  }
+
+  const Node* GetLeft() const {
+    return left_;
+  }
+
+  const Node* GetRight() const {
+    return right_;
+  }
+
+ private:
+  const int symbol_;
+  const double probability_;
+  const Node* left_;
+  const Node* right_;
+
+  DISALLOW_COPY_AND_ASSIGN(Node);
+};
+
+struct Compare {
+  bool operator()(const Node* a, const Node* b) const {
+    return b->GetProbability() < a->GetProbability();
+  }
+};
+
+void Encode(const Node* node, std::string code,
+            std::vector<std::string>* codeword) {
+  if (NULL == node) return;
+
+  const int symbol(node->GetSymbol());
+  if (0 <= symbol) {
+    (*codeword)[symbol] = code;
+  } else {
+    Encode(node->GetLeft(), code + "0", codeword);
+    Encode(node->GetRight(), code + "1", codeword);
+  }
+}
+
+void Free(const Node* node) {
+  if (NULL == node) return;
+  Free(node->GetLeft());
+  Free(node->GetRight());
+  delete node;
+}
+
+}  // namespace
 
 namespace sptk {
 
-MuLawCompression::MuLawCompression(double absolute_maximum_value,
-                                   int compression_factor)
-    : absolute_maximum_value_(absolute_maximum_value),
-      compression_factor_(compression_factor),
-      is_valid_(true) {
-  if (absolute_maximum_value_ <= 0.0 || compression_factor_ <= 0) {
+HuffmanCoding::HuffmanCoding(int num_element)
+    : num_element_(num_element), is_valid_(true) {
+  if (num_element_ <= 0) {
     is_valid_ = false;
   }
 }
 
-bool MuLawCompression::Run(double input, double* output) const {
-  if (!is_valid_ || NULL == output) {
+bool HuffmanCoding::Run(const std::vector<double>& probability,
+                        std::vector<std::string>* codeword) const {
+  // check inputs
+  if (!is_valid_ ||
+      probability.size() != static_cast<std::size_t>(num_element_) ||
+      NULL == codeword) {
     return false;
   }
 
-  const double ratio(std::fabs(input) / absolute_maximum_value_);
-  *output = sptk::ExtractSign(input) * absolute_maximum_value_ *
-            std::log(1.0 + compression_factor_ * ratio) /
-            std::log(1.0 + compression_factor_);
+  // prepare memory
+  if (codeword->size() != static_cast<std::size_t>(num_element_)) {
+    codeword->resize(num_element_);
+  }
+
+  if (1 == num_element_) {
+    (*codeword)[0] = "0";
+    return true;
+  }
+
+  std::priority_queue<Node*, std::vector<Node*>, Compare> tree;
+
+  try {
+    for (int i(0); i < num_element_; ++i) {
+      tree.push(new Node(i, probability[i]));
+    }
+    while (1 < tree.size()) {
+      const Node* left(tree.top());
+      tree.pop();
+      const Node* right(tree.top());
+      tree.pop();
+
+      try {
+        tree.push(new Node(left, right));
+      } catch (...) {
+        delete left;
+        delete right;
+        throw;
+      }
+    }
+    Encode(tree.top(), "", codeword);
+    Free(tree.top());
+  } catch (...) {
+    while (!tree.empty()) {
+      Free(tree.top());
+      tree.pop();
+    }
+    return false;
+  }
 
   return true;
 }

@@ -42,7 +42,7 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/quantizer/linde_buzo_gray_algorithm.h"
+#include "SPTK/compressor/linde_buzo_gray_algorithm.h"
 
 #include <cfloat>   // DBL_MAX
 #include <cmath>    // std::fabs

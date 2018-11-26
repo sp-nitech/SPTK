@@ -42,8 +42,8 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_QUANTIZER_INVERSE_MU_LAW_COMPRESSION_H_
-#define SPTK_QUANTIZER_INVERSE_MU_LAW_COMPRESSION_H_
+#ifndef SPTK_COMPRESSOR_INVERSE_MU_LAW_COMPRESSION_H_
+#define SPTK_COMPRESSOR_INVERSE_MU_LAW_COMPRESSION_H_
 
 #include "SPTK/utils/sptk_utils.h"
 
@@ -93,4 +93,4 @@ class InverseMuLawCompression {
 
 }  // namespace sptk
 
-#endif  // SPTK_QUANTIZER_INVERSE_MU_LAW_COMPRESSION_H_
+#endif  // SPTK_COMPRESSOR_INVERSE_MU_LAW_COMPRESSION_H_

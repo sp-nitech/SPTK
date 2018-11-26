@@ -42,54 +42,33 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_QUANTIZER_MU_LAW_COMPRESSION_H_
-#define SPTK_QUANTIZER_MU_LAW_COMPRESSION_H_
+#include "SPTK/compressor/inverse_mu_law_compression.h"
 
-#include "SPTK/utils/sptk_utils.h"
+#include <cmath>  // std::fabs, std::pow
 
 namespace sptk {
 
-class MuLawCompression {
- public:
-  //
-  MuLawCompression(double absolute_maximum_value, int compression_factor);
+InverseMuLawCompression::InverseMuLawCompression(double absolute_maximum_value,
+                                                 int compression_factor)
+    : absolute_maximum_value_(absolute_maximum_value),
+      compression_factor_(compression_factor),
+      is_valid_(true) {
+  if (absolute_maximum_value_ <= 0.0 || compression_factor_ <= 0) {
+    is_valid_ = false;
+  }
+}
 
-  //
-  virtual ~MuLawCompression() {
+bool InverseMuLawCompression::Run(double input, double* output) const {
+  if (!is_valid_ || NULL == output) {
+    return false;
   }
 
-  //
-  double GetAbsoluteMaximumValue() const {
-    return absolute_maximum_value_;
-  }
+  const double ratio(std::fabs(input) / absolute_maximum_value_);
+  *output = sptk::ExtractSign(input) * absolute_maximum_value_ *
+            (std::pow(1.0 + compression_factor_, ratio) - 1.0) /
+            compression_factor_;
 
-  //
-  int GetCompressionFactor() const {
-    return compression_factor_;
-  }
-
-  //
-  bool IsValid() const {
-    return is_valid_;
-  }
-
-  //
-  bool Run(double input, double* output) const;
-
- private:
-  //
-  const double absolute_maximum_value_;
-
-  //
-  const int compression_factor_;
-
-  //
-  bool is_valid_;
-
-  //
-  DISALLOW_COPY_AND_ASSIGN(MuLawCompression);
-};
+  return true;
+}
 
 }  // namespace sptk
-
-#endif  // SPTK_QUANTIZER_MU_LAW_COMPRESSION_H_

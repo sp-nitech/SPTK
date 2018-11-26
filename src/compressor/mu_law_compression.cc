@@ -42,14 +42,14 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/quantizer/inverse_mu_law_compression.h"
+#include "SPTK/compressor/mu_law_compression.h"
 
-#include <cmath>  // std::fabs, std::pow
+#include <cmath>  // std::fabs, std::log
 
 namespace sptk {
 
-InverseMuLawCompression::InverseMuLawCompression(double absolute_maximum_value,
-                                                 int compression_factor)
+MuLawCompression::MuLawCompression(double absolute_maximum_value,
+                                   int compression_factor)
     : absolute_maximum_value_(absolute_maximum_value),
       compression_factor_(compression_factor),
       is_valid_(true) {
@@ -58,15 +58,15 @@ InverseMuLawCompression::InverseMuLawCompression(double absolute_maximum_value,
   }
 }
 
-bool InverseMuLawCompression::Run(double input, double* output) const {
+bool MuLawCompression::Run(double input, double* output) const {
   if (!is_valid_ || NULL == output) {
     return false;
   }
 
   const double ratio(std::fabs(input) / absolute_maximum_value_);
   *output = sptk::ExtractSign(input) * absolute_maximum_value_ *
-            (std::pow(1.0 + compression_factor_, ratio) - 1.0) /
-            compression_factor_;
+            std::log(1.0 + compression_factor_ * ratio) /
+            std::log(1.0 + compression_factor_);
 
   return true;
 }

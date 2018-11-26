@@ -47,30 +47,30 @@
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
+#include <string>    // std::string
+#include <vector>    // std::vector
 
-#include "SPTK/compressor/mu_law_compression.h"
+#include "SPTK/compressor/huffman_coding.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
 
-const double kDefaultAbsoluteMaximumValue(32768.0);
-const int kDefaultCompressionFactor(255);
+const int kDefaultStartIndex(0);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " ulaw - u-law pulse code modulation" << std::endl;
+  *stream << " huffman - huffman coding" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
-  *stream << "       ulaw [ options ] [ infile ] > stdout" << std::endl;
+  *stream << "       huffman [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -v v  : absolute maximum of input (double)[" << std::setw(5) << std::right << kDefaultAbsoluteMaximumValue << "][ 0.0 <  v <=   ]" << std::endl;  // NOLINT
-  *stream << "       -u u  : compression factor        (   int)[" << std::setw(5) << std::right << kDefaultCompressionFactor    << "][   0 <  u <=   ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : start index        (   int)[" << std::setw(5) << std::right << kDefaultStartIndex << "][   <= s <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       input sequence                    (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       probability sequence       (double)[stdin]" << std::endl;
   *stream << "  stdout:" << std::endl;
-  *stream << "       compressed sequence               (double)" << std::endl;
+  *stream << "       codebook                   (string)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -80,32 +80,18 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-  double absolute_maximum_value(kDefaultAbsoluteMaximumValue);
-  int compression_factor(kDefaultCompressionFactor);
+  int start_index(kDefaultStartIndex);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "v:u:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "s:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
-      case 'v': {
-        if (!sptk::ConvertStringToDouble(optarg, &absolute_maximum_value) ||
-            absolute_maximum_value <= 0.0) {
+      case 's': {
+        if (!sptk::ConvertStringToInteger(optarg, &start_index)) {
           std::ostringstream error_message;
-          error_message
-              << "The argument for the -v option must be a positive number";
-          sptk::PrintErrorMessage("ulaw", error_message);
-          return 1;
-        }
-        break;
-      }
-      case 'u': {
-        if (!sptk::ConvertStringToInteger(optarg, &compression_factor) ||
-            compression_factor <= 0) {
-          std::ostringstream error_message;
-          error_message
-              << "The argument for the -u option must be a positive integer";
-          sptk::PrintErrorMessage("ulaw", error_message);
+          error_message << "The argument for the -s option must be an integer";
+          sptk::PrintErrorMessage("huffman", error_message);
           return 1;
         }
         break;
@@ -126,7 +112,7 @@ int main(int argc, char* argv[]) {
   if (1 < num_input_files) {
     std::ostringstream error_message;
     error_message << "Too many input files";
-    sptk::PrintErrorMessage("ulaw", error_message);
+    sptk::PrintErrorMessage("huffman", error_message);
     return 1;
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
@@ -137,38 +123,49 @@ int main(int argc, char* argv[]) {
   if (ifs.fail() && NULL != input_file) {
     std::ostringstream error_message;
     error_message << "Cannot open file " << input_file;
-    sptk::PrintErrorMessage("ulaw", error_message);
+    sptk::PrintErrorMessage("huffman", error_message);
     return 1;
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for u-law compression
-  sptk::MuLawCompression mu_law_compression(absolute_maximum_value,
-                                            compression_factor);
-  if (!mu_law_compression.IsValid()) {
+  std::vector<double> probability;
+  {
+    double tmp;
+    while (sptk::ReadStream(&tmp, &input_stream)) {
+      probability.push_back(tmp);
+    }
+  }
+  if (probability.empty()) return 0;
+
+  const int num_element(probability.size());
+  sptk::HuffmanCoding huffman_coding(num_element);
+  if (!huffman_coding.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for u-Law compression";
-    sptk::PrintErrorMessage("ulaw", error_message);
+    error_message << "Failed to set condition for coding";
+    sptk::PrintErrorMessage("huffman", error_message);
     return 1;
   }
 
-  double input;
-  double output;
+  std::vector<std::string> codeword(num_element);
+  if (!huffman_coding.Run(probability, &codeword)) {
+    std::ostringstream error_message;
+    error_message << "Failed to run Huffman coding";
+    sptk::PrintErrorMessage("huffman", error_message);
+    return 1;
+  }
 
-  while (sptk::ReadStream(&input, &input_stream)) {
-    if (!mu_law_compression.Run(input, &output)) {
-      std::ostringstream error_message;
-      error_message << "Failed to compress";
-      sptk::PrintErrorMessage("ulaw", error_message);
-      return 1;
-    }
+  std::vector<std::string> codebook(num_element);
+  for (int i(0), index(start_index); i < num_element; ++i, ++index) {
+    std::ostringstream oss;
+    oss << index << " " << codeword[i];
+    codebook[i] = oss.str();
+  }
 
-    if (!sptk::WriteStream(output, &std::cout)) {
-      std::ostringstream error_message;
-      error_message << "Failed to write a compressed sequence";
-      sptk::PrintErrorMessage("ulaw", error_message);
-      return 1;
-    }
+  if (!sptk::WriteStream(0, num_element, codebook, &std::cout, NULL)) {
+    std::ostringstream error_message;
+    error_message << "Failed to write codebook";
+    sptk::PrintErrorMessage("huffman", error_message);
+    return 1;
   }
 
   return 0;

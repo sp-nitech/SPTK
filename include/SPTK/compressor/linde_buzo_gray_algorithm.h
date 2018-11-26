@@ -42,8 +42,8 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_QUANTIZER_LINDE_BUZO_GRAY_ALGORITHM_H_
-#define SPTK_QUANTIZER_LINDE_BUZO_GRAY_ALGORITHM_H_
+#ifndef SPTK_COMPRESSOR_LINDE_BUZO_GRAY_ALGORITHM_H_
+#define SPTK_COMPRESSOR_LINDE_BUZO_GRAY_ALGORITHM_H_
 
 #include <vector>  // std::vector
 
@@ -159,4 +159,4 @@ class LindeBuzoGrayAlgorithm {
 
 }  // namespace sptk
 
-#endif  // SPTK_QUANTIZER_LINDE_BUZO_GRAY_ALGORITHM_H_
+#endif  // SPTK_COMPRESSOR_LINDE_BUZO_GRAY_ALGORITHM_H_
