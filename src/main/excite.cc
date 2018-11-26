@@ -222,7 +222,7 @@ int main(int argc, char* argv[]) {
         return 1;
       }
     }
-  } catch (std::exception* e) {
+  } catch (std::exception) {
     std::ostringstream error_message;
     error_message << "Unknown exception";
     sptk::PrintErrorMessage("excite", error_message);

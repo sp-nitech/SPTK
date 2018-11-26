@@ -45,6 +45,7 @@
 #include <getopt.h>   // getopt_long
 #include <algorithm>  // std::max
 #include <cmath>      // std::cos, std::exp
+#include <exception>  // std::exception
 #include <fstream>    // std::ifstream
 #include <iomanip>    // std::setw
 #include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -248,7 +249,7 @@ int main(int argc, char* argv[]) {
         std::ostringstream error_message;
         error_message << "Failed to set condition for filtering";
         sptk::PrintErrorMessage("df2", error_message);
-        throw;
+        throw std::exception();
       }
     }
 
@@ -259,7 +260,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "Failed to apply digital filter";
           sptk::PrintErrorMessage("df2", error_message);
-          throw;
+          throw std::exception();
         }
         filter_input = filter_output;
       }
@@ -268,10 +269,10 @@ int main(int argc, char* argv[]) {
         std::ostringstream error_message;
         error_message << "Failed to write a filter output";
         sptk::PrintErrorMessage("df2", error_message);
-        throw;
+        throw std::exception();
       }
     }
-  } catch (...) {
+  } catch (std::exception) {
     for (sptk::InfiniteImpulseResponseDigitalFilter* filter : filters) {
       delete filter;
     }
