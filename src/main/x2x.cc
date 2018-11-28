@@ -152,7 +152,7 @@ class DataTransform : public DataTransformInterface {
         if (word.empty()) break;
         try {
           input_data = std::stold(word);
-        } catch (std::invalid_argument) {
+        } catch (std::invalid_argument&) {
           return false;
         }
       } else {

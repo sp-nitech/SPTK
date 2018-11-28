@@ -249,7 +249,10 @@ int main(int argc, char* argv[]) {
         std::ostringstream error_message;
         error_message << "Failed to set condition for filtering";
         sptk::PrintErrorMessage("df2", error_message);
-        throw std::exception();
+        for (sptk::InfiniteImpulseResponseDigitalFilter* filter : filters) {
+          delete filter;
+        }
+        return 1;
       }
     }
 
@@ -260,7 +263,10 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "Failed to apply digital filter";
           sptk::PrintErrorMessage("df2", error_message);
-          throw std::exception();
+          for (sptk::InfiniteImpulseResponseDigitalFilter* filter : filters) {
+            delete filter;
+          }
+          return 1;
         }
         filter_input = filter_output;
       }
@@ -269,14 +275,19 @@ int main(int argc, char* argv[]) {
         std::ostringstream error_message;
         error_message << "Failed to write a filter output";
         sptk::PrintErrorMessage("df2", error_message);
-        throw std::exception();
+        for (sptk::InfiniteImpulseResponseDigitalFilter* filter : filters) {
+          delete filter;
+        }
+        return 1;
       }
     }
-  } catch (std::exception) {
+  } catch (std::exception&) {
+    std::ostringstream error_message;
+    error_message << "Unknown exception";
+    sptk::PrintErrorMessage("df2", error_message);
     for (sptk::InfiniteImpulseResponseDigitalFilter* filter : filters) {
       delete filter;
     }
-
     return 1;
   }
 

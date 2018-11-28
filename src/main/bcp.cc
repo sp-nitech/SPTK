@@ -153,7 +153,7 @@ class BlockCopy : public BlockCopyInterface {
           if (input_start_number_ <= i && i <= input_end_number_) {
             try {
               inputs[i] = std::stold(word);
-            } catch (std::invalid_argument) {
+            } catch (std::invalid_argument&) {
               return false;
             }
           }

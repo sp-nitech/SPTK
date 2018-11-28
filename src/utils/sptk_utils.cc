@@ -593,6 +593,7 @@ void PrintErrorMessage(const std::string& program_name,
 }
 
 // clang-format off
+template bool ReadStream<bool>(bool*, std::istream*);
 template bool ReadStream<int8_t>(int8_t*, std::istream*);
 template bool ReadStream<int16_t>(int16_t*, std::istream*);
 template bool ReadStream<int24_t>(int24_t*, std::istream*);
@@ -619,6 +620,7 @@ template bool ReadStream<uint64_t>(bool, int, int, int, std::vector<uint64_t>*, 
 template bool ReadStream<float>(bool, int, int, int, std::vector<float>*, std::istream*, int*);              // NOLINT
 template bool ReadStream<double>(bool, int, int, int, std::vector<double>*, std::istream*, int*);            // NOLINT
 template bool ReadStream<long double>(bool, int, int, int, std::vector<long double>*, std::istream*, int*);  // NOLINT
+template bool WriteStream<bool>(bool, std::ostream*);
 template bool WriteStream<int8_t>(int8_t, std::ostream*);
 template bool WriteStream<int16_t>(int16_t, std::ostream*);
 template bool WriteStream<int24_t>(int24_t, std::ostream*);
