@@ -43,7 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
-#include <fstream>   // std::ifstream
+#include <fstream>   // std::ifstream, std::ofstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
@@ -65,12 +65,14 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       huffman [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -s s  : start index        (   int)[" << std::setw(5) << std::right << kDefaultStartIndex << "][   <= s <=   ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : start index               (   int)[" << std::setw(5) << std::right << kDefaultStartIndex << "][   <= s <=   ]" << std::endl;  // NOLINT
+  *stream << "       -L L  : output filename of double (string)[" << std::setw(5) << std::right << "N/A"              << "]" << std::endl;  // NOLINT
+  *stream << "               type average code length" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       probability sequence       (double)[stdin]" << std::endl;
+  *stream << "       probability sequence              (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       codebook                   (string)" << std::endl;
+  *stream << "       codebook                          (string)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -81,9 +83,10 @@ void PrintUsage(std::ostream* stream) {
 
 int main(int argc, char* argv[]) {
   int start_index(kDefaultStartIndex);
+  const char* average_code_length_file(NULL);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "s:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "s:L:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -94,6 +97,10 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("huffman", error_message);
           return 1;
         }
+        break;
+      }
+      case 'L': {
+        average_code_length_file = optarg;
         break;
       }
       case 'h': {
@@ -127,6 +134,18 @@ int main(int argc, char* argv[]) {
     return 1;
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
+
+  std::ofstream ofs;
+  if (NULL != average_code_length_file) {
+    ofs.open(average_code_length_file, std::ios::out | std::ios::binary);
+    if (ofs.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << average_code_length_file;
+      sptk::PrintErrorMessage("huffman", error_message);
+      return 1;
+    }
+  }
+  std::ostream& output_stream(ofs);
 
   std::vector<double> probability;
   {
@@ -166,6 +185,19 @@ int main(int argc, char* argv[]) {
     error_message << "Failed to write codebook";
     sptk::PrintErrorMessage("huffman", error_message);
     return 1;
+  }
+
+  if (NULL != average_code_length_file) {
+    double average_code_length(0.0);
+    for (int i(0); i < num_element; ++i) {
+      average_code_length += probability[i] * codeword[i].length();
+    }
+    if (!sptk::WriteStream(average_code_length, &output_stream)) {
+      std::ostringstream error_message;
+      error_message << "Failed to write average code length";
+      sptk::PrintErrorMessage("huffman", error_message);
+      return 1;
+    }
   }
 
   return 0;
