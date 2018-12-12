@@ -42,56 +42,62 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/math/entropy_calculator.h"
+#ifndef SPTK_COMPRESSOR_HUFFMAN_DECODING_H_
+#define SPTK_COMPRESSOR_HUFFMAN_DECODING_H_
 
-#include <cstddef>  // std::size_t
+#include <fstream>  // std::ifstream
+
+#include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
-EntropyCalculator::EntropyCalculator(int num_element, EntropyUnits entropy_unit)
-    : num_element_(num_element), entropy_unit_(entropy_unit), is_valid_(true) {
-  if (num_element_ <= 0 || kNumUnits == entropy_unit_) {
-    is_valid_ = false;
-  }
-}
+class HuffmanDecoding {
+ public:
+  //
+  explicit HuffmanDecoding(std::ifstream* input_stream);
 
-bool EntropyCalculator::Run(const std::vector<double>& probability,
-                            double* entropy) const {
-  // check inputs
-  if (!is_valid_ ||
-      probability.size() != static_cast<std::size_t>(num_element_) ||
-      NULL == entropy) {
-    return false;
+  //
+  virtual ~HuffmanDecoding() {
+    Free(root_);
   }
 
-  const double* p(&(probability[0]));
-  double sum(0.0);
-
-  switch (entropy_unit_) {
-    case kBit: {
-      for (int i(0); i < num_element_; ++i) {
-        sum += p[i] * FloorLog2(p[i]);
-      }
-      break;
-    }
-    case kNat: {
-      for (int i(0); i < num_element_; ++i) {
-        sum += p[i] * FloorLog(p[i]);
-      }
-      break;
-    }
-    case kDit: {
-      for (int i(0); i < num_element_; ++i) {
-        sum += p[i] * FloorLog10(p[i]);
-      }
-      break;
-    }
-    default: { return false; }
+  //
+  bool IsValid() const {
+    return is_valid_;
   }
 
-  *entropy = -sum;
+  //
+  bool Get(bool input, double* output, bool* is_leaf);
 
-  return true;
-}
+ private:
+  //
+  struct Node {
+    Node* left;
+    Node* right;
+    double symbol;
+  };
+
+  //
+  void Free(Node* node) {
+    if (NULL == node) return;
+    Free(node->left);
+    Free(node->right);
+    delete node;
+  }
+
+  //
+  bool is_valid_;
+
+  //
+  Node* root_;
+
+  //
+  Node* curr_node_;
+
+  //
+  DISALLOW_COPY_AND_ASSIGN(HuffmanDecoding);
+};
 
 }  // namespace sptk
+
+#endif  // SPTK_COMPRESSOR_HUFFMAN_DECODING_H_

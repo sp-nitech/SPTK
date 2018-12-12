@@ -42,54 +42,71 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/math/entropy_calculator.h"
+#include "SPTK/compressor/huffman_decoding.h"
 
-#include <cstddef>  // std::size_t
+#include <string>  // std::string
 
 namespace sptk {
 
-EntropyCalculator::EntropyCalculator(int num_element, EntropyUnits entropy_unit)
-    : num_element_(num_element), entropy_unit_(entropy_unit), is_valid_(true) {
-  if (num_element_ <= 0 || kNumUnits == entropy_unit_) {
+HuffmanDecoding::HuffmanDecoding(std::ifstream* input_stream)
+    : is_valid_(true), root_(NULL), curr_node_(NULL) {
+  if (NULL == input_stream) {
     is_valid_ = false;
+    return;
   }
+
+  try {
+    root_ = new Node;
+    root_->left = NULL;
+    root_->right = NULL;
+
+    double symbol;
+    std::string bits;
+    while (*input_stream >> symbol >> bits) {
+      Node* node(root_);
+      for (char& bit : bits) {
+        const bool right('1' == bit ? true : false);
+        Node* next_node(right ? node->right : node->left);
+        if (NULL == next_node) {
+          next_node = new Node;
+          next_node->left = NULL;
+          next_node->right = NULL;
+          if (right) {
+            node->right = next_node;
+          } else {
+            node->left = next_node;
+          }
+        }
+        node = next_node;
+      }
+      node->symbol = symbol;
+    }
+  } catch (...) {
+    Free(root_);
+    is_valid_ = false;
+    return;
+  }
+
+  curr_node_ = root_;
 }
 
-bool EntropyCalculator::Run(const std::vector<double>& probability,
-                            double* entropy) const {
+bool HuffmanDecoding::Get(bool input, double* output, bool* is_leaf) {
   // check inputs
-  if (!is_valid_ ||
-      probability.size() != static_cast<std::size_t>(num_element_) ||
-      NULL == entropy) {
+  if (!is_valid_ || NULL == output || NULL == is_leaf || NULL == curr_node_) {
     return false;
   }
 
-  const double* p(&(probability[0]));
-  double sum(0.0);
-
-  switch (entropy_unit_) {
-    case kBit: {
-      for (int i(0); i < num_element_; ++i) {
-        sum += p[i] * FloorLog2(p[i]);
-      }
-      break;
-    }
-    case kNat: {
-      for (int i(0); i < num_element_; ++i) {
-        sum += p[i] * FloorLog(p[i]);
-      }
-      break;
-    }
-    case kDit: {
-      for (int i(0); i < num_element_; ++i) {
-        sum += p[i] * FloorLog10(p[i]);
-      }
-      break;
-    }
-    default: { return false; }
+  curr_node_ = input ? curr_node_->right : curr_node_->left;
+  if (NULL == curr_node_) {
+    return false;
   }
 
-  *entropy = -sum;
+  *is_leaf =
+      (NULL == curr_node_->left && NULL == curr_node_->right) ? true : false;
+  if (*is_leaf) {
+    *output = curr_node_->symbol;
+    curr_node_ = root_;
+  }
 
   return true;
 }

@@ -316,7 +316,7 @@ bool ConvertSpecialStringToDouble(const std::string& input, double* output) {
 
   std::string lowercase_input(input);
   std::transform(input.begin(), input.end(), lowercase_input.begin(),
-                 ::tolower);
+                 [](unsigned char c) { return std::tolower(c); });
   if ("pi" == lowercase_input) {
     *output = sptk::kPi;
     return true;
