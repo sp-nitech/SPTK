@@ -42,92 +42,106 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_MATH_SYMMETRIC_MATRIX_H_
-#define SPTK_MATH_SYMMETRIC_MATRIX_H_
+#ifndef SPTK_CONVERTER_AUTOCORRELATION_TO_COMPOSITE_SINUSOIDAL_MODELING_H_
+#define SPTK_CONVERTER_AUTOCORRELATION_TO_COMPOSITE_SINUSOIDAL_MODELING_H_
 
-#include <vector>  // std::vector
+#include <complex>  // std::complex
+#include <vector>   // std::vector
 
+#include "SPTK/math/cholesky_solver.h"
+#include "SPTK/math/durand_kerner_method.h"
+#include "SPTK/math/vandermonde_system_solver.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
-class SymmetricMatrix {
+class AutocorrelationToCompositeSinusoidalModeling {
  public:
-  class Row {
+  class Buffer {
    public:
-    Row(const SymmetricMatrix& symmetric_matrix, int row)
-        : symmetric_matrix_(symmetric_matrix), row_(row) {
+    Buffer() {
     }
-    virtual ~Row() {
+    virtual ~Buffer() {
     }
-    double& operator[](int column);
-    const double& operator[](int column) const;
 
    private:
-    const SymmetricMatrix& symmetric_matrix_;
-    const int row_;
-    friend class SymmetricMatrix;
-    DISALLOW_COPY_AND_ASSIGN(Row);
+    std::vector<double> u_;
+    std::vector<double> u_first_half_;
+    std::vector<double> u_second_half_;
+    SymmetricMatrix u_symmetric_matrix_;
+    std::vector<std::complex<double> > x_;
+    std::vector<double> x_real_part_;
+    std::vector<double> p_;
+    std::vector<double> frequencies_;
+    std::vector<double> intensities_;
+    CholeskySolver::Buffer cholesky_solver_buffer_;
+    VandermondeSystemSolver::Buffer vandermonde_system_solver_buffer_;
+
+    friend class AutocorrelationToCompositeSinusoidalModeling;
+    DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
 
   //
-  explicit SymmetricMatrix(int num_dimension = 0);
+  AutocorrelationToCompositeSinusoidalModeling(int num_order, int num_iteration,
+                                               double convergence_threshold);
 
   //
-  SymmetricMatrix(const SymmetricMatrix& symmetric_matrix);
-
-  //
-  SymmetricMatrix& operator=(const SymmetricMatrix& symmetric_matrix);
-
-  //
-  virtual ~SymmetricMatrix() {
+  virtual ~AutocorrelationToCompositeSinusoidalModeling() {
   }
 
   //
-  int GetNumDimension() const {
-    return num_dimension_;
+  int GetNumOrder() const {
+    return num_order_;
   }
 
   //
-  void Resize(int num_dimension);
-
-  //
-  Row operator[](int row) {
-    return Row(*this, row);
+  int GetNumSineWave() const {
+    return num_sine_wave_;
   }
 
   //
-  const Row operator[](int row) const {
-    return Row(*this, row);
+  int GetNumIteration() const {
+    return durand_kerner_method_.GetNumIteration();
   }
 
   //
-  double& At(int row, int column);
+  double GetConvergenceThreshold() const {
+    return durand_kerner_method_.GetConvergenceThreshold();
+  }
 
   //
-  const double& At(int row, int column) const;
+  bool IsValid() const {
+    return is_valid_;
+  }
 
   //
-  void FillZero();
-
-  //
-  bool CholeskyDecomposition(SymmetricMatrix* lower_triangular_matrix,
-                             std::vector<double>* diagonal_elements) const;
-
-  //
-  bool Invert(SymmetricMatrix* inverse_matrix) const;
+  bool Run(const std::vector<double>& autocorrelation,
+           std::vector<double>* composite_sinusoidal_modeling,
+           AutocorrelationToCompositeSinusoidalModeling::Buffer* buffer) const;
 
  private:
   //
-  int num_dimension_;
+  const int num_order_;
 
   //
-  std::vector<double> data_;
+  const int num_sine_wave_;
 
   //
-  std::vector<double*> index_;
+  const CholeskySolver cholesky_solver_;
+
+  //
+  const DurandKernerMethod durand_kerner_method_;
+
+  //
+  const VandermondeSystemSolver vandermonde_system_solver_;
+
+  //
+  bool is_valid_;
+
+  //
+  DISALLOW_COPY_AND_ASSIGN(AutocorrelationToCompositeSinusoidalModeling);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_MATH_SYMMETRIC_MATRIX_H_
+#endif  // SPTK_CONVERTER_AUTOCORRELATION_TO_COMPOSITE_SINUSOIDAL_MODELING_H_

@@ -45,6 +45,7 @@
 #include "SPTK/math/symmetric_matrix.h"
 
 #include <algorithm>  // std::fill, std::swap
+#include <cstddef>    // std::size_t
 #include <stdexcept>  // std::out_of_range
 #include <string>     // std::string
 
@@ -142,6 +143,48 @@ void SymmetricMatrix::FillZero() {
   std::fill(data_.begin(), data_.end(), 0.0);
 }
 
+bool SymmetricMatrix::CholeskyDecomposition(
+    SymmetricMatrix* lower_triangular_matrix,
+    std::vector<double>* diagonal_elements) const {
+  if (NULL == lower_triangular_matrix || NULL == diagonal_elements ||
+      this == lower_triangular_matrix || 0.0 == index_[0][0]) {
+    return false;
+  }
+
+  if (lower_triangular_matrix->num_dimension_ != num_dimension_) {
+    lower_triangular_matrix->Resize(num_dimension_);
+  }
+  if (diagonal_elements->size() != static_cast<std::size_t>(num_dimension_)) {
+    diagonal_elements->resize(num_dimension_);
+  }
+
+  double* d(&((*diagonal_elements)[0]));
+
+  d[0] = index_[0][0];
+  lower_triangular_matrix->index_[0][0] = 1.0;
+  for (int i(1); i < num_dimension_; ++i) {
+    for (int j(0); j < i; ++j) {
+      double tmp(index_[i][j]);
+      for (int k(0); k < j; ++k) {
+        tmp -= lower_triangular_matrix->index_[i][k] *
+               lower_triangular_matrix->index_[j][k] * d[k];
+      }
+      lower_triangular_matrix->index_[i][j] = tmp / d[j];
+    }
+
+    d[i] = index_[i][i];
+    for (int j(0); j < i; ++j) {
+      d[i] -= lower_triangular_matrix->index_[i][j] *
+              lower_triangular_matrix->index_[i][j] * d[j];
+    }
+    if (0.0 == d[i]) {
+      return false;
+    }
+    lower_triangular_matrix->index_[i][i] = 1.0;
+  }
+  return true;
+}
+
 bool SymmetricMatrix::Invert(SymmetricMatrix* inverse_matrix) const {
   if (NULL == inverse_matrix || this == inverse_matrix) {
     return false;
@@ -151,49 +194,10 @@ bool SymmetricMatrix::Invert(SymmetricMatrix* inverse_matrix) const {
     inverse_matrix->Resize(num_dimension_);
   }
 
-  Matrix matrix(num_dimension_, num_dimension_);
-  for (int row(0); row < num_dimension_; ++row) {
-    for (int column(0); column < num_dimension_; ++column) {
-      matrix[row][column] = index_[row][column];
-    }
-    for (int column(row); column < num_dimension_; ++column) {
-      matrix[row][column] = index_[column][row];
-    }
-  }
-
-  std::vector<double> leading_principal_minor(num_dimension_ + 1);
-  std::vector<double> diagonal_elements(num_dimension_);
-  std::vector<double> inverse_diagonal_elements(num_dimension_);
-  leading_principal_minor[0] = 1.0;
-  for (int i(1); i <= num_dimension_; ++i) {
-    Matrix submatrix;
-    if (!matrix.GetSubmatrix(0, i, 0, i, &submatrix)) {
-      return false;
-    }
-    if (!submatrix.GetDeterminant(&leading_principal_minor[i])) {
-      return false;
-    }
-    if (0.0 == leading_principal_minor[i]) {
-      return false;
-    }
-    diagonal_elements[i - 1] =
-        leading_principal_minor[i] / leading_principal_minor[i - 1];
-    inverse_diagonal_elements[i - 1] =
-        leading_principal_minor[i - 1] / leading_principal_minor[i];
-  }
-
   SymmetricMatrix lower_triangular_matrix(num_dimension_);
-  lower_triangular_matrix.index_[0][0] = 1.0;
-  for (int i(1); i < num_dimension_; ++i) {
-    for (int j(0); j < i; ++j) {
-      double tmp(index_[i][j]);
-      for (int k(0); k < j; ++k) {
-        tmp -= lower_triangular_matrix.index_[i][k] *
-               lower_triangular_matrix.index_[j][k] * diagonal_elements[k];
-      }
-      lower_triangular_matrix.index_[i][j] = tmp * inverse_diagonal_elements[j];
-    }
-    lower_triangular_matrix.index_[i][i] = 1.0;
+  std::vector<double> diagonal_elements(num_dimension_);
+  if (!CholeskyDecomposition(&lower_triangular_matrix, &diagonal_elements)) {
+    return false;
   }
 
   for (int i(num_dimension_ - 1); 0 <= i; --i) {
@@ -207,6 +211,11 @@ bool SymmetricMatrix::Invert(SymmetricMatrix* inverse_matrix) const {
       }
       inverse_matrix->index_[j][i] *= -inverse_matrix->index_[j][j];
     }
+  }
+
+  std::vector<double> inverse_diagonal_elements(num_dimension_);
+  for (int i(0); i < num_dimension_; ++i) {
+    inverse_diagonal_elements[i] = 1.0 / diagonal_elements[i];
   }
 
   for (int i(0); i < num_dimension_; ++i) {

@@ -81,14 +81,25 @@ bool CholeskySolver::Run(const SymmetricMatrix& coefficient_matrix,
   const double* b(&constant_vector[0]);
   double* x(&((*solution_vector)[0]));
 
-  if (!coefficient_matrix.Invert(&buffer->inverse_matrix_)) {
+  SymmetricMatrix lower_triangular_matrix(length);
+  std::vector<double> diagonal_elements(length);
+  if (!coefficient_matrix.CholeskyDecomposition(&lower_triangular_matrix,
+                                                &diagonal_elements)) {
     return false;
   }
 
+  std::vector<double> y(length);
   for (int i(0); i < length; ++i) {
-    x[i] = 0.0;
-    for (int j(0); j < length; ++j) {
-      x[i] += buffer->inverse_matrix_[i][j] * b[j];
+    y[i] = b[i];
+    for (int j(0); j < i; ++j) {
+      y[i] -= lower_triangular_matrix[i][j] * y[j];
+    }
+  }
+
+  for (int i(length - 1); 0 <= i; --i) {
+    x[i] = y[i] / diagonal_elements[i];
+    for (int j(i + 1); j < length; ++j) {
+      x[i] -= lower_triangular_matrix[j][i] * x[j];
     }
   }
 
