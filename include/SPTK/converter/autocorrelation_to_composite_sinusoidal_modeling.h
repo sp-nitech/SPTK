@@ -72,7 +72,6 @@ class AutocorrelationToCompositeSinusoidalModeling {
     std::vector<std::complex<double> > x_;
     std::vector<double> x_real_part_;
     std::vector<double> p_;
-    std::vector<double> frequencies_;
     std::vector<double> intensities_;
     CholeskySolver::Buffer cholesky_solver_buffer_;
     VandermondeSystemSolver::Buffer vandermonde_system_solver_buffer_;

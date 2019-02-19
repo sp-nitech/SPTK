@@ -135,9 +135,6 @@ bool AutocorrelationToCompositeSinusoidalModeling::Run(
   if (buffer->p_.size() != static_cast<std::size_t>(num_sine_wave_)) {
     buffer->p_.resize(num_sine_wave_);
   }
-  if (buffer->frequencies_.size() != static_cast<std::size_t>(num_sine_wave_)) {
-    buffer->frequencies_.resize(num_sine_wave_);
-  }
   if (buffer->intensities_.size() != static_cast<std::size_t>(num_sine_wave_)) {
     buffer->intensities_.resize(num_sine_wave_);
   }

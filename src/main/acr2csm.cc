@@ -49,27 +49,34 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/converter/composite_sinusoidal_modeling_to_autocorrelation.h"
+#include "SPTK/converter/autocorrelation_to_composite_sinusoidal_modeling.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
 
 const int kDefaultNumOrder(25);
+const int kDefaultNumIteration(1000);
+const double kDefaultConvergenceThreshold(1e-12);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " csm2acr - transform composite sinusoidal modeling to autocorrelation" << std::endl;  // NOLINT
+  *stream << " acr2csm - transform autocorrelation to composite sinusoidal modeling (CSM)" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
-  *stream << "       csm2acr [ options ] [ infile ] > stdout" << std::endl;
+  *stream << "       acr2csm [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of autocorrelation (   int)[" << std::setw(5) << std::right << kDefaultNumOrder << "][ 1 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of autocorrelation     (   int)[" << std::setw(5) << std::right << kDefaultNumOrder             << "][   1 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -i i  : maximum number of iterations (   int)[" << std::setw(5) << std::right << kDefaultNumIteration         << "][   1 <= i <=   ]" << std::endl;  // NOLINT
+  *stream << "       -d d  : convergence threshold        (double)[" << std::setw(5) << std::right << kDefaultConvergenceThreshold << "][ 0.0 <= d <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       composite sinusoidal modeling    (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       autocorrelation                      (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       autocorrelation                  (double)" << std::endl;
+  *stream << "       composite sinusoidal modeling        (double)" << std::endl;  // NOLINT
+  *stream << "  notice:" << std::endl;
+  *stream << "       value of m must be odd" << std::endl;
+  *stream << "       if m > 40, cannot compute reliable CSM due to computational accuracy" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -80,9 +87,11 @@ void PrintUsage(std::ostream* stream) {
 
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
+  int num_iteration(kDefaultNumIteration);
+  double convergence_threshold(kDefaultConvergenceThreshold);
 
   for (;;) {
-    const char option_char(getopt_long(argc, argv, "m:h", NULL, NULL));
+    const char option_char(getopt_long(argc, argv, "m:i:d:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -90,9 +99,31 @@ int main(int argc, char* argv[]) {
         if (!sptk::ConvertStringToInteger(optarg, &num_order) ||
             num_order <= 0 || 0 == num_order % 2) {
           std::ostringstream error_message;
-          error_message << "The argument for the -m option must be a positive "
-                           "odd integer";
-          sptk::PrintErrorMessage("csm2acr", error_message);
+          error_message << "The argument for the -m option must be a "
+                           "positive odd integer";
+          sptk::PrintErrorMessage("acr2csm", error_message);
+          return 1;
+        }
+        break;
+      }
+      case 'i': {
+        if (!sptk::ConvertStringToInteger(optarg, &num_iteration) ||
+            num_iteration <= 0) {
+          std::ostringstream error_message;
+          error_message
+              << "The argument for the -i option must be a positive integer";
+          sptk::PrintErrorMessage("acr2csm", error_message);
+          return 1;
+        }
+        break;
+      }
+      case 'd': {
+        if (!sptk::ConvertStringToDouble(optarg, &convergence_threshold) ||
+            convergence_threshold < 0.0) {
+          std::ostringstream error_message;
+          error_message
+              << "The argument for the -d option must be a non-negative number";
+          sptk::PrintErrorMessage("acr2csm", error_message);
           return 1;
         }
         break;
@@ -113,7 +144,7 @@ int main(int argc, char* argv[]) {
   if (1 < num_input_files) {
     std::ostringstream error_message;
     error_message << "Too many input files";
-    sptk::PrintErrorMessage("csm2acr", error_message);
+    sptk::PrintErrorMessage("acr2csm", error_message);
     return 1;
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
@@ -124,40 +155,42 @@ int main(int argc, char* argv[]) {
   if (ifs.fail() && NULL != input_file) {
     std::ostringstream error_message;
     error_message << "Cannot open file " << input_file;
-    sptk::PrintErrorMessage("csm2acr", error_message);
+    sptk::PrintErrorMessage("acr2csm", error_message);
     return 1;
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  const int length(num_order + 1);
-  const int num_sine_waves(length / 2);
-  sptk::CompositeSinusoidalModelingToAutocorrelation
-      composite_sinusoidal_modeling_to_autocorrelation(num_sine_waves);
-  if (!composite_sinusoidal_modeling_to_autocorrelation.IsValid()) {
+  sptk::AutocorrelationToCompositeSinusoidalModeling
+      autocorrelation_to_composite_sinusoidal_modeling(num_order, num_iteration,
+                                                       convergence_threshold);
+  sptk::AutocorrelationToCompositeSinusoidalModeling::Buffer buffer;
+  if (!autocorrelation_to_composite_sinusoidal_modeling.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for transformation";
-    sptk::PrintErrorMessage("csm2acr", error_message);
+    sptk::PrintErrorMessage("acr2csm", error_message);
     return 1;
   }
 
-  std::vector<double> composite_sinusoidal_modeling(length);
+  const int length(num_order + 1);
   std::vector<double> autocorrelation(length);
+  std::vector<double> composite_sinusoidal_modeling(length);
 
-  while (sptk::ReadStream(false, 0, 0, length, &composite_sinusoidal_modeling,
-                          &input_stream, NULL)) {
-    if (!composite_sinusoidal_modeling_to_autocorrelation.Run(
-            composite_sinusoidal_modeling, &autocorrelation)) {
+  while (sptk::ReadStream(false, 0, 0, length, &autocorrelation, &input_stream,
+                          NULL)) {
+    if (!autocorrelation_to_composite_sinusoidal_modeling.Run(
+            autocorrelation, &composite_sinusoidal_modeling, &buffer)) {
       std::ostringstream error_message;
-      error_message << "Failed to transform composite sinusoidal modeling to "
-                    << "autocorrelation";
-      sptk::PrintErrorMessage("csm2acr", error_message);
+      error_message << "Failed to transform autocorrelation to composite "
+                       "sinusoidal modeling";
+      sptk::PrintErrorMessage("acr2csm", error_message);
       return 1;
     }
 
-    if (!sptk::WriteStream(0, length, autocorrelation, &std::cout, NULL)) {
+    if (!sptk::WriteStream(0, length, composite_sinusoidal_modeling, &std::cout,
+                           NULL)) {
       std::ostringstream error_message;
-      error_message << "Failed to write autocorrelation sequence";
-      sptk::PrintErrorMessage("csm2acr", error_message);
+      error_message << "Failed to write composite sinusoidal modeling sequence";
+      sptk::PrintErrorMessage("acr2csm", error_message);
       return 1;
     }
   }
