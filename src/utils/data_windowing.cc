@@ -53,8 +53,8 @@
 namespace sptk {
 
 DataWindowing::DataWindowing(int num_input_order, int num_output_order,
-                             NormalizationType normalization_type,
-                             WindowType window_type)
+                             WindowType window_type,
+                             NormalizationType normalization_type)
     : num_input_order_(num_input_order),
       num_output_order_(num_output_order),
       is_valid_(true) {
@@ -183,7 +183,7 @@ void DataWindowing::CreateHanningWindow() {
 
 void DataWindowing::CreateBartlettWindow() {
   const int window_size(window_.size());
-  const int half_window_size(static_cast<int>(std::round(0.5 * window_size)));
+  const int half_window_size(std::round(0.5 * window_size));
   const double slope(2.0 / (window_size - 1));
   for (int i(0); i < half_window_size; ++i) {
     window_[i] = slope * i;
@@ -195,8 +195,7 @@ void DataWindowing::CreateBartlettWindow() {
 
 void DataWindowing::CreateTrapezoidalWindow() {
   const int window_size(window_.size());
-  const int quarter_window_size(
-      static_cast<int>(std::round(0.25 * window_size)));
+  const int quarter_window_size(std::round(0.25 * window_size));
   const double slope(4.0 / (window_size - 1));
   for (int i(0); i < quarter_window_size; ++i) {
     window_[i] = slope * i;

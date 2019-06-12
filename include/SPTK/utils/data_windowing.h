@@ -54,14 +54,6 @@ namespace sptk {
 class DataWindowing {
  public:
   //
-  enum NormalizationType {
-    kNone = 0,
-    kPower,
-    kMagnitude,
-    kNumNormalizationTypes
-  };
-
-  //
   enum WindowType {
     kBlackman = 0,
     kHamming,
@@ -73,8 +65,16 @@ class DataWindowing {
   };
 
   //
+  enum NormalizationType {
+    kNone = 0,
+    kPower,
+    kMagnitude,
+    kNumNormalizationTypes
+  };
+
+  //
   DataWindowing(int num_input_order, int num_output_order,
-                NormalizationType normalization_type, WindowType window_type);
+                WindowType window_type, NormalizationType normalization_type);
 
   //
   virtual ~DataWindowing() {
@@ -108,6 +108,7 @@ class DataWindowing {
   void CreateTrapezoidalWindow();
   void CreateRectangularWindow();
 
+  //
   const int num_input_order_;
 
   //

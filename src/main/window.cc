@@ -211,7 +211,7 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
   sptk::DataWindowing data_windowing(input_length - 1, output_length - 1,
-                                     normalization_type, window_type);
+                                     window_type, normalization_type);
   if (!data_windowing.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for data windowing";
