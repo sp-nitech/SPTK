@@ -48,8 +48,8 @@
 #include <complex>  // std::complex
 #include <vector>   // std::vector
 
-#include "SPTK/math/cholesky_solver.h"
 #include "SPTK/math/durand_kerner_method.h"
+#include "SPTK/math/symmetric_system_solver.h"
 #include "SPTK/math/vandermonde_system_solver.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -73,7 +73,7 @@ class AutocorrelationToCompositeSinusoidalModeling {
     std::vector<double> x_real_part_;
     std::vector<double> p_;
     std::vector<double> intensities_;
-    CholeskySolver::Buffer cholesky_solver_buffer_;
+    SymmetricSystemSolver::Buffer symmetric_system_solver_buffer_;
     VandermondeSystemSolver::Buffer vandermonde_system_solver_buffer_;
 
     friend class AutocorrelationToCompositeSinusoidalModeling;
@@ -126,7 +126,7 @@ class AutocorrelationToCompositeSinusoidalModeling {
   const int num_sine_wave_;
 
   //
-  const CholeskySolver cholesky_solver_;
+  const SymmetricSystemSolver symmetric_system_solver_;
 
   //
   const DurandKernerMethod durand_kerner_method_;

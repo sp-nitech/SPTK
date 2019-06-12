@@ -83,7 +83,7 @@ AutocorrelationToCompositeSinusoidalModeling::
                                                  double convergence_threshold)
     : num_order_(num_order),
       num_sine_wave_((num_order_ + 1) / 2),
-      cholesky_solver_(num_sine_wave_ - 1),
+      symmetric_system_solver_(num_sine_wave_ - 1),
       durand_kerner_method_(num_sine_wave_, num_iteration,
                             convergence_threshold),
       vandermonde_system_solver_(num_sine_wave_ - 1),
@@ -166,9 +166,9 @@ bool AutocorrelationToCompositeSinusoidalModeling::Run(
 
   std::copy(buffer->u_.begin() + num_sine_wave_, buffer->u_.end(),
             buffer->u_second_half_.begin());
-  if (!cholesky_solver_.Run(buffer->u_symmetric_matrix_, buffer->u_second_half_,
-                            &(buffer->p_),
-                            &(buffer->cholesky_solver_buffer_))) {
+  if (!symmetric_system_solver_.Run(
+          buffer->u_symmetric_matrix_, buffer->u_second_half_, &(buffer->p_),
+          &(buffer->symmetric_system_solver_buffer_))) {
     return false;
   }
 

@@ -42,65 +42,68 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_MATH_CHOLESKY_SOLVER_H_
-#define SPTK_MATH_CHOLESKY_SOLVER_H_
+#include "SPTK/math/symmetric_system_solver.h"
 
-#include <vector>  // std::vector
-
-#include "SPTK/math/symmetric_matrix.h"
-#include "SPTK/utils/sptk_utils.h"
+#include <cstddef>  // std::size_t
 
 namespace sptk {
 
-class CholeskySolver {
- public:
-  class Buffer {
-   public:
-    Buffer() {
+SymmetricSystemSolver::SymmetricSystemSolver(int num_order)
+    : num_order_(num_order), is_valid_(true) {
+  if (num_order_ < 0) {
+    is_valid_ = false;
+  }
+}
+
+bool SymmetricSystemSolver::Run(const SymmetricMatrix& coefficient_matrix,
+                                const std::vector<double>& constant_vector,
+                                std::vector<double>* solution_vector,
+                                SymmetricSystemSolver::Buffer* buffer) const {
+  // check inputs
+  const int length(num_order_ + 1);
+  if (!is_valid_ || coefficient_matrix.GetNumDimension() != length ||
+      constant_vector.size() != static_cast<std::size_t>(length) ||
+      NULL == solution_vector || NULL == buffer) {
+    return false;
+  }
+
+  // prepare memories
+  if (solution_vector->size() != static_cast<std::size_t>(length)) {
+    solution_vector->resize(length);
+  }
+
+  // prepare buffer
+  if (buffer->inverse_matrix_.GetNumDimension() != length) {
+    buffer->inverse_matrix_.Resize(length);
+  }
+
+  // get values
+  const double* b(&constant_vector[0]);
+  double* x(&((*solution_vector)[0]));
+
+  SymmetricMatrix lower_triangular_matrix(length);
+  std::vector<double> diagonal_elements(length);
+  if (!coefficient_matrix.CholeskyDecomposition(&lower_triangular_matrix,
+                                                &diagonal_elements)) {
+    return false;
+  }
+
+  std::vector<double> y(length);
+  for (int i(0); i < length; ++i) {
+    y[i] = b[i];
+    for (int j(0); j < i; ++j) {
+      y[i] -= lower_triangular_matrix[i][j] * y[j];
     }
-    virtual ~Buffer() {
+  }
+
+  for (int i(length - 1); 0 <= i; --i) {
+    x[i] = y[i] / diagonal_elements[i];
+    for (int j(i + 1); j < length; ++j) {
+      x[i] -= lower_triangular_matrix[j][i] * x[j];
     }
-
-   private:
-    SymmetricMatrix inverse_matrix_;
-    friend class CholeskySolver;
-    DISALLOW_COPY_AND_ASSIGN(Buffer);
-  };
-
-  //
-  explicit CholeskySolver(int num_order);
-
-  //
-  virtual ~CholeskySolver() {
   }
 
-  //
-  int GetNumOrder() const {
-    return num_order_;
-  }
-
-  //
-  bool IsValid() const {
-    return is_valid_;
-  }
-
-  //
-  bool Run(const SymmetricMatrix& coefficient_matrix,
-           const std::vector<double>& constant_vector,
-           std::vector<double>* solution_vector,
-           CholeskySolver::Buffer* buffer) const;
-
- private:
-  //
-  const int num_order_;
-
-  //
-  bool is_valid_;
-
-  //
-  DISALLOW_COPY_AND_ASSIGN(CholeskySolver);
-};
+  return true;
+}
 
 }  // namespace sptk
-
-#endif  // SPTK_MATH_CHOLESKY_SOLVER_H_
