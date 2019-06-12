@@ -42,46 +42,56 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_MATH_STATISTICS_ACCUMULATOR_H_
-#define SPTK_MATH_STATISTICS_ACCUMULATOR_H_
+#ifndef SPTK_MATH_TOEPLITZ_PLUS_HANKEL_SYSTEM_SOLVER_H_
+#define SPTK_MATH_TOEPLITZ_PLUS_HANKEL_SYSTEM_SOLVER_H_
 
-#include <algorithm>  // std::fill
-#include <vector>     // std::vector
+#include <vector>  // std::vector
 
-#include "SPTK/math/symmetric_matrix.h"
+#include "SPTK/math/matrix.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
-class StatisticsAccumulator {
+class ToeplitzPlusHankelSystemSolver {
  public:
   class Buffer {
    public:
-    Buffer() : zeroth_order_statistics_(0) {
+    Buffer()
+        : vx_(2, 2),
+          ex_(2, 2),
+          ep_(2, 1),
+          bx_(2, 2),
+          g_(2, 1),
+          inv_(2, 2),
+          bar_(2, 1),
+          tau_(2, 2) {
     }
     virtual ~Buffer() {
     }
 
    private:
-    void Clear() {
-      zeroth_order_statistics_ = 0;
-      std::fill(first_order_statistics_.begin(), first_order_statistics_.end(),
-                0.0);
-      second_order_statistics_.Fill(0.0);
-    }
-
-    int zeroth_order_statistics_;
-    std::vector<double> first_order_statistics_;
-    SymmetricMatrix second_order_statistics_;
-    friend class StatisticsAccumulator;
+    std::vector<Matrix> r_;
+    std::vector<Matrix> x_;
+    std::vector<Matrix> prev_x_;
+    std::vector<Matrix> p_;
+    Matrix b_;
+    Matrix vx_;
+    Matrix ex_;
+    Matrix ep_;
+    Matrix bx_;
+    Matrix g_;
+    Matrix inv_;
+    Matrix bar_;
+    Matrix tau_;
+    friend class ToeplitzPlusHankelSystemSolver;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
 
   //
-  StatisticsAccumulator(int num_order, int num_statistics_order);
+  explicit ToeplitzPlusHankelSystemSolver(int num_order);
 
   //
-  virtual ~StatisticsAccumulator() {
+  virtual ~ToeplitzPlusHankelSystemSolver() {
   }
 
   //
@@ -90,64 +100,28 @@ class StatisticsAccumulator {
   }
 
   //
-  int GetNumStatisticsOrder() const {
-    return num_statistics_order_;
-  }
-
-  //
   bool IsValid() const {
     return is_valid_;
   }
 
   //
-  bool GetNumData(const StatisticsAccumulator::Buffer& buffer,
-                  int* num_data) const;
-
-  //
-  bool GetSum(const StatisticsAccumulator::Buffer& buffer,
-              std::vector<double>* sum) const;
-
-  //
-  bool GetMean(const StatisticsAccumulator::Buffer& buffer,
-               std::vector<double>* mean) const;
-
-  //
-  bool GetDiagonalCovariance(const StatisticsAccumulator::Buffer& buffer,
-                             std::vector<double>* variance) const;
-
-  //
-  bool GetStandardDeviation(const StatisticsAccumulator::Buffer& buffer,
-                            std::vector<double>* standard_deviation) const;
-
-  //
-  bool GetFullCovariance(const StatisticsAccumulator::Buffer& buffer,
-                         SymmetricMatrix* full_covariance) const;
-
-  //
-  bool GetCorrelation(const StatisticsAccumulator::Buffer& buffer,
-                      SymmetricMatrix* correlation) const;
-
-  //
-  void Clear(StatisticsAccumulator::Buffer* buffer) const;
-
-  //
-  bool Run(const std::vector<double>& data,
-           StatisticsAccumulator::Buffer* buffer) const;
+  bool Run(const std::vector<double>& toeplitz_coefficient_vector,
+           const std::vector<double>& hankel_coefficient_vector,
+           const std::vector<double>& constant_vector,
+           std::vector<double>* solution_vector,
+           ToeplitzPlusHankelSystemSolver::Buffer* buffer) const;
 
  private:
   //
   const int num_order_;
 
   //
-  const int num_statistics_order_;
-
-  //
   bool is_valid_;
 
   //
-  DISALLOW_COPY_AND_ASSIGN(StatisticsAccumulator);
+  DISALLOW_COPY_AND_ASSIGN(ToeplitzPlusHankelSystemSolver);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_MATH_STATISTICS_ACCUMULATOR_H_
+#endif  // SPTK_MATH_TOEPLITZ_PLUS_HANKEL_SYSTEM_SOLVER_H_

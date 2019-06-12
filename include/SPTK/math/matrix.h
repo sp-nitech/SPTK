@@ -97,6 +97,15 @@ class Matrix {
   const double& At(int row, int column) const;
 
   //
+  Matrix& operator+=(const Matrix& matrix);
+
+  //
+  Matrix& operator-=(const Matrix& matrix);
+
+  //
+  Matrix& operator*=(const Matrix& matrix);
+
+  //
   Matrix operator+(const Matrix& matrix) const;
 
   //
@@ -106,7 +115,16 @@ class Matrix {
   Matrix operator*(const Matrix& matrix) const;
 
   //
-  void FillZero();
+  Matrix operator-() const;
+
+  //
+  void Fill(double value);
+
+  //
+  void FillDiagonal(double value);
+
+  //
+  void Negate();
 
   //
   bool Transpose(Matrix* transposed_matrix) const;

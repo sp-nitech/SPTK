@@ -108,7 +108,7 @@ class SymmetricMatrix {
   const double& At(int row, int column) const;
 
   //
-  void FillZero();
+  void Fill(double value);
 
   //
   bool CholeskyDecomposition(SymmetricMatrix* lower_triangular_matrix,

@@ -139,8 +139,8 @@ const double& SymmetricMatrix::At(int row, int column) const {
   return index_[row][column];
 }
 
-void SymmetricMatrix::FillZero() {
-  std::fill(data_.begin(), data_.end(), 0.0);
+void SymmetricMatrix::Fill(double value) {
+  std::fill(data_.begin(), data_.end(), value);
 }
 
 bool SymmetricMatrix::CholeskyDecomposition(

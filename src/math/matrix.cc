@@ -44,8 +44,8 @@
 
 #include "SPTK/math/matrix.h"
 
-#include <algorithm>   // std::fill, std::transform
-#include <functional>  // std::minus, std::plus
+#include <algorithm>   // std::fill, std::min, std::transform
+#include <functional>  // std::minus, std::negate, std::plus
 #include <stdexcept>   // std::logic_error, std::out_of_range
 #include <string>      // std::string
 
@@ -111,7 +111,7 @@ void Matrix::Resize(int num_row, int num_column) {
   data_.resize(num_row_ * num_column_);
   index_.resize(num_row_);
 
-  FillZero();
+  Fill(0.0);
   for (int i(0); i < num_row_; ++i) {
     index_[i] = &data_[i * num_column_];
   }
@@ -131,24 +131,37 @@ const double& Matrix::At(int row, int column) const {
   return index_[row][column];
 }
 
-Matrix Matrix::operator+(const Matrix& matrix) const {
+Matrix& Matrix::operator+=(const Matrix& matrix) {
   if (num_row_ != matrix.num_row_ || num_column_ != matrix.num_column_) {
     throw std::logic_error(kErrorMessageForLogicError);
   }
-  Matrix result(num_row_, num_column_);
   std::transform(data_.begin(), data_.end(), matrix.data_.begin(),
-                 result.data_.begin(), std::plus<double>());
-  return result;
+                 data_.begin(), std::plus<double>());
+  return *this;
+}
+
+Matrix& Matrix::operator-=(const Matrix& matrix) {
+  if (num_row_ != matrix.num_row_ || num_column_ != matrix.num_column_) {
+    throw std::logic_error(kErrorMessageForLogicError);
+  }
+  std::transform(data_.begin(), data_.end(), matrix.data_.begin(),
+                 data_.begin(), std::minus<double>());
+  return *this;
+}
+
+Matrix& Matrix::operator*=(const Matrix& matrix) {
+  *this = *this * matrix;
+  return *this;
+}
+
+Matrix Matrix::operator+(const Matrix& matrix) const {
+  Matrix result(*this);
+  return result += matrix;
 }
 
 Matrix Matrix::operator-(const Matrix& matrix) const {
-  if (num_row_ != matrix.num_row_ || num_column_ != matrix.num_column_) {
-    throw std::logic_error(kErrorMessageForLogicError);
-  }
-  Matrix result(num_row_, num_column_);
-  std::transform(data_.begin(), data_.end(), matrix.data_.begin(),
-                 result.data_.begin(), std::minus<double>());
-  return result;
+  Matrix result(*this);
+  return result -= matrix;
 }
 
 Matrix Matrix::operator*(const Matrix& matrix) const {
@@ -166,8 +179,27 @@ Matrix Matrix::operator*(const Matrix& matrix) const {
   return result;
 }
 
-void Matrix::FillZero() {
-  std::fill(data_.begin(), data_.end(), 0.0);
+Matrix Matrix::operator-() const {
+  Matrix result(*this);
+  result.Negate();
+  return result;
+}
+
+void Matrix::Fill(double value) {
+  std::fill(data_.begin(), data_.end(), value);
+}
+
+void Matrix::FillDiagonal(double value) {
+  Fill(0.0);
+  const int num_ones(std::min(num_row_, num_column_));
+  for (int i(0); i < num_ones; ++i) {
+    index_[i][i] = value;
+  }
+}
+
+void Matrix::Negate() {
+  std::transform(data_.begin(), data_.end(), data_.begin(),
+                 std::negate<double>());
 }
 
 bool Matrix::Transpose(Matrix* transposed_matrix) const {

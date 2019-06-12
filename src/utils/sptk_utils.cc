@@ -398,11 +398,11 @@ double AddInLogSpace(double log_x, double log_y) {
   return greater + std::log(std::exp(diff) + 1.0);
 }
 
-// compute the percentage point of the standard normal distribution
-// using the formula for the approximation by Toda.
+// Compute the percentage point of the standard normal distribution
+// using the formula for the approximation by Toda and Ono.
 //
-// H. Toda and H. Ono, ``The Minimax Approximation for Percentage Points of
-// the Standard Normal Distribution'', Japanese journal of applied statistics,
+// H. Toda and H. Ono, ``The minimax approximation for percentage points of
+// the standard normal distribution,'' Japanese journal of applied statistics,
 // vol. 22, no. 1, pp. 13--21, 1993.
 bool ComputePercentagePointOfStandardNormalDistribution(
     double probability, double* percentage_point) {
@@ -460,13 +460,11 @@ bool ComputeProbabilityOfTDistribution(double percentage_point,
   return true;
 }
 
-// compute the percentage point of the t distribution
-// using the Cornish-Fisher expansion of t expressed
-// in the percentage point of the standard normal distribution.
+// Compute the percentage point of the t-distribution using the Cornish-Fisher
+// expansion in the percentage point of the standard normal distribution.
 //
-// R. A. Fisher and E. A. Cornish,
-// ``The Percentile Points of Distributions Having Known Cumulants'',
-// Technometrics, 2, pp. 209--225, 1960.
+// R. A. Fisher and E. A. Cornish, ``The percentile points of distributions
+// having known cumulants,'' Technometrics, vol. 2, no. 2, pp. 209--225, 1960.
 bool ComputePercentagePointOfTDistribution(double probability,
                                            int degrees_of_freedom,
                                            double* percentage_point) {
