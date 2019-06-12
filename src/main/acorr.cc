@@ -42,20 +42,29 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>  // getopt_long
-#include <fstream>   // std::ifstream
-#include <iomanip>   // std::setw
-#include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
-#include <sstream>   // std::ostringstream
-#include <vector>    // std::vector
+#include <getopt.h>    // getopt_long
+#include <algorithm>   // std::transform
+#include <fstream>     // std::ifstream
+#include <functional>  // std::bind1st, std::multiplies
+#include <iomanip>     // std::setw
+#include <iostream>    // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>     // std::ostringstream
+#include <vector>      // std::vector
 
 #include "SPTK/converter/waveform_to_autocorrelation.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
 
+enum OutputFormats {
+  kAutocorrelation = 0,
+  kNormalizedAutocorrelation,
+  kNumOutputFormats
+};
+
 const int kDefaultFrameLength(256);
 const int kDefaultNumOrder(25);
+const OutputFormats kDefaultOutputFormat(kAutocorrelation);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -65,8 +74,11 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       acorr [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : frame length       (   int)[" << std::setw(5) << std::right << kDefaultFrameLength << "][ 0 <  l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -m m  : order of sequence  (   int)[" << std::setw(5) << std::right << kDefaultNumOrder    << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : frame length       (   int)[" << std::setw(5) << std::right << kDefaultFrameLength  << "][ 0 <  l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of sequence  (   int)[" << std::setw(5) << std::right << kDefaultNumOrder     << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -o o  : output format      (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 1 ]" << std::endl;  // NOLINT
+  *stream << "                 0 (autocorrelation)" << std::endl;
+  *stream << "                 1 (normalized autocorrelation)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       data sequence              (double)[stdin]" << std::endl;
@@ -83,9 +95,10 @@ void PrintUsage(std::ostream* stream) {
 int main(int argc, char* argv[]) {
   int frame_length(kDefaultFrameLength);
   int num_order(kDefaultNumOrder);
+  OutputFormats output_format(kDefaultOutputFormat);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:m:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:o:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -109,6 +122,21 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("acorr", error_message);
           return 1;
         }
+        break;
+      }
+      case 'o': {
+        const int min(0);
+        const int max(static_cast<int>(kNumOutputFormats) - 1);
+        int tmp;
+        if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
+            !sptk::IsInRange(tmp, min, max)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -o option must be an integer "
+                        << "in the range of " << min << " to " << max;
+          sptk::PrintErrorMessage("acorr", error_message);
+          return 1;
+        }
+        output_format = static_cast<OutputFormats>(tmp);
         break;
       }
       case 'h': {
@@ -163,6 +191,21 @@ int main(int argc, char* argv[]) {
       error_message << "Failed to obtain autocorrelation sequence";
       sptk::PrintErrorMessage("acorr", error_message);
       return 1;
+    }
+
+    if (kNormalizedAutocorrelation == output_format) {
+      if (0.0 == autocorrelation[0]) {
+        std::ostringstream error_message;
+        error_message << "Failed to normalize autocorrelation sequence";
+        sptk::PrintErrorMessage("acorr", error_message);
+        return 1;
+      }
+
+      const double normalization_term(1.0 / autocorrelation[0]);
+      std::transform(
+          autocorrelation.begin(), autocorrelation.end(),
+          autocorrelation.begin(),
+          std::bind1st(std::multiplies<double>(), normalization_term));
     }
 
     if (!sptk::WriteStream(0, output_length, autocorrelation, &std::cout,
