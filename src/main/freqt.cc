@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+#include <cmath>     // std::fabs
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -150,11 +151,20 @@ int main(int argc, char* argv[]) {
   const double prod_alphas(input_alpha * output_alpha);
   if (1.0 == prod_alphas) {
     std::ostringstream error_message;
-    error_message << "The product of all-pass constants must not be 1";
+    error_message << "Given all-pass constants are invalid: "
+                  << "product of all-pass constants (a * A) must not be 1.0";
     sptk::PrintErrorMessage("freqt", error_message);
     return 1;
   }
   const double alpha((output_alpha - input_alpha) / (1.0 - prod_alphas));
+  if (1.0 <= std::fabs(alpha)) {
+    std::ostringstream error_message;
+    error_message << "Given all-pass constants are invalid: "
+                  << "warping factor (A - a) / (1.0 - a * A) "
+                  << "must be less than 1.0 in magnitude";
+    sptk::PrintErrorMessage("freqt", error_message);
+    return 1;
+  }
 
   // get input file
   const int num_input_files(argc - optind);
