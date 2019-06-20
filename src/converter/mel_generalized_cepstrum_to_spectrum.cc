@@ -76,8 +76,11 @@ bool MelGeneralizedCepstrumToSpectrum::Run(
 
   if (!mel_generalized_cepstrum_transform_.Run(
           mel_generalized_cepstrum, &buffer->cepstrum_,
-          &buffer->mel_generalized_cepstrum_transform_buffer_) ||
-      !fast_fourier_transform_.Run(buffer->cepstrum_, amplitude_spectrum,
+          &buffer->mel_generalized_cepstrum_transform_buffer_)) {
+    return false;
+  }
+
+  if (!fast_fourier_transform_.Run(buffer->cepstrum_, amplitude_spectrum,
                                    phase_spectrum,
                                    &buffer->fast_fourier_transform_buffer_)) {
     return false;

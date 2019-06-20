@@ -86,7 +86,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  options:" << std::endl;
   *stream << "       -m m  : order of mel-generalized cepstrum          (   int)[" << std::setw(5) << std::right << kDefaultNumOrder     << "][    0 <= m <=     ]" << std::endl;  // NOLINT
   *stream << "       -a a  : alpha of mel-generalized cepstrum          (double)[" << std::setw(5) << std::right << kDefaultAlpha        << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
-  *stream << "       -g g  : gamma of mel-generalized cepstrum          (double)[" << std::setw(5) << std::right << kDefaultGamma        << "][      <= g <=     ]" << std::endl;  // NOLINT
+  *stream << "       -g g  : gamma of mel-generalized cepstrum          (double)[" << std::setw(5) << std::right << kDefaultGamma        << "][ -1.0 <= g <= 1.0 ]" << std::endl;  // NOLINT
   *stream << "       -c c  : gamma of mel-generalized cepstrum = -1 / c (   int)[" << std::setw(5) << std::right << "N/A"                << "][    1 <= c <=     ]" << std::endl;  // NOLINT
   *stream << "       -n    : regard input as normalized                 (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultNormalizationFlag)  << "]" << std::endl;  // NOLINT
   *stream << "               mel-generalized cepstrum" << std::endl;
@@ -154,9 +154,11 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'g': {
-        if (!sptk::ConvertStringToDouble(optarg, &gamma)) {
+        if (!sptk::ConvertStringToDouble(optarg, &gamma) ||
+            !sptk::IsValidGamma(gamma)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -g option must be numeric";
+          error_message
+              << "The argument for the -g option must be in [-1.0, 1.0]";
           sptk::PrintErrorMessage("mgc2sp", error_message);
           return 1;
         }
@@ -215,6 +217,13 @@ int main(int argc, char* argv[]) {
         return 1;
       }
     }
+  }
+
+  if (0.0 == gamma && multiplication_flag) {
+    std::ostringstream error_message;
+    error_message << "If -u option is given, gamma must not be 0";
+    sptk::PrintErrorMessage("mgc2sp", error_message);
+    return 1;
   }
 
   // get input file
