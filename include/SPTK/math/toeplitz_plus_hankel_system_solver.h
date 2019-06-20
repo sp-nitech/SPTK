@@ -88,7 +88,7 @@ class ToeplitzPlusHankelSystemSolver {
   };
 
   //
-  explicit ToeplitzPlusHankelSystemSolver(int num_order);
+  ToeplitzPlusHankelSystemSolver(int num_order, bool coefficients_modification);
 
   //
   virtual ~ToeplitzPlusHankelSystemSolver() {
@@ -97,6 +97,11 @@ class ToeplitzPlusHankelSystemSolver {
   //
   int GetNumOrder() const {
     return num_order_;
+  }
+
+  //
+  bool GetCoefficientsModificationFlag() {
+    return coefficients_modification_;
   }
 
   //
@@ -114,6 +119,9 @@ class ToeplitzPlusHankelSystemSolver {
  private:
   //
   const int num_order_;
+
+  //
+  const bool coefficients_modification_;
 
   //
   bool is_valid_;

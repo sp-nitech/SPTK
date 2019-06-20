@@ -81,8 +81,11 @@ void CrossTranspose(const sptk::Matrix& x, sptk::Matrix* y) {
 
 namespace sptk {
 
-ToeplitzPlusHankelSystemSolver::ToeplitzPlusHankelSystemSolver(int num_order)
-    : num_order_(num_order), is_valid_(true) {
+ToeplitzPlusHankelSystemSolver::ToeplitzPlusHankelSystemSolver(
+    int num_order, bool coefficients_modification)
+    : num_order_(num_order),
+      coefficients_modification_(coefficients_modification),
+      is_valid_(true) {
   if (num_order_ < 0) {
     is_valid_ = false;
   }
@@ -161,6 +164,18 @@ bool ToeplitzPlusHankelSystemSolver::Run(
       buffer->r_[i][1][1] = t[num_order_ - i];
       buffer->r_[i][0][1] = h[num_order_ + i];
       buffer->r_[i][1][0] = h[num_order_ - i];
+    }
+
+    if (coefficients_modification_) {
+      const double d0(t[num_order_]);
+      for (int i(0); i < length; i += 2) {
+        buffer->r_[i][0][0] += d0;
+        buffer->r_[i][1][1] += d0;
+      }
+      for (int i((0 == num_order_ % 2) ? 0 : 1); i < length; i += 2) {
+        buffer->r_[i][0][1] -= d0;
+        buffer->r_[i][1][0] -= d0;
+      }
     }
 
     // Set b
