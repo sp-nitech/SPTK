@@ -131,9 +131,11 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'a': {
-        if (!sptk::ConvertStringToDouble(optarg, &input_alpha)) {
+        if (!sptk::ConvertStringToDouble(optarg, &input_alpha) ||
+            !sptk::IsValidAlpha(input_alpha)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -a option must be numeric";
+          error_message
+              << "The argument for the -a option must be in (-1.0, 1.0)";
           sptk::PrintErrorMessage("mgc2mgc", error_message);
           return 1;
         }
@@ -180,9 +182,11 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'A': {
-        if (!sptk::ConvertStringToDouble(optarg, &output_alpha)) {
+        if (!sptk::ConvertStringToDouble(optarg, &output_alpha) ||
+            !sptk::IsValidAlpha(output_alpha)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -A option must be numeric";
+          error_message
+              << "The argument for the -A option must be in (-1.0, 1.0)";
           sptk::PrintErrorMessage("mgc2mgc", error_message);
           return 1;
         }

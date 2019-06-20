@@ -133,7 +133,7 @@ int main(int argc, char* argv[]) {
             !sptk::IsValidAlpha(output_alpha)) {
           std::ostringstream error_message;
           error_message
-              << "The argument for the -a option must be in (-1.0, 1.0)";
+              << "The argument for the -A option must be in (-1.0, 1.0)";
           sptk::PrintErrorMessage("freqt", error_message);
           return 1;
         }
