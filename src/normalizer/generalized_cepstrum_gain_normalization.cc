@@ -44,8 +44,8 @@
 
 #include "SPTK/normalizer/generalized_cepstrum_gain_normalization.h"
 
-#include <algorithm>  // std::copy
-#include <cmath>      // std::pow, std::exp
+#include <algorithm>  // std::copy, std::transform
+#include <cmath>      // std::exp, std::pow
 #include <cstddef>    // std::size_t
 
 namespace sptk {
@@ -53,7 +53,7 @@ namespace sptk {
 GeneralizedCepstrumGainNormalization::GeneralizedCepstrumGainNormalization(
     int num_order, double gamma)
     : num_order_(num_order), gamma_(gamma), is_valid_(true) {
-  if (num_order_ < 0) {
+  if (num_order_ < 0 || !sptk::IsValidGamma(gamma_)) {
     is_valid_ = false;
   }
 }
@@ -62,7 +62,7 @@ bool GeneralizedCepstrumGainNormalization::Run(
     const std::vector<double>& generalized_cepstrum,
     std::vector<double>* normalized_generalized_cepstrum) const {
   if (!is_valid_ ||
-      static_cast<std::size_t>(num_order_ + 1) != generalized_cepstrum.size() ||
+      generalized_cepstrum.size() != static_cast<std::size_t>(num_order_ + 1) ||
       NULL == normalized_generalized_cepstrum) {
     return false;
   }
@@ -72,18 +72,16 @@ bool GeneralizedCepstrumGainNormalization::Run(
     normalized_generalized_cepstrum->resize(num_order_ + 1);
   }
 
-  if (0.0 != gamma_) {
-    const double* c1(&generalized_cepstrum[0]);
-    double* c2(&(*normalized_generalized_cepstrum)[0]);
-    const double k(1.0 + gamma_ * c1[0]);
-    for (int m(num_order_); 1 <= m; --m) {
-      c2[m] = c1[m] / k;
-    }
-    c2[0] = std::pow(k, 1.0 / gamma_);
-  } else {
+  if (0.0 == gamma_) {
+    (*normalized_generalized_cepstrum)[0] = std::exp(generalized_cepstrum[0]);
     std::copy(generalized_cepstrum.begin() + 1, generalized_cepstrum.end(),
               normalized_generalized_cepstrum->begin() + 1);
-    (*normalized_generalized_cepstrum)[0] = std::exp(generalized_cepstrum[0]);
+  } else {
+    const double k(1.0 + gamma_ * generalized_cepstrum[0]);
+    (*normalized_generalized_cepstrum)[0] = std::pow(k, 1.0 / gamma_);
+    std::transform(generalized_cepstrum.begin() + 1, generalized_cepstrum.end(),
+                   normalized_generalized_cepstrum->begin() + 1,
+                   [k](double x) { return x / k; });
   }
 
   return true;

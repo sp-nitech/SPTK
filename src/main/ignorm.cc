@@ -65,9 +65,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       ignorm [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of generalized cepstrum (   int)[" << std::setw(5) << std::right << kDefaultNumOrder << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -g g  : gamma                         (double)[" << std::setw(5) << std::right << kDefaultGamma    << "][   <= g <=   ]" << std::endl;  // NOLINT
-  *stream << "       -c c  : gamma = -1 / c                (   int)[" << std::setw(5) << std::right << "N/A"            << "][ 1 <= c <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of generalized cepstrum (   int)[" << std::setw(5) << std::right << kDefaultNumOrder << "][    0 <= m <=     ]" << std::endl;  // NOLINT
+  *stream << "       -g g  : gamma                         (double)[" << std::setw(5) << std::right << kDefaultGamma    << "][ -1.0 <= g <= 1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -c c  : gamma = -1 / c                (   int)[" << std::setw(5) << std::right << "N/A"            << "][    1 <= c <=     ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       normalized generalized cepstrum       (double)[stdin]" << std::endl;  // NOLINT
@@ -102,9 +102,11 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'g': {
-        if (!sptk::ConvertStringToDouble(optarg, &gamma)) {
+        if (!sptk::ConvertStringToDouble(optarg, &gamma) ||
+            !sptk::IsValidGamma(gamma)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -g option must be numeric";
+          error_message
+              << "The argument for the -g option must be in [-1.0, 1.0]";
           sptk::PrintErrorMessage("ignorm", error_message);
           return 1;
         }

@@ -99,7 +99,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  options:" << std::endl;
   *stream << "       -m m  : order of mel-generalized line spectral pairs          (   int)[" << std::setw(5) << std::right << kDefaultNumOrder          << "][    0 <= m <=     ]" << std::endl;  // NOLINT
   *stream << "       -a a  : alpha of mel-generalized line spectral pairs          (double)[" << std::setw(5) << std::right << kDefaultAlpha             << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
-  *stream << "       -g g  : gamma of mel-generalized line spectral pairs          (double)[" << std::setw(5) << std::right << kDefaultGamma             << "][ -1.0 <= g <= 0.0 ]" << std::endl;  // NOLINT
+  *stream << "       -g g  : gamma of mel-generalized line spectral pairs          (double)[" << std::setw(5) << std::right << kDefaultGamma             << "][ -1.0 <= g <= 1.0 ]" << std::endl;  // NOLINT
   *stream << "       -c c  : gamma of mel-generalized line spectral pairs = -1 / c (   int)[" << std::setw(5) << std::right << "N/A"                     << "][    1 <= c <=     ]" << std::endl;  // NOLINT
   *stream << "       -l l  : spectrum legnth                                       (   int)[" << std::setw(5) << std::right << kDefaultSpectrumLength    << "][    0 <  l <=     ]" << std::endl;  // NOLINT
   *stream << "       -s s  : sampling frequency                                    (double)[" << std::setw(5) << std::right << kDefaultSamplingFrequency << "][  0.0 <  s <=     ]" << std::endl;  // NOLINT
@@ -171,13 +171,11 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'g': {
-        const double min(-1.0);
-        const double max(0.0);
-        if (!sptk::ConvertStringToDouble(optarg, &gamma) || gamma < min ||
-            max <= gamma) {
+        if (!sptk::ConvertStringToDouble(optarg, &gamma) ||
+            !sptk::IsValidGamma(gamma)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -g option must be numeric "
-                        << "in the range of " << min << " to " << max;
+          error_message
+              << "The argument for the -g option must be in [-1.0, 1.0]";
           sptk::PrintErrorMessage("mglsp2sp", error_message);
           return 1;
         }

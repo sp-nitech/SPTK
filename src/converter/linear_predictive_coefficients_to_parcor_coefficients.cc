@@ -55,7 +55,7 @@ LinearPredictiveCoefficientsToParcorCoefficients::
     LinearPredictiveCoefficientsToParcorCoefficients(int num_order,
                                                      double gamma)
     : num_order_(num_order), gamma_(gamma), is_valid_(true) {
-  if (num_order_ < 0) {
+  if (num_order_ < 0 || !sptk::IsValidGamma(gamma_)) {
     is_valid_ = false;
   }
 }
@@ -109,7 +109,6 @@ bool LinearPredictiveCoefficientsToParcorCoefficients::Run(
                    linear_predictive_coefficients.end(), buffer->a_.begin() + 1,
                    std::bind1st(std::multiplies<double>(), gamma_));
   }
-
   double* a(&buffer->a_[0]);
   for (int i(num_order_); 1 <= i; --i) {
     for (int j(1); j <= i; ++j) {

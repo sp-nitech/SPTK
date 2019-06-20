@@ -63,8 +63,9 @@ InverseMglsaDigitalFilter::InverseMglsaDigitalFilter(int num_filter_order,
       mlsa_digital_filter_(num_filter_order_, num_pade_order, alpha_,
                            transposition_),
       is_valid_(true) {
-  if (num_filter_order_ < 0 || num_stage_ < 0) {
+  if (num_filter_order_ < 0 || num_stage_ < 0 || !sptk::IsValidAlpha(alpha_)) {
     is_valid_ = false;
+    return;
   }
   if (0 == num_stage && !mlsa_digital_filter_.IsValid()) {
     is_valid_ = false;

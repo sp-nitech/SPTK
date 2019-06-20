@@ -44,8 +44,8 @@
 
 #include "SPTK/normalizer/generalized_cepstrum_inverse_gain_normalization.h"
 
-#include <algorithm>  // std::copy
-#include <cmath>      // std::pow, std::log
+#include <algorithm>  // std::copy, std::transform
+#include <cmath>      // std::log, std::pow
 #include <cstddef>    // std::size_t
 
 namespace sptk {
@@ -53,7 +53,7 @@ namespace sptk {
 GeneralizedCepstrumInverseGainNormalization::
     GeneralizedCepstrumInverseGainNormalization(int num_order, double gamma)
     : num_order_(num_order), gamma_(gamma), is_valid_(true) {
-  if (num_order_ < 0) {
+  if (num_order_ < 0 || !sptk::IsValidGamma(gamma_)) {
     is_valid_ = false;
   }
 }
@@ -62,8 +62,8 @@ bool GeneralizedCepstrumInverseGainNormalization::Run(
     const std::vector<double>& normalized_generalized_cepstrum,
     std::vector<double>* generalized_cepstrum) const {
   if (!is_valid_ ||
-      static_cast<std::size_t>(num_order_ + 1) !=
-          normalized_generalized_cepstrum.size() ||
+      normalized_generalized_cepstrum.size() !=
+          static_cast<std::size_t>(num_order_ + 1) ||
       NULL == generalized_cepstrum) {
     return false;
   }
@@ -73,19 +73,18 @@ bool GeneralizedCepstrumInverseGainNormalization::Run(
     generalized_cepstrum->resize(num_order_ + 1);
   }
 
-  if (0.0 != gamma_) {
-    const double* c1(&normalized_generalized_cepstrum[0]);
-    double* c2(&(*generalized_cepstrum)[0]);
-    const double k(std::pow(c1[0], gamma_));
-    for (int m(num_order_); 1 <= m; --m) {
-      c2[m] = k * c1[m];
-    }
-    c2[0] = (k - 1.0) / gamma_;
-  } else {
+  if (0.0 == gamma_) {
+    (*generalized_cepstrum)[0] = std::log(normalized_generalized_cepstrum[0]);
     std::copy(normalized_generalized_cepstrum.begin() + 1,
               normalized_generalized_cepstrum.end(),
               generalized_cepstrum->begin() + 1);
-    (*generalized_cepstrum)[0] = std::log(normalized_generalized_cepstrum[0]);
+  } else {
+    const double k(std::pow(normalized_generalized_cepstrum[0], gamma_));
+    (*generalized_cepstrum)[0] = (k - 1.0) / gamma_;
+    std::transform(normalized_generalized_cepstrum.begin() + 1,
+                   normalized_generalized_cepstrum.end(),
+                   generalized_cepstrum->begin() + 1,
+                   [k](double x) { return x * k; });
   }
 
   return true;

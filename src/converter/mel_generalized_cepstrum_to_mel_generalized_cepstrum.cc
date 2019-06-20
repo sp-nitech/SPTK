@@ -270,7 +270,9 @@ MelGeneralizedCepstrumToMelGeneralizedCepstrum::
       alpha_transform_(0.0),
       is_valid_(true) {
   if (num_input_order_ < 0 || !sptk::IsValidAlpha(input_alpha_) ||
-      num_output_order_ < 0 || !sptk::IsValidAlpha(output_alpha_) ||
+      !sptk::IsValidGamma(input_gamma_) || num_output_order_ < 0 ||
+      !sptk::IsValidAlpha(output_alpha_) ||
+      !sptk::IsValidGamma(output_gamma_) ||
       (is_multiplied_input_ && 0.0 == input_gamma_)) {
     is_valid_ = false;
     return;

@@ -58,8 +58,8 @@ MelGeneralizedLineSpectralPairsToSpectrum::
       gamma_(gamma),
       num_output_order_(num_output_order),
       is_valid_(true) {
-  if (num_input_order_ < 0 || num_output_order_ < 0 || gamma_ < -1.0 ||
-      0.0 <= gamma_) {
+  if (num_input_order_ < 0 || !sptk::IsValidAlpha(alpha_) ||
+      !sptk::IsValidGamma(gamma_) || num_output_order_ < 0) {
     is_valid_ = false;
   }
 }
