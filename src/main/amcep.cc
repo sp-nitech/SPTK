@@ -73,14 +73,14 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       amcep [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of mel-cepstrum        (   int)[" << std::setw(5) << std::right << kDefaultNumOrder         << "][   0 <= m <=     ]" << std::endl;  // NOLINT
-  *stream << "       -a a  : all-pass constant            (double)[" << std::setw(5) << std::right << kDefaultAlpha            << "][     <= a <=     ]" << std::endl;  // NOLINT
-  *stream << "       -e e  : minimum value for epsilon    (double)[" << std::setw(5) << std::right << kDefaultMinimumEpsilon   << "][ 0.0 <  e <=     ]" << std::endl;  // NOLINT
-  *stream << "       -t t  : momentum constant            (double)[" << std::setw(5) << std::right << kDefaultMomentum         << "][ 0.0 <= t <  1.0 ]" << std::endl;  // NOLINT
-  *stream << "       -l l  : forgetting factor            (double)[" << std::setw(5) << std::right << kDefaultForgettingFactor << "][ 0.0 <= l <  1.0 ]" << std::endl;  // NOLINT
-  *stream << "       -s s  : step-size factor             (double)[" << std::setw(5) << std::right << kDefaultStepSizeFactor   << "][ 0.0 <  s <  1.0 ]" << std::endl;  // NOLINT
-  *stream << "       -p p  : output period                (   int)[" << std::setw(5) << std::right << kDefaultOutputPeriod     << "][   1 <= p <=     ]" << std::endl;  // NOLINT
-  *stream << "       -P P  : order of Pade approximation  (   int)[" << std::setw(5) << std::right << kDefaultNumPadeOrder     << "][   4 <= P <= 7   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of mel-cepstrum        (   int)[" << std::setw(5) << std::right << kDefaultNumOrder         << "][    0 <= m <=     ]" << std::endl;  // NOLINT
+  *stream << "       -a a  : all-pass constant            (double)[" << std::setw(5) << std::right << kDefaultAlpha            << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -e e  : minimum value for epsilon    (double)[" << std::setw(5) << std::right << kDefaultMinimumEpsilon   << "][  0.0 <  e <=     ]" << std::endl;  // NOLINT
+  *stream << "       -t t  : momentum constant            (double)[" << std::setw(5) << std::right << kDefaultMomentum         << "][  0.0 <= t <  1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : forgetting factor            (double)[" << std::setw(5) << std::right << kDefaultForgettingFactor << "][  0.0 <= l <  1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : step-size factor             (double)[" << std::setw(5) << std::right << kDefaultStepSizeFactor   << "][  0.0 <  s <  1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -p p  : output period                (   int)[" << std::setw(5) << std::right << kDefaultOutputPeriod     << "][    1 <= p <=     ]" << std::endl;  // NOLINT
+  *stream << "       -P P  : order of Pade approximation  (   int)[" << std::setw(5) << std::right << kDefaultNumPadeOrder     << "][    4 <= P <= 7   ]" << std::endl;  // NOLINT
   *stream << "       -A    : output averaged mel-cepstrum (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultAverageFlag) << "]" << std::endl;  // NOLINT
   *stream << "       -E E  : output filename of double    (string)[" << std::setw(5) << std::right << "N/A"                    << "]" << std::endl;  // NOLINT
   *stream << "               type prediction error" << std::endl;
@@ -127,9 +127,11 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'a': {
-        if (!sptk::ConvertStringToDouble(optarg, &alpha)) {
+        if (!sptk::ConvertStringToDouble(optarg, &alpha) ||
+            !sptk::IsValidAlpha(alpha)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -a option must be numeric";
+          error_message
+              << "The argument for the -a option must be in (-1.0, 1.0)";
           sptk::PrintErrorMessage("amcep", error_message);
           return 1;
         }

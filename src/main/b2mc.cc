@@ -65,8 +65,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       b2mc [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of mel-cepstrum (   int)[" << std::setw(5) << std::right << kDefaultNumOrder << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -a a  : all-pass constant     (double)[" << std::setw(5) << std::right << kDefaultAlpha    << "][   <= a <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of mel-cepstrum (   int)[" << std::setw(5) << std::right << kDefaultNumOrder << "][    0 <= m <=     ]" << std::endl;  // NOLINT
+  *stream << "       -a a  : all-pass constant     (double)[" << std::setw(5) << std::right << kDefaultAlpha    << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       MLSA filter coefficients      (double)[stdin]" << std::endl;  // NOLINT
@@ -101,9 +101,11 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'a': {
-        if (!sptk::ConvertStringToDouble(optarg, &alpha)) {
+        if (!sptk::ConvertStringToDouble(optarg, &alpha) ||
+            !sptk::IsValidAlpha(alpha)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -a option must be numeric";
+          error_message
+              << "The argument for the -a option must be in (-1.0, 1.0)";
           sptk::PrintErrorMessage("b2mc", error_message);
           return 1;
         }

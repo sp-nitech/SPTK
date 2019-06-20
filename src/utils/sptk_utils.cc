@@ -369,6 +369,10 @@ bool IsPowerOfTwo(int num) {
   return !((num < 1) || (num & (num - 1)));
 }
 
+bool IsValidAlpha(double alpha) {
+  return (std::fabs(alpha) < 1.0);
+}
+
 int ExtractSign(double x) {
   if (0.0 < x) return 1;
   if (x < 0.0) return -1;

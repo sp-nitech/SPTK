@@ -78,12 +78,12 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       mglsadf [ options ] mgcfile [ infile ] > stdout" << std::endl;  // NOLINT
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of filter coefficients  (   int)[" << std::setw(5) << std::right << kDefaultNumFilterOrder      << "][ 0 <= m <=     ]" << std::endl;  // NOLINT
-  *stream << "       -a a  : all-pass constant             (double)[" << std::setw(5) << std::right << kDefaultAlpha               << "][   <= a <=     ]" << std::endl;  // NOLINT
-  *stream << "       -c c  : gamma = -1 / c                (   int)[" << std::setw(5) << std::right << kDefaultNumStage            << "][ 0 <= c <=     ]" << std::endl;  // NOLINT
-  *stream << "       -p p  : frame period                  (   int)[" << std::setw(5) << std::right << kDefaultFramePeriod         << "][ 0 <  p <=     ]" << std::endl;  // NOLINT
-  *stream << "       -i i  : interpolation period          (   int)[" << std::setw(5) << std::right << kDefaultInterpolationPeriod << "][ 0 <= i <= p/2 ]" << std::endl;  // NOLINT
-  *stream << "       -P P  : order of Pade approximation   (   int)[" << std::setw(5) << std::right << kDefaultNumPadeOrder        << "][ 4 <= P <= 7   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of filter coefficients  (   int)[" << std::setw(5) << std::right << kDefaultNumFilterOrder      << "][    0 <= m <=     ]" << std::endl;  // NOLINT
+  *stream << "       -a a  : all-pass constant             (double)[" << std::setw(5) << std::right << kDefaultAlpha               << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -c c  : gamma = -1 / c                (   int)[" << std::setw(5) << std::right << kDefaultNumStage            << "][    0 <= c <=     ]" << std::endl;  // NOLINT
+  *stream << "       -p p  : frame period                  (   int)[" << std::setw(5) << std::right << kDefaultFramePeriod         << "][    0 <  p <=     ]" << std::endl;  // NOLINT
+  *stream << "       -i i  : interpolation period          (   int)[" << std::setw(5) << std::right << kDefaultInterpolationPeriod << "][    0 <= i <= p/2 ]" << std::endl;  // NOLINT
+  *stream << "       -P P  : order of Pade approximation   (   int)[" << std::setw(5) << std::right << kDefaultNumPadeOrder        << "][    4 <= P <= 7   ]" << std::endl;  // NOLINT
   *stream << "       -t    : transpose filter              (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultTranspositionFlag) << "]" << std::endl;  // NOLINT
   *stream << "       -k    : filtering without gain        (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(!kDefaultGainFlag)         << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
@@ -250,9 +250,11 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'a': {
-        if (!sptk::ConvertStringToDouble(optarg, &alpha)) {
+        if (!sptk::ConvertStringToDouble(optarg, &alpha) ||
+            !sptk::IsValidAlpha(alpha)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -a option must be numeric";
+          error_message
+              << "The argument for the -a option must be in (-1.0, 1.0)";
           sptk::PrintErrorMessage("mglsadf", error_message);
           return 1;
         }

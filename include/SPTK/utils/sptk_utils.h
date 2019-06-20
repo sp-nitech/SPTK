@@ -94,6 +94,7 @@ bool ConvertSpecialStringToDouble(const std::string& input, double* output);
 bool IsInRange(int num, int min, int max);
 bool IsInRange(double num, double min, double max);
 bool IsPowerOfTwo(int num);
+bool IsValidAlpha(double alpha);
 int ExtractSign(double x);
 double FloorLog(double x);
 double FloorLog2(double x);

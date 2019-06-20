@@ -84,15 +84,15 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       mgc2sp [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of mel-generalized cepstrum          (   int)[" << std::setw(5) << std::right << kDefaultNumOrder     << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -a a  : alpha of mel-generalized cepstrum          (double)[" << std::setw(5) << std::right << kDefaultAlpha        << "][   <= a <=   ]" << std::endl;  // NOLINT
-  *stream << "       -g g  : gamma of mel-generalized cepstrum          (double)[" << std::setw(5) << std::right << kDefaultGamma        << "][   <= g <=   ]" << std::endl;  // NOLINT
-  *stream << "       -c c  : gamma of mel-generalized cepstrum = -1 / c (   int)[" << std::setw(5) << std::right << "N/A"                << "][ 1 <= c <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of mel-generalized cepstrum          (   int)[" << std::setw(5) << std::right << kDefaultNumOrder     << "][    0 <= m <=     ]" << std::endl;  // NOLINT
+  *stream << "       -a a  : alpha of mel-generalized cepstrum          (double)[" << std::setw(5) << std::right << kDefaultAlpha        << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -g g  : gamma of mel-generalized cepstrum          (double)[" << std::setw(5) << std::right << kDefaultGamma        << "][      <= g <=     ]" << std::endl;  // NOLINT
+  *stream << "       -c c  : gamma of mel-generalized cepstrum = -1 / c (   int)[" << std::setw(5) << std::right << "N/A"                << "][    1 <= c <=     ]" << std::endl;  // NOLINT
   *stream << "       -n    : regard input as normalized                 (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultNormalizationFlag)  << "]" << std::endl;  // NOLINT
   *stream << "               mel-generalized cepstrum" << std::endl;
   *stream << "       -u    : regard input as multiplied by gamma        (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultMultiplicationFlag) << "]" << std::endl;  // NOLINT
-  *stream << "       -l l  : FFT length                                 (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 2 <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -o o  : output format                              (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 6 ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length                                 (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][    2 <= l <=     ]" << std::endl;  // NOLINT
+  *stream << "       -o o  : output format                              (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][    0 <= o <= 6   ]" << std::endl;  // NOLINT
   *stream << "                 0 (20*log|H(z)|)" << std::endl;
   *stream << "                 1 (ln|H(z)|)" << std::endl;
   *stream << "                 2 (|H(z)|)" << std::endl;
@@ -143,9 +143,11 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'a': {
-        if (!sptk::ConvertStringToDouble(optarg, &alpha)) {
+        if (!sptk::ConvertStringToDouble(optarg, &alpha) ||
+            !sptk::IsValidAlpha(alpha)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -a option must be numeric";
+          error_message
+              << "The argument for the -a option must be in (-1.0, 1.0)";
           sptk::PrintErrorMessage("mgc2sp", error_message);
           return 1;
         }

@@ -43,7 +43,6 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
-#include <cmath>     // std::fabs
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -68,10 +67,10 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       freqt [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of minimum phase sequence      (   int)[" << std::setw(5) << std::right << kDefaultNumInputOrder  << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -M M  : order of warped sequence             (   int)[" << std::setw(5) << std::right << kDefaultNumOutputOrder << "][ 0 <= M <=   ]" << std::endl;  // NOLINT
-  *stream << "       -a a  : all-pass constant of input sequence  (double)[" << std::setw(5) << std::right << kDefaultInputAlpha     << "][   <= a <=   ]" << std::endl;  // NOLINT
-  *stream << "       -A A  : all-pass constant of output sequence (double)[" << std::setw(5) << std::right << kDefaultOutputAlpha    << "][   <= A <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of minimum phase sequence      (   int)[" << std::setw(5) << std::right << kDefaultNumInputOrder  << "][    0 <= m <=     ]" << std::endl;  // NOLINT
+  *stream << "       -M M  : order of warped sequence             (   int)[" << std::setw(5) << std::right << kDefaultNumOutputOrder << "][    0 <= M <=     ]" << std::endl;  // NOLINT
+  *stream << "       -a a  : all-pass constant of input sequence  (double)[" << std::setw(5) << std::right << kDefaultInputAlpha     << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -A A  : all-pass constant of output sequence (double)[" << std::setw(5) << std::right << kDefaultOutputAlpha    << "][ -1.0 <  A <  1.0 ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       minimum phase sequence                       (double)[stdin]" << std::endl;  // NOLINT
@@ -119,18 +118,22 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'a': {
-        if (!sptk::ConvertStringToDouble(optarg, &input_alpha)) {
+        if (!sptk::ConvertStringToDouble(optarg, &input_alpha) ||
+            !sptk::IsValidAlpha(input_alpha)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -a option must be numeric";
+          error_message
+              << "The argument for the -a option must be in (-1.0, 1.0)";
           sptk::PrintErrorMessage("freqt", error_message);
           return 1;
         }
         break;
       }
       case 'A': {
-        if (!sptk::ConvertStringToDouble(optarg, &output_alpha)) {
+        if (!sptk::ConvertStringToDouble(optarg, &output_alpha) ||
+            !sptk::IsValidAlpha(output_alpha)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -A option must be numeric";
+          error_message
+              << "The argument for the -a option must be in (-1.0, 1.0)";
           sptk::PrintErrorMessage("freqt", error_message);
           return 1;
         }
@@ -145,25 +148,6 @@ int main(int argc, char* argv[]) {
         return 1;
       }
     }
-  }
-
-  // check alpha
-  const double prod_alphas(input_alpha * output_alpha);
-  if (1.0 == prod_alphas) {
-    std::ostringstream error_message;
-    error_message << "Given all-pass constants are invalid: "
-                  << "product of all-pass constants (a * A) must not be 1.0";
-    sptk::PrintErrorMessage("freqt", error_message);
-    return 1;
-  }
-  const double alpha((output_alpha - input_alpha) / (1.0 - prod_alphas));
-  if (1.0 <= std::fabs(alpha)) {
-    std::ostringstream error_message;
-    error_message << "Given all-pass constants are invalid: "
-                  << "warping factor (A - a) / (1.0 - a * A) "
-                  << "must be less than 1.0 in magnitude";
-    sptk::PrintErrorMessage("freqt", error_message);
-    return 1;
   }
 
   // get input file
@@ -188,6 +172,8 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
   // prepare for frequency transform
+  const double alpha((output_alpha - input_alpha) /
+                     (1.0 - input_alpha * output_alpha));
   sptk::FrequencyTransform frequency_transform(num_input_order,
                                                num_output_order, alpha);
   sptk::FrequencyTransform::Buffer buffer;

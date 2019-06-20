@@ -66,8 +66,9 @@ MlsaDigitalFilterStabilityCheck::MlsaDigitalFilterStabilityCheck(
                                            : new InverseFastFourierTransform(
                                                  fft_length - 1, fft_length)),
       is_valid_(true) {
-  if (num_order_ < 0 || threshold_ <= 0.0) {
+  if (num_order_ < 0 || !sptk::IsValidAlpha(alpha) || threshold_ <= 0.0) {
     is_valid_ = false;
+    return;
   }
 
   if (!fast_mode && (fft_length <= num_order_ ||

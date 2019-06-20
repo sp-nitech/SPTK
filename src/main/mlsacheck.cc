@@ -76,21 +76,21 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       mlsacheck [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of filter coefficients      (   int)[" << std::setw(5) << std::right << kDefaultNumFilterOrder   << "][   0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -l l  : FFT length                        (   int)[" << std::setw(5) << std::right << kDefaultFftLength        << "][   m <  l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -a a  : all-pass constant                 (double)[" << std::setw(5) << std::right << kDefaultAlpha            << "][     <= a <=   ]" << std::endl;  // NOLINT
-  *stream << "       -P P  : order of Pade approximation       (   int)[" << std::setw(5) << std::right << kDefaultNumPadeOrder     << "][   4 <= P <= 7 ]" << std::endl;  // NOLINT
-  *stream << "       -e e  : warning type of unstable index    (   int)[" << std::setw(5) << std::right << kDefaultWarningType      << "][   0 <= e <= 2 ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of filter coefficients      (   int)[" << std::setw(5) << std::right << kDefaultNumFilterOrder   << "][    0 <= m <=     ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length                        (   int)[" << std::setw(5) << std::right << kDefaultFftLength        << "][    m <  l <=     ]" << std::endl;  // NOLINT
+  *stream << "       -a a  : all-pass constant                 (double)[" << std::setw(5) << std::right << kDefaultAlpha            << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -P P  : order of Pade approximation       (   int)[" << std::setw(5) << std::right << kDefaultNumPadeOrder     << "][    4 <= P <= 7   ]" << std::endl;  // NOLINT
+  *stream << "       -e e  : warning type of unstable index    (   int)[" << std::setw(5) << std::right << kDefaultWarningType      << "][    0 <= e <= 2   ]" << std::endl;  // NOLINT
   *stream << "                 0 (no warning)" << std::endl;
   *stream << "                 1 (output the index to stderr)" << std::endl;
   *stream << "                 2 (output the index to stderr" << std::endl;
   *stream << "                    and exit immediately)" << std::endl;
-  *stream << "       -r r  : threshold value                   (double)[" << std::setw(5) << std::right << "N/A"                    << "][ 0.0 <  r <=   ]" << std::endl;  // NOLINT
+  *stream << "       -r r  : threshold value                   (double)[" << std::setw(5) << std::right << "N/A"                    << "][  0.0 <  r <=     ]" << std::endl;  // NOLINT
   *stream << "       -k    : keep filter stability rather than (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(!kDefaultKeepMaximumLogApproximationErrorFlag) << "]" << std::endl;  // NOLINT
   *stream << "               maximum log approximation error" << std::endl;
   *stream << "       -f    : fast mode                         (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultFastModeFlag)                          << "]" << std::endl;  // NOLINT
   *stream << "       -x    : perform modification              (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultModificationFlag)                      << "]" << std::endl;  // NOLINT
-  *stream << "       -t    : modification type                 (   int)[" << std::setw(5) << std::right << kDefaultModificationType << "][   0 <= t <= 1 ]" << std::endl;  // NOLINT
+  *stream << "       -t    : modification type                 (   int)[" << std::setw(5) << std::right << kDefaultModificationType << "][    0 <= t <= 1   ]" << std::endl;  // NOLINT
   *stream << "                 0 (clipping)" << std::endl;
   *stream << "                 1 (scaling)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
@@ -151,9 +151,11 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'a': {
-        if (!sptk::ConvertStringToDouble(optarg, &alpha)) {
+        if (!sptk::ConvertStringToDouble(optarg, &alpha) ||
+            !sptk::IsValidAlpha(alpha)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -a option must be numeric";
+          error_message
+              << "The argument for the -a option must be in (-1.0, 1.0)";
           sptk::PrintErrorMessage("mlsacheck", error_message);
           return 1;
         }

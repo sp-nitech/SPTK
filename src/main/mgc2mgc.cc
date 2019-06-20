@@ -73,16 +73,16 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       mgc2mgc [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of mel-generalized cepstrum (input)            (   int)[" << std::setw(5) << std::right << kDefaultInputNumOrder  << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -a a  : alpha of mel-generalized cepstrum (input)            (double)[" << std::setw(5) << std::right << kDefaultInputAlpha     << "][   <= a <=   ]" << std::endl;  // NOLINT
-  *stream << "       -g g  : gamma of mel-generalized cepstrum (input)            (double)[" << std::setw(5) << std::right << kDefaultInputGamma     << "][   <= g <=   ]" << std::endl;  // NOLINT
-  *stream << "       -c c  : gamma of mel-generalized cepstrum = -1 / c (input)   (   int)[" << std::setw(5) << std::right << "N/A"                  << "][ 1 <= c <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of mel-generalized cepstrum (input)            (   int)[" << std::setw(5) << std::right << kDefaultInputNumOrder  << "][    0 <= m <=     ]" << std::endl;  // NOLINT
+  *stream << "       -a a  : alpha of mel-generalized cepstrum (input)            (double)[" << std::setw(5) << std::right << kDefaultInputAlpha     << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -g g  : gamma of mel-generalized cepstrum (input)            (double)[" << std::setw(5) << std::right << kDefaultInputGamma     << "][      <= g <=     ]" << std::endl;  // NOLINT
+  *stream << "       -c c  : gamma of mel-generalized cepstrum = -1 / c (input)   (   int)[" << std::setw(5) << std::right << "N/A"                  << "][    1 <= c <=     ]" << std::endl;  // NOLINT
   *stream << "       -n    : regard input as normalized mel-generalized cepstrum  (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultInputNormalizationFlag)   << "]" << std::endl;  // NOLINT
   *stream << "       -u    : regard input as multiplied by gamma                  (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultInputMultiplicationFlag)  << "]" << std::endl;  // NOLINT
-  *stream << "       -M M  : order of mel-generalized cepstrum (output)           (   int)[" << std::setw(5) << std::right << kDefaultOutputNumOrder << "][ 0 <= M <=   ]" << std::endl;  // NOLINT
-  *stream << "       -A A  : alpha of mel-generalized cepstrum (output)           (double)[" << std::setw(5) << std::right << kDefaultOutputAlpha    << "][   <= A <=   ]" << std::endl;  // NOLINT
-  *stream << "       -G G  : gamma of mel-generalized cepstrum (output)           (double)[" << std::setw(5) << std::right << kDefaultOutputGamma    << "][   <= G <=   ]" << std::endl;  // NOLINT
-  *stream << "       -C C  : gamma of mel-generalized cepstrum = -1 / C (output)  (   int)[" << std::setw(5) << std::right << "N/A"                  << "][ 1 <= C <=   ]" << std::endl;  // NOLINT
+  *stream << "       -M M  : order of mel-generalized cepstrum (output)           (   int)[" << std::setw(5) << std::right << kDefaultOutputNumOrder << "][    0 <= M <=     ]" << std::endl;  // NOLINT
+  *stream << "       -A A  : alpha of mel-generalized cepstrum (output)           (double)[" << std::setw(5) << std::right << kDefaultOutputAlpha    << "][ -1.0 <  A <  1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -G G  : gamma of mel-generalized cepstrum (output)           (double)[" << std::setw(5) << std::right << kDefaultOutputGamma    << "][      <= G <=     ]" << std::endl;  // NOLINT
+  *stream << "       -C C  : gamma of mel-generalized cepstrum = -1 / C (output)  (   int)[" << std::setw(5) << std::right << "N/A"                  << "][    1 <= C <=     ]" << std::endl;  // NOLINT
   *stream << "       -N    : regard output as normalized mel-generalized cepstrum (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultOutputNormalizationFlag)  << "]" << std::endl;  // NOLINT
   *stream << "       -U    : regard output as multiplied by gamma                 (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultOutputMultiplicationFlag) << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;

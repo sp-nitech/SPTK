@@ -51,7 +51,7 @@ namespace sptk {
 MelCepstrumToMlsaDigitalFilterCoefficients::
     MelCepstrumToMlsaDigitalFilterCoefficients(int num_order, double alpha)
     : num_order_(num_order), alpha_(alpha), is_valid_(true) {
-  if (num_order_ < 0) {
+  if (num_order_ < 0 || !sptk::IsValidAlpha(alpha_)) {
     is_valid_ = false;
   }
 }

@@ -98,7 +98,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       mglsp2sp [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -m m  : order of mel-generalized line spectral pairs          (   int)[" << std::setw(5) << std::right << kDefaultNumOrder          << "][    0 <= m <=     ]" << std::endl;  // NOLINT
-  *stream << "       -a a  : alpha of mel-generalized line spectral pairs          (double)[" << std::setw(5) << std::right << kDefaultAlpha             << "][      <= a <=     ]" << std::endl;  // NOLINT
+  *stream << "       -a a  : alpha of mel-generalized line spectral pairs          (double)[" << std::setw(5) << std::right << kDefaultAlpha             << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
   *stream << "       -g g  : gamma of mel-generalized line spectral pairs          (double)[" << std::setw(5) << std::right << kDefaultGamma             << "][ -1.0 <= g <= 0.0 ]" << std::endl;  // NOLINT
   *stream << "       -c c  : gamma of mel-generalized line spectral pairs = -1 / c (   int)[" << std::setw(5) << std::right << "N/A"                     << "][    1 <= c <=     ]" << std::endl;  // NOLINT
   *stream << "       -l l  : spectrum legnth                                       (   int)[" << std::setw(5) << std::right << kDefaultSpectrumLength    << "][    0 <  l <=     ]" << std::endl;  // NOLINT
@@ -160,9 +160,11 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'a': {
-        if (!sptk::ConvertStringToDouble(optarg, &alpha)) {
+        if (!sptk::ConvertStringToDouble(optarg, &alpha) ||
+            !sptk::IsValidAlpha(alpha)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -a option must be numeric";
+          error_message
+              << "The argument for the -a option must be in (-1.0, 1.0)";
           sptk::PrintErrorMessage("mglsp2sp", error_message);
           return 1;
         }

@@ -45,7 +45,6 @@
 #include "SPTK/math/frequency_transform.h"
 
 #include <algorithm>  // std::copy, std::fill
-#include <cmath>      // std::fabs
 #include <cstddef>    // std::size_t
 
 namespace sptk {
@@ -57,7 +56,7 @@ FrequencyTransform::FrequencyTransform(int num_input_order,
       alpha_(alpha),
       is_valid_(true) {
   if (num_input_order_ < 0 || num_output_order_ < 0 ||
-      1.0 <= std::fabs(alpha_)) {
+      !sptk::IsValidAlpha(alpha_)) {
     is_valid_ = false;
   }
 }

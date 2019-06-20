@@ -57,7 +57,8 @@ MlsaDigitalFilter::MlsaDigitalFilter(int num_filter_order, int num_pade_order,
       alpha_(alpha),
       transposition_(transposition),
       is_valid_(true) {
-  if (num_filter_order_ < 0 || num_pade_order_ < 0) {
+  if (num_filter_order_ < 0 || num_pade_order_ < 0 ||
+      !sptk::IsValidAlpha(alpha_)) {
     is_valid_ = false;
     return;
   }
