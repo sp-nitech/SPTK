@@ -171,8 +171,8 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'g': {
-        if (!sptk::ConvertStringToDouble(optarg, &gamma) ||
-            gamma < -1.0 || 0.0 <= gamma) {
+        if (!sptk::ConvertStringToDouble(optarg, &gamma) || gamma < -1.0 ||
+            0.0 <= gamma) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -g option must be in [-1.0, 0.0)";

@@ -49,12 +49,8 @@
 
 namespace {
 
-bool CalculateChebyshevPolynomial(const std::vector<double>& coefficients,
-                                  double x, double* y) {
-  if (coefficients.empty() || NULL == y) {
-    return false;
-  }
-
+double CalculateChebyshevPolynomial(const std::vector<double>& coefficients,
+                                    double x) {
   const double* c(&coefficients[0]);
   double b2(0.0);
   double b1(0.0);
@@ -63,9 +59,7 @@ bool CalculateChebyshevPolynomial(const std::vector<double>& coefficients,
     b2 = b1;
     b1 = b0;
   }
-  *y = x * b1 - b2 + c[0];
-
-  return true;
+  return x * b1 - b2 + c[0];
 }
 
 }  // namespace
@@ -150,16 +144,14 @@ bool LinearPredictiveCoefficientsToLineSpectralPairs::Run(
   int order(0);
   std::vector<double>* c(&buffer->c1_);
   double x_prev(1.0);
-  double y_prev;
-  if (!CalculateChebyshevPolynomial(*c, x_prev, &y_prev)) return false;
+  double y_prev(CalculateChebyshevPolynomial(*c, x_prev));
 
   // search roots of polynomials
   const double delta(1.0 / num_split_);
   const double x_max(1.0 - delta);
   const double x_min(-1.0 - delta);
   for (double x(x_max); x_min < x; x -= delta) {
-    double y;
-    if (!CalculateChebyshevPolynomial(*c, x, &y)) return false;
+    double y(CalculateChebyshevPolynomial(*c, x));
 
     if (y * y_prev <= 0.0) {
       double x_lower(x);
@@ -169,8 +161,7 @@ bool LinearPredictiveCoefficientsToLineSpectralPairs::Run(
 
       for (int i(0); i < num_iteration_; ++i) {
         double x_mid((x_lower + x_upper) * 0.5);
-        double y_mid;
-        if (!CalculateChebyshevPolynomial(*c, x_mid, &y_mid)) return false;
+        double y_mid(CalculateChebyshevPolynomial(*c, x_mid));
 
         if (y_mid * y_upper <= 0.0) {
           x_lower = x_mid;
@@ -192,7 +183,7 @@ bool LinearPredictiveCoefficientsToLineSpectralPairs::Run(
       // update variables
       c = (c == &buffer->c1_) ? &buffer->c2_ : &buffer->c1_;
       x = x_interpolated;
-      if (!CalculateChebyshevPolynomial(*c, x, &y)) return false;
+      y = CalculateChebyshevPolynomial(*c, x);
     }
 
     x_prev = x;

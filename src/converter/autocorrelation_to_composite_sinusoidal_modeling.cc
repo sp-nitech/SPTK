@@ -50,17 +50,12 @@
 
 namespace {
 
-bool CalculateBinomialCoefficient(int n, int k, double* binomial_coefficient) {
-  if (n < 0 || k < 0 || n < k || NULL == binomial_coefficient) {
-    return false;
-  }
+double CalculateBinomialCoefficient(int n, int k) {
   if (0 == k || n == k) {
-    *binomial_coefficient = 1.0;
-    return true;
+    return 1.0;
   }
 
   std::vector<double> buffer(n);
-
   for (int i(0); i < n; ++i) {
     buffer[i] = 1.0;
     for (int j(i - 1); 0 < j; --j) {
@@ -68,9 +63,7 @@ bool CalculateBinomialCoefficient(int n, int k, double* binomial_coefficient) {
     }
   }
   buffer[n - 1] = 1.0;
-  *binomial_coefficient = buffer[k] + buffer[k - 1];
-
-  return true;
+  return buffer[k] + buffer[k - 1];
 }
 
 }  // namespace
@@ -148,10 +141,7 @@ bool AutocorrelationToCompositeSinusoidalModeling::Run(
   for (int l(0); l < length; ++l) {
     double sum(0.0);
     for (int k(0); k <= l; ++k) {
-      double binomial_coefficient;
-      if (!CalculateBinomialCoefficient(l, k, &binomial_coefficient)) {
-        return false;
-      }
+      const double binomial_coefficient(CalculateBinomialCoefficient(l, k));
       const int index((l < 2 * k) ? (2 * k - l) : (l - 2 * k));
       sum += binomial_coefficient * input[index];
     }
