@@ -268,7 +268,7 @@ int main(int argc, char* argv[]) {
   sptk::AdaptiveMelCepstralAnalysis::Buffer buffer_for_analyzer;
   if (!analyzer.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for analyze";
+    error_message << "Failed to set condition for analysis";
     sptk::PrintErrorMessage("amcep", error_message);
     return 1;
   }

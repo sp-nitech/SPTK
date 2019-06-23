@@ -62,7 +62,6 @@ class FrequencyTransform {
 
    private:
     std::vector<double> d_;
-    std::vector<double> g_;
     friend class FrequencyTransform;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };

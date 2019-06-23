@@ -44,7 +44,7 @@
 
 #include "SPTK/math/frequency_transform.h"
 
-#include <algorithm>  // std::copy, std::fill
+#include <algorithm>  // std::fill
 #include <cstddef>    // std::size_t
 
 namespace sptk {
@@ -97,25 +97,22 @@ bool FrequencyTransform::Run(const std::vector<double>& minimum_phase_sequence,
   if (buffer->d_.size() != static_cast<std::size_t>(output_length)) {
     buffer->d_.resize(output_length);
   }
-  if (buffer->g_.size() != static_cast<std::size_t>(output_length)) {
-    buffer->g_.resize(output_length);
-  }
 
   // get values
-  const double* input(&(minimum_phase_sequence[0]));
+  const double* c(&(minimum_phase_sequence[0]));
   double* d(&buffer->d_[0]);
-  double* g(&buffer->g_[0]);
+  double* g(&((*warped_sequence)[0]));
 
   // set value
   const double beta(1.0 - alpha_ * alpha_);
 
   // fill zero
-  std::fill(buffer->g_.begin(), buffer->g_.end(), 0.0);
+  std::fill(g, g + output_length, 0.0);
 
   // transform
   for (int i(num_input_order_); 0 <= i; --i) {
     d[0] = g[0];
-    g[0] = input[i] + alpha_ * d[0];
+    g[0] = c[i] + alpha_ * d[0];
     if (1 <= num_output_order_) {
       d[1] = g[1];
       g[1] = beta * d[0] + alpha_ * d[1];
@@ -125,9 +122,6 @@ bool FrequencyTransform::Run(const std::vector<double>& minimum_phase_sequence,
       g[j] = d[j - 1] + alpha_ * (d[j] - g[j - 1]);
     }
   }
-
-  // save results
-  std::copy(buffer->g_.begin(), buffer->g_.end(), warped_sequence->begin());
 
   return true;
 }
