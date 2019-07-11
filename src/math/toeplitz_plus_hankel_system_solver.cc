@@ -44,37 +44,13 @@
 
 #include "SPTK/math/toeplitz_plus_hankel_system_solver.h"
 
-#include <cmath>    // std::fabs
 #include <cstddef>  // std::size_t
 
 namespace {
 
-const double kMinimumValueOfDeterminant(1e-6);
-
-bool Invert2dMatrix(const sptk::Matrix& x, sptk::Matrix* y) {
-  const double determinant(x[0][0] * x[1][1] - x[0][1] * x[1][0]);
-  if (std::fabs(determinant) < kMinimumValueOfDeterminant) {
-    return false;
-  }
-
-  const double inverse_of_determinant(1.0 / determinant);
-  (*y)[0][0] = x[1][1] * inverse_of_determinant;
-  (*y)[1][1] = x[0][0] * inverse_of_determinant;
-  (*y)[0][1] = -x[0][1] * inverse_of_determinant;
-  (*y)[1][0] = -x[1][0] * inverse_of_determinant;
-  return true;
-}
-
-void PutBar(int i, const sptk::Matrix& x, sptk::Matrix* y) {
-  (*y)[0][0] = x[i][0];
-  (*y)[1][0] = x[x.GetNumRow() - 1 - i][0];
-}
-
-void CrossTranspose(const sptk::Matrix& x, sptk::Matrix* y) {
-  (*y)[0][0] = x[1][1];
-  (*y)[1][1] = x[0][0];
-  (*y)[0][1] = x[1][0];
-  (*y)[1][0] = x[0][1];
+void PutBar(int i, const std::vector<double>& x, std::vector<double>* y) {
+  (*y)[0] = x[i];
+  (*y)[1] = x[x.size() - 1 - i];
 }
 
 }  // namespace
@@ -128,30 +104,18 @@ bool ToeplitzPlusHankelSystemSolver::Run(
   }
   if (buffer->r_.size() != static_cast<std::size_t>(length)) {
     buffer->r_.resize(length);
-    for (int i(0); i < length; ++i) {
-      buffer->r_[i].Resize(2, 2);
-    }
   }
   if (buffer->x_.size() != static_cast<std::size_t>(length)) {
     buffer->x_.resize(length);
-    for (int i(0); i < length; ++i) {
-      buffer->x_[i].Resize(2, 2);
-    }
   }
   if (buffer->prev_x_.size() != static_cast<std::size_t>(length)) {
     buffer->prev_x_.resize(length);
-    for (int i(1); i < length; ++i) {
-      buffer->prev_x_[i].Resize(2, 2);
-    }
   }
   if (buffer->p_.size() != static_cast<std::size_t>(length)) {
     buffer->p_.resize(length);
     for (int i(0); i < length; ++i) {
-      buffer->p_[i].Resize(2, 1);
+      buffer->p_[i].resize(2);
     }
-  }
-  if (buffer->b_.GetNumRow() != length || buffer->b_.GetNumColumn() != 1) {
-    buffer->b_.Resize(length, 1);
   }
 
   // Step 0)
@@ -177,12 +141,6 @@ bool ToeplitzPlusHankelSystemSolver::Run(
         buffer->r_[i][1][0] -= d0;
       }
     }
-
-    // Set b
-    const double* b(&(constant_vector[0]));
-    for (int i(0); i < length; ++i) {
-      buffer->b_[i][0] = b[i];
-    }
   }
 
   // Step 1)
@@ -191,11 +149,11 @@ bool ToeplitzPlusHankelSystemSolver::Run(
     buffer->x_[0].FillDiagonal(1.0);
 
     // Set p_0
-    if (!Invert2dMatrix(buffer->r_[0], &buffer->inv_)) {
+    PutBar(0, constant_vector, &buffer->bar_);
+    if (!buffer->r_[0].Invert(&buffer->inv_) ||
+        !sptk::Matrix2D::Multiply(buffer->inv_, buffer->bar_, &buffer->p_[0])) {
       return false;
     }
-    PutBar(0, buffer->b_, &buffer->bar_);
-    buffer->p_[0] = buffer->inv_ * buffer->bar_;
 
     // Set V_x
     buffer->vx_ = buffer->r_[0];
@@ -206,48 +164,76 @@ bool ToeplitzPlusHankelSystemSolver::Run(
     // a) Calculate E_x
     buffer->ex_.Fill(0.0);
     for (int j(0); j < i; ++j) {
-      buffer->ex_ += buffer->r_[i - j] * buffer->x_[j];
+      if (!sptk::Matrix2D::Multiply(buffer->r_[i - j], buffer->x_[j],
+                                    &buffer->tmp_matrix_) ||
+          !sptk::Matrix2D::Add(buffer->tmp_matrix_, &buffer->ex_)) {
+        return false;
+      }
     }
 
     // b) Calculate \bar{e}_p
-    buffer->ep_.Fill(0.0);
+    buffer->ep_[0] = 0.0;
+    buffer->ep_[1] = 0.0;
     for (int j(0); j < i; ++j) {
-      buffer->ep_ += buffer->r_[i - j] * buffer->p_[j];
+      if (!sptk::Matrix2D::Multiply(buffer->r_[i - j], buffer->p_[j],
+                                    &buffer->tmp_vector_)) {
+        return false;
+      }
+      buffer->ep_[0] += buffer->tmp_vector_[0];
+      buffer->ep_[1] += buffer->tmp_vector_[1];
     }
 
     // c) Calculate B_x
-    CrossTranspose(buffer->vx_, &buffer->tau_);
-    if (!Invert2dMatrix(buffer->tau_, &buffer->inv_)) {
+    if (!buffer->vx_.CrossTranspose(&buffer->tau_) ||
+        !buffer->tau_.Invert(&buffer->inv_) ||
+        !sptk::Matrix2D::Multiply(buffer->inv_, buffer->ex_, &buffer->bx_)) {
       return false;
     }
-    buffer->bx_ = buffer->inv_ * buffer->ex_;
 
     // d) Update X
     for (int j(1); j < i; ++j) {
-      CrossTranspose(buffer->prev_x_[i - j], &buffer->tau_);
-      buffer->x_[j] -= buffer->tau_ * buffer->bx_;
+      if (!buffer->prev_x_[i - j].CrossTranspose(&buffer->tau_) ||
+          !sptk::Matrix2D::Multiply(buffer->tau_, buffer->bx_,
+                                    &buffer->tmp_matrix_) ||
+          !sptk::Matrix2D::Subtract(buffer->tmp_matrix_, &buffer->x_[j])) {
+        return false;
+      }
     }
-    buffer->x_[i] = -buffer->bx_;
+    buffer->x_[i].Negate(buffer->bx_);
     for (int j(1); j <= i; ++j) {
       buffer->prev_x_[j] = buffer->x_[j];
     }
 
     // d) Update V_x
-    CrossTranspose(buffer->ex_, &buffer->tau_);
-    buffer->vx_ -= buffer->tau_ * buffer->bx_;
-
-    // e) Calculate \bar{g}
-    CrossTranspose(buffer->vx_, &buffer->tau_);
-    if (!Invert2dMatrix(buffer->tau_, &buffer->inv_)) {
+    if (!buffer->ex_.CrossTranspose(&buffer->tau_) ||
+        !sptk::Matrix2D::Multiply(buffer->tau_, buffer->bx_,
+                                  &buffer->tmp_matrix_) ||
+        !sptk::Matrix2D::Subtract(buffer->tmp_matrix_, &buffer->vx_)) {
       return false;
     }
-    PutBar(i, buffer->b_, &buffer->bar_);
-    buffer->g_ = buffer->inv_ * (buffer->bar_ - buffer->ep_);
+
+    // e) Calculate \bar{g}
+    if (!buffer->vx_.CrossTranspose(&buffer->tau_) ||
+        !buffer->tau_.Invert(&buffer->inv_)) {
+      return false;
+    }
+    PutBar(i, constant_vector, &buffer->bar_);
+    buffer->tmp_vector_[0] = buffer->bar_[0] - buffer->ep_[0];
+    buffer->tmp_vector_[1] = buffer->bar_[1] - buffer->ep_[1];
+    if (!sptk::Matrix2D::Multiply(buffer->inv_, buffer->tmp_vector_,
+                                  &buffer->g_)) {
+      return false;
+    }
 
     // f) Update \bar{p}
     for (int j(0); j < i; ++j) {
-      CrossTranspose(buffer->x_[i - j], &buffer->tau_);
-      buffer->p_[j] += buffer->tau_ * buffer->g_;
+      if (!buffer->x_[i - j].CrossTranspose(&buffer->tau_) ||
+          !sptk::Matrix2D::Multiply(buffer->tau_, buffer->g_,
+                                    &buffer->tmp_vector_)) {
+        return false;
+      }
+      buffer->p_[j][0] += buffer->tmp_vector_[0];
+      buffer->p_[j][1] += buffer->tmp_vector_[1];
     }
     buffer->p_[i] = buffer->g_;
   }
@@ -256,7 +242,7 @@ bool ToeplitzPlusHankelSystemSolver::Run(
   {
     double* a(&((*solution_vector)[0]));
     for (int i(0); i < length; ++i) {
-      a[i] = buffer->p_[i][0][0];
+      a[i] = buffer->p_[i][0];
     }
   }
 

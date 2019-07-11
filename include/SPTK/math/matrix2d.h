@@ -42,97 +42,98 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_MATH_TOEPLITZ_PLUS_HANKEL_SYSTEM_SOLVER_H_
-#define SPTK_MATH_TOEPLITZ_PLUS_HANKEL_SYSTEM_SOLVER_H_
+#ifndef SPTK_MATH_MATRIX2D_H_
+#define SPTK_MATH_MATRIX2D_H_
 
 #include <vector>  // std::vector
 
-#include "SPTK/math/matrix2d.h"
-#include "SPTK/utils/sptk_utils.h"
-
 namespace sptk {
 
-class ToeplitzPlusHankelSystemSolver {
+class Matrix2D {
  public:
-  class Buffer {
-   public:
-    Buffer()
-        : ep_(2),
-          g_(2),
-          bar_(2),
-          tmp_vector_(2),
-          vx_(),
-          ex_(),
-          bx_(),
-          inv_(),
-          tau_(),
-          tmp_matrix_() {
-    }
-    virtual ~Buffer() {
-    }
-
-   private:
-    std::vector<Matrix2D> r_;
-    std::vector<Matrix2D> x_;
-    std::vector<Matrix2D> prev_x_;
-    std::vector<std::vector<double>> p_;
-    std::vector<double> ep_;
-    std::vector<double> g_;
-    std::vector<double> bar_;
-    std::vector<double> tmp_vector_;
-    Matrix2D vx_;
-    Matrix2D ex_;
-    Matrix2D bx_;
-    Matrix2D inv_;
-    Matrix2D tau_;
-    Matrix2D tmp_matrix_;
-    friend class ToeplitzPlusHankelSystemSolver;
-    DISALLOW_COPY_AND_ASSIGN(Buffer);
-  };
+  //
+  Matrix2D();
 
   //
-  ToeplitzPlusHankelSystemSolver(int num_order, bool coefficients_modification);
+  Matrix2D(const Matrix2D& matrix);
 
   //
-  virtual ~ToeplitzPlusHankelSystemSolver() {
+  Matrix2D& operator=(const Matrix2D& matrix);
+
+  //
+  virtual ~Matrix2D() {
   }
 
   //
-  int GetNumOrder() const {
-    return num_order_;
+  double* operator[](int row) {
+    return &data_.x_[row + row];
   }
 
   //
-  bool GetCoefficientsModificationFlag() {
-    return coefficients_modification_;
+  const double* operator[](int row) const {
+    return &data_.x_[row + row];
   }
 
   //
-  bool IsValid() const {
-    return is_valid_;
-  }
+  double& At(int row, int column);
 
   //
-  bool Run(const std::vector<double>& toeplitz_coefficient_vector,
-           const std::vector<double>& hankel_coefficient_vector,
-           const std::vector<double>& constant_vector,
-           std::vector<double>* solution_vector,
-           ToeplitzPlusHankelSystemSolver::Buffer* buffer) const;
+  const double& At(int row, int column) const;
+
+  //
+  static bool Add(const Matrix2D& matrix, Matrix2D* output);
+
+  //
+  static bool Add(const Matrix2D& first_matrix, const Matrix2D& second_matrix,
+                  Matrix2D* output);
+
+  //
+  static bool Subtract(const Matrix2D& matrix, Matrix2D* output);
+
+  //
+  static bool Subtract(const Matrix2D& first_matrix,
+                       const Matrix2D& second_matrix, Matrix2D* output);
+
+  //
+  static bool Multiply(const Matrix2D& matrix,
+                       const std::vector<double>& column_vector,
+                       std::vector<double>* output);
+
+  //
+  static bool Multiply(const Matrix2D& first_matrix,
+                       const Matrix2D& second_matrix, Matrix2D* output);
+
+  //
+  void Fill(double value);
+
+  //
+  void FillDiagonal(double value);
+
+  //
+  void Negate();
+
+  //
+  void Negate(const Matrix2D& matrix);
+
+  //
+  bool CrossTranspose(Matrix2D* transposed_matrix) const;
+
+  //
+  bool Invert(Matrix2D* inverse_matrix) const;
 
  private:
   //
-  const int num_order_;
-
-  //
-  const bool coefficients_modification_;
-
-  //
-  bool is_valid_;
-
-  //
-  DISALLOW_COPY_AND_ASSIGN(ToeplitzPlusHankelSystemSolver);
+  union {
+    double x_[4];
+    struct {
+      double x0_;
+      double x1_;
+      double x2_;
+      double x3_;
+    } elements_;
+  } data_;
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_MATH_TOEPLITZ_PLUS_HANKEL_SYSTEM_SOLVER_H_
+#endif  // SPTK_MATH_MATRIX2D_H_
