@@ -83,12 +83,11 @@ bool NormalDistributedRandomValueGeneration::Get(double* output) {
 
   if (switch_) {
     switch_ = false;
-    s_ = 0.0;
-    while (1.0 < s_ || 0.0 == s_) {
+    do {
       r1_ = 2.0 * PseudoRandomGeneration(&(next_)) - 1.0;
       r2_ = 2.0 * PseudoRandomGeneration(&(next_)) - 1.0;
       s_ = r1_ * r1_ + r2_ * r2_;
-    }
+    } while (1.0 <= s_);
     s_ = std::sqrt(-2.0 * std::log(s_) / s_);
     *output = r1_ * s_;
   } else {
