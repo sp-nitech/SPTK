@@ -159,7 +159,7 @@ bool LinearPredictiveCoefficientsToLineSpectralPairs::Run(
       double y_lower(y);
       double y_upper(y_prev);
 
-      for (int i(0); i < num_iteration_; ++i) {
+      for (int n(0); n < num_iteration_; ++n) {
         double x_mid((x_lower + x_upper) * 0.5);
         double y_mid(CalculateChebyshevPolynomial(*c, x_mid));
 

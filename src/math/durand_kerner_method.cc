@@ -112,20 +112,20 @@ bool DurandKernerMethod::Run(const std::vector<double>& coefficients,
   }
 
   // find roots using Durand-Kerner method
-  for (int i(0); i < num_iteration_; ++i) {
+  for (int n(0); n < num_iteration_; ++n) {
     bool halt(true);
-    for (int j(0); j < num_order_; ++j) {
+    for (int i(0); i < num_order_; ++i) {
       std::complex<double> numerator(1.0);
       std::complex<double> denominator(1.0);
-      for (int k(0); k < num_order_; ++k) {
-        numerator = numerator * x[j] + std::complex<double>(a[k]);
-        if (j != k) denominator = denominator * (x[j] - x[k]);
+      for (int j(0); j < num_order_; ++j) {
+        numerator = numerator * x[i] + std::complex<double>(a[j]);
+        if (i != j) denominator = denominator * (x[i] - x[j]);
       }
       if (0.0 == denominator.real() && 0.0 == denominator.imag()) {
-        x[j] = 0.0;
+        x[i] = 0.0;
       } else {
         const std::complex<double> delta(numerator / denominator);
-        x[j] -= delta;
+        x[i] -= delta;
         if (halt && convergence_threshold_ < std::abs(delta)) {
           halt = false;
         }

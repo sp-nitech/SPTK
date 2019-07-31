@@ -94,7 +94,7 @@ bool FastFourierTransformCepstralAnalysis::Run(
     time_domain_error[m] = 0.0;
   }
 
-  for (int i(1); i < num_iteration_; ++i) {
+  for (int n(0); n < num_iteration_; ++n) {
     for (int m(1); m <= num_order_; ++m) {
       time_domain_error[fft_length - m] = time_domain_error[m];
     }
