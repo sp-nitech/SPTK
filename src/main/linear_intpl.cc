@@ -70,7 +70,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -e e  : maximum of x-axis         (double)[" << std::setw(5) << std::right << "EOS"                << "][ s <  e <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       2-dimensional data sequence (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       2-dimensional data sequence       (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
   *stream << "       linear interpolated data sequence (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
