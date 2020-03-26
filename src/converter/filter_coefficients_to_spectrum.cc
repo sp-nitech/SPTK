@@ -45,7 +45,7 @@
 #include "SPTK/converter/filter_coefficients_to_spectrum.h"
 
 #include <algorithm>   // std::copy, std::fill, std::max, std::max_element, etc.
-#include <cmath>       // std::log, std::log10, std::sqrt
+#include <cmath>       // std::log, std::log10, std::pow, std::sqrt
 #include <cstddef>     // std::size_t
 #include <functional>  // std::bind, std::divides, std::multiplies, etc.
 
@@ -192,6 +192,19 @@ bool FilterCoefficientsToSpectrum::Run(
         [gain](double x, double y) { return gain * x / y; });
   }
 
+  if (kLogAmplitudeSpectrumInDecibels == output_format_ ||
+      kLogAmplitudeSpectrum == output_format_) {
+    const double max_value_of_power_spectrum(
+        *std::max_element(spectrum->begin(), spectrum->end()));
+    const double floor_in_power_spectrum(
+        max_value_of_power_spectrum *
+        std::pow(10.0, 0.1 * relative_floor_in_decibels_));
+    std::transform(spectrum->begin(), spectrum->end(), spectrum->begin(),
+                   [floor_in_power_spectrum](double x) {
+                     return std::max(x, floor_in_power_spectrum);
+                   });
+  }
+
   switch (output_format_) {
     case kLogAmplitudeSpectrumInDecibels: {
       std::transform(
@@ -199,14 +212,6 @@ bool FilterCoefficientsToSpectrum::Run(
           [this](double x) {
             return 10.0 * std::log10(x + epsilon_for_calculating_logarithms_);
           });
-      const double max_value_in_decibels(
-          *std::max_element(spectrum->begin(), spectrum->end()));
-      const double floor_in_decibels(max_value_in_decibels +
-                                     relative_floor_in_decibels_);
-      std::transform(spectrum->begin(), spectrum->end(), spectrum->begin(),
-                     [floor_in_decibels](double x) {
-                       return std::max(x, floor_in_decibels);
-                     });
       break;
     }
     case kLogAmplitudeSpectrum: {
@@ -215,13 +220,6 @@ bool FilterCoefficientsToSpectrum::Run(
                        return 0.5 *
                               std::log(x + epsilon_for_calculating_logarithms_);
                      });
-      const double max_value_in_log(
-          *std::max_element(spectrum->begin(), spectrum->end()));
-      const double floor_in_log(max_value_in_log +
-                                relative_floor_in_decibels_ / sptk::kNeper);
-      std::transform(
-          spectrum->begin(), spectrum->end(), spectrum->begin(),
-          [floor_in_log](double x) { return std::max(x, floor_in_log); });
       break;
     }
     case kAmplitudeSpectrum: {
