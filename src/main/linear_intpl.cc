@@ -43,10 +43,10 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+#include <cfloat>    // DBL_MAX
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
-#include <limits>    // std::numeric_limits
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
@@ -85,8 +85,8 @@ void PrintUsage(std::ostream* stream) {
 
 int main(int argc, char* argv[]) {
   int output_length(kDefaultOutputLength);
-  double minimum_x(std::numeric_limits<double>::lowest());
-  double maximum_x(std::numeric_limits<double>::max());
+  double minimum_x(-DBL_MAX);
+  double maximum_x(DBL_MAX);
 
   for (;;) {
     const int option_char(getopt_long(argc, argv, "l:m:s:e:h", NULL, NULL));
@@ -189,7 +189,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  if (minimum_x == std::numeric_limits<double>::lowest()) {
+  if (-DBL_MAX == minimum_x) {
     minimum_x = data_x.front();
   } else {
     if (minimum_x < data_x.front()) {
@@ -207,7 +207,7 @@ int main(int argc, char* argv[]) {
       return 1;
     }
   }
-  if (maximum_x == std::numeric_limits<double>::max()) {
+  if (DBL_MAX == maximum_x) {
     maximum_x = data_x.back();
   } else {
     if (data_x.back() < maximum_x) {
