@@ -65,6 +65,7 @@ class MelCepstralAnalysis {
     }
 
    private:
+    std::vector<double> log_periodogram_;
     std::vector<double> cepstrum_;
     std::vector<double> imaginary_part_output_;
     std::vector<double> b_;
@@ -88,7 +89,7 @@ class MelCepstralAnalysis {
 
   //
   MelCepstralAnalysis(int fft_length, int num_order, double alpha,
-                      int maximum_num_iteration, double convergence_threshold);
+                      int num_iteration, double convergence_threshold);
 
   //
   virtual ~MelCepstralAnalysis() {
@@ -110,8 +111,8 @@ class MelCepstralAnalysis {
   }
 
   //
-  int GetMaximumNumIteration() const {
-    return maximum_num_iteration_;
+  int GetNumIteration() const {
+    return num_iteration_;
   }
 
   //
@@ -125,7 +126,7 @@ class MelCepstralAnalysis {
   }
 
   //
-  bool Run(const std::vector<double>& log_periodogram,
+  bool Run(const std::vector<double>& periodogram,
            std::vector<double>* mel_cepstrum,
            MelCepstralAnalysis::Buffer* buffer) const;
 
@@ -140,7 +141,7 @@ class MelCepstralAnalysis {
   const double alpha_;
 
   //
-  const int maximum_num_iteration_;
+  const int num_iteration_;
 
   //
   const double convergence_threshold_;

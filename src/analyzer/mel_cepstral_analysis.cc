@@ -52,7 +52,7 @@
 
 namespace {
 
-bool CoefficientsFrequencyTransform(const std::vector<double>& input,
+void CoefficientsFrequencyTransform(const std::vector<double>& input,
                                     int input_length, int output_length,
                                     double alpha, std::vector<double>* output,
                                     std::vector<double>* buffer) {
@@ -67,7 +67,7 @@ bool CoefficientsFrequencyTransform(const std::vector<double>& input,
     } else {
       std::copy(input.begin(), input.begin() + output_length, output->begin());
     }
-    return true;
+    return;
   }
 
   if (buffer->size() != static_cast<std::size_t>(output_length)) {
@@ -88,8 +88,6 @@ bool CoefficientsFrequencyTransform(const std::vector<double>& input,
       g[j] = d[j - 1] + alpha * (d[j] - g[j - 1]);
     }
   }
-
-  return true;
 }
 
 }  // namespace
@@ -97,13 +95,12 @@ bool CoefficientsFrequencyTransform(const std::vector<double>& input,
 namespace sptk {
 
 MelCepstralAnalysis::MelCepstralAnalysis(int fft_length, int num_order,
-                                         double alpha,
-                                         int maximum_num_iteration,
+                                         double alpha, int num_iteration,
                                          double convergence_threshold)
     : fft_length_(fft_length),
       num_order_(num_order),
       alpha_(alpha),
-      maximum_num_iteration_(maximum_num_iteration),
+      num_iteration_(num_iteration),
       convergence_threshold_(convergence_threshold),
       fourier_transform_(fft_length_ - 1, fft_length_),
       inverse_fourier_transform_(fft_length_ - 1, fft_length_),
@@ -111,7 +108,7 @@ MelCepstralAnalysis::MelCepstralAnalysis(int fft_length, int num_order,
       inverse_frequency_transform_(num_order_, fft_length_ / 2, -alpha_),
       toeplitz_plus_hankel_system_solver_(num_order_, true),
       is_valid_(true) {
-  if (maximum_num_iteration_ < 0 || convergence_threshold_ < 0.0 ||
+  if (num_iteration_ < 0 || convergence_threshold_ < 0.0 ||
       !fourier_transform_.IsValid() || !inverse_fourier_transform_.IsValid() ||
       !frequency_transform_.IsValid() ||
       !inverse_frequency_transform_.IsValid() ||
@@ -128,12 +125,12 @@ MelCepstralAnalysis::MelCepstralAnalysis(int fft_length, int num_order,
   }
 }
 
-bool MelCepstralAnalysis::Run(const std::vector<double>& log_periodogram,
+bool MelCepstralAnalysis::Run(const std::vector<double>& periodogram,
                               std::vector<double>* mel_cepstrum,
                               MelCepstralAnalysis::Buffer* buffer) const {
   const int half_fft_length(fft_length_ / 2);
   if (!is_valid_ ||
-      log_periodogram.size() != static_cast<std::size_t>(half_fft_length + 1) ||
+      periodogram.size() != static_cast<std::size_t>(half_fft_length + 1) ||
       NULL == mel_cepstrum || NULL == buffer) {
     return false;
   }
@@ -141,6 +138,10 @@ bool MelCepstralAnalysis::Run(const std::vector<double>& log_periodogram,
   const int length(num_order_ + 1);
   if (mel_cepstrum->size() != static_cast<std::size_t>(length)) {
     mel_cepstrum->resize(length);
+  }
+  if (buffer->log_periodogram_.size() !=
+      static_cast<std::size_t>(half_fft_length + 1)) {
+    buffer->log_periodogram_.resize(half_fft_length + 1);
   }
   if (buffer->cepstrum_.size() != static_cast<std::size_t>(fft_length_)) {
     buffer->cepstrum_.resize(fft_length_);
@@ -160,10 +161,15 @@ bool MelCepstralAnalysis::Run(const std::vector<double>& log_periodogram,
 
   // Make an initial guess.
   {
+    std::transform(periodogram.begin(), periodogram.end(),
+                   buffer->log_periodogram_.begin(),
+                   [](double p) { return std::log(p); });
+
     // \log I_N -> c
-    std::copy(log_periodogram.begin(), log_periodogram.end(),
+    std::copy(buffer->log_periodogram_.begin(), buffer->log_periodogram_.end(),
               buffer->cepstrum_.begin());
-    std::reverse_copy(log_periodogram.begin() + 1, log_periodogram.end() - 1,
+    std::reverse_copy(buffer->log_periodogram_.begin() + 1,
+                      buffer->log_periodogram_.end() - 1,
                       buffer->cepstrum_.begin() + half_fft_length + 1);
     if (!inverse_fourier_transform_.Run(
             buffer->cepstrum_, &buffer->cepstrum_,
@@ -184,7 +190,7 @@ bool MelCepstralAnalysis::Run(const std::vector<double>& log_periodogram,
 
   // Perform Newton-Raphson method.
   double prev_epsilon(DBL_MAX);
-  for (int n(0); n < maximum_num_iteration_; ++n) {
+  for (int n(0); n < num_iteration_; ++n) {
     // \tilde{c} -> c
     buffer->cepstrum_.resize(half_fft_length + 1);
     if (!inverse_frequency_transform_.Run(
@@ -202,9 +208,10 @@ bool MelCepstralAnalysis::Run(const std::vector<double>& log_periodogram,
     }
 
     // \log D -> I_N / |D|^2
-    std::transform(log_periodogram.begin(), log_periodogram.end(),
-                   buffer->d_.begin(), buffer->d_.begin(),
-                   [](double x, double d) { return std::exp(x - 2.0 * d); });
+    std::transform(buffer->log_periodogram_.begin(),
+                   buffer->log_periodogram_.end(), buffer->d_.begin(),
+                   buffer->d_.begin(),
+                   [](double x, double d) { return std::exp(x - d - d); });
     std::reverse_copy(buffer->d_.begin() + 1,
                       buffer->d_.begin() + half_fft_length,
                       buffer->d_.begin() + half_fft_length + 1);
@@ -217,11 +224,9 @@ bool MelCepstralAnalysis::Run(const std::vector<double>& log_periodogram,
     }
 
     // r -> \tilde{r}
-    if (!CoefficientsFrequencyTransform(buffer->r_, half_fft_length + 1,
-                                        2 * length - 1, alpha_, &buffer->rt_,
-                                        &buffer->b_)) {
-      return false;
-    }
+    CoefficientsFrequencyTransform(buffer->r_, half_fft_length + 1,
+                                   2 * length - 1, alpha_, &buffer->rt_,
+                                   &buffer->b_);
 
     // \tilde{r} -> R
     std::reverse_copy(buffer->rt_.begin() + 1, buffer->rt_.begin() + length,
