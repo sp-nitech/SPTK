@@ -262,11 +262,11 @@ int main(int argc, char* argv[]) {
   }
   std::ostream& output_stream(ofs);
 
-  sptk::AdaptiveMelCepstralAnalysis analyzer(
+  sptk::AdaptiveMelCepstralAnalysis analysis(
       num_order, num_pade_order, alpha, minimum_epsilon, momentum,
       forgetting_factor, step_size_factor);
-  sptk::AdaptiveMelCepstralAnalysis::Buffer buffer_for_analyzer;
-  if (!analyzer.IsValid()) {
+  sptk::AdaptiveMelCepstralAnalysis::Buffer buffer_for_analysis;
+  if (!analysis.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for analysis";
     sptk::PrintErrorMessage("amcep", error_message);
@@ -282,8 +282,8 @@ int main(int argc, char* argv[]) {
 
   for (int i(1); sptk::ReadStream(&input_signal, &input_stream); ++i) {
     double prediction_error;
-    if (!analyzer.Run(input_signal, &prediction_error, &mel_cepstrum,
-                      &buffer_for_analyzer)) {
+    if (!analysis.Run(input_signal, &prediction_error, &mel_cepstrum,
+                      &buffer_for_analysis)) {
       std::ostringstream error_message;
       error_message << "Failed to run adaptive mel-cepstral analysis";
       sptk::PrintErrorMessage("amcep", error_message);

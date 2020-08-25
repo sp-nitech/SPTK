@@ -322,11 +322,11 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  sptk::MelGeneralizedCepstralAnalysis analyzer(fft_length, num_order, alpha,
+  sptk::MelGeneralizedCepstralAnalysis analysis(fft_length, num_order, alpha,
                                                 gamma, num_iteration,
                                                 convergence_threshold);
   sptk::MelGeneralizedCepstralAnalysis::Buffer buffer_for_cepstral_analysis;
-  if (!analyzer.IsValid()) {
+  if (!analysis.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for cepstral analysis";
     sptk::PrintErrorMessage("mgcep", error_message);
@@ -393,7 +393,7 @@ int main(int argc, char* argv[]) {
       default: { break; }
     }
 
-    if (!analyzer.Run(processed_input, &output,
+    if (!analysis.Run(processed_input, &output,
                       &buffer_for_cepstral_analysis)) {
       std::ostringstream error_message;
       error_message << "Failed to run mel-generalized cepstral analysis";
