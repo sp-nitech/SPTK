@@ -1,0 +1,4 @@
+aeq
+===
+
+.. doxygenfile:: aeq.cc

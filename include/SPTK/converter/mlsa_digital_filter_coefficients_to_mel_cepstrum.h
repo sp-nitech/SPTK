@@ -63,7 +63,7 @@ namespace sptk {
  * and the output is the \f$M\f$-th order mel-cepstral coefficients:
  * \f[
  *   \begin{array}{cccc}
- *     \tilde{c}(0), & \tilde{c}(1), & \ldots, & \tilde{c}(M),
+ *     \tilde{c}(0), & \tilde{c}(1), & \ldots, & \tilde{c}(M).
  *   \end{array}
  * \f]
  * The mel-cepstral coefficients can be obtained by the linear transformation
@@ -73,7 +73,7 @@ namespace sptk {
  * \f]
  * where
  * \f{eqnarray}{
- *   \boldsymbol{A}^{-1} &=& \left[ \begin{array}{ccccc}
+ *   \boldsymbol{A} &=& \left[ \begin{array}{ccccc}
  *     1      & \alpha & 0      & \cdots & 0      \\
  *     0      & 1      & \alpha & \ddots & \vdots \\
  *     0      & 0      & 1      & \ddots & 0      \\
@@ -82,10 +82,10 @@ namespace sptk {
  *   \end{array} \right], \\
  *   \tilde{\boldsymbol{c}} &=& \left[ \begin{array}{cccc}
  *     \tilde{c}(0) & \tilde{c}(1) & \cdots & \tilde{c}(M)
- *   \end{array} \right]^{\mathsf{T}}.
+ *   \end{array} \right]^{\mathsf{T}}, \\
  *   \boldsymbol{b} &=& \left[ \begin{array}{cccc}
  *      b(0) & b(1) & \cdots & b(M)
- *   \end{array} \right]^{\mathsf{T}}, \\
+ *   \end{array} \right]^{\mathsf{T}}.
  * \f}
  * The transformation is implemented with low computational complexity as
  * follows:
@@ -96,8 +96,8 @@ namespace sptk {
  *   \end{array} \right.
  * \f]
  *
- * [1] K. Tokuda, T. Kobayashi, T. Chiba, and S. Imai, "Spectral estimation of
- *     speech by mel-generalized cepstral analysis," Electronics and
+ * [1] K. Tokuda, T. Kobayashi, T. Chiba, and S. Imai, &quot;Spectral estimation
+ *     of speech by mel-generalized cepstral analysis,&quot; Electronics and
  *     Communications in Japan, part 3, vol. 76, no. 2, pp. 30-43, 1993.
  */
 class MlsaDigitalFilterCoefficientsToMelCepstrum {

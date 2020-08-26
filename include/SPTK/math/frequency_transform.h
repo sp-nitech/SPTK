@@ -88,12 +88,12 @@ namespace sptk {
  * detail, see [1]. Note that the above recursion can be represented as a linear
  * transformation, i.e., matrix multiplication.
  *
- * [1] A. Oppenheim and D. Johnson, "Discrete representation of signals,"
- *     Proc. of the IEEE, vol. 60, no. 6, pp. 681-691, 1972.
+ * [1] A. Oppenheim and D. Johnson, &quot;Discrete representation of
+ *     signals,&quot; Proc. of the IEEE, vol. 60, no. 6, pp. 681-691, 1972.
  *
- * [2] K. Tokuda, T. Kobayashi, T. Masuko, and S. Imai, "Mel-generalized
+ * [2] K. Tokuda, T. Kobayashi, T. Masuko, and S. Imai, &quot;Mel-generalized
  *     cepstral representation of speech - A unified approach to speech spectral
- *     estimation," Proc. of ICSLP 1994, pp. 1043-1046, 1994.
+ *     estimation,&quot; Proc. of ICSLP 1994, pp. 1043-1046, 1994.
  */
 class FrequencyTransform {
  public:

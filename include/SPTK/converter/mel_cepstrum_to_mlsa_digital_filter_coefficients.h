@@ -63,7 +63,7 @@ namespace sptk {
  * and the output is the \f$M\f$-th order MLSA digital filter coefficients:
  * \f[
  *   \begin{array}{cccc}
- *     b(0), & b(1), & \ldots, & b(M),
+ *     b(0), & b(1), & \ldots, & b(M).
  *   \end{array}
  * \f]
  * The MLSA digital filter coefficients can be obtained by the linear
@@ -96,8 +96,8 @@ namespace sptk {
  *   \end{array} \right.
  * \f]
  *
- * [1] K. Tokuda, T. Kobayashi, T. Chiba, and S. Imai, "Spectral estimation of
- *     speech by mel-generalized cepstral analysis," Electronics and
+ * [1] K. Tokuda, T. Kobayashi, T. Chiba, and S. Imai, &quot;Spectral estimation
+ *     of speech by mel-generalized cepstral analysis,&quot; Electronics and
  *     Communications in Japan, part 3, vol. 76, no. 2, pp. 30-43, 1993.
  */
 class MelCepstrumToMlsaDigitalFilterCoefficients {
