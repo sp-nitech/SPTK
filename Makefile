@@ -8,7 +8,7 @@
 #                           Interdisciplinary Graduate School of    #
 #                           Science and Engineering                 #
 #                                                                   #
-#                1996-2019  Nagoya Institute of Technology          #
+#                1996-2020  Nagoya Institute of Technology          #
 #                           Department of Computer Science          #
 #                                                                   #
 # All rights reserved.                                              #
@@ -81,9 +81,16 @@ $(OBJECTS): $(BUILDDIR)/%.o: $(SOURCEDIR)/%.cc
 $(THIRDPARTYDIRS):
 	$(MAKE) -C $@
 
+doc:
+	cd doc; ../tools/doxygen/build/bin/doxygen
+	. ./tools/venv/bin/activate; cd doc; make html
+
 format:
 	clang-format -i $(wildcard $(SOURCEDIR)/*/*.cc)
 	clang-format -i	$(wildcard $(INCLUDEDIR)/SPTK/*/*.h)
+
+test:
+	./tools/bats/bin/bats test
 
 clean:
 	for dir in $(THIRDPARTYDIRS); do \
@@ -91,4 +98,4 @@ clean:
 	done
 	rm -rf $(BUILDDIR) $(LIBDIR) $(BINDIR)
 
-.PHONY: all $(THIRDPARTYDIRS) format clean
+.PHONY: all $(THIRDPARTYDIRS) doc format test clean

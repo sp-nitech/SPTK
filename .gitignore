@@ -2,4 +2,10 @@ bin/
 build/
 lib/
 
+tools/bats/
+tools/doxygen/
+tools/sptk/
+tools/venv/
+
+*.done
 *.tar.gz
