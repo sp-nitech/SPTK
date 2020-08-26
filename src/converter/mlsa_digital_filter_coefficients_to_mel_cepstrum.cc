@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -53,33 +53,41 @@ MlsaDigitalFilterCoefficientsToMelCepstrum::
     : num_order_(num_order), alpha_(alpha), is_valid_(true) {
   if (num_order_ < 0 || !sptk::IsValidAlpha(alpha_)) {
     is_valid_ = false;
+    return;
   }
 }
 
 bool MlsaDigitalFilterCoefficientsToMelCepstrum::Run(
     const std::vector<double>& mlsa_digital_filter_coefficients,
     std::vector<double>* mel_cepstrum) const {
-  // check inputs
+  // Check inputs.
+  const int length(num_order_ + 1);
   if (!is_valid_ ||
       mlsa_digital_filter_coefficients.size() !=
-          static_cast<std::size_t>(num_order_ + 1) ||
+          static_cast<std::size_t>(length) ||
       NULL == mel_cepstrum) {
     return false;
   }
 
-  // prepare memory
-  if (mel_cepstrum->size() != static_cast<std::size_t>(num_order_ + 1)) {
-    mel_cepstrum->resize(num_order_ + 1);
+  // Prepare memories.
+  if (mel_cepstrum->size() != static_cast<std::size_t>(length)) {
+    mel_cepstrum->resize(length);
   }
 
-  // get values
-  const double* input(&(mlsa_digital_filter_coefficients[0]));
-  double* output(&((*mel_cepstrum)[0]));
+  // There is no need to convert input when alpha is zero.
+  if (0.0 == alpha_) {
+    std::copy(mlsa_digital_filter_coefficients.begin(),
+              mlsa_digital_filter_coefficients.end(),
+              mel_cepstrum->begin());
+    return true;
+  }
 
-  output[num_order_] = input[num_order_];
+  const double* b(&(mlsa_digital_filter_coefficients[0]));
+  double* c(&((*mel_cepstrum)[0]));
 
-  for (int i(num_order_ - 1); 0 <= i; --i) {
-    output[i] = input[i] + alpha_ * input[i + 1];
+  c[num_order_] = b[num_order_];
+  for (int m(num_order_ - 1); 0 <= m; --m) {
+    c[m] = b[m] + alpha_ * b[m + 1];
   }
 
   return true;

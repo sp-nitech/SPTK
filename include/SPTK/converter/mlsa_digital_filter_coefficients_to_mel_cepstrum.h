@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -51,45 +51,102 @@
 
 namespace sptk {
 
+/**
+ * Transform MLSA digital filter coefficients to mel-cepstral coefficients.
+ *
+ * The input is the \f$M\f$-th order MLSA digital filter coefficients:
+ * \f[
+ *   \begin{array}{cccc}
+ *     b(0), & b(1), & \ldots, & b(M),
+ *   \end{array}
+ * \f]
+ * and the output is the \f$M\f$-th order mel-cepstral coefficients:
+ * \f[
+ *   \begin{array}{cccc}
+ *     \tilde{c}(0), & \tilde{c}(1), & \ldots, & \tilde{c}(M),
+ *   \end{array}
+ * \f]
+ * The mel-cepstral coefficients can be obtained by the linear transformation
+ * of the MLSA digital filter coefficients:
+ * \f[
+ *   \tilde{\boldsymbol{c}} = \boldsymbol{A}\boldsymbol{b},
+ * \f]
+ * where
+ * \f{eqnarray}{
+ *   \boldsymbol{A}^{-1} &=& \left[ \begin{array}{ccccc}
+ *     1      & \alpha & 0      & \cdots & 0      \\
+ *     0      & 1      & \alpha & \ddots & \vdots \\
+ *     0      & 0      & 1      & \ddots & 0      \\
+ *     \vdots & \vdots & \ddots & \ddots & \alpha \\
+ *     0      & 0      & \cdots & 0      & 1      \\
+ *   \end{array} \right], \\
+ *   \tilde{\boldsymbol{c}} &=& \left[ \begin{array}{cccc}
+ *     \tilde{c}(0) & \tilde{c}(1) & \cdots & \tilde{c}(M)
+ *   \end{array} \right]^{\mathsf{T}}.
+ *   \boldsymbol{b} &=& \left[ \begin{array}{cccc}
+ *      b(0) & b(1) & \cdots & b(M)
+ *   \end{array} \right]^{\mathsf{T}}, \\
+ * \f}
+ * The transformation is implemented with low computational complexity as
+ * follows:
+ * \f[
+ *   \tilde{c}(m) = \left\{ \begin{array}{ll}
+ *     b(m), & m = M \\
+ *     b(m) + \alpha b(m + 1). & 0 \le m < M
+ *   \end{array} \right.
+ * \f]
+ *
+ * [1] K. Tokuda, T. Kobayashi, T. Chiba, and S. Imai, "Spectral estimation of
+ *     speech by mel-generalized cepstral analysis," Electronics and
+ *     Communications in Japan, part 3, vol. 76, no. 2, pp. 30-43, 1993.
+ */
 class MlsaDigitalFilterCoefficientsToMelCepstrum {
  public:
-  //
+  /**
+   * @param[in] num_order Order of coefficients, \f$M\f$.
+   * @param[in] alpha Frequency warping factor, \f$\alpha\f$.
+   */
   MlsaDigitalFilterCoefficientsToMelCepstrum(int num_order, double alpha);
 
-  //
   virtual ~MlsaDigitalFilterCoefficientsToMelCepstrum() {
   }
 
-  //
+  /**
+   * @return Order of coefficients.
+   */
   int GetNumOrder() const {
     return num_order_;
   }
 
-  //
+  /**
+   * @return Frequency warping factor.
+   */
   double GetAlpha() const {
     return alpha_;
   }
 
-  //
+  /**
+   * @return True if this obejct is valid.
+   */
   bool IsValid() const {
     return is_valid_;
   }
 
-  //
+  /**
+   * @param[in] mlsa_digital_filter_coefficients \f$M\f$-th order MLSA digital
+   *            filter coefficients.
+   * @param[out] mel_cepstrum \f$M\f$-th order mel-cepstral coefficients.
+   * @return True on success, false on failure.
+   */
   bool Run(const std::vector<double>& mlsa_digital_filter_coefficients,
            std::vector<double>* mel_cepstrum) const;
 
  private:
-  //
   const int num_order_;
-
-  //
   const double alpha_;
 
-  //
   bool is_valid_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(MlsaDigitalFilterCoefficientsToMelCepstrum);
 };
 
