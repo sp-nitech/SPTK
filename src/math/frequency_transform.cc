@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -58,13 +58,14 @@ FrequencyTransform::FrequencyTransform(int num_input_order,
   if (num_input_order_ < 0 || num_output_order_ < 0 ||
       !sptk::IsValidAlpha(alpha_)) {
     is_valid_ = false;
+    return;
   }
 }
 
 bool FrequencyTransform::Run(const std::vector<double>& minimum_phase_sequence,
                              std::vector<double>* warped_sequence,
                              FrequencyTransform::Buffer* buffer) const {
-  // check inputs
+  // Check inputs.
   const int input_length(num_input_order_ + 1);
   if (!is_valid_ ||
       minimum_phase_sequence.size() != static_cast<std::size_t>(input_length) ||
@@ -72,13 +73,16 @@ bool FrequencyTransform::Run(const std::vector<double>& minimum_phase_sequence,
     return false;
   }
 
-  // prepare memory
+  // Prepare memories.
   const int output_length(num_output_order_ + 1);
   if (warped_sequence->size() != static_cast<std::size_t>(output_length)) {
     warped_sequence->resize(output_length);
   }
+  if (buffer->d_.size() != static_cast<std::size_t>(output_length)) {
+    buffer->d_.resize(output_length);
+  }
 
-  // handle specific case
+  // There is no need to convert input when alpha is zero.
   if (0.0 == alpha_) {
     if (num_input_order_ < num_output_order_) {
       std::copy(minimum_phase_sequence.begin(), minimum_phase_sequence.end(),
@@ -93,23 +97,15 @@ bool FrequencyTransform::Run(const std::vector<double>& minimum_phase_sequence,
     return true;
   }
 
-  // prepare buffer
-  if (buffer->d_.size() != static_cast<std::size_t>(output_length)) {
-    buffer->d_.resize(output_length);
-  }
+  std::fill(warped_sequence->begin(),
+            warped_sequence->end(), 0.0);
 
-  // get values
+  const double beta(1.0 - alpha_ * alpha_);
   const double* c(&(minimum_phase_sequence[0]));
   double* d(&buffer->d_[0]);
   double* g(&((*warped_sequence)[0]));
 
-  // set value
-  const double beta(1.0 - alpha_ * alpha_);
-
-  // fill zero
-  std::fill(g, g + output_length, 0.0);
-
-  // transform
+  // Apply recursive formula.
   for (int i(num_input_order_); 0 <= i; --i) {
     d[0] = g[0];
     g[0] = c[i] + alpha_ * d[0];
@@ -117,9 +113,9 @@ bool FrequencyTransform::Run(const std::vector<double>& minimum_phase_sequence,
       d[1] = g[1];
       g[1] = beta * d[0] + alpha_ * d[1];
     }
-    for (int j(2); j <= num_output_order_; ++j) {
-      d[j] = g[j];
-      g[j] = d[j - 1] + alpha_ * (d[j] - g[j - 1]);
+    for (int m(2); m <= num_output_order_; ++m) {
+      d[m] = g[m];
+      g[m] = d[m - 1] + alpha_ * (d[m] - g[m - 1]);
     }
   }
 
