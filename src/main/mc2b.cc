@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -80,6 +81,35 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * \a mc2b [ \e option ] [ \e infile ]
+ *
+ * - \b -m \e int
+ *   - order of coefficients \f$(0 \le M)\f$
+ * - \b -a \e double
+ *   - all-pass constant \f$(|\alpha|<1)\f$
+ * - \b infile \e str
+ *   - double-type mel-cepstral coefficients
+ * - \b stdout
+ *   - double-type MLSA digital filter coefficients
+ *
+ * The below example converts mel-cepstral coefficients into MLSA digital filter
+ * coefficients:
+ *
+ * @code{.sh}
+ *   mc2b < data.mc > data.b
+ * @endcode
+ *
+ * The converted MLSA digital filter coefficients can be reverted by
+ *
+ * @code{.sh}
+ *   b2mc < data.b > data.mc
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on false.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   double alpha(kDefaultAlpha);
@@ -122,7 +152,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -132,7 +161,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -143,12 +171,12 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for transformation
   sptk::MelCepstrumToMlsaDigitalFilterCoefficients
       mel_cepstrum_to_mlsa_digital_filter_coefficients(num_order, alpha);
   if (!mel_cepstrum_to_mlsa_digital_filter_coefficients.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set the condition";
+    error_message
+        << "Failed to initialize MelCepstrumToMlsaDigitalFilterCoefficients";
     sptk::PrintErrorMessage("mc2b", error_message);
     return 1;
   }

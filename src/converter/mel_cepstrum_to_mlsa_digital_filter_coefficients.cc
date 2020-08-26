@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -53,33 +53,42 @@ MelCepstrumToMlsaDigitalFilterCoefficients::
     : num_order_(num_order), alpha_(alpha), is_valid_(true) {
   if (num_order_ < 0 || !sptk::IsValidAlpha(alpha_)) {
     is_valid_ = false;
+    return;
   }
 }
 
 bool MelCepstrumToMlsaDigitalFilterCoefficients::Run(
     const std::vector<double>& mel_cepstrum,
     std::vector<double>* mlsa_digital_filter_coefficients) const {
-  // check inputs
+  // Check inputs.
+  const int length(num_order_ + 1);
   if (!is_valid_ ||
-      mel_cepstrum.size() != static_cast<std::size_t>(num_order_ + 1) ||
+      mel_cepstrum.size() != static_cast<std::size_t>(length) ||
       NULL == mlsa_digital_filter_coefficients) {
     return false;
   }
 
-  // prepare memory
+  // Prepare memories.
   if (mlsa_digital_filter_coefficients->size() !=
-      static_cast<std::size_t>(num_order_ + 1)) {
-    mlsa_digital_filter_coefficients->resize(num_order_ + 1);
+      static_cast<std::size_t>(length)) {
+    mlsa_digital_filter_coefficients->resize(length);
   }
 
-  // get values
-  const double* input(&(mel_cepstrum[0]));
-  double* output(&((*mlsa_digital_filter_coefficients)[0]));
+  // There is no need to convert input when alpha is zero.
+  if (0.0 == alpha_) {
+    std::copy(mel_cepstrum.begin(),
+              mel_cepstrum.end(),
+              mlsa_digital_filter_coefficients->begin());
+    return true;
+  }
 
-  output[num_order_] = input[num_order_];
+  const double* c(&(mel_cepstrum[0]));
+  double* b(&((*mlsa_digital_filter_coefficients)[0]));
 
-  for (int i(num_order_ - 1); 0 <= i; --i) {
-    output[i] = input[i] - alpha_ * output[i + 1];
+  // Apply recursive formula.
+  b[num_order_] = c[num_order_];
+  for (int m(num_order_ - 1); 0 <= m; --m) {
+    b[m] = c[m] - alpha_ * b[m + 1];
   }
 
   return true;
