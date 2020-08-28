@@ -55,6 +55,7 @@
 namespace {
 
 const double kDefaultTolerance(1e-6);
+const bool kDefaultEnableCheckLengthFlag(true);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -64,12 +65,13 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       aeq [ options ] exfile [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -t t  : tolerance          (double)[" << std::setw(5) << std::right << kDefaultTolerance << "][ 0.0 <= t <=   ]" << std::endl;  // NOLINT
+  *stream << "       -t t  : tolerance               (double)[" << std::setw(5) << std::right << kDefaultTolerance << "][ 0.0 <= t <=   ]" << std::endl;  // NOLINT
+  *stream << "       -L    : disable to check length (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(!kDefaultEnableCheckLengthFlag) << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  exfile:" << std::endl;
-  *stream << "       expected values            (double)" << std::endl;
+  *stream << "       expected values                 (double)" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       actual values              (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       actual values                   (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
   *stream << "       result messages" << std::endl;
   *stream << std::endl;
@@ -85,6 +87,8 @@ void PrintUsage(std::ostream* stream) {
  *
  * - \b -t \e double
  *   - absolute tolerance \f$(0 \le \epsilon)\f$
+ * - \b -L \e bool
+ *   - disable to check length
  * - \b exfile \e str
  *   - double-type expected values
  * - \b infile \e str
@@ -122,9 +126,10 @@ void PrintUsage(std::ostream* stream) {
  */
 int main(int argc, char* argv[]) {
   double tolerance(kDefaultTolerance);
+  bool enable_check_length(kDefaultEnableCheckLengthFlag);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "t:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "t:Lh", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -137,6 +142,10 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("aeq", error_message);
           return 1;
         }
+        break;
+      }
+      case 'L': {
+        enable_check_length = false;
         break;
       }
       case 'h': {
@@ -194,8 +203,10 @@ int main(int argc, char* argv[]) {
     const bool result1(sptk::ReadStream(&expected, &stream_for_expected));
     const bool result2(sptk::ReadStream(&actual, &stream_for_actual));
     if (result1 != result2) {
-      std::cout << "Acutual data length and expected one differ" << std::endl;
-      status = -1;
+      if (enable_check_length) {
+        std::cout << "Acutual data length and expected one differ" << std::endl;
+        status = -1;
+      }
       break;
     }
     if (!result1) {
