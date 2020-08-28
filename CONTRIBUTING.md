@@ -1,7 +1,7 @@
 Contributing guide
 ==================
 
-Thanks for your interest in contributing to SPTK.
+Thank you for your interest in contributing to SPTK.
 
 SPTK is currently under construction.
 Any kinds of contributions are not welcome at the moment.
@@ -9,7 +9,7 @@ Any kinds of contributions are not welcome at the moment.
 
 Development
 -----------
-For the development of SPTK, you may need to install the following programs.
+For the development of SPTK, you may need to install the following programs:
 
 - CMake 3.3+
 - Python 3.6
@@ -31,7 +31,7 @@ make test
 
 ### Source code formatting
 `ClangFormat` and `cpplint` are used to format source codes.
-Please also perform formatting before sending a pull request by running
+Please also perform the formatting before sending a pull request by running
 ```sh
 make format
 ```

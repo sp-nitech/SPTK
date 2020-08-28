@@ -93,7 +93,7 @@ teardown() {
    [ "$status" -eq 0 ]
 }
 
-@test "zeroedf: identity" {
+@test "zerodf: identity" {
    $sptk3/step -l 10 > tmp/1
    $sptk3/nrand -l 10 > tmp/2
    $sptk4/zerodf -m 0 -i 0 -p 1 tmp/1 tmp/2 > tmp/3
