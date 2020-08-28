@@ -88,6 +88,9 @@ doc:
 format:
 	clang-format -i $(wildcard $(SOURCEDIR)/*/*.cc)
 	clang-format -i	$(wildcard $(INCLUDEDIR)/SPTK/*/*.h)
+	./tools/cpplint/cpplint.py --filter=-readability/streams $(wildcard $(SOURCEDIR)/*/*.cc)
+	./tools/cpplint/cpplint.py --filter=-readability/streams,-build/include_subdir \
+		--root=$(abspath $(INCLUDEDIR)) $(wildcard $(INCLUDEDIR)/SPTK/*/*.h)
 
 test:
 	./tools/bats/bin/bats test
