@@ -97,8 +97,7 @@ bool FrequencyTransform::Run(const std::vector<double>& minimum_phase_sequence,
     return true;
   }
 
-  std::fill(warped_sequence->begin(),
-            warped_sequence->end(), 0.0);
+  std::fill(warped_sequence->begin(), warped_sequence->end(), 0.0);
 
   const double beta(1.0 - alpha_ * alpha_);
   const double* c(&(minimum_phase_sequence[0]));
