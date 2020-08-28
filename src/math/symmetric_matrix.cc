@@ -47,13 +47,12 @@
 #include <algorithm>  // std::fill, std::swap
 #include <cstddef>    // std::size_t
 #include <stdexcept>  // std::out_of_range
-#include <string>     // std::string
 
 #include "SPTK/math/matrix.h"
 
 namespace {
 
-const std::string kErrorMessage("SymmetricMatrix: Out of range");
+const char* kErrorMessage("SymmetricMatrix: Out of range");
 
 }  // namespace
 

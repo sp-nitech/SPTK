@@ -46,11 +46,10 @@
 
 #include <cmath>      // std::fabs
 #include <stdexcept>  // std::out_of_range
-#include <string>     // std::string
 
 namespace {
 
-const std::string kErrorMessageForOutOfRange("Matrix2D: Out of range");
+const char* kErrorMessageForOutOfRange("Matrix2D: Out of range");
 const double kMinimumValueOfDeterminant(1e-6);
 
 }  // namespace

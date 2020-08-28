@@ -47,13 +47,11 @@
 #include <algorithm>   // std::fill, std::min, std::transform
 #include <functional>  // std::minus, std::negate, std::plus
 #include <stdexcept>   // std::logic_error, std::out_of_range
-#include <string>      // std::string
 
 namespace {
 
-const std::string kErrorMessageForOutOfRange("Matrix: Out of range");
-const std::string kErrorMessageForLogicError(
-    "Matrix: Matrix sizes do not match");
+const char* kErrorMessageForOutOfRange("Matrix: Out of range");
+const char* kErrorMessageForLogicError("Matrix: Matrix sizes do not match");
 
 }  // namespace
 
