@@ -17,9 +17,8 @@ doxygen.done:
 	touch doxygen.done
 
 sptk.done:
-	mkdir -p sptk; cd sptk; \
-	wget http://downloads.sourceforge.net/sp-tk/SPTK-3.11.tar.gz; \
-	tar -zxvf SPTK-3.11.tar.gz; cd SPTK-3.11; \
+	git clone https://git.code.sf.net/p/sp-tk/SPTK sptk
+	cd sptk/src; aclocal; touch ChangeLog; automake -a -c; autoconf; \
 	./configure --enable-double --prefix=$(CURDIR)/sptk; make; make install
 	touch sptk.done
 
