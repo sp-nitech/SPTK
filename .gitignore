@@ -3,6 +3,7 @@ build/
 lib/
 
 tools/bats/
+tools/cpplint/
 tools/doxygen/
 tools/sptk/
 tools/venv/
