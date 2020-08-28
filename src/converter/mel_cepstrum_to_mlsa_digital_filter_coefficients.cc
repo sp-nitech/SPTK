@@ -62,8 +62,7 @@ bool MelCepstrumToMlsaDigitalFilterCoefficients::Run(
     std::vector<double>* mlsa_digital_filter_coefficients) const {
   // Check inputs.
   const int length(num_order_ + 1);
-  if (!is_valid_ ||
-      mel_cepstrum.size() != static_cast<std::size_t>(length) ||
+  if (!is_valid_ || mel_cepstrum.size() != static_cast<std::size_t>(length) ||
       NULL == mlsa_digital_filter_coefficients) {
     return false;
   }
@@ -76,8 +75,7 @@ bool MelCepstrumToMlsaDigitalFilterCoefficients::Run(
 
   // There is no need to convert input when alpha is zero.
   if (0.0 == alpha_) {
-    std::copy(mel_cepstrum.begin(),
-              mel_cepstrum.end(),
+    std::copy(mel_cepstrum.begin(), mel_cepstrum.end(),
               mlsa_digital_filter_coefficients->begin());
     return true;
   }
@@ -92,6 +90,11 @@ bool MelCepstrumToMlsaDigitalFilterCoefficients::Run(
   }
 
   return true;
+}
+
+bool MelCepstrumToMlsaDigitalFilterCoefficients::Run(
+    std::vector<double>* input_and_output) const {
+  return Run(*input_and_output, input_and_output);
 }
 
 }  // namespace sptk

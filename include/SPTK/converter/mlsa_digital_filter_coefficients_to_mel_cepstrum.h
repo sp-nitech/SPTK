@@ -141,6 +141,12 @@ class MlsaDigitalFilterCoefficientsToMelCepstrum {
   bool Run(const std::vector<double>& mlsa_digital_filter_coefficients,
            std::vector<double>* mel_cepstrum) const;
 
+  /**
+   * @param[in,out] input_and_output \f$M\f$-th order coefficients.
+   * @return True on success, false on failure.
+   */
+  bool Run(std::vector<double>* input_and_output) const;
+
  private:
   const int num_order_;
   const double alpha_;

@@ -77,8 +77,7 @@ bool MlsaDigitalFilterCoefficientsToMelCepstrum::Run(
   // There is no need to convert input when alpha is zero.
   if (0.0 == alpha_) {
     std::copy(mlsa_digital_filter_coefficients.begin(),
-              mlsa_digital_filter_coefficients.end(),
-              mel_cepstrum->begin());
+              mlsa_digital_filter_coefficients.end(), mel_cepstrum->begin());
     return true;
   }
 
@@ -91,6 +90,12 @@ bool MlsaDigitalFilterCoefficientsToMelCepstrum::Run(
   }
 
   return true;
+}
+
+bool MlsaDigitalFilterCoefficientsToMelCepstrum::Run(
+    std::vector<double>* input_and_output) const {
+  std::vector<double> input(*input_and_output);
+  return Run(input, input_and_output);
 }
 
 }  // namespace sptk
