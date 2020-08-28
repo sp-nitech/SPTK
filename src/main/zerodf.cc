@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -93,6 +94,38 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * \a zerodf [ \e option ] \e bfile [ \e infile ]
+ *
+ * - \b -m \e int
+ *   - order of coefficients \f$(0 \le M)\f$
+ * - \b -p \e int
+ *   - frame period \f$(1 \le P)\f$
+ * - \b -i \e int
+ *   - interpolation period \f$(0 \le I \le P/2)\f$
+ * - \b -t \e bool
+ *   - transpose filter
+ * - \b -k \e bool
+ *   - filtering without gain
+ * - \b bfile \e str
+ *   - double-type FIR filter coefficients
+ * - \b infile \e str
+ *   - double-type input sequence
+ * - \b stdout
+ *   - double-type output sequence
+ *
+ * In the below example, an exciation signal generated from pitch information is
+ * passed through the standard form synthesis filter built from FIR filter
+ * coefficients.
+ *
+ * @code{.sh}
+ *   excite < data.pitch | poledf data.fir > data.syn
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on false.
+ */
 int main(int argc, char* argv[]) {
   int num_filter_order(kDefaultNumFilterOrder);
   int frame_period(kDefaultFramePeriod);
@@ -209,43 +242,49 @@ int main(int argc, char* argv[]) {
   std::vector<double> filter_coefficients(filter_length);
   sptk::InputSourceFromStream input_source(false, filter_length,
                                            &stream_for_filter_coefficients);
+  sptk::InputSourceInterpolation interpolation(
+      frame_period, interpolation_period, true, &input_source);
   const sptk::InputSourcePreprocessingForFilterGain::FilterGainType gain_type(
       gain_flag
           ? sptk::InputSourcePreprocessingForFilterGain::FilterGainType::kLinear
           : sptk::InputSourcePreprocessingForFilterGain::FilterGainType::
                 kUnityForAllZeroFilter);
   sptk::InputSourcePreprocessingForFilterGain preprocessing(gain_type,
-                                                            &input_source);
-  sptk::InputSourceInterpolation interpolation(
-      frame_period, interpolation_period, true, &preprocessing);
-  double filter_input, filter_output;
-  sptk::AllZeroDigitalFilter filter(num_filter_order, transposition_flag);
-  sptk::AllZeroDigitalFilter::Buffer buffer;
-
-  if (!interpolation.IsValid() || !filter.IsValid()) {
+                                                            &interpolation);
+  if (!preprocessing.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for filtering";
+    error_message << "Failed to initialize InputSource";
     sptk::PrintErrorMessage("zerodf", error_message);
     return 1;
   }
 
-  while (sptk::ReadStream(&filter_input, &stream_for_filter_input)) {
-    if (!interpolation.Get(&filter_coefficients)) {
+  sptk::AllZeroDigitalFilter filter(num_filter_order, transposition_flag);
+  sptk::AllZeroDigitalFilter::Buffer buffer;
+  if (!filter.IsValid()) {
+    std::ostringstream error_message;
+    error_message << "Failed to initialize AllZeroDigitalFilter";
+    sptk::PrintErrorMessage("zerodf", error_message);
+    return 1;
+  }
+
+  double signal;
+
+  while (sptk::ReadStream(&signal, &stream_for_filter_input)) {
+    if (!preprocessing.Get(&filter_coefficients)) {
       std::ostringstream error_message;
       error_message << "Cannot get filter coefficients";
       sptk::PrintErrorMessage("zerodf", error_message);
       return 1;
     }
 
-    if (!filter.Run(filter_coefficients, filter_input, &filter_output,
-                    &buffer)) {
+    if (!filter.Run(filter_coefficients, &signal, &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to apply all-zero digital filter";
       sptk::PrintErrorMessage("zerodf", error_message);
       return 1;
     }
 
-    if (!sptk::WriteStream(filter_output, &std::cout)) {
+    if (!sptk::WriteStream(signal, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write a filter output";
       sptk::PrintErrorMessage("zerodf", error_message);
