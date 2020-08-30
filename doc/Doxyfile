@@ -850,9 +850,13 @@ INPUT                  = \
                          ../include/SPTK/filter/all_pole_digital_filter.h \
                          ../include/SPTK/filter/all_zero_digital_filter.h \
                          ../include/SPTK/math/frequency_transform.h \
+                         ../include/SPTK/normalizer/generalized_cepstrum_gain_normalization.h \
+                         ../include/SPTK/normalizer/generalized_cepstrum_inverse_gain_normalization.h \
                          ../src/main/aeq.cc \
                          ../src/main/b2mc.cc \
                          ../src/main/freqt.cc \
+                         ../src/main/gnorm.cc \
+                         ../src/main/ignorm.cc \
                          ../src/main/mc2b.cc \
                          ../src/main/poledf.cc \
                          ../src/main/zerodf.cc \
