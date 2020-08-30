@@ -404,8 +404,7 @@ int main(int argc, char* argv[]) {
     if (0.0 != alpha &&
         (kMlsaFilterCoefficients == output_format ||
          kGainNormalizedMlsaFilterCoefficients == output_format)) {
-      if (!mel_cepstrum_to_mlsa_digital_filter_coefficients.Run(output,
-                                                                &output)) {
+      if (!mel_cepstrum_to_mlsa_digital_filter_coefficients.Run(&output)) {
         std::ostringstream error_message;
         error_message << "Failed to convert to MLSA filter coefficients";
         sptk::PrintErrorMessage("mgcep", error_message);
@@ -415,7 +414,7 @@ int main(int argc, char* argv[]) {
 
     if (kGainNormalizedCepstrum == output_format ||
         kGainNormalizedMlsaFilterCoefficients == output_format) {
-      if (!generalized_cepstrum_gain_normalization.Run(output, &output)) {
+      if (!generalized_cepstrum_gain_normalization.Run(&output)) {
         std::ostringstream error_message;
         error_message << "Failed to normalize generalized cepstrum";
         sptk::PrintErrorMessage("mgcep", error_message);

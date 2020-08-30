@@ -248,7 +248,7 @@ bool MelGeneralizedCepstralAnalysis::Run(
   if (-1.0 != gamma_) {
     // K, b'r -> br
     if (!generalized_cepstrum_inverse_gain_normalization_gamma_minus_one_.Run(
-            buffer->b_, &buffer->b_)) {
+            &buffer->b_)) {
       return false;
     }
     // br -> cr
@@ -268,8 +268,7 @@ bool MelGeneralizedCepstralAnalysis::Run(
       return false;
     }
     // br' -> K, b'r'
-    if (!generalized_cepstrum_gain_normalization_.Run(buffer->b_,
-                                                      &buffer->b_)) {
+    if (!generalized_cepstrum_gain_normalization_.Run(&buffer->b_)) {
       return false;
     }
   }
@@ -292,8 +291,7 @@ bool MelGeneralizedCepstralAnalysis::Run(
   }
 
   // K, b'r' -> br
-  if (!generalized_cepstrum_inverse_gain_normalization_.Run(buffer->b_,
-                                                            &buffer->b_)) {
+  if (!generalized_cepstrum_inverse_gain_normalization_.Run(&buffer->b_)) {
     return false;
   }
   // br -> cr
