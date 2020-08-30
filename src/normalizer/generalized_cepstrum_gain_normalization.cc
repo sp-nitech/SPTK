@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -55,18 +55,21 @@ GeneralizedCepstrumGainNormalization::GeneralizedCepstrumGainNormalization(
     : num_order_(num_order), gamma_(gamma), is_valid_(true) {
   if (num_order_ < 0 || !sptk::IsValidGamma(gamma_)) {
     is_valid_ = false;
+    return;
   }
 }
 
 bool GeneralizedCepstrumGainNormalization::Run(
     const std::vector<double>& generalized_cepstrum,
     std::vector<double>* normalized_generalized_cepstrum) const {
+  // Check inputs.
   if (!is_valid_ ||
       generalized_cepstrum.size() != static_cast<std::size_t>(num_order_ + 1) ||
       NULL == normalized_generalized_cepstrum) {
     return false;
   }
 
+  // Prepare memories.
   if (normalized_generalized_cepstrum->size() !=
       static_cast<std::size_t>(num_order_ + 1)) {
     normalized_generalized_cepstrum->resize(num_order_ + 1);
@@ -77,14 +80,19 @@ bool GeneralizedCepstrumGainNormalization::Run(
     std::copy(generalized_cepstrum.begin() + 1, generalized_cepstrum.end(),
               normalized_generalized_cepstrum->begin() + 1);
   } else {
-    const double k(1.0 + gamma_ * generalized_cepstrum[0]);
-    (*normalized_generalized_cepstrum)[0] = std::pow(k, 1.0 / gamma_);
+    const double z(1.0 + gamma_ * generalized_cepstrum[0]);
+    (*normalized_generalized_cepstrum)[0] = std::pow(z, 1.0 / gamma_);
     std::transform(generalized_cepstrum.begin() + 1, generalized_cepstrum.end(),
                    normalized_generalized_cepstrum->begin() + 1,
-                   [k](double x) { return x / k; });
+                   [z](double c) { return c / z; });
   }
 
   return true;
+}
+
+bool GeneralizedCepstrumGainNormalization::Run(
+    std::vector<double>* input_and_output) const {
+  return Run(*input_and_output, input_and_output);
 }
 
 }  // namespace sptk

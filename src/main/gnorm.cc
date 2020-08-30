@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -81,6 +82,36 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * \a gnorm [ \e option ] [ \e infile ]
+ *
+ * - \b -m \e int
+ *   - order of coefficients \f$(0 \le M)\f$
+ * - \b -g \e double
+ *   - gamma \f$(|\gamma| \le 1)\f$
+ * - \b -c \e int
+ *   - gamma \f$\gamma = -1 / C\f$ \f$(1 \le C)\f$
+ * - \b infile \e str
+ *   - double-type generalized cepstral coefficients
+ * - \b stdout
+ *   - double-type normalized generalized cepstral coefficients
+ *
+ * The below example normalizes generalized cepstral coefficients:
+ *
+ * @code{.sh}
+ *   gnorm -g -0.5 < data.gc > data.ngc
+ * @endcode
+ *
+ * The normalized generalized cepstral coefficients can be reverted by
+ *
+ * @code{.sh}
+ *   ignorm -g -0.5 < data.ngc > data.gc
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on false.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   double gamma(kDefaultGamma);
@@ -135,7 +166,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -145,7 +175,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -156,34 +185,31 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for gain normalization
   sptk::GeneralizedCepstrumGainNormalization
       generalized_cepstrum_gain_normalization(num_order, gamma);
   if (!generalized_cepstrum_gain_normalization.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for normalization";
+    error_message
+        << "Failed to initialize GeneralizedCepstrumGainNormalization";
     sptk::PrintErrorMessage("gnorm", error_message);
     return 1;
   }
 
   const int length(num_order + 1);
   std::vector<double> generalized_cepstrum(length);
-  std::vector<double> normalized_generalized_cepstrum(length);
 
   while (sptk::ReadStream(false, 0, 0, length, &generalized_cepstrum,
                           &input_stream, NULL)) {
-    if (!generalized_cepstrum_gain_normalization.Run(
-            generalized_cepstrum, &normalized_generalized_cepstrum)) {
+    if (!generalized_cepstrum_gain_normalization.Run(&generalized_cepstrum)) {
       std::ostringstream error_message;
       error_message << "Failed to normalize generalized cepstrum";
       sptk::PrintErrorMessage("gnorm", error_message);
       return 1;
     }
 
-    if (!sptk::WriteStream(0, length, normalized_generalized_cepstrum,
-                           &std::cout, NULL)) {
+    if (!sptk::WriteStream(0, length, generalized_cepstrum, &std::cout, NULL)) {
       std::ostringstream error_message;
-      error_message << "Failed to normalized generalized cepstrum";
+      error_message << "Failed to write normalized generalized cepstrum";
       sptk::PrintErrorMessage("gnorm", error_message);
       return 1;
     }
