@@ -131,11 +131,12 @@ class AllPoleDigitalFilter {
 
   /**
    * @param[in] filter_coefficients \f$M\f$-th order LPC coefficients.
-   * @param[in,out] signal Input/output signal.
+   * @param[in,out] input_and_output Input/output signal.
    * @param[in,out] buffer Buffer.
    * @return True on success, false on failure.
    */
-  bool Run(const std::vector<double>& filter_coefficients, double* signal,
+  bool Run(const std::vector<double>& filter_coefficients,
+           double* input_and_output,
            AllPoleDigitalFilter::Buffer* buffer) const;
 
  private:

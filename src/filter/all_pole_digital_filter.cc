@@ -110,9 +110,9 @@ bool AllPoleDigitalFilter::Run(const std::vector<double>& filter_coefficients,
 }
 
 bool AllPoleDigitalFilter::Run(const std::vector<double>& filter_coefficients,
-                               double* signal,
+                               double* input_and_output,
                                AllPoleDigitalFilter::Buffer* buffer) const {
-  return Run(filter_coefficients, *signal, signal, buffer);
+  return Run(filter_coefficients, *input_and_output, input_and_output, buffer);
 }
 
 }  // namespace sptk
