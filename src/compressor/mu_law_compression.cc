@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -48,13 +48,15 @@
 
 namespace sptk {
 
-MuLawCompression::MuLawCompression(double absolute_maximum_value,
-                                   int compression_factor)
-    : absolute_maximum_value_(absolute_maximum_value),
+MuLawCompression::MuLawCompression(double abs_max_value,
+                                   double compression_factor)
+    : abs_max_value_(abs_max_value),
       compression_factor_(compression_factor),
+      constant_(1.0 / std::log(1.0 + compression_factor_)),
       is_valid_(true) {
-  if (absolute_maximum_value_ <= 0.0 || compression_factor_ <= 0) {
+  if (abs_max_value_ <= 0.0 || compression_factor_ <= 0.0) {
     is_valid_ = false;
+    return;
   }
 }
 
@@ -63,12 +65,15 @@ bool MuLawCompression::Run(double input, double* output) const {
     return false;
   }
 
-  const double ratio(std::fabs(input) / absolute_maximum_value_);
-  *output = sptk::ExtractSign(input) * absolute_maximum_value_ *
-            std::log(1.0 + compression_factor_ * ratio) /
-            std::log(1.0 + compression_factor_);
+  const double x(std::fabs(input) / abs_max_value_);
+  *output = (constant_ * abs_max_value_ * sptk::ExtractSign(input) *
+             std::log(1.0 + compression_factor_ * x));
 
   return true;
+}
+
+bool MuLawCompression::Run(double* input_and_output) const {
+  return Run(*input_and_output, input_and_output);
 }
 
 }  // namespace sptk

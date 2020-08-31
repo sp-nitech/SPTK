@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -49,44 +49,69 @@
 
 namespace sptk {
 
+/**
+ * Nonlinearly compress data based on \f$\mu\f$-law algorithm.
+ *
+ * Given the input data \f$x(n)\f$, the compression is performed as follows:
+ * \f[
+ *   y(n) = V \, \mathrm{sgn}(x(n))
+ *     \frac{\log (1 + \mu \frac{|x(n)|}{V})}{\log (1 + \mu)}
+ * \f]
+ * where \f$V\f$ is the absolute maximum value of the input data and \f$\mu\f$
+ * is the compression factor, which is typically set to 255.
+ */
 class MuLawCompression {
  public:
-  //
-  MuLawCompression(double absolute_maximum_value, int compression_factor);
+  /**
+   * @param[in] abs_max_value Absolute maximum value.
+   * @param[in] compression_factor Compression factor, \f$\mu\f$.
+   */
+  MuLawCompression(double abs_max_value, double compression_factor);
 
-  //
   virtual ~MuLawCompression() {
   }
 
-  //
-  double GetAbsoluteMaximumValue() const {
-    return absolute_maximum_value_;
+  /**
+   * @return Absolute maximum value.
+   */
+  double GetAbsMaxValue() const {
+    return abs_max_value_;
   }
 
-  //
-  int GetCompressionFactor() const {
+  /**
+   * @return Compression factor.
+   */
+  double GetCompressionFactor() const {
     return compression_factor_;
   }
 
-  //
+  /**
+   * @return True if this obejct is valid.
+   */
   bool IsValid() const {
     return is_valid_;
   }
 
-  //
+  /**
+   * @param[in] input Input data.
+   * @param[out] output Output data.
+   * @return True on success, false on failure.
+   */
   bool Run(double input, double* output) const;
 
+  /**
+   * @param[in] input_and_output Input/output data.
+   * @return True on success, false on failure.
+   */
+  bool Run(double* input_and_output) const;
+
  private:
-  //
-  const double absolute_maximum_value_;
+  const double abs_max_value_;
+  const double compression_factor_;
+  const double constant_;
 
-  //
-  const int compression_factor_;
-
-  //
   bool is_valid_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(MuLawCompression);
 };
 
