@@ -54,7 +54,7 @@ namespace sptk {
  *
  * Given the input data \f$y(n)\f$, the expansion is performed as follows:
  * \f[
- *   x(n) = V \, \mathrm{sgn}(x(n))
+ *   x(n) = V \, \mathrm{sgn}(y(n))
  *     \frac{(1 + \mu)^{|y(n)|/V} - 1}{\mu}
  * \f]
  * where \f$V\f$ is the absolute maximum value of the input data and \f$\mu\f$
