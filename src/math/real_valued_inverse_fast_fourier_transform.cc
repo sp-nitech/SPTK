@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,83 +42,50 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_MATH_FAST_FOURIER_TRANSFORM_FOR_REAL_SEQUENCE_H_
-#define SPTK_MATH_FAST_FOURIER_TRANSFORM_FOR_REAL_SEQUENCE_H_
+#include "SPTK/math/real_valued_inverse_fast_fourier_transform.h"
 
-#include <vector>  // std::vector
-
-#include "SPTK/math/fast_fourier_transform.h"
-#include "SPTK/utils/sptk_utils.h"
+#include <algorithm>   // std::transform
+#include <cstddef>     // std::size_t
+#include <functional>  // std::bind1st, std::multiplies
 
 namespace sptk {
 
-class FastFourierTransformForRealSequence {
- public:
-  class Buffer {
-   public:
-    Buffer() {
-    }
-    virtual ~Buffer() {
-    }
+RealValuedInverseFastFourierTransform::RealValuedInverseFastFourierTransform(
+    int num_order, int fft_length)
+    : fast_fourier_transform_(num_order, fft_length) {
+}
 
-   private:
-    std::vector<double> real_part_input_;
-    std::vector<double> imaginary_part_input_;
-    friend class FastFourierTransformForRealSequence;
-    DISALLOW_COPY_AND_ASSIGN(Buffer);
-  };
-
-  //
-  FastFourierTransformForRealSequence(int num_order, int fft_length);
-
-  //
-  virtual ~FastFourierTransformForRealSequence() {
+bool RealValuedInverseFastFourierTransform::Run(
+    const std::vector<double>& real_part_input,
+    std::vector<double>* real_part_output,
+    std::vector<double>* imag_part_output,
+    RealValuedInverseFastFourierTransform::Buffer* buffer) const {
+  if (NULL == buffer) {
+    return false;
   }
 
-  //
-  int GetNumOrder() const {
-    return num_order_;
+  if (!fast_fourier_transform_.Run(real_part_input, real_part_output,
+                                   imag_part_output,
+                                   &buffer->fast_fourier_transform_buffer_)) {
+    return false;
   }
 
-  //
-  int GetFftLength() const {
-    return fft_length_;
-  }
+  const int fft_length(fast_fourier_transform_.GetFftLength());
+  const double z(1.0 / fft_length);
+  std::transform(real_part_output->begin(),
+                 real_part_output->begin() + fft_length,
+                 real_part_output->begin(), [z](double x) { return x * z; });
+  std::transform(imag_part_output->begin(),
+                 imag_part_output->begin() + fft_length,
+                 imag_part_output->begin(), [z](double x) { return x * z; });
 
-  //
-  bool IsValid() const {
-    return is_valid_;
-  }
+  return true;
+}
 
-  //
-  bool Run(const std::vector<double>& real_part_input,
-           std::vector<double>* real_part_output,
-           std::vector<double>* imaginary_part_output,
-           FastFourierTransformForRealSequence::Buffer* buffer) const;
-
- private:
-  //
-  const int num_order_;
-
-  //
-  const int fft_length_;
-
-  //
-  const int half_fft_length_;
-
-  //
-  const FastFourierTransform fast_fourier_transform_;
-
-  //
-  bool is_valid_;
-
-  //
-  std::vector<double> sine_table_;
-
-  //
-  DISALLOW_COPY_AND_ASSIGN(FastFourierTransformForRealSequence);
-};
+bool RealValuedInverseFastFourierTransform::Run(
+    std::vector<double>* real_part, std::vector<double>* imag_part,
+    RealValuedInverseFastFourierTransform::Buffer* buffer) const {
+  return Run(*real_part, real_part, imag_part, buffer);
+}
 
 }  // namespace sptk
-
-#endif  // SPTK_MATH_FAST_FOURIER_TRANSFORM_FOR_REAL_SEQUENCE_H_

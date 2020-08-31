@@ -51,9 +51,9 @@
 #include "SPTK/converter/mel_cepstrum_to_mlsa_digital_filter_coefficients.h"
 #include "SPTK/converter/mel_generalized_cepstrum_to_mel_generalized_cepstrum.h"
 #include "SPTK/converter/mlsa_digital_filter_coefficients_to_mel_cepstrum.h"
-#include "SPTK/math/fast_fourier_transform_for_real_sequence.h"
 #include "SPTK/math/inverse_fast_fourier_transform.h"
-#include "SPTK/math/inverse_fast_fourier_transform_for_real_sequence.h"
+#include "SPTK/math/real_valued_fast_fourier_transform.h"
+#include "SPTK/math/real_valued_inverse_fast_fourier_transform.h"
 #include "SPTK/math/toeplitz_plus_hankel_system_solver.h"
 #include "SPTK/normalizer/generalized_cepstrum_gain_normalization.h"
 #include "SPTK/normalizer/generalized_cepstrum_inverse_gain_normalization.h"
@@ -90,8 +90,8 @@ class MelGeneralizedCepstralAnalysis {
     std::vector<double> periodogram_;
     std::vector<double> gradient_;
 
-    FastFourierTransformForRealSequence::Buffer buffer_for_fourier_transform_;
-    InverseFastFourierTransformForRealSequence::Buffer
+    RealValuedFastFourierTransform::Buffer buffer_for_fourier_transform_;
+    RealValuedInverseFastFourierTransform::Buffer
         buffer_for_inverse_fourier_transform_;
     ToeplitzPlusHankelSystemSolver::Buffer buffer_for_system_solver_;
     MelGeneralizedCepstrumToMelGeneralizedCepstrum::Buffer
@@ -177,14 +177,13 @@ class MelGeneralizedCepstralAnalysis {
   const double convergence_threshold_;
 
   //
-  const FastFourierTransformForRealSequence fourier_transform_;
+  const RealValuedFastFourierTransform fourier_transform_;
 
   //
-  const InverseFastFourierTransformForRealSequence inverse_fourier_transform_;
+  const RealValuedInverseFastFourierTransform inverse_fourier_transform_;
 
   //
-  const InverseFastFourierTransform
-      inverse_fourier_transform_for_complex_sequence_;
+  const InverseFastFourierTransform complex_valued_inverse_fourier_transform_;
 
   //
   const ToeplitzPlusHankelSystemSolver toeplitz_plus_hankel_system_solver_;

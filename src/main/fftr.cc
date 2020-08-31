@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <cmath>     // std::sqrt
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
@@ -50,23 +51,23 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/math/fast_fourier_transform_for_real_sequence.h"
+#include "SPTK/math/real_valued_fast_fourier_transform.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
 
 enum OutputFormats {
-  kOutputRealAndImaginaryParts = 0,
+  kOutputRealAndImagParts = 0,
   kOutputRealPart,
-  kOutputImaginaryPart,
+  kOutputImagPart,
   kOutputAmplitude,
   kOutputPower,
   kNumOutputFormats
 };
 
 const int kDefaultFftLength(256);
-const OutputFormats kDefaultOutputFormat(kOutputRealAndImaginaryParts);
-const bool kDefaultHalfLengthOutputFlag(false);
+const OutputFormats kDefaultOutputFormat(kOutputRealAndImagParts);
+const bool kDefaultOutputHalfPartFlag(false);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -76,15 +77,15 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       fftr [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : FFT length                     (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 2 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -m m  : order of sequence              (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length                     (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 2 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format                  (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 4 ]" << std::endl;  // NOLINT
   *stream << "                 0 (real and imaginary parts)" << std::endl;
   *stream << "                 1 (real part)" << std::endl;
   *stream << "                 2 (imaginary part)" << std::endl;
   *stream << "                 3 (amplitude)" << std::endl;
   *stream << "                 4 (power)" << std::endl;
-  *stream << "       -H    : output half length             (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultHalfLengthOutputFlag) << "]" << std::endl;  // NOLINT
+  *stream << "       -H    : output only half part          (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultOutputHalfPartFlag) << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       data sequence                          (double)[stdin]" << std::endl;  // NOLINT
@@ -100,12 +101,43 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * \a fftr [ \e option ] [ \e infile ]
+ *
+ * - \b -m \e int
+ *   - order of sequence \f$(0 \le M)\f$
+ * - \b -l \e int
+ *   - FFT length \f$(2 \le L)\f$
+ * - \b -o \e int
+ *   - output format
+ *     \arg \c 0 real and imaginary parts
+ *     \arg \c 1 real part
+ *     \arg \c 2 imaginary part
+ *     \arg \c 3 amplitude spectrum
+ *     \arg \c 4 power spectrum
+ * - \b -H \e bool
+ *   - output only half part
+ * - \b infile \e str
+ *   - double-type data sequence
+ * - \b stdout
+ *   - double-type FFT sequence
+ *
+ * The below example analyzes a sine wave using Blackman window.
+ *
+ * @code{.sh}
+ *   sin -p 30 -l 256 | window | fftr -o 3 > sine.spec
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on false.
+ */
 int main(int argc, char* argv[]) {
   int fft_length(kDefaultFftLength);
   int num_order(kDefaultFftLength - 1);
   bool is_num_order_specified(false);
   OutputFormats output_format(kDefaultOutputFormat);
-  bool half_length_output_flag(kDefaultHalfLengthOutputFlag);
+  bool output_half_part_flag(kDefaultOutputHalfPartFlag);
 
   for (;;) {
     const int option_char(getopt_long(argc, argv, "l:m:o:Hh", NULL, NULL));
@@ -149,7 +181,7 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'H': {
-        half_length_output_flag = true;
+        output_half_part_flag = true;
         break;
       }
       case 'h': {
@@ -163,7 +195,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // check order
   if (!is_num_order_specified) {
     num_order = fft_length - 1;
   } else if (fft_length <= num_order) {
@@ -174,7 +205,6 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -184,7 +214,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -195,10 +224,9 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for fast Fourier transform
-  sptk::FastFourierTransformForRealSequence fast_fourier_transform(num_order,
-                                                                   fft_length);
-  sptk::FastFourierTransformForRealSequence::Buffer buffer;
+  sptk::RealValuedFastFourierTransform fast_fourier_transform(num_order,
+                                                              fft_length);
+  sptk::RealValuedFastFourierTransform::Buffer buffer;
   if (!fast_fourier_transform.IsValid()) {
     std::ostringstream error_message;
     error_message << "FFT length must be a power of 2 and greater than 1";
@@ -207,8 +235,8 @@ int main(int argc, char* argv[]) {
   }
 
   const int input_length(num_order + 1);
-  const int output_length(half_length_output_flag ? (fft_length / 2 + 1)
-                                                  : fft_length);
+  const int output_length(output_half_part_flag ? (fft_length / 2 + 1)
+                                                : fft_length);
   std::vector<double> input_x(input_length);
   std::vector<double> output_x(fft_length);
   std::vector<double> output_y(fft_length);
@@ -233,7 +261,7 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    if (kOutputImaginaryPart != output_format &&
+    if (kOutputImagPart != output_format &&
         !sptk::WriteStream(0, output_length, output_x, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write output sequence";
@@ -241,8 +269,8 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    if ((kOutputRealAndImaginaryParts == output_format ||
-         kOutputImaginaryPart == output_format) &&
+    if ((kOutputRealAndImagParts == output_format ||
+         kOutputImagPart == output_format) &&
         !sptk::WriteStream(0, output_length, output_y, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write imaginary parts";

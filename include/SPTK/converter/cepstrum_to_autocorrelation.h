@@ -47,7 +47,7 @@
 
 #include <vector>  // std::vector
 
-#include "SPTK/math/fast_fourier_transform_for_real_sequence.h"
+#include "SPTK/math/real_valued_fast_fourier_transform.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
@@ -62,7 +62,7 @@ class CepstrumToAutocorrelation {
     }
 
    private:
-    FastFourierTransformForRealSequence::Buffer fast_fourier_transform_buffer_;
+    RealValuedFastFourierTransform::Buffer fast_fourier_transform_buffer_;
     std::vector<double> fast_fourier_transform_frequency_domain_;
     std::vector<double> fast_fourier_transform_time_domain_;
     std::vector<double> fast_fourier_transform_imaginary_output_;
@@ -111,7 +111,7 @@ class CepstrumToAutocorrelation {
   const int num_output_order_;
 
   //
-  const FastFourierTransformForRealSequence fast_fourier_transform_;
+  const RealValuedFastFourierTransform fast_fourier_transform_;
 
   //
   bool is_valid_;

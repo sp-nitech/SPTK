@@ -47,8 +47,8 @@
 
 #include <vector>  // std::vector
 
-#include "SPTK/math/fast_fourier_transform_for_real_sequence.h"
 #include "SPTK/math/inverse_fast_fourier_transform.h"
+#include "SPTK/math/real_valued_fast_fourier_transform.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
@@ -72,7 +72,7 @@ class MlsaDigitalFilterStabilityCheck {
     std::vector<double> fourier_transform_imaginary_part_input_;
     std::vector<double> fourier_transform_real_part_output_;
     std::vector<double> fourier_transform_imaginary_part_output_;
-    FastFourierTransformForRealSequence::Buffer fourier_transform_buffer_;
+    RealValuedFastFourierTransform::Buffer fourier_transform_buffer_;
     friend class MlsaDigitalFilterStabilityCheck;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
@@ -144,7 +144,7 @@ class MlsaDigitalFilterStabilityCheck {
   const ModificationType modification_type_;
 
   //
-  FastFourierTransformForRealSequence* fourier_transform_;
+  RealValuedFastFourierTransform* fourier_transform_;
 
   //
   InverseFastFourierTransform* inverse_fourier_transform_;

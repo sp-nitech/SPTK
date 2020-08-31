@@ -141,8 +141,7 @@ MelGeneralizedCepstralAnalysis::MelGeneralizedCepstralAnalysis(
       convergence_threshold_(convergence_threshold),
       fourier_transform_(fft_length_ - 1, fft_length_),
       inverse_fourier_transform_(fft_length_ - 1, fft_length_),
-      inverse_fourier_transform_for_complex_sequence_(fft_length_ - 1,
-                                                      fft_length_),
+      complex_valued_inverse_fourier_transform_(fft_length_ - 1, fft_length_),
       toeplitz_plus_hankel_system_solver_(num_order_ - 1, true),
       generalized_cepstrum_gain_normalization_(num_order_, gamma_),
       generalized_cepstrum_inverse_gain_normalization_gamma_minus_one_(
@@ -158,7 +157,7 @@ MelGeneralizedCepstralAnalysis::MelGeneralizedCepstralAnalysis(
   if (!sptk::IsValidGamma(gamma_) || 0.0 < gamma_ || num_iteration_ < 0 ||
       convergence_threshold_ < 0.0 || !fourier_transform_.IsValid() ||
       !inverse_fourier_transform_.IsValid() ||
-      !inverse_fourier_transform_for_complex_sequence_.IsValid() ||
+      !complex_valued_inverse_fourier_transform_.IsValid() ||
       !toeplitz_plus_hankel_system_solver_.IsValid() ||
       !generalized_cepstrum_gain_normalization_.IsValid() ||
       !generalized_cepstrum_inverse_gain_normalization_.IsValid() ||
@@ -382,14 +381,14 @@ bool MelGeneralizedCepstralAnalysis::NewtonRaphsonMethod(
               buffer->r_.begin());
   } else {
     // Calculate Eq. (39).
-    if (!inverse_fourier_transform_for_complex_sequence_.Run(
+    if (!complex_valued_inverse_fourier_transform_.Run(
             buffer->q_real_, buffer->q_imag_, &buffer->q_real_,
             &buffer->q_imag_)) {
       return false;
     }
 
     // Calculate Eq. (40).
-    if (!inverse_fourier_transform_for_complex_sequence_.Run(
+    if (!complex_valued_inverse_fourier_transform_.Run(
             buffer->r_real_, buffer->r_imag_, &buffer->r_real_,
             &buffer->r_imag_)) {
       return false;

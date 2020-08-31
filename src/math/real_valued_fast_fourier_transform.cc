@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,7 +42,7 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/math/fast_fourier_transform_for_real_sequence.h"
+#include "SPTK/math/real_valued_fast_fourier_transform.h"
 
 #include <algorithm>  // std::fill
 #include <cmath>      // std::sin
@@ -50,8 +50,8 @@
 
 namespace sptk {
 
-FastFourierTransformForRealSequence::FastFourierTransformForRealSequence(
-    int num_order, int fft_length)
+RealValuedFastFourierTransform::RealValuedFastFourierTransform(int num_order,
+                                                               int fft_length)
     : num_order_(num_order),
       fft_length_(fft_length),
       half_fft_length_(fft_length_ / 2),
@@ -72,70 +72,68 @@ FastFourierTransformForRealSequence::FastFourierTransformForRealSequence(
   sine_table_[fft_length_ / 2] = 0.0;
 }
 
-bool FastFourierTransformForRealSequence::Run(
+bool RealValuedFastFourierTransform::Run(
     const std::vector<double>& real_part_input,
     std::vector<double>* real_part_output,
-    std::vector<double>* imaginary_part_output,
-    FastFourierTransformForRealSequence::Buffer* buffer) const {
-  // check inputs
+    std::vector<double>* imag_part_output,
+    RealValuedFastFourierTransform::Buffer* buffer) const {
+  // Check inputs.
+  const int input_length(num_order_ + 1);
   if (!is_valid_ ||
-      real_part_input.size() != static_cast<std::size_t>(num_order_ + 1) ||
-      NULL == real_part_output || NULL == imaginary_part_output ||
-      NULL == buffer) {
+      real_part_input.size() != static_cast<std::size_t>(input_length) ||
+      NULL == real_part_output || NULL == imag_part_output || NULL == buffer) {
     return false;
   }
 
-  // prepare memories
+  // Prepare memories.
   if (buffer->real_part_input_.size() !=
       static_cast<std::size_t>(half_fft_length_)) {
     buffer->real_part_input_.resize(half_fft_length_);
   }
-  if (buffer->imaginary_part_input_.size() !=
+  if (buffer->imag_part_input_.size() !=
       static_cast<std::size_t>(half_fft_length_)) {
-    buffer->imaginary_part_input_.resize(half_fft_length_);
+    buffer->imag_part_input_.resize(half_fft_length_);
   }
   if (real_part_output->capacity() < static_cast<std::size_t>(fft_length_)) {
     real_part_output->reserve(fft_length_);
   }
-  if (imaginary_part_output->capacity() <
-      static_cast<std::size_t>(fft_length_)) {
-    imaginary_part_output->reserve(fft_length_);
+  if (imag_part_output->capacity() < static_cast<std::size_t>(fft_length_)) {
+    imag_part_output->reserve(fft_length_);
   }
 
-  // get values and fill zero
-  const int input_length(num_order_ + 1);
+  // Copy input and fill zero.
   for (int i(0), j(0); i < input_length; ++j) {
     buffer->real_part_input_[j] = real_part_input[i++];
     if (input_length <= i) break;
-    buffer->imaginary_part_input_[j] = real_part_input[i++];
+    buffer->imag_part_input_[j] = real_part_input[i++];
   }
   std::fill(buffer->real_part_input_.begin() + (input_length + 1) / 2,
             buffer->real_part_input_.end(), 0.0);
-  std::fill(buffer->imaginary_part_input_.begin() + input_length / 2,
-            buffer->imaginary_part_input_.end(), 0.0);
+  std::fill(buffer->imag_part_input_.begin() + input_length / 2,
+            buffer->imag_part_input_.end(), 0.0);
 
-  // run fast Fourier transform
+  // Run fast Fourier transform.
   if (!fast_fourier_transform_.Run(buffer->real_part_input_,
-                                   buffer->imaginary_part_input_,
-                                   real_part_output, imaginary_part_output)) {
+                                   buffer->imag_part_input_, real_part_output,
+                                   imag_part_output)) {
     return false;
   }
   real_part_output->resize(fft_length_);
-  imaginary_part_output->resize(fft_length_);
+  imag_part_output->resize(fft_length_);
 
   double* x(&((*real_part_output)[0]));
-  double* y(&((*imaginary_part_output)[0]));
+  double* y(&((*imag_part_output)[0]));
   double* xp(x);
   double* yp(y);
   double* xq(xp + fft_length_);
   double* yq(yp + fft_length_);
   *(xp + half_fft_length_) = *xp - *yp;
   *xp = *xp + *yp;
-  *(yp + half_fft_length_) = 0;
-  *yp = 0;
+  *(yp + half_fft_length_) = 0.0;
+  *yp = 0.0;
 
-  double* sinp(const_cast<double*>(&(sine_table_[0])));
-  double* cosp(const_cast<double*>(&(sine_table_[0])) + fft_length_ / 4);
+  const double* sinp(&(sine_table_[0]));
+  const double* cosp(&(sine_table_[0]) + fft_length_ / 4);
   for (int i(1), j(half_fft_length_ - 2); i < half_fft_length_; ++i, j -= 2) {
     ++xp;
     ++yp;
@@ -157,6 +155,12 @@ bool FastFourierTransformForRealSequence::Run(
   }
 
   return true;
+}
+
+bool RealValuedFastFourierTransform::Run(
+    std::vector<double>* real_part, std::vector<double>* imag_part,
+    RealValuedFastFourierTransform::Buffer* buffer) const {
+  return Run(*real_part, real_part, imag_part, buffer);
 }
 
 }  // namespace sptk

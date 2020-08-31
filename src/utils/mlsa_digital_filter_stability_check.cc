@@ -59,9 +59,8 @@ MlsaDigitalFilterStabilityCheck::MlsaDigitalFilterStabilityCheck(
       threshold_(threshold),
       fast_mode_(fast_mode),
       modification_type_(modification_type),
-      fourier_transform_(fast_mode ? NULL
-                                   : new FastFourierTransformForRealSequence(
-                                         fft_length - 1, fft_length)),
+      fourier_transform_(fast_mode ? NULL : new RealValuedFastFourierTransform(
+                                                fft_length - 1, fft_length)),
       inverse_fourier_transform_(fast_mode ? NULL
                                            : new InverseFastFourierTransform(
                                                  fft_length - 1, fft_length)),

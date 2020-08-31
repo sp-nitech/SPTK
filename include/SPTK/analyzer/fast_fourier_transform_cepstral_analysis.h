@@ -47,8 +47,8 @@
 
 #include <vector>  // std::vector
 
-#include "SPTK/math/fast_fourier_transform_for_real_sequence.h"
-#include "SPTK/math/inverse_fast_fourier_transform_for_real_sequence.h"
+#include "SPTK/math/real_valued_fast_fourier_transform.h"
+#include "SPTK/math/real_valued_inverse_fast_fourier_transform.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
@@ -63,8 +63,8 @@ class FastFourierTransformCepstralAnalysis {
     }
 
    private:
-    FastFourierTransformForRealSequence::Buffer fast_fourier_transform_buffer_;
-    InverseFastFourierTransformForRealSequence::Buffer
+    RealValuedFastFourierTransform::Buffer fast_fourier_transform_buffer_;
+    RealValuedInverseFastFourierTransform::Buffer
         inverse_fast_fourier_transform_buffer_;
     std::vector<double> fast_fourier_transform_frequency_domain_;
     std::vector<double> fast_fourier_transform_time_domain_;
@@ -123,11 +123,10 @@ class FastFourierTransformCepstralAnalysis {
   const double acceleration_factor_;
 
   //
-  const FastFourierTransformForRealSequence fast_fourier_transform_;
+  const RealValuedFastFourierTransform fast_fourier_transform_;
 
   //
-  const InverseFastFourierTransformForRealSequence
-      inverse_fast_fourier_transform_;
+  const RealValuedInverseFastFourierTransform inverse_fast_fourier_transform_;
 
   //
   bool is_valid_;

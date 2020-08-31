@@ -48,7 +48,7 @@
 #include <vector>  // std::vector
 
 #include "SPTK/converter/mel_generalized_cepstrum_to_mel_generalized_cepstrum.h"
-#include "SPTK/math/fast_fourier_transform_for_real_sequence.h"
+#include "SPTK/math/real_valued_fast_fourier_transform.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
@@ -65,7 +65,7 @@ class MelGeneralizedCepstrumToSpectrum {
    private:
     MelGeneralizedCepstrumToMelGeneralizedCepstrum::Buffer
         mel_generalized_cepstrum_transform_buffer_;
-    FastFourierTransformForRealSequence::Buffer fast_fourier_transform_buffer_;
+    RealValuedFastFourierTransform::Buffer fast_fourier_transform_buffer_;
     std::vector<double> cepstrum_;
     friend class MelGeneralizedCepstrumToSpectrum;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
@@ -127,7 +127,7 @@ class MelGeneralizedCepstrumToSpectrum {
       mel_generalized_cepstrum_transform_;
 
   //
-  const FastFourierTransformForRealSequence fast_fourier_transform_;
+  const RealValuedFastFourierTransform fast_fourier_transform_;
 
   //
   bool is_valid_;

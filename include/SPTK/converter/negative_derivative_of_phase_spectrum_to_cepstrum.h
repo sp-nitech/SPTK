@@ -47,7 +47,7 @@
 
 #include <vector>  // std::vector
 
-#include "SPTK/math/fast_fourier_transform_for_real_sequence.h"
+#include "SPTK/math/real_valued_fast_fourier_transform.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
@@ -62,7 +62,7 @@ class NegativeDerivativeOfPhaseSpectrumToCepstrum {
     }
 
    private:
-    FastFourierTransformForRealSequence::Buffer fast_fourier_transform_buffer_;
+    RealValuedFastFourierTransform::Buffer fast_fourier_transform_buffer_;
     std::vector<double> fast_fourier_transform_input_;
     std::vector<double> fast_fourier_transform_real_part_output_;
     std::vector<double> fast_fourier_transform_imaginary_part_output_;
@@ -102,7 +102,7 @@ class NegativeDerivativeOfPhaseSpectrumToCepstrum {
   const int num_order_;
 
   //
-  const FastFourierTransformForRealSequence fast_fourier_transform_;
+  const RealValuedFastFourierTransform fast_fourier_transform_;
 
   //
   bool is_valid_;

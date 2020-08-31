@@ -40,7 +40,7 @@
 #include <sndfile.h> // http://www.mega-nerd.com/libsndfile/
 #else
 #include "swipe.h"
-#include "SPTK/math/fast_fourier_transform_for_real_sequence.h"
+#include "SPTK/math/real_valued_fast_fourier_transform.h"
 #endif
 
 #include "vector.h"  // comes with release
@@ -121,10 +121,10 @@ void La(matrix L, vector f, vector fERBs, fftw_plan plan,
         a.v[j] = sqrt(fo[j][0] * fo[j][0] + fo[j][1] * fo[j][1]);
 #else
 void La(matrix L, vector f, vector fERBs,
-                  const sptk::FastFourierTransformForRealSequence& plan,
+                  const sptk::RealValuedFastFourierTransform& plan,
                   const std::vector<double>& fi,
                   std::vector<std::vector<double>>* fo,
-                  sptk::FastFourierTransformForRealSequence::Buffer* buffer,
+                  sptk::RealValuedFastFourierTransform::Buffer* buffer,
                   int w2, int hi, int i) {
     int j;
     if (!plan.Run(fi, &((*fo)[0]), &((*fo)[1]), buffer))
@@ -158,8 +158,8 @@ matrix loudness(vector x, vector fERBs, double nyquist, int w, int w2) {
 #else
     std::vector<double> fi(w); 
     std::vector<std::vector<double>> fo(2, std::vector<double>(w));
-    sptk::FastFourierTransformForRealSequence plan(w2 * 2 - 1, w2 * 2);
-    sptk::FastFourierTransformForRealSequence::Buffer buffer;
+    sptk::RealValuedFastFourierTransform plan(w2 * 2 - 1, w2 * 2);
+    sptk::RealValuedFastFourierTransform::Buffer buffer;
 #endif
     vector hann = makev(w); // this defines the Hann[ing] window
     for (i = 0; i < w; i++) 

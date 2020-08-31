@@ -47,7 +47,7 @@
 
 #include <vector>  // std::vector
 
-#include "SPTK/math/fast_fourier_transform_for_real_sequence.h"
+#include "SPTK/math/real_valued_fast_fourier_transform.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
@@ -71,7 +71,7 @@ class FilterCoefficientsToSpectrum {
     }
 
    private:
-    FastFourierTransformForRealSequence::Buffer fast_fourier_transform_buffer_;
+    RealValuedFastFourierTransform::Buffer fast_fourier_transform_buffer_;
     std::vector<double> fast_fourier_transform_input_;
     std::vector<double> fast_fourier_transform_real_output_;
     std::vector<double> fast_fourier_transform_imaginary_output_;
@@ -153,7 +153,7 @@ class FilterCoefficientsToSpectrum {
   const double relative_floor_in_decibels_;
 
   //
-  const FastFourierTransformForRealSequence fast_fourier_transform_;
+  const RealValuedFastFourierTransform fast_fourier_transform_;
 
   //
   bool is_valid_;

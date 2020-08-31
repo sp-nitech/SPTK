@@ -48,8 +48,8 @@
 #include <vector>  // std::vector
 
 #include "SPTK/math/fast_fourier_transform.h"
-#include "SPTK/math/fast_fourier_transform_for_real_sequence.h"
 #include "SPTK/math/matrix.h"
+#include "SPTK/math/real_valued_fast_fourier_transform.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
@@ -70,7 +70,7 @@ class TwoDimensionalFastFourierTransformForRealSequence {
     std::vector<std::vector<double> > first_imaginary_part_outputs_;
     std::vector<std::vector<double> > second_real_part_outputs_;
     std::vector<std::vector<double> > second_imaginary_part_outputs_;
-    FastFourierTransformForRealSequence::Buffer fast_fourier_transform_buffer_;
+    RealValuedFastFourierTransform::Buffer fast_fourier_transform_buffer_;
     friend class TwoDimensionalFastFourierTransformForRealSequence;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
@@ -123,7 +123,7 @@ class TwoDimensionalFastFourierTransformForRealSequence {
   const FastFourierTransform fast_fourier_transform_;
 
   //
-  const FastFourierTransformForRealSequence
+  const RealValuedFastFourierTransform
       fast_fourier_transform_for_real_sequence_;
 
   //

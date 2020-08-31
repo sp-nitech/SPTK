@@ -47,9 +47,9 @@
 
 #include <vector>  // std::vector
 
-#include "SPTK/math/fast_fourier_transform_for_real_sequence.h"
 #include "SPTK/math/frequency_transform.h"
-#include "SPTK/math/inverse_fast_fourier_transform_for_real_sequence.h"
+#include "SPTK/math/real_valued_fast_fourier_transform.h"
+#include "SPTK/math/real_valued_inverse_fast_fourier_transform.h"
 #include "SPTK/math/toeplitz_plus_hankel_system_solver.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -76,8 +76,8 @@ class MelCepstralAnalysis {
     std::vector<double> ra_;
     std::vector<double> gradient_;
 
-    FastFourierTransformForRealSequence::Buffer buffer_for_fourier_transform_;
-    InverseFastFourierTransformForRealSequence::Buffer
+    RealValuedFastFourierTransform::Buffer buffer_for_fourier_transform_;
+    RealValuedInverseFastFourierTransform::Buffer
         buffer_for_inverse_fourier_transform_;
     FrequencyTransform::Buffer buffer_for_frequency_transform_;
     FrequencyTransform::Buffer buffer_for_inverse_frequency_transform_;
@@ -147,10 +147,10 @@ class MelCepstralAnalysis {
   const double convergence_threshold_;
 
   //
-  const FastFourierTransformForRealSequence fourier_transform_;
+  const RealValuedFastFourierTransform fourier_transform_;
 
   //
-  const InverseFastFourierTransformForRealSequence inverse_fourier_transform_;
+  const RealValuedInverseFastFourierTransform inverse_fourier_transform_;
 
   //
   const FrequencyTransform frequency_transform_;
