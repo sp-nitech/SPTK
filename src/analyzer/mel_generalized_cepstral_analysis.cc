@@ -139,9 +139,9 @@ MelGeneralizedCepstralAnalysis::MelGeneralizedCepstralAnalysis(
       gamma_(gamma),
       num_iteration_(num_iteration),
       convergence_threshold_(convergence_threshold),
-      fourier_transform_(fft_length_ - 1, fft_length_),
-      inverse_fourier_transform_(fft_length_ - 1, fft_length_),
-      complex_valued_inverse_fourier_transform_(fft_length_ - 1, fft_length_),
+      fourier_transform_(fft_length_),
+      inverse_fourier_transform_(fft_length_),
+      complex_valued_inverse_fourier_transform_(fft_length_),
       toeplitz_plus_hankel_system_solver_(num_order_ - 1, true),
       generalized_cepstrum_gain_normalization_(num_order_, gamma_),
       generalized_cepstrum_inverse_gain_normalization_gamma_minus_one_(

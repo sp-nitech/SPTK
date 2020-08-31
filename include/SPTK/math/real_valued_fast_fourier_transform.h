@@ -93,6 +93,11 @@ class RealValuedFastFourierTransform {
   };
 
   /**
+   * @param[in] fft_length FFT length, \f$L\f$.
+   */
+  explicit RealValuedFastFourierTransform(int fft_length);
+
+  /**
    * @param[in] num_order Order of input, \f$M\f$.
    * @param[in] fft_length FFT length, \f$L\f$.
    */

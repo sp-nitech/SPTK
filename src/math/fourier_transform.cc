@@ -53,7 +53,7 @@ class FastFourierTransformWrapper
     : public sptk::FourierTransform::FourierTransformInterface {
  public:
   explicit FastFourierTransformWrapper(int fft_length)
-      : fast_fourier_tranform_(fft_length - 1, fft_length) {
+      : fast_fourier_tranform_(fft_length) {
   }
   virtual ~FastFourierTransformWrapper() {
   }

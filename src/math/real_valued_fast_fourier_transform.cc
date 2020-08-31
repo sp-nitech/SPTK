@@ -50,12 +50,16 @@
 
 namespace sptk {
 
+RealValuedFastFourierTransform::RealValuedFastFourierTransform(int fft_length)
+    : RealValuedFastFourierTransform(fft_length - 1, fft_length) {
+}
+
 RealValuedFastFourierTransform::RealValuedFastFourierTransform(int num_order,
                                                                int fft_length)
     : num_order_(num_order),
       fft_length_(fft_length),
       half_fft_length_(fft_length_ / 2),
-      fast_fourier_transform_(half_fft_length_ - 1, half_fft_length_),
+      fast_fourier_transform_(half_fft_length_),
       is_valid_(true) {
   if (num_order_ < 0 || fft_length_ <= num_order_ ||
       !IsPowerOfTwo(fft_length_) || !fast_fourier_transform_.IsValid()) {

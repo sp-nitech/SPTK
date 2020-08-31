@@ -50,6 +50,10 @@
 
 namespace sptk {
 
+FastFourierTransform::FastFourierTransform(int fft_length)
+    : FastFourierTransform(fft_length - 1, fft_length) {
+}
+
 FastFourierTransform::FastFourierTransform(int num_order, int fft_length)
     : num_order_(num_order),
       fft_length_(fft_length),

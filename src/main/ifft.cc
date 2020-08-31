@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -55,21 +56,22 @@
 namespace {
 
 enum InputFormats {
-  kInputRealAndImaginaryParts = 0,
+  kInputRealAndImagParts = 0,
   kInputRealPart,
+  kInputImagPart,
   kNumInputFormats
 };
 
 enum OutputFormats {
-  kOutputRealAndImaginaryParts = 0,
+  kOutputRealAndImagParts = 0,
   kOutputRealPart,
-  kOutputImaginaryPart,
+  kOutputImagPart,
   kNumOutputFormats
 };
 
 const int kDefaultFftLength(256);
-const InputFormats kDefaultInputFormat(kInputRealAndImaginaryParts);
-const OutputFormats kDefaultOutputFormat(kOutputRealAndImaginaryParts);
+const InputFormats kDefaultInputFormat(kInputRealAndImagParts);
+const OutputFormats kDefaultOutputFormat(kOutputRealAndImagParts);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -79,10 +81,11 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       ifft [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : FFT length                     (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 0 <  l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length                     (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -q q  : input format                   (   int)[" << std::setw(5) << std::right << kDefaultInputFormat  << "][ 0 <= q <= 1 ]" << std::endl;  // NOLINT
   *stream << "                 0 (real and imaginary parts)" << std::endl;
   *stream << "                 1 (real part)" << std::endl;
+  *stream << "                 2 (imaginary part)" << std::endl;
   *stream << "       -o o  : output format                  (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 2 ]" << std::endl;  // NOLINT
   *stream << "                 0 (real and imaginary parts)" << std::endl;
   *stream << "                 1 (real part)" << std::endl;
@@ -102,6 +105,30 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * \a ifft [ \e option ] [ \e infile ]
+ *
+ * - \b -l \e int
+ *   - FFT length \f$(1 \le L)\f$
+ * - \b -q \e int
+ *   - input format
+ *     \arg \c 0 real and imaginary parts
+ *     \arg \c 1 real part
+ *     \arg \c 2 imaginary part
+ * - \b -o \e int
+ *   - output format
+ *     \arg \c 0 real and imaginary parts
+ *     \arg \c 1 real part
+ *     \arg \c 2 imaginary part
+ * - \b infile \e str
+ *   - double-type data sequence
+ * - \b stdout
+ *   - double-type inverse FFT sequence
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on false.
+ */
 int main(int argc, char* argv[]) {
   int fft_length(kDefaultFftLength);
   InputFormats input_format(kDefaultInputFormat);
@@ -162,7 +189,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -172,7 +198,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -183,9 +208,7 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for inverse fast Fourier transform
-  sptk::InverseFastFourierTransform inverse_fast_fourier_transform(
-      fft_length - 1, fft_length);
+  sptk::InverseFastFourierTransform inverse_fast_fourier_transform(fft_length);
   if (!inverse_fast_fourier_transform.IsValid()) {
     std::ostringstream error_message;
     error_message << "FFT length must be a power of 2";
@@ -198,14 +221,20 @@ int main(int argc, char* argv[]) {
   std::vector<double> output_x(fft_length);
   std::vector<double> output_y(fft_length);
 
-  while ((kInputRealAndImaginaryParts == input_format &&
-          sptk::ReadStream(false, 0, 0, fft_length, &input_x, &input_stream,
-                           NULL) &&
-          sptk::ReadStream(false, 0, 0, fft_length, &input_y, &input_stream,
-                           NULL)) ||
-         (kInputRealPart == input_format &&
-          sptk::ReadStream(false, 0, 0, fft_length, &input_x, &input_stream,
-                           NULL))) {
+  for (;;) {
+    if ((kInputRealAndImagParts == input_format ||
+         kInputRealPart == input_format) &&
+        !sptk::ReadStream(false, 0, 0, fft_length, &input_x, &input_stream,
+                          NULL)) {
+      break;
+    }
+    if ((kInputRealAndImagParts == input_format ||
+         kInputImagPart == input_format) &&
+        !sptk::ReadStream(false, 0, 0, fft_length, &input_y, &input_stream,
+                          NULL)) {
+      break;
+    }
+
     if (!inverse_fast_fourier_transform.Run(input_x, input_y, &output_x,
                                             &output_y)) {
       std::ostringstream error_message;
@@ -214,7 +243,7 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    if ((kOutputRealAndImaginaryParts == output_format ||
+    if ((kOutputRealAndImagParts == output_format ||
          kOutputRealPart == output_format) &&
         !sptk::WriteStream(0, fft_length, output_x, &std::cout, NULL)) {
       std::ostringstream error_message;
@@ -223,8 +252,8 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    if ((kOutputRealAndImaginaryParts == output_format ||
-         kOutputImaginaryPart == output_format) &&
+    if ((kOutputRealAndImagParts == output_format ||
+         kOutputImagPart == output_format) &&
         !sptk::WriteStream(0, fft_length, output_y, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write imaginary parts";

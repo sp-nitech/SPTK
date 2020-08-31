@@ -54,8 +54,8 @@ FastFourierTransformCepstralAnalysis::FastFourierTransformCepstralAnalysis(
     : num_order_(num_order),
       num_iteration_(num_iteration),
       acceleration_factor_(acceleration_factor),
-      fast_fourier_transform_(fft_length - 1, fft_length),
-      inverse_fast_fourier_transform_(fft_length - 1, fft_length),
+      fast_fourier_transform_(fft_length),
+      inverse_fast_fourier_transform_(fft_length),
       is_valid_(true) {
   if (num_order_ < 0 || fft_length < 2 * num_order_ || num_iteration_ <= 0 ||
       acceleration_factor_ < 0.0 || !fast_fourier_transform_.IsValid() ||

@@ -55,7 +55,7 @@ TwoDimensionalInverseFastFourierTransform::
     : num_row_(num_row),
       num_column_(num_column),
       fft_length_(fft_length),
-      inverse_fast_fourier_transform_(fft_length_ - 1, fft_length_),
+      inverse_fast_fourier_transform_(fft_length_),
       is_valid_(true) {
   if (num_row_ <= 0 || fft_length_ < num_row_ || num_column_ <= 0 ||
       fft_length < num_column_ || !inverse_fast_fourier_transform_.IsValid()) {

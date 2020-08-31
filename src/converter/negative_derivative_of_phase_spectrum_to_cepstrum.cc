@@ -52,7 +52,7 @@ namespace sptk {
 NegativeDerivativeOfPhaseSpectrumToCepstrum::
     NegativeDerivativeOfPhaseSpectrumToCepstrum(int fft_length, int num_order)
     : num_order_(num_order),
-      fast_fourier_transform_(fft_length - 1, fft_length),
+      fast_fourier_transform_(fft_length),
       is_valid_(true) {
   if (num_order_ < 0 || fft_length < 2 * num_order_ ||
       !fast_fourier_transform_.IsValid()) {

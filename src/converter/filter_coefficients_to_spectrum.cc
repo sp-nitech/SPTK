@@ -62,7 +62,7 @@ FilterCoefficientsToSpectrum::FilterCoefficientsToSpectrum(
       output_format_(output_format),
       epsilon_for_calculating_logarithms_(epsilon_for_calculating_logarithms),
       relative_floor_in_decibels_(relative_floor_in_decibels),
-      fast_fourier_transform_(fft_length_ - 1, fft_length_),
+      fast_fourier_transform_(fft_length_),
       is_valid_(true) {
   if (num_numerator_order_ < 0 || num_denominator_order_ < 0 ||
       fft_length_ <= num_numerator_order_ ||

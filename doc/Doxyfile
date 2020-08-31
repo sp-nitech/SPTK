@@ -853,6 +853,7 @@ INPUT                  = \
                          ../include/SPTK/filter/all_zero_digital_filter.h \
                          ../include/SPTK/math/fast_fourier_transform.h \
                          ../include/SPTK/math/frequency_transform.h \
+                         ../include/SPTK/math/inverse_fast_fourier_transform.h \
                          ../include/SPTK/math/real_valued_fast_fourier_transform.h \
                          ../include/SPTK/math/real_valued_inverse_fast_fourier_transform.h \
                          ../include/SPTK/normalizer/generalized_cepstrum_gain_normalization.h \
@@ -863,6 +864,7 @@ INPUT                  = \
                          ../src/main/fftr.cc \
                          ../src/main/freqt.cc \
                          ../src/main/gnorm.cc \
+                         ../src/main/ifft.cc \
                          ../src/main/ignorm.cc \
                          ../src/main/iulaw.cc \
                          ../src/main/mc2b.cc \

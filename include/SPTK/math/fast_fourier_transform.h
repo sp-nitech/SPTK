@@ -74,6 +74,11 @@ namespace sptk {
 class FastFourierTransform {
  public:
   /**
+   * @param[in] fft_length FFT length, \f$L\f$.
+   */
+  explicit FastFourierTransform(int fft_length);
+
+  /**
    * @param[in] num_order Order of input, \f$M\f$.
    * @param[in] fft_length FFT length, \f$L\f$.
    */
@@ -114,6 +119,7 @@ class FastFourierTransform {
            const std::vector<double>& imag_part_input,
            std::vector<double>* real_part_output,
            std::vector<double>* imag_part_output) const;
+
   /**
    * @param[in,out] real_part Real part.
    * @param[in,out] imag_part Imaginary part.

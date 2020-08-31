@@ -56,7 +56,7 @@ CepstrumToAutocorrelation::CepstrumToAutocorrelation(int num_input_order,
                                                      int fft_length)
     : num_input_order_(num_input_order),
       num_output_order_(num_output_order),
-      fast_fourier_transform_(fft_length - 1, fft_length),
+      fast_fourier_transform_(fft_length),
       is_valid_(true) {
   if (num_input_order_ < 0 || num_output_order_ < 0 ||
       fft_length <= num_input_order_ || fft_length <= num_output_order_ ||

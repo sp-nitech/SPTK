@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -44,11 +44,13 @@
 
 #include "SPTK/math/inverse_fast_fourier_transform.h"
 
-#include <algorithm>   // std::transform
-#include <cstddef>     // std::size_t
-#include <functional>  // std::bind1st, std::multiplies
+#include <algorithm>  // std::transform
 
 namespace sptk {
+
+InverseFastFourierTransform::InverseFastFourierTransform(int fft_length)
+    : InverseFastFourierTransform(fft_length - 1, fft_length) {
+}
 
 InverseFastFourierTransform::InverseFastFourierTransform(int num_order,
                                                          int fft_length)
@@ -57,36 +59,30 @@ InverseFastFourierTransform::InverseFastFourierTransform(int num_order,
 
 bool InverseFastFourierTransform::Run(
     const std::vector<double>& real_part_input,
-    const std::vector<double>& imaginary_part_input,
+    const std::vector<double>& imag_part_input,
     std::vector<double>* real_part_output,
-    std::vector<double>* imaginary_part_output) const {
-  // check inputs
-  if (!fast_fourier_transform_.IsValid() ||
-      real_part_input.size() !=
-          static_cast<std::size_t>(fast_fourier_transform_.GetNumOrder() + 1) ||
-      imaginary_part_input.size() !=
-          static_cast<std::size_t>(fast_fourier_transform_.GetNumOrder() + 1) ||
-      NULL == real_part_output || NULL == imaginary_part_output) {
-    return false;
-  }
-
-  if (!fast_fourier_transform_.Run(imaginary_part_input, real_part_input,
-                                   imaginary_part_output, real_part_output)) {
+    std::vector<double>* imag_part_output) const {
+  if (!fast_fourier_transform_.Run(imag_part_input, real_part_input,
+                                   imag_part_output, real_part_output)) {
     return false;
   }
 
   const int fft_length(fast_fourier_transform_.GetFftLength());
-  const double inverse_fft_length(1.0 / fft_length);
+  const double z(1.0 / fft_length);
   std::transform(real_part_output->begin(),
                  real_part_output->begin() + fft_length,
-                 real_part_output->begin(),
-                 std::bind1st(std::multiplies<double>(), inverse_fft_length));
-  std::transform(imaginary_part_output->begin(),
-                 imaginary_part_output->begin() + fft_length,
-                 imaginary_part_output->begin(),
-                 std::bind1st(std::multiplies<double>(), inverse_fft_length));
+                 real_part_output->begin(), [z](double x) { return x * z; });
+  std::transform(imag_part_output->begin(),
+                 imag_part_output->begin() + fft_length,
+                 imag_part_output->begin(), [z](double x) { return x * z; });
 
   return true;
+}
+
+bool InverseFastFourierTransform::Run(std::vector<double>* real_part,
+                                      std::vector<double>* imag_part) const {
+  if (NULL == real_part || NULL == imag_part) return false;
+  return Run(*real_part, *imag_part, real_part, imag_part);
 }
 
 }  // namespace sptk

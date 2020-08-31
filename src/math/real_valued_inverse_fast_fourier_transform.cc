@@ -44,11 +44,14 @@
 
 #include "SPTK/math/real_valued_inverse_fast_fourier_transform.h"
 
-#include <algorithm>   // std::transform
-#include <cstddef>     // std::size_t
-#include <functional>  // std::bind1st, std::multiplies
+#include <algorithm>  // std::transform
 
 namespace sptk {
+
+RealValuedInverseFastFourierTransform::RealValuedInverseFastFourierTransform(
+    int fft_length)
+    : RealValuedInverseFastFourierTransform(fft_length - 1, fft_length) {
+}
 
 RealValuedInverseFastFourierTransform::RealValuedInverseFastFourierTransform(
     int num_order, int fft_length)
@@ -85,6 +88,7 @@ bool RealValuedInverseFastFourierTransform::Run(
 bool RealValuedInverseFastFourierTransform::Run(
     std::vector<double>* real_part, std::vector<double>* imag_part,
     RealValuedInverseFastFourierTransform::Buffer* buffer) const {
+  if (NULL == real_part) return false;
   return Run(*real_part, real_part, imag_part, buffer);
 }
 
