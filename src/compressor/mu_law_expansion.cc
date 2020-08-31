@@ -72,6 +72,7 @@ bool MuLawExpansion::Run(double input, double* output) const {
 }
 
 bool MuLawExpansion::Run(double* input_and_output) const {
+  if (NULL == input_and_output) return false;
   return Run(*input_and_output, input_and_output);
 }
 

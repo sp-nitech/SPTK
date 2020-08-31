@@ -112,6 +112,7 @@ bool AllZeroDigitalFilter::Run(const std::vector<double>& filter_coefficients,
 bool AllZeroDigitalFilter::Run(const std::vector<double>& filter_coefficients,
                                double* input_and_output,
                                AllZeroDigitalFilter::Buffer* buffer) const {
+  if (NULL == input_and_output) return false;
   return Run(filter_coefficients, *input_and_output, input_and_output, buffer);
 }
 
