@@ -845,6 +845,8 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = \
+                         ../include/SPTK/compressor/mu_law_compression.h \
+                         ../include/SPTK/compressor/mu_law_expansion.h \
                          ../include/SPTK/converter/mel_cepstrum_to_mlsa_digital_filter_coefficients.h \
                          ../include/SPTK/converter/mlsa_digital_filter_coefficients_to_mel_cepstrum.h \
                          ../include/SPTK/filter/all_pole_digital_filter.h \
@@ -857,8 +859,10 @@ INPUT                  = \
                          ../src/main/freqt.cc \
                          ../src/main/gnorm.cc \
                          ../src/main/ignorm.cc \
+                         ../src/main/iulaw.cc \
                          ../src/main/mc2b.cc \
                          ../src/main/poledf.cc \
+                         ../src/main/ulaw.cc \
                          ../src/main/zerodf.cc \
 
 # This tag can be used to specify the character encoding of the source files

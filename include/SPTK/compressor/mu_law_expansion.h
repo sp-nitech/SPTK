@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,33 +42,79 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/compressor/inverse_mu_law_compression.h"
+#ifndef SPTK_COMPRESSOR_MU_LAW_EXPANSION_H_
+#define SPTK_COMPRESSOR_MU_LAW_EXPANSION_H_
 
-#include <cmath>  // std::fabs, std::pow
+#include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
-InverseMuLawCompression::InverseMuLawCompression(double absolute_maximum_value,
-                                                 int compression_factor)
-    : absolute_maximum_value_(absolute_maximum_value),
-      compression_factor_(compression_factor),
-      is_valid_(true) {
-  if (absolute_maximum_value_ <= 0.0 || compression_factor_ <= 0) {
-    is_valid_ = false;
+/**
+ * Nonlinearly decompress data based on \f$\mu\f$-law algorithm.
+ *
+ * Given the input data \f$y(n)\f$, the expansion is performed as follows:
+ * \f[
+ *   x(n) = V \, \mathrm{sgn}(x(n))
+ *     \frac{(1 + \mu)^{|y(n)|/V} - 1}{\mu}
+ * \f]
+ * where \f$V\f$ is the absolute maximum value of the input data and \f$\mu\f$
+ * is the compression factor, which is typically set to 255.
+ */
+class MuLawExpansion {
+ public:
+  /**
+   * @param[in] abs_max_value Absolute maximum value.
+   * @param[in] compression_factor Compression factor, \f$\mu\f$.
+   */
+  MuLawExpansion(double abs_max_value, double compression_factor);
+
+  virtual ~MuLawExpansion() {
   }
-}
 
-bool InverseMuLawCompression::Run(double input, double* output) const {
-  if (!is_valid_ || NULL == output) {
-    return false;
+  /**
+   * @return Absolute maximum value.
+   */
+  double GetAbsMaxValue() const {
+    return abs_max_value_;
   }
 
-  const double ratio(std::fabs(input) / absolute_maximum_value_);
-  *output = sptk::ExtractSign(input) * absolute_maximum_value_ *
-            (std::pow(1.0 + compression_factor_, ratio) - 1.0) /
-            compression_factor_;
+  /**
+   * @return Compression factor.
+   */
+  double GetCompressionFactor() const {
+    return compression_factor_;
+  }
 
-  return true;
-}
+  /**
+   * @return True if this obejct is valid.
+   */
+  bool IsValid() const {
+    return is_valid_;
+  }
+
+  /**
+   * @param[in] input Input data.
+   * @param[out] output Output data.
+   * @return True on success, false on failure.
+   */
+  bool Run(double input, double* output) const;
+
+  /**
+   * @param[in] input_and_output Input/output data.
+   * @return True on success, false on failure.
+   */
+  bool Run(double* input_and_output) const;
+
+ private:
+  const double abs_max_value_;
+  const double compression_factor_;
+  const double constant_;
+
+  bool is_valid_;
+
+  DISALLOW_COPY_AND_ASSIGN(MuLawExpansion);
+};
 
 }  // namespace sptk
+
+#endif  // SPTK_COMPRESSOR_MU_LAW_EXPANSION_H_

@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,18 +43,19 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
 
-#include "SPTK/compressor/inverse_mu_law_compression.h"
+#include "SPTK/compressor/mu_law_expansion.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
 
-const double kDefaultAbsoluteMaximumValue(32768.0);
-const int kDefaultCompressionFactor(255);
+const double kDefaultAbsMaxValue(32768.0);
+const double kDefaultCompressionFactor(255);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -64,8 +65,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       iulaw [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -v v  : absolute maximum of input (double)[" << std::setw(5) << std::right << kDefaultAbsoluteMaximumValue << "][ 0.0 <  v <=   ]" << std::endl;  // NOLINT
-  *stream << "       -u u  : compression factor        (   int)[" << std::setw(5) << std::right << kDefaultCompressionFactor    << "][   0 <  u <=   ]" << std::endl;  // NOLINT
+  *stream << "       -v v  : absolute maximum of input (double)[" << std::setw(5) << std::right << kDefaultAbsMaxValue       << "][ 0.0 <  v <=   ]" << std::endl;  // NOLINT
+  *stream << "       -u u  : compression factor        (   int)[" << std::setw(5) << std::right << kDefaultCompressionFactor << "][ 0.0 <  u <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       input sequence                    (double)[stdin]" << std::endl;  // NOLINT
@@ -79,9 +80,32 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * \a iulaw [ \e option ] [ \e infile ]
+ *
+ * - \b -v \e int
+ *   - absolute maximum value of input \f$(0 < V)\f$
+ * - \b -u \e double
+ *   - compression factor \f$(0 < \mu)\f$
+ * - \b infile \e str
+ *   - double-type compressed data sequence
+ * - \b stdout
+ *   - double-type output data sequence
+ *
+ * In the below example, 8-bit compressed and quantized data read from
+ * \c data.ulaw is transformed into raw waveform.
+ *
+ * @code{.sh}
+ *   dequantize data.ulaw | iulaw > data.raw
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on false.
+ */
 int main(int argc, char* argv[]) {
-  double absolute_maximum_value(kDefaultAbsoluteMaximumValue);
-  int compression_factor(kDefaultCompressionFactor);
+  double abs_max_value(kDefaultAbsMaxValue);
+  double compression_factor(kDefaultCompressionFactor);
 
   for (;;) {
     const int option_char(getopt_long(argc, argv, "v:u:h", NULL, NULL));
@@ -89,8 +113,8 @@ int main(int argc, char* argv[]) {
 
     switch (option_char) {
       case 'v': {
-        if (!sptk::ConvertStringToDouble(optarg, &absolute_maximum_value) ||
-            absolute_maximum_value <= 0.0) {
+        if (!sptk::ConvertStringToDouble(optarg, &abs_max_value) ||
+            abs_max_value <= 0.0) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -v option must be a positive number";
@@ -100,11 +124,11 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'u': {
-        if (!sptk::ConvertStringToInteger(optarg, &compression_factor) ||
-            compression_factor <= 0) {
+        if (!sptk::ConvertStringToDouble(optarg, &compression_factor) ||
+            compression_factor <= 0.0) {
           std::ostringstream error_message;
           error_message
-              << "The argument for the -u option must be a positive integer";
+              << "The argument for the -u option must be a positive number";
           sptk::PrintErrorMessage("iulaw", error_message);
           return 1;
         }
@@ -121,7 +145,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -131,7 +154,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -142,30 +164,27 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for u-law decompression
-  sptk::InverseMuLawCompression inverse_mu_law_compression(
-      absolute_maximum_value, compression_factor);
-  if (!inverse_mu_law_compression.IsValid()) {
+  sptk::MuLawExpansion mu_law_expansion(abs_max_value, compression_factor);
+  if (!mu_law_expansion.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for u-Law decompression";
+    error_message << "Failed to initialize MuLawExpansion";
     sptk::PrintErrorMessage("iulaw", error_message);
     return 1;
   }
 
-  double input;
-  double output;
+  double data;
 
-  while (sptk::ReadStream(&input, &input_stream)) {
-    if (!inverse_mu_law_compression.Run(input, &output)) {
+  while (sptk::ReadStream(&data, &input_stream)) {
+    if (!mu_law_expansion.Run(&data)) {
       std::ostringstream error_message;
       error_message << "Failed to decompress";
       sptk::PrintErrorMessage("iulaw", error_message);
       return 1;
     }
 
-    if (!sptk::WriteStream(output, &std::cout)) {
+    if (!sptk::WriteStream(data, &std::cout)) {
       std::ostringstream error_message;
-      error_message << "Failed to write a decompressed sequence";
+      error_message << "Failed to write decompressed data";
       sptk::PrintErrorMessage("iulaw", error_message);
       return 1;
     }
