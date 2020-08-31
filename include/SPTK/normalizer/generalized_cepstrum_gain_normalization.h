@@ -65,13 +65,13 @@ namespace sptk {
  * coefficients:
  * \f[
  *   \begin{array}{cccc}
- *     K, c'_\gamma(0), & c'_\gamma(1), & \ldots, & c'_\gamma(M),
+ *     K, & c'_\gamma(1), & \ldots, & c'_\gamma(M),
  *   \end{array}
  * \f]
  * where \f$K\f$ is the gain represented as
  * \f[
  *   K = \left\{ \begin{array}{ll}
- *     (1 + \gamma\,c_\gamma(0)}^{1/\gamma}, \quad & 0 < |\gamma| \le 1 \\
+ *     (1 + \gamma\,c_\gamma(0))^{1/\gamma}, \quad & 0 < |\gamma| \le 1 \\
  *     \exp \, c_\gamma(0). & \gamma = 0
  *   \end{array} \right.
  * \f]

@@ -59,7 +59,7 @@ namespace sptk {
  * coefficients and the gain \f$K\f$:
  * \f[
  *   \begin{array}{cccc}
- *     K, c'_\gamma(0), & c'_\gamma(1), & \ldots, & c'_\gamma(M),
+ *     K, & c'_\gamma(1), & \ldots, & c'_\gamma(M),
  *   \end{array}
  * \f]
  * and the output is the \f$M\f$-th order generalized cepstral coefficients:
