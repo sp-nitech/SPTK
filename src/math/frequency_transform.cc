@@ -44,7 +44,7 @@
 
 #include "SPTK/math/frequency_transform.h"
 
-#include <algorithm>  // std::fill
+#include <algorithm>  // std::copy, std::fill
 #include <cstddef>    // std::size_t
 
 namespace sptk {

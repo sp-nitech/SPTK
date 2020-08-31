@@ -43,7 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>   // getopt_long
-#include <algorithm>  // std::transform
+#include <algorithm>  // std::copy, std::transform
 #include <cfloat>     // DBL_MAX
 #include <cmath>      // std::exp, std::pow
 #include <fstream>    // std::ifstream

@@ -44,7 +44,8 @@
 
 #include "SPTK/converter/mel_cepstrum_to_mlsa_digital_filter_coefficients.h"
 
-#include <cstddef>  // std::size_t
+#include <algorithm>  // std::copy
+#include <cstddef>    // std::size_t
 
 namespace sptk {
 
