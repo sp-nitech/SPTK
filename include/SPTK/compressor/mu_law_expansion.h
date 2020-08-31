@@ -100,7 +100,7 @@ class MuLawExpansion {
   bool Run(double input, double* output) const;
 
   /**
-   * @param[in] input_and_output Input/output data.
+   * @param[in,out] input_and_output Input/output data.
    * @return True on success, false on failure.
    */
   bool Run(double* input_and_output) const;
