@@ -105,7 +105,7 @@ void PrintUsage(std::ostream* stream) {
  *     x_2(0), & x_2(1), & \ldots, & x_2(T_2), \\
  *   \end{array}
  * \f]
- * the absolute error \f$e\f$ is calculated sample-by-sample:
+ * the absolute error \f$e(t)\f$ is calculated sample-by-sample:
  * \f[
  *   e(t) = | x_1(t) - x_2(t) |.
  * \f]

@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <cmath>     // std::isinf, std::isnan
 #include <fstream>   // std::ifstream
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -73,6 +74,26 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * \a nan [ \e infile ]
+ *
+ * - \b infile \e str
+ *   - double-type data sequence
+ * - \b stdout
+ *   - result messages
+ *
+ * This command checks whether given data sequence contains NaN or infinity.
+ *
+ * The check can be performed as follows.
+ *
+ * @code{.sh}
+ *   nan data.d
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on false.
+ */
 int main(int argc, char* argv[]) {
   for (;;) {
     const int option_char(getopt_long(argc, argv, "h", NULL, NULL));
@@ -90,7 +111,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -100,7 +120,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -113,12 +132,12 @@ int main(int argc, char* argv[]) {
 
   double data;
 
-  for (int frame_index(0); sptk::ReadStream(&data, &input_stream);
-       ++frame_index) {
+  for (int sample_index(0); sptk::ReadStream(&data, &input_stream);
+       ++sample_index) {
     if (std::isnan(data)) {
-      std::cout << "[No. " << frame_index << "] is Nan" << std::endl;
+      std::cout << "[No. " << sample_index << "] is NaN" << std::endl;
     } else if (std::isinf(data)) {
-      std::cout << "[No. " << frame_index << "] is Infinity" << std::endl;
+      std::cout << "[No. " << sample_index << "] is Infinity" << std::endl;
     }
   }
 

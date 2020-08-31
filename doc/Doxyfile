@@ -866,6 +866,7 @@ INPUT                  = \
                          ../src/main/ignorm.cc \
                          ../src/main/iulaw.cc \
                          ../src/main/mc2b.cc \
+                         ../src/main/nan.cc \
                          ../src/main/poledf.cc \
                          ../src/main/ulaw.cc \
                          ../src/main/zerodf.cc \
