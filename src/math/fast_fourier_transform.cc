@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -75,7 +75,7 @@ bool FastFourierTransform::Run(
     const std::vector<double>& imaginary_part_input,
     std::vector<double>* real_part_output,
     std::vector<double>* imaginary_part_output) const {
-  // check inputs
+  // Check inputs.
   if (!is_valid_ ||
       real_part_input.size() != static_cast<std::size_t>(num_order_ + 1) ||
       imaginary_part_input.size() != static_cast<std::size_t>(num_order_ + 1) ||
@@ -83,7 +83,7 @@ bool FastFourierTransform::Run(
     return false;
   }
 
-  // prepare memories
+  // Prepare memories.
   if (real_part_output->size() != static_cast<std::size_t>(fft_length_)) {
     real_part_output->resize(fft_length_);
   }
@@ -91,7 +91,7 @@ bool FastFourierTransform::Run(
     imaginary_part_output->resize(fft_length_);
   }
 
-  // get values and fill zero
+  // Copy inputs and fill zero.
   std::copy(real_part_input.begin(), real_part_input.end(),
             real_part_output->begin());
   std::fill(real_part_output->begin() + real_part_input.size(),
@@ -109,8 +109,8 @@ bool FastFourierTransform::Run(
     int lmx(half_fft_length_);
     int lf(1);
     while (1 < lmx) {
-      double* sinp(const_cast<double*>(&(sine_table_[0])));
-      double* cosp(const_cast<double*>(&(sine_table_[0])) + fft_length_ / 4);
+      const double* sinp(&(sine_table_[0]));
+      const double* cosp(&(sine_table_[0]) + fft_length_ / 4);
       for (int i(0); i < lmx; ++i) {
         double* xpi(&(x[i]));
         double* ypi(&(y[i]));
@@ -148,7 +148,7 @@ bool FastFourierTransform::Run(
     }
   }
 
-  // bit reversal
+  // Bit reversal.
   {
     double* xp(x);
     double* yp(y);
@@ -176,6 +176,12 @@ bool FastFourierTransform::Run(
   }
 
   return true;
+}
+
+bool FastFourierTransform::Run(std::vector<double>* real_part,
+                               std::vector<double>* imag_part) const {
+  if (NULL == real_part || NULL == imag_part) return false;
+  return Run(*real_part, *imag_part, real_part, imag_part);
 }
 
 }  // namespace sptk

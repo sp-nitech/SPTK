@@ -160,6 +160,7 @@ bool RealValuedFastFourierTransform::Run(
 bool RealValuedFastFourierTransform::Run(
     std::vector<double>* real_part, std::vector<double>* imag_part,
     RealValuedFastFourierTransform::Buffer* buffer) const {
+  if (NULL == real_part) return false;
   return Run(*real_part, real_part, imag_part, buffer);
 }
 

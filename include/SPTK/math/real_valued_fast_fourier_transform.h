@@ -123,7 +123,7 @@ class RealValuedFastFourierTransform {
   }
 
   /**
-   * @param[in] real_part_input Real part of input.
+   * @param[in] real_part_input \f$M\f$-th order real part of input.
    * @param[out] real_part_output Real part of output.
    * @param[out] imag_part_output Imaginary part of output.
    * @param[out] buffer Buffer.
