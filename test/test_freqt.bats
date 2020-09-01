@@ -55,21 +55,21 @@ teardown() {
 }
 
 @test "freqt: compatibility" {
-   $sptk3/nrand -l 10 | $sptk3/freqt -m 9 -M 9 -a 0.1 -A 0.3 > tmp/1
-   $sptk3/nrand -l 10 | $sptk4/freqt -m 9 -M 9 -a 0.1 -A 0.3 > tmp/2
+   $sptk3/nrand -l 20 | $sptk3/freqt -m 9 -M 9 -a 0.1 -A 0.3 > tmp/1
+   $sptk3/nrand -l 20 | $sptk4/freqt -m 9 -M 9 -a 0.1 -A 0.3 > tmp/2
    run $sptk4/aeq tmp/1 tmp/2
    [ "$status" -eq 0 ]
 }
 
 @test "freqt: identity" {
-   $sptk3/nrand -l 10 > tmp/1
+   $sptk3/nrand -l 20 > tmp/1
    $sptk4/freqt -m 9 -M 9 -a 0.0 -A 0.0 tmp/1 > tmp/2
    run $sptk4/aeq tmp/1 tmp/2
    [ "$status" -eq 0 ]
 }
 
 @test "freqt: reversiblity" {
-   $sptk3/nrand -l 10 > tmp/1
+   $sptk3/nrand -l 20 > tmp/1
    $sptk4/freqt -m 9 -M 19 -a 0.0 -A 0.2 tmp/1 | \
       $sptk4/freqt -m 19 -M 9 -a 0.0 -A -0.2 > tmp/2
    run $sptk4/aeq tmp/1 tmp/2
@@ -77,7 +77,7 @@ teardown() {
 }
 
 @test "freqt: valgrind" {
-   $sptk3/nrand -l 10 > tmp/1
+   $sptk3/nrand -l 20 > tmp/1
    run valgrind $sptk4/freqt -m 9 -M 9 tmp/1 > /dev/null
    [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
 }

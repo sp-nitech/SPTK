@@ -57,8 +57,8 @@ teardown() {
 @test "fftr: compatibility" {
    ary=("" "-R" "-I" "-A" "-P")
    for o in `seq 0 4`; do
-      $sptk3/nrand -l 10 | $sptk3/fftr -l 16 ${ary[$o]} > tmp/1
-      $sptk3/nrand -l 10 | $sptk4/fftr -l 16 -o $o > tmp/2
+      $sptk3/nrand -l 32 | $sptk3/fftr -l 16 ${ary[$o]} > tmp/1
+      $sptk3/nrand -l 32 | $sptk4/fftr -l 16 -o $o > tmp/2
       run $sptk4/aeq tmp/1 tmp/2
       [ "$status" -eq 0 ]
    done
@@ -72,7 +72,7 @@ teardown() {
 }
 
 @test "fftr: valgrind" {
-   $sptk3/nrand -l 10 > tmp/1
+   $sptk3/nrand -l 32 > tmp/1
    run valgrind $sptk4/fftr -l 16 tmp/1 > /dev/null
    [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
 }

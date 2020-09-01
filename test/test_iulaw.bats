@@ -55,28 +55,28 @@ teardown() {
 }
 
 @test "iulaw: compatibility" {
-   $sptk3/nrand -l 10 | $sptk3/ulaw -d -v 4 -u 255 > tmp/1
-   $sptk3/nrand -l 10 | $sptk4/iulaw -v 4 -u 255 > tmp/2
+   $sptk3/nrand -l 20 | $sptk3/ulaw -d -v 4 -u 255 > tmp/1
+   $sptk3/nrand -l 20 | $sptk4/iulaw -v 4 -u 255 > tmp/2
    run $sptk4/aeq tmp/1 tmp/2
    [ "$status" -eq 0 ]
 }
 
 @test "iulaw: identity" {
-   $sptk3/nrand -l 10 > tmp/1
+   $sptk3/nrand -l 20 > tmp/1
    $sptk4/iulaw -v 4 -u 1e-6 tmp/1 > tmp/2
    run $sptk4/aeq tmp/1 tmp/2
    [ "$status" -eq 0 ]
 }
 
 @test "iulaw: reversiblity" {
-   $sptk3/nrand -l 10 > tmp/1
+   $sptk3/nrand -l 20 > tmp/1
    $sptk4/iulaw tmp/1 | $sptk4/ulaw > tmp/2
    run $sptk4/aeq tmp/1 tmp/2
    [ "$status" -eq 0 ]
 }
 
 @test "iulaw: valgrind" {
-   $sptk3/nrand -l 10 > tmp/1
+   $sptk3/nrand -l 20 > tmp/1
    run valgrind $sptk4/iulaw tmp/1 > /dev/null
    [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
 }
