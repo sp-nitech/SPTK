@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -82,6 +83,31 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * \a c2acr [ \e option ] [ \e infile ]
+ *
+ * - \b -m \e int
+ *   - order of cepstral coefficients \f$(0 \le M_1 < L)\f$
+ * - \b -M \e int
+ *   - order of autocorrelation coefficients \f$(0 \le M_2 < L)\f$
+ * - \b -l \e int
+ *   - FFT length \f$(2 \le L)\f$
+ * - \b infile \e str
+ *   - double-type cepstral coefficients
+ * - \b stdout
+ *   - double-type autocorrelation coefficients
+ *
+ * The following example converts the 30-th order cepstral coefficients in
+ * \c data.cep into the 15-th order LPC coefficients.
+ *
+ * @code{.sh}
+ *   c2acr -m 30 -M 15 < data.cep | levdur -m 15 > data.lpc
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on false.
+ */
 int main(int argc, char* argv[]) {
   int num_input_order(kDefaultNumInputOrder);
   int num_output_order(kDefaultNumOutputOrder);
@@ -134,7 +160,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // check orders
+  // Check arguments.
   if (fft_length <= num_input_order || fft_length <= num_output_order) {
     std::ostringstream error_message;
     error_message
@@ -143,7 +169,6 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -153,7 +178,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -191,7 +215,7 @@ int main(int argc, char* argv[]) {
     if (!sptk::WriteStream(0, output_length, autocorrelation, &std::cout,
                            NULL)) {
       std::ostringstream error_message;
-      error_message << "Failed to write autocorrelation sequence";
+      error_message << "Failed to write autocorrelation coefficients";
       sptk::PrintErrorMessage("c2acr", error_message);
       return 1;
     }

@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -44,10 +44,9 @@
 
 #include "SPTK/converter/cepstrum_to_autocorrelation.h"
 
-#include <algorithm>   // std::copy, std::fill, std::transform
-#include <cmath>       // std::exp
-#include <cstddef>     // std::size_t
-#include <functional>  // std::bind1st, std::multiplies
+#include <algorithm>  // std::copy, std::fill, std::transform
+#include <cmath>      // std::exp
+#include <cstddef>    // std::size_t
 
 namespace sptk {
 
@@ -62,61 +61,54 @@ CepstrumToAutocorrelation::CepstrumToAutocorrelation(int num_input_order,
       fft_length <= num_input_order_ || fft_length <= num_output_order_ ||
       !fast_fourier_transform_.IsValid()) {
     is_valid_ = false;
+    return;
   }
 }
 
 bool CepstrumToAutocorrelation::Run(
     const std::vector<double>& cepstrum, std::vector<double>* autocorrelation,
     CepstrumToAutocorrelation::Buffer* buffer) const {
-  // check inputs
+  // Check inputs.
   const int input_length(num_input_order_ + 1);
   if (!is_valid_ || cepstrum.size() != static_cast<std::size_t>(input_length) ||
       NULL == autocorrelation || NULL == buffer) {
     return false;
   }
 
-  // prepare memories
-  const int fft_length(fast_fourier_transform_.GetFftLength());
-  if (buffer->fast_fourier_transform_time_domain_.size() !=
-      static_cast<std::size_t>(fft_length)) {
-    buffer->fast_fourier_transform_time_domain_.resize(fft_length);
-  }
+  // Prepare memories.
   const int output_length(num_output_order_ + 1);
   if (autocorrelation->size() != static_cast<std::size_t>(output_length)) {
     autocorrelation->resize(output_length);
   }
+  const int fft_length(fast_fourier_transform_.GetFftLength());
+  if (buffer->real_part_.size() != static_cast<std::size_t>(fft_length)) {
+    buffer->real_part_.resize(fft_length);
+  }
 
-  std::copy(cepstrum.begin(), cepstrum.end(),
-            buffer->fast_fourier_transform_time_domain_.begin());
-  std::fill(buffer->fast_fourier_transform_time_domain_.begin() + input_length,
-            buffer->fast_fourier_transform_time_domain_.end(), 0.0);
+  std::copy(cepstrum.begin(), cepstrum.end(), buffer->real_part_.begin());
+  std::fill(buffer->real_part_.begin() + input_length, buffer->real_part_.end(),
+            0.0);
 
   if (!fast_fourier_transform_.Run(
-          buffer->fast_fourier_transform_time_domain_,
-          &buffer->fast_fourier_transform_frequency_domain_,
-          &buffer->fast_fourier_transform_imaginary_output_,
-          &buffer->fast_fourier_transform_buffer_)) {
+          &buffer->real_part_, &buffer->imag_part_,
+          &buffer->buffer_for_fast_fourier_transform_)) {
     return false;
   }
 
-  std::transform(buffer->fast_fourier_transform_frequency_domain_.begin(),
-                 buffer->fast_fourier_transform_frequency_domain_.end(),
-                 buffer->fast_fourier_transform_frequency_domain_.begin(),
+  std::transform(buffer->real_part_.begin(), buffer->real_part_.end(),
+                 buffer->real_part_.begin(),
                  [](double x) { return std::exp(2.0 * x); });
 
   if (!fast_fourier_transform_.Run(
-          buffer->fast_fourier_transform_frequency_domain_,
-          &buffer->fast_fourier_transform_time_domain_,
-          &buffer->fast_fourier_transform_imaginary_output_,
-          &buffer->fast_fourier_transform_buffer_)) {
+          &buffer->real_part_, &buffer->imag_part_,
+          &buffer->buffer_for_fast_fourier_transform_)) {
     return false;
   }
 
-  std::transform(
-      buffer->fast_fourier_transform_time_domain_.begin(),
-      buffer->fast_fourier_transform_time_domain_.begin() + output_length,
-      autocorrelation->begin(),
-      std::bind1st(std::multiplies<double>(), 1.0 / fft_length));
+  const double z(1.0 / fft_length);
+  std::transform(buffer->real_part_.begin(),
+                 buffer->real_part_.begin() + output_length,
+                 autocorrelation->begin(), [z](double x) { return x * z; });
 
   return true;
 }
