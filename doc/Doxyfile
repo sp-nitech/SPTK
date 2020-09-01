@@ -847,6 +847,7 @@ WARN_LOGFILE           =
 INPUT                  = \
                          ../include/SPTK/compressor/mu_law_compression.h \
                          ../include/SPTK/compressor/mu_law_expansion.h \
+                         ../include/SPTK/converter/cepstrum_to_autocorrelation.h \
                          ../include/SPTK/converter/mel_cepstrum_to_mlsa_digital_filter_coefficients.h \
                          ../include/SPTK/converter/mlsa_digital_filter_coefficients_to_mel_cepstrum.h \
                          ../include/SPTK/filter/all_pole_digital_filter.h \
@@ -860,6 +861,7 @@ INPUT                  = \
                          ../include/SPTK/normalizer/generalized_cepstrum_inverse_gain_normalization.h \
                          ../src/main/aeq.cc \
                          ../src/main/b2mc.cc \
+                         ../src/main/c2acr.cc \
                          ../src/main/fft.cc \
                          ../src/main/fftr.cc \
                          ../src/main/freqt.cc \
