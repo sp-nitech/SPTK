@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,14 +42,14 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>    // getopt_long
-#include <algorithm>   // std::transform
-#include <fstream>     // std::ifstream
-#include <functional>  // std::bind1st, std::multiplies
-#include <iomanip>     // std::setw
-#include <iostream>    // std::cerr, std::cin, std::cout, std::endl, etc.
-#include <sstream>     // std::ostringstream
-#include <vector>      // std::vector
+#include <getopt.h>  // getopt_long
+
+#include <algorithm>  // std::transform
+#include <fstream>    // std::ifstream
+#include <iomanip>    // std::setw
+#include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>    // std::ostringstream
+#include <vector>     // std::vector
 
 #include "SPTK/converter/waveform_to_autocorrelation.h"
 #include "SPTK/utils/sptk_utils.h"
@@ -92,6 +92,41 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * \a acorr [ \e option ] [ \e infile ]
+ *
+ * - \b -l \e int
+ *   - frame length \f$(1 \le L)\f$
+ * - \b -m \e int
+ *   - order of autocorrelation coefficients \f$(0 \le M)\f$
+ * - \b -o \e double
+ *   - output format
+ *     \arg \c 0 autocorrelation
+ *     \arg \c 1 normalized autocorrelation
+ * - \b infile \e str
+ *   - double-type data sequence
+ * - \b stdout
+ *   - double-type autocorrelation sequence.
+ *
+ * If `-o 1`, output the normalized autocorrelation:
+ * \f[
+ *   \begin{array}{cccc}
+ *     1, & r(1)/r(0), & \ldots, & r(M)/r(0),
+ *   \end{array}
+ * \f]
+ * where \f$r(m)\f$ is the \f$m\f$-th autocorrelation coefficient.
+ *
+ * The below example extracts 10-th order autocorrelation coefficients from
+ * windowed waveform.
+ *
+ * @code{.sh}
+ *   x2x +sd data.short | frame | window | acorr -m 10 > data.acr
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on false.
+ */
 int main(int argc, char* argv[]) {
   int frame_length(kDefaultFrameLength);
   int num_order(kDefaultNumOrder);
@@ -150,7 +185,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -160,7 +194,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -175,7 +208,7 @@ int main(int argc, char* argv[]) {
                                                               num_order);
   if (!waveform_to_autocorrelation.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for conversion";
+    error_message << "Failed to set initialize WaveformToAutocorrelation";
     sptk::PrintErrorMessage("acorr", error_message);
     return 1;
   }
@@ -188,7 +221,7 @@ int main(int argc, char* argv[]) {
                           NULL)) {
     if (!waveform_to_autocorrelation.Run(waveform, &autocorrelation)) {
       std::ostringstream error_message;
-      error_message << "Failed to obtain autocorrelation sequence";
+      error_message << "Failed to calculate autocorrelation";
       sptk::PrintErrorMessage("acorr", error_message);
       return 1;
     }
@@ -196,22 +229,20 @@ int main(int argc, char* argv[]) {
     if (kNormalizedAutocorrelation == output_format) {
       if (0.0 == autocorrelation[0]) {
         std::ostringstream error_message;
-        error_message << "Failed to normalize autocorrelation sequence";
+        error_message << "Failed to normalize autocorrelation";
         sptk::PrintErrorMessage("acorr", error_message);
         return 1;
       }
 
-      const double normalization_term(1.0 / autocorrelation[0]);
-      std::transform(
-          autocorrelation.begin(), autocorrelation.end(),
-          autocorrelation.begin(),
-          std::bind1st(std::multiplies<double>(), normalization_term));
+      const double z(1.0 / autocorrelation[0]);
+      std::transform(autocorrelation.begin(), autocorrelation.end(),
+                     autocorrelation.begin(), [z](double r) { return r * z; });
     }
 
     if (!sptk::WriteStream(0, output_length, autocorrelation, &std::cout,
                            NULL)) {
       std::ostringstream error_message;
-      error_message << "Failed to write autocorrelation sequence";
+      error_message << "Failed to write autocorrelation";
       sptk::PrintErrorMessage("acorr", error_message);
       return 1;
     }

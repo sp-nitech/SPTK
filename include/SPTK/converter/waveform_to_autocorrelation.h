@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -51,50 +51,72 @@
 
 namespace sptk {
 
+/**
+ * Calculate autocorrelation.
+ *
+ * The input is the framed waveform signal:
+ * \f[
+ *   \begin{array}{cccc}
+ *     x(0), & x(1), & \ldots, & x(L-1),
+ *   \end{array}
+ * \f]
+ * where \f$L\f$ is the frame length. The output is the \f$M\f$-th order
+ * autocorrelation coefficients:
+ * \f[
+ *   \begin{array}{cccc}
+ *     r(0), & r(1), & \ldots, & r(M).
+ *   \end{array}
+ * \f]
+ * The autocorrelation is given by
+ * \f[
+ *   r(m) = \sum_{l=0}^{L-1-m} x(l)x(l+m).
+ * \f]
+ */
 class WaveformToAutocorrelation {
  public:
-  //
-  WaveformToAutocorrelation(int frame_length, int num_order)
-      : frame_length_(frame_length), num_order_(num_order), is_valid_(true) {
-    if (frame_length <= 0 || num_order_ < 0) {
-      is_valid_ = false;
-    }
-  }
+  /**
+   * @param[in] frame_length Frame length, \f$L\f$.
+   * @param[in] num_order Order of autocorrelation, \f$M\f$.
+   */
+  WaveformToAutocorrelation(int frame_length, int num_order);
 
-  //
   virtual ~WaveformToAutocorrelation() {
   }
 
-  //
+  /**
+   * @return Frame length.
+   */
   int GetFrameLength() const {
     return frame_length_;
   }
 
-  //
+  /**
+   * @return Order of autocorrelation.
+   */
   int GetNumOrder() const {
     return num_order_;
   }
 
-  //
+  /**
+   * @return True if this obejct is valid.
+   */
   bool IsValid() const {
     return is_valid_;
   }
 
-  //
+  /**
+   * @param[in] waveform \f$L\f$-length framed waveform.
+   * @param[out] autocorrelation \f$M\f$-th order autocorrelation coefficients.
+   */
   bool Run(const std::vector<double>& waveform,
            std::vector<double>* autocorrelation) const;
 
  private:
-  //
   const int frame_length_;
-
-  //
   const int num_order_;
 
-  //
   bool is_valid_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(WaveformToAutocorrelation);
 };
 

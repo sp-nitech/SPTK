@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -49,32 +49,40 @@
 
 namespace sptk {
 
+WaveformToAutocorrelation::WaveformToAutocorrelation(int frame_length,
+                                                     int num_order)
+    : frame_length_(frame_length), num_order_(num_order), is_valid_(true) {
+  if (frame_length <= 0 || num_order_ < 0) {
+    is_valid_ = false;
+    return;
+  }
+}
+
 bool WaveformToAutocorrelation::Run(
     const std::vector<double>& waveform,
     std::vector<double>* autocorrelation) const {
-  // check inputs
+  // Check inputs.
   if (!is_valid_ ||
       waveform.size() != static_cast<std::size_t>(frame_length_) ||
       NULL == autocorrelation) {
     return false;
   }
 
-  // prepare memories
+  // Prepare memories.
   if (autocorrelation->size() != static_cast<std::size_t>(num_order_ + 1)) {
     autocorrelation->resize(num_order_ + 1);
   }
 
-  // fill zero
+  // Initialize output.
   std::fill(autocorrelation->begin(), autocorrelation->end(), 0.0);
 
-  // get values
-  const double* input(&(waveform[0]));
-  double* output(&((*autocorrelation)[0]));
+  const double* x(&(waveform[0]));
+  double* r(&((*autocorrelation)[0]));
 
-  // calculate
-  for (int i(0); i <= num_order_; ++i) {
-    for (int j(0); j <= frame_length_ - i; ++j) {
-      output[i] += input[j] * input[i + j];
+  // Calculate autocorrelation.
+  for (int m(0); m <= num_order_; ++m) {
+    for (int l(0); l < frame_length_ - m; ++l) {
+      r[m] += x[l] * x[l + m];
     }
   }
 

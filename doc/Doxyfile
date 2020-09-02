@@ -850,6 +850,7 @@ INPUT                  = \
                          ../include/SPTK/converter/cepstrum_to_autocorrelation.h \
                          ../include/SPTK/converter/mel_cepstrum_to_mlsa_digital_filter_coefficients.h \
                          ../include/SPTK/converter/mlsa_digital_filter_coefficients_to_mel_cepstrum.h \
+                         ../include/SPTK/converter/waveform_to_autocorrelation.h \
                          ../include/SPTK/filter/all_pole_digital_filter.h \
                          ../include/SPTK/filter/all_zero_digital_filter.h \
                          ../include/SPTK/math/fast_fourier_transform.h \
@@ -860,6 +861,7 @@ INPUT                  = \
                          ../include/SPTK/normalizer/generalized_cepstrum_gain_normalization.h \
                          ../include/SPTK/normalizer/generalized_cepstrum_inverse_gain_normalization.h \
                          ../src/main/aeq.cc \
+                         ../src/main/acorr.cc \
                          ../src/main/b2mc.cc \
                          ../src/main/c2acr.cc \
                          ../src/main/fft.cc \
