@@ -848,6 +848,7 @@ INPUT                  = \
                          ../include/SPTK/compressor/mu_law_compression.h \
                          ../include/SPTK/compressor/mu_law_expansion.h \
                          ../include/SPTK/converter/cepstrum_to_autocorrelation.h \
+                         ../include/SPTK/converter/cepstrum_to_minimum_phase_impulse_response.h \
                          ../include/SPTK/converter/composite_sinusoidal_modeling_to_autocorrelation.h \
                          ../include/SPTK/converter/mel_cepstrum_to_mlsa_digital_filter_coefficients.h \
                          ../include/SPTK/converter/mlsa_digital_filter_coefficients_to_mel_cepstrum.h \
@@ -865,6 +866,7 @@ INPUT                  = \
                          ../src/main/acorr.cc \
                          ../src/main/b2mc.cc \
                          ../src/main/c2acr.cc \
+                         ../src/main/c2mpir.cc \
                          ../src/main/csm2acr.cc \
                          ../src/main/fft.cc \
                          ../src/main/fftr.cc \

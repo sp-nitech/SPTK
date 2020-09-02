@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -49,17 +49,28 @@
 
 namespace sptk {
 
+CepstrumToMinimumPhaseImpulseResponse::CepstrumToMinimumPhaseImpulseResponse(
+    int num_input_order, int num_output_order)
+    : num_input_order_(num_input_order),
+      num_output_order_(num_output_order),
+      is_valid_(true) {
+  if (num_input_order_ < 0 || num_output_order_ < 0) {
+    is_valid_ = false;
+    return;
+  }
+}
+
 bool CepstrumToMinimumPhaseImpulseResponse::Run(
     const std::vector<double>& cepstrum,
     std::vector<double>* minimum_phase_impulse_response) const {
-  // check inputs
+  // Check inputs.
   if (!is_valid_ ||
       cepstrum.size() != static_cast<std::size_t>(num_input_order_ + 1) ||
       NULL == minimum_phase_impulse_response) {
     return false;
   }
 
-  // prepare memory
+  // Prepare memories.
   if (minimum_phase_impulse_response->size() !=
       static_cast<std::size_t>(num_output_order_ + 1)) {
     minimum_phase_impulse_response->resize(num_output_order_ + 1);
@@ -70,12 +81,12 @@ bool CepstrumToMinimumPhaseImpulseResponse::Run(
 
   h[0] = std::exp(c[0]);
   for (int n(1); n <= num_output_order_; ++n) {
-    double d(0);
-    const int upl((num_input_order_ < n) ? num_input_order_ : n);
-    for (int k(1); k <= upl; ++k) {
-      d += k * c[k] * h[n - k];
+    double sum(0.0);
+    const int end((num_input_order_ < n) ? num_input_order_ : n);
+    for (int k(1); k <= end; ++k) {
+      sum += k * c[k] * h[n - k];
     }
-    h[n] = d / n;
+    h[n] = sum / n;
   }
 
   return true;
