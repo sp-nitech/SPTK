@@ -58,6 +58,7 @@ namespace {
 
 enum OutputFormats {
   kAutocorrelation = 0,
+  kBiasedAutocorrelation,
   kNormalizedAutocorrelation,
   kNumOutputFormats
 };
@@ -78,7 +79,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -m m  : order of sequence  (   int)[" << std::setw(5) << std::right << kDefaultNumOrder     << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format      (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 1 ]" << std::endl;  // NOLINT
   *stream << "                 0 (autocorrelation)" << std::endl;
-  *stream << "                 1 (normalized autocorrelation)" << std::endl;
+  *stream << "                 1 (biased autocorrelation)" << std::endl;
+  *stream << "                 2 (normalized autocorrelation)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       data sequence              (double)[stdin]" << std::endl;
@@ -102,19 +104,26 @@ void PrintUsage(std::ostream* stream) {
  * - \b -o \e double
  *   - output format
  *     \arg \c 0 autocorrelation
- *     \arg \c 1 normalized autocorrelation
+ *     \arg \c 1 biased autocorrelation
+ *     \arg \c 2 normalized autocorrelation
  * - \b infile \e str
  *   - double-type data sequence
  * - \b stdout
  *   - double-type autocorrelation sequence.
  *
- * If `-o 1`, output the normalized autocorrelation:
+ * If `-o 1`, output the biased autocorrelation:
  * \f[
  *   \begin{array}{cccc}
- *     1, & r(1)/r(0), & \ldots, & r(M)/r(0),
+ *     r(0)/L, & r(1)/L, & \ldots, & r(M)/L,
  *   \end{array}
  * \f]
  * where \f$r(m)\f$ is the \f$m\f$-th autocorrelation coefficient.
+ * If `-o 2`, output the normalized autocorrelation:
+ * \f[
+ *   \begin{array}{cccc}
+ *     1, & r(1)/r(0), & \ldots, & r(M)/r(0).
+ *   \end{array}
+ * \f]
  *
  * The below example extracts 10-th order autocorrelation coefficients from
  * windowed waveform.
@@ -226,7 +235,11 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    if (kNormalizedAutocorrelation == output_format) {
+    if (kBiasedAutocorrelation == output_format) {
+      const double z(1.0 / frame_length);
+      std::transform(autocorrelation.begin(), autocorrelation.end(),
+                     autocorrelation.begin(), [z](double r) { return r * z; });
+    } else if (kNormalizedAutocorrelation == output_format) {
       if (0.0 == autocorrelation[0]) {
         std::ostringstream error_message;
         error_message << "Failed to normalize autocorrelation";

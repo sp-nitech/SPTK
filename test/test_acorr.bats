@@ -65,7 +65,7 @@ teardown() {
    $sptk3/nrand -l 10 | $sptk4/acorr -l 9 -m 4 > tmp/1
    z=$($sptk3/bcut -e 1 tmp/1 | $sptk3/x2x +da)
    $sptk3/sopr -d $z tmp/1 > tmp/2
-   $sptk3/nrand -l 10 | $sptk4/acorr -l 9 -m 4 -o 1 > tmp/3
+   $sptk3/nrand -l 10 | $sptk4/acorr -l 9 -m 4 -o 2 > tmp/3
    run $sptk4/aeq tmp/2 tmp/3
    [ "$status" -eq 0 ]
 }
