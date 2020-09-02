@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -78,6 +79,32 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * \a csm2acr [ \e option ] [ \e infile ]
+ *
+ * - \b -m \e int
+ *   - order of autocorrelation \f$(1 \le M)\f$
+ * - \b infile \e str
+ *   - double-type CSM parameters
+ * - \b stdout
+ *   - double-type autocorrelation
+ *
+ * The below example converts CSM parameters into autocorrelation coefficients:
+ *
+ * @code{.sh}
+ *   csm2acr < data.csm > data.acr
+ * @endcode
+ *
+ * The converted autocorrelation coefficients can be reverted by
+ *
+ * @code{.sh}
+ *   acr2csm < data.acr > data.csm
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on false.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
 
@@ -108,7 +135,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -118,7 +144,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -130,12 +155,13 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
   const int length(num_order + 1);
-  const int num_sine_waves(length / 2);
+  const int num_sine_wave(length / 2);
   sptk::CompositeSinusoidalModelingToAutocorrelation
-      composite_sinusoidal_modeling_to_autocorrelation(num_sine_waves);
+      composite_sinusoidal_modeling_to_autocorrelation(num_sine_wave);
   if (!composite_sinusoidal_modeling_to_autocorrelation.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for transformation";
+    error_message
+        << "Failed to initialize CompositeSinusoidalModelingToAutocorrelation";
     sptk::PrintErrorMessage("csm2acr", error_message);
     return 1;
   }
@@ -156,7 +182,7 @@ int main(int argc, char* argv[]) {
 
     if (!sptk::WriteStream(0, length, autocorrelation, &std::cout, NULL)) {
       std::ostringstream error_message;
-      error_message << "Failed to write autocorrelation sequence";
+      error_message << "Failed to write autocorrelation";
       sptk::PrintErrorMessage("csm2acr", error_message);
       return 1;
     }

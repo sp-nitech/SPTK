@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -51,37 +51,76 @@
 
 namespace sptk {
 
+/**
+ * Transform CSM parameters to autocorrelation.
+ *
+ * The input is the \f$2N\f$ CSM parameters:
+ * \f[
+ *   \begin{array}{cccc}
+ *     \omega(1), & \omega(2), & \ldots, & \omega(N), \\
+ *     m(1), & m(2), & \ldots, & m(N),
+ *   \end{array}
+ * \f]
+ * where \f$\omega(n)\f$ is the CSM frequency and \f$m(n)\f$ is the CSM
+ * intensity. The output is the \f$(2N-1)\f$-th order biased sample
+ * autocorrelation coefficients:
+ * \f[
+ *   \begin{array}{cccc}
+ *     v(0), & v(1), & \ldots, & v(2N-1).
+ *   \end{array}
+ * \f]
+ * The sample autocorrelation is given by
+ * \f[
+ *     v(l) = \sum_{i=1}^N m(i) \cos(l \, \omega(i)).
+ * \f]
+ *
+ * [1] S. Sagayama and F. Itakura, &quot;Duality theory of composite sinusoidal
+ *     modeling and linear prediction,&quot; Proc. of ICASSP 1986,
+ *     pp. 1261-1264, 1986.
+ */
 class CompositeSinusoidalModelingToAutocorrelation {
  public:
-  //
-  explicit CompositeSinusoidalModelingToAutocorrelation(int num_sine_waves);
+  /**
+   * @param[in] num_sine_wave Number of sine waves, \f$N\f$.
+   */
+  explicit CompositeSinusoidalModelingToAutocorrelation(int num_sine_wave);
 
-  //
   virtual ~CompositeSinusoidalModelingToAutocorrelation() {
   }
 
-  //
+  /**
+   * @return Number of sine waves.
+   */
   int GetNumSineWaves() const {
-    return num_sine_waves_;
+    return num_sine_wave_;
   }
 
-  //
+  /**
+   * @return True if this obejct is valid.
+   */
   bool IsValid() const {
     return is_valid_;
   }
 
-  //
+  /**
+   * @param[in] composite_sinusoidal_modeling CSM parameters.
+   * @param[out] autocorrelation Autocorrelation coefficients.
+   * @return True on success, false on failure.
+   */
   bool Run(const std::vector<double>& composite_sinusoidal_modeling,
            std::vector<double>* autocorrelation) const;
 
- private:
-  //
-  int num_sine_waves_;
+  /**
+   * @param[in,out] input_and_output Input and output.
+   * @return True on success, false on failure.
+   */
+  bool Run(std::vector<double>* input_and_output) const;
 
-  //
+ private:
+  const int num_sine_wave_;
+
   bool is_valid_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(CompositeSinusoidalModelingToAutocorrelation);
 };
 

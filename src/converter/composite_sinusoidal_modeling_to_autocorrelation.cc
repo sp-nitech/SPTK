@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -50,44 +50,52 @@
 namespace sptk {
 
 CompositeSinusoidalModelingToAutocorrelation::
-    CompositeSinusoidalModelingToAutocorrelation(int num_sine_waves)
-    : num_sine_waves_(num_sine_waves), is_valid_(true) {
-  if (num_sine_waves_ <= 0) {
+    CompositeSinusoidalModelingToAutocorrelation(int num_sine_wave)
+    : num_sine_wave_(num_sine_wave), is_valid_(true) {
+  if (num_sine_wave_ <= 0) {
     is_valid_ = false;
+    return;
   }
 }
 
 bool CompositeSinusoidalModelingToAutocorrelation::Run(
     const std::vector<double>& composite_sinusoidal_modeling,
     std::vector<double>* autocorrelation) const {
-  // check inputs
-  const int output_length(num_sine_waves_ * 2);
+  // Check inputs.
+  const int length(num_sine_wave_ * 2);
   if (!is_valid_ ||
       composite_sinusoidal_modeling.size() !=
-          static_cast<std::size_t>(output_length) ||
+          static_cast<std::size_t>(length) ||
       NULL == autocorrelation) {
     return false;
   }
 
-  // prepare memory
-  if (autocorrelation->size() != static_cast<std::size_t>(output_length)) {
-    autocorrelation->resize(output_length);
+  // Prepare memories.
+  if (autocorrelation->size() != static_cast<std::size_t>(length)) {
+    autocorrelation->resize(length);
   }
 
-  // get value
   const double* frequencies(&(composite_sinusoidal_modeling[0]));
-  const double* intensities(&(composite_sinusoidal_modeling[num_sine_waves_]));
-  double* output(&((*autocorrelation)[0]));
+  const double* intensities(&(composite_sinusoidal_modeling[num_sine_wave_]));
+  double* v(&((*autocorrelation)[0]));
 
-  for (int l(0); l < output_length; ++l) {
+  // Calculate autocorrelation using Eq. (2).
+  for (int l(0); l < length; ++l) {
     double sum(0.0);
-    for (int i(0); i < num_sine_waves_; ++i) {
+    for (int i(0); i < num_sine_wave_; ++i) {
       sum += intensities[i] * std::cos(l * frequencies[i]);
     }
-    output[l] = sum;
+    v[l] = sum;
   }
 
   return true;
+}
+
+bool CompositeSinusoidalModelingToAutocorrelation::Run(
+    std::vector<double>* input_and_output) const {
+  if (NULL == input_and_output) return false;
+  std::vector<double> input(*input_and_output);
+  return Run(input, input_and_output);
 }
 
 }  // namespace sptk
