@@ -69,8 +69,9 @@ namespace sptk {
  * \f]
  * The autocorrelation is given by
  * \f[
- *   r(m) = \sum_{l=0}^{L-1-m} x(l)x(l+m).
+ *   r(m) = \sum_{l=0}^{L-1-m} x(l)x(l+m),
  * \f]
+ * where \f$m\f$ is the lag.
  */
 class WaveformToAutocorrelation {
  public:

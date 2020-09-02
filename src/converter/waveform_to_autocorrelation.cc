@@ -44,8 +44,7 @@
 
 #include "SPTK/converter/waveform_to_autocorrelation.h"
 
-#include <algorithm>  // std::fill
-#include <cstddef>    // std::size_t
+#include <cstddef>  // std::size_t
 
 namespace sptk {
 
@@ -73,17 +72,16 @@ bool WaveformToAutocorrelation::Run(
     autocorrelation->resize(num_order_ + 1);
   }
 
-  // Initialize output.
-  std::fill(autocorrelation->begin(), autocorrelation->end(), 0.0);
-
   const double* x(&(waveform[0]));
   double* r(&((*autocorrelation)[0]));
 
   // Calculate autocorrelation.
   for (int m(0); m <= num_order_; ++m) {
+    double sum(0.0);
     for (int l(0); l < frame_length_ - m; ++l) {
-      r[m] += x[l] * x[l + m];
+      sum += x[l] * x[l + m];
     }
+    r[m] = sum;
   }
 
   return true;
