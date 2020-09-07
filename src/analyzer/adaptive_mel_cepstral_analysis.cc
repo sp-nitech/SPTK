@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -44,24 +44,23 @@
 
 #include "SPTK/analyzer/adaptive_mel_cepstral_analysis.h"
 
-#include <algorithm>   // std::fill, std::transform
-#include <cmath>       // std::log
-#include <cstddef>     // std::size_t
-#include <functional>  // std::bind1st, std::multiplies
+#include <algorithm>  // std::fill, std::transform
+#include <cmath>      // std::log
+#include <cstddef>    // std::size_t
 
 namespace sptk {
 
 AdaptiveMelCepstralAnalysis::AdaptiveMelCepstralAnalysis(
-    int num_order, int num_pade_order, double alpha, double minimum_epsilon,
+    int num_order, int num_pade_order, double alpha, double min_epsilon,
     double momentum, double forgetting_factor, double step_size_factor)
-    : minimum_epsilon_(minimum_epsilon),
+    : min_epsilon_(min_epsilon),
       momentum_(momentum),
       forgetting_factor_(forgetting_factor),
       step_size_factor_(step_size_factor),
       mlsa_digital_filter_(num_order, num_pade_order, alpha, false),
       mlsa_digital_filter_coefficients_to_mel_cepstrum_(num_order, alpha),
       is_valid_(true) {
-  if (minimum_epsilon_ <= 0.0 || momentum_ < 0.0 || 1.0 <= momentum_ ||
+  if (min_epsilon_ <= 0.0 || momentum_ < 0.0 || 1.0 <= momentum_ ||
       forgetting_factor_ < 0.0 || 1.0 <= forgetting_factor_ ||
       step_size_factor_ <= 0.0 || 1.0 <= step_size_factor_ ||
       !mlsa_digital_filter_.IsValid() ||
@@ -74,13 +73,13 @@ bool AdaptiveMelCepstralAnalysis::Run(
     double input_signal, double* prediction_error,
     std::vector<double>* mel_cepstrum,
     AdaptiveMelCepstralAnalysis::Buffer* buffer) const {
-  // check inputs
+  // Check inputs.
   if (!is_valid_ || NULL == prediction_error || NULL == mel_cepstrum ||
       NULL == buffer) {
     return false;
   }
 
-  // prepare memories
+  // Prepare memories.
   const int num_order(GetNumOrder());
   if (buffer->mlsa_digital_filter_coefficients_.size() !=
       static_cast<std::size_t>(num_order + 1)) {
@@ -104,11 +103,11 @@ bool AdaptiveMelCepstralAnalysis::Run(
     std::fill(buffer->gradient_.begin(), buffer->gradient_.end(), 0.0);
   }
 
-  // apply inverse MLSA digital filter
+  // Apply inverse MLSA digital filter.
   std::transform(buffer->mlsa_digital_filter_coefficients_.begin() + 1,
                  buffer->mlsa_digital_filter_coefficients_.end(),
                  buffer->inverse_mlsa_digital_filter_coefficients_.begin() + 1,
-                 std::bind1st(std::multiplies<double>(), -1.0));
+                 [](double x) { return -x; });
   double curr_prediction_error;
   if (!mlsa_digital_filter_.Run(
           buffer->inverse_mlsa_digital_filter_coefficients_, input_signal,
@@ -116,43 +115,43 @@ bool AdaptiveMelCepstralAnalysis::Run(
     return false;
   }
 
-  // apply phi digital filter
+  // Apply phi digital filter.
   {
     const double alpha(GetAlpha());
-    double* d(&buffer->buffer_for_phi_digital_filter_[0]);
-    d[0] =
-        alpha * d[0] + (1.0 - alpha * alpha) * buffer->prev_prediction_error_;
+    const double beta(1.0 - alpha * alpha);
+    double* e(&buffer->buffer_for_phi_digital_filter_[0]);
+    e[0] = alpha * e[0] + beta * buffer->prev_prediction_error_;
     for (int i(1); i < num_order; ++i) {
-      d[i] += alpha * (d[i + 1] - d[i - 1]);
+      e[i] += alpha * (e[i + 1] - e[i - 1]);
     }
     for (int i(num_order); 0 < i; --i) {
-      d[i] = d[i - 1];
+      e[i] = e[i - 1];
     }
   }
 
-  // update epsilon
-  double curr_epsilon(forgetting_factor_ * buffer->prev_epsilon_ +
-                      (1.0 - forgetting_factor_) * curr_prediction_error *
-                          curr_prediction_error);
-  if (curr_epsilon < minimum_epsilon_) {
-    curr_epsilon = minimum_epsilon_;
+  // Update epsilon using Eq. (29).
+  double curr_epsilon((forgetting_factor_ * buffer->prev_epsilon_) +
+                      (1.0 - forgetting_factor_) *
+                          (curr_prediction_error * curr_prediction_error));
+  if (curr_epsilon < min_epsilon_) {
+    curr_epsilon = min_epsilon_;
   }
 
-  // update coefficients of MLSA digital filter
+  // Update MLSA digital filter coefficients using Eq. (27).
   {
     const double c(2.0 * (1.0 - momentum_) * curr_prediction_error);
     const double mu(step_size_factor_ / (num_order * curr_epsilon));
-    const double* error(&buffer->buffer_for_phi_digital_filter_[1]);
+    const double* e(&buffer->buffer_for_phi_digital_filter_[1]);
     double* gradient(&buffer->gradient_[0]);
-    double* b(&buffer->mlsa_digital_filter_coefficients_[1]);
-    buffer->mlsa_digital_filter_coefficients_[0] = 0.5 * std::log(curr_epsilon);
+    double* b(&buffer->mlsa_digital_filter_coefficients_[0]);
+    b[0] = 0.5 * std::log(curr_epsilon);
     for (int i(0); i < num_order; ++i) {
-      gradient[i] = momentum_ * gradient[i] - c * error[i];
-      b[i] -= mu * gradient[i];
+      gradient[i] = momentum_ * gradient[i] - c * e[i];
+      b[i + 1] -= mu * gradient[i];
     }
   }
 
-  // store
+  // Store outputs.
   *prediction_error = curr_prediction_error;
   buffer->prev_prediction_error_ = curr_prediction_error;
   buffer->prev_epsilon_ = curr_epsilon;

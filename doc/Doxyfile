@@ -845,6 +845,7 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = \
+                         ../include/SPTK/analyzer/adaptive_mel_cepstral_analysis.h \
                          ../include/SPTK/compressor/mu_law_compression.h \
                          ../include/SPTK/compressor/mu_law_expansion.h \
                          ../include/SPTK/converter/cepstrum_to_autocorrelation.h \
@@ -864,6 +865,7 @@ INPUT                  = \
                          ../include/SPTK/normalizer/generalized_cepstrum_inverse_gain_normalization.h \
                          ../src/main/aeq.cc \
                          ../src/main/acorr.cc \
+                         ../src/main/amcep.cc \
                          ../src/main/b2mc.cc \
                          ../src/main/c2acr.cc \
                          ../src/main/c2mpir.cc \

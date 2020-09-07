@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream, std::ofstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -78,7 +79,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -e e  : minimum value for epsilon    (double)[" << std::setw(5) << std::right << kDefaultMinimumEpsilon   << "][  0.0 <  e <=     ]" << std::endl;  // NOLINT
   *stream << "       -t t  : momentum constant            (double)[" << std::setw(5) << std::right << kDefaultMomentum         << "][  0.0 <= t <  1.0 ]" << std::endl;  // NOLINT
   *stream << "       -l l  : forgetting factor            (double)[" << std::setw(5) << std::right << kDefaultForgettingFactor << "][  0.0 <= l <  1.0 ]" << std::endl;  // NOLINT
-  *stream << "       -s s  : step-size factor             (double)[" << std::setw(5) << std::right << kDefaultStepSizeFactor   << "][  0.0 <  s <  1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -k k  : step-size factor             (double)[" << std::setw(5) << std::right << kDefaultStepSizeFactor   << "][  0.0 <  s <  1.0 ]" << std::endl;  // NOLINT
   *stream << "       -p p  : output period                (   int)[" << std::setw(5) << std::right << kDefaultOutputPeriod     << "][    1 <= p <=     ]" << std::endl;  // NOLINT
   *stream << "       -P P  : order of Pade approximation  (   int)[" << std::setw(5) << std::right << kDefaultNumPadeOrder     << "][    4 <= P <= 7   ]" << std::endl;  // NOLINT
   *stream << "       -A    : output averaged mel-cepstrum (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultAverageFlag) << "]" << std::endl;  // NOLINT
@@ -97,6 +98,45 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * \a amcep [ \e option ] [ \e infile ]
+ *
+ * - \b -m \e int
+ *   - order of mel-cepstral coefficients \f$(0 \le M)\f$
+ * - \b -a \e double
+ *   - all-pass constant \f$(|\alpha|<1)\f$
+ * - \b -e \e double
+ *   - minimum epsilon \f$(0 \le \epsilon_{min})\f$
+ * - \b -t \e double
+ *   - momentum \f$(0 \le \tau < 1)\f$
+ * - \b -l \e double
+ *   - forgetting factor \f$(0 \le \lambda < 1)\f$
+ * - \b -k \e double
+ *   - step-size factor \f$(0 < a < 1)\f$
+ * - \b -p \e int
+ *   - output period \f$(1 \le p)\f$
+ * - \b -P \e int
+ *   - order of Pade approximation \f$(4 \le P \le 7)\f$
+ * - \b -A \e bool
+ *   - output averaged mel-cepstrum (valid only if \f$p > 1\f$)
+ * - \b -E \e str
+ *   - double-type prediction errors
+ * - \b infile \e str
+ *   - double-type input signals
+ * - \b stdout
+ *   - double-type mel-cepstral coefficients
+ *
+ * The below example extracts 15-th order mel-cepstral coefficients for every
+ * block of 100 samples.
+ *
+ * @code{.sh}
+ *   amcep -m 15 -p 100 < data.raw > data.mcep
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on false.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   double alpha(kDefaultAlpha);
@@ -111,7 +151,7 @@ int main(int argc, char* argv[]) {
 
   for (;;) {
     const int option_char(
-        getopt_long(argc, argv, "m:a:e:t:l:s:p:P:AE:h", NULL, NULL));
+        getopt_long(argc, argv, "m:a:e:t:l:k:p:P:AE:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -170,12 +210,12 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      case 's': {
+      case 'k': {
         if (!sptk::ConvertStringToDouble(optarg, &step_size_factor) ||
             step_size_factor <= 0.0 || 1.0 <= step_size_factor) {
           std::ostringstream error_message;
           error_message
-              << "The argument for the -s option must be in (0.0, 1.0)";
+              << "The argument for the -k option must be in (0.0, 1.0)";
           sptk::PrintErrorMessage("amcep", error_message);
           return 1;
         }
@@ -228,7 +268,6 @@ int main(int argc, char* argv[]) {
     average_flag = false;
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -238,7 +277,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open input stream for input signal
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -249,7 +287,6 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // open output stream for prediction error
   std::ofstream ofs;
   if (NULL != prediction_error_file) {
     ofs.open(prediction_error_file, std::ios::out | std::ios::binary);
@@ -268,17 +305,16 @@ int main(int argc, char* argv[]) {
   sptk::AdaptiveMelCepstralAnalysis::Buffer buffer_for_analysis;
   if (!analysis.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for analysis";
+    error_message << "Failed to initialize AdaptiveMelCepstralAnalysis";
     sptk::PrintErrorMessage("amcep", error_message);
     return 1;
   }
   sptk::StatisticsAccumulator accumulator(num_order, 1);
   sptk::StatisticsAccumulator::Buffer buffer_for_accumulator;
 
-  double input_signal;
   const int length(num_order + 1);
   std::vector<double> mel_cepstrum(length);
-  std::vector<double> averaged_mel_cepstrum(length);
+  double input_signal;
 
   for (int i(1); sptk::ReadStream(&input_signal, &input_stream); ++i) {
     double prediction_error;
@@ -310,28 +346,19 @@ int main(int argc, char* argv[]) {
 
     if (0 == i % output_period) {
       if (average_flag) {
-        if (!accumulator.GetMean(buffer_for_accumulator,
-                                 &averaged_mel_cepstrum)) {
+        if (!accumulator.GetMean(buffer_for_accumulator, &mel_cepstrum)) {
           std::ostringstream error_message;
           error_message << "Failed to average mel-cepstrum";
           sptk::PrintErrorMessage("amcep", error_message);
           return 1;
         }
-        if (!sptk::WriteStream(0, length, averaged_mel_cepstrum, &std::cout,
-                               NULL)) {
-          std::ostringstream error_message;
-          error_message << "Failed to write mel-cepstrum";
-          sptk::PrintErrorMessage("amcep", error_message);
-          return 1;
-        }
         accumulator.Clear(&buffer_for_accumulator);
-      } else {
-        if (!sptk::WriteStream(0, length, mel_cepstrum, &std::cout, NULL)) {
-          std::ostringstream error_message;
-          error_message << "Failed to write mel-cepstrum";
-          sptk::PrintErrorMessage("amcep", error_message);
-          return 1;
-        }
+      }
+      if (!sptk::WriteStream(0, length, mel_cepstrum, &std::cout, NULL)) {
+        std::ostringstream error_message;
+        error_message << "Failed to write mel-cepstrum";
+        sptk::PrintErrorMessage("amcep", error_message);
+        return 1;
       }
       i = 0;
     }
