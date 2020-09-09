@@ -54,7 +54,7 @@ teardown() {
    rm -rf tmp
 }
 
-@test "amcep: compatibility (p = 1)" {
+@test "amcep: compatibility" {
    $sptk3/nrand -l 20 | $sptk3/amcep -m 3 tmp/3 > tmp/1
    $sptk3/nrand -l 20 | $sptk4/amcep -m 3 -E tmp/4 > tmp/2
    run $sptk4/aeq tmp/1 tmp/2
@@ -63,9 +63,9 @@ teardown() {
    [ "$status" -eq 0 ]
 }
 
-@test "amcep: compatibility (p > 1)" {
-   $sptk3/nrand -l 20 | $sptk3/amcep -m 3 -p 2 -s > tmp/1
-   $sptk3/nrand -l 20 | $sptk4/amcep -m 3 -p 2 -A > tmp/2
+@test "amcep: adaptive cepstral analysis" {
+   $sptk3/nrand -l 20 | $sptk3/acep -m 3 > tmp/1
+   $sptk3/nrand -l 20 | $sptk4/amcep -m 3 -a 0 > tmp/2
    run $sptk4/aeq tmp/1 tmp/2
    [ "$status" -eq 0 ]
 }

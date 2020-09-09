@@ -66,6 +66,7 @@ AdaptiveMelCepstralAnalysis::AdaptiveMelCepstralAnalysis(
       !mlsa_digital_filter_.IsValid() ||
       !mlsa_digital_filter_coefficients_to_mel_cepstrum_.IsValid()) {
     is_valid_ = false;
+    return;
   }
 }
 
@@ -138,18 +139,18 @@ bool AdaptiveMelCepstralAnalysis::Run(
   }
 
   // Update MLSA digital filter coefficients using Eq. (27).
-  {
-    const double c(2.0 * (1.0 - momentum_) * curr_prediction_error);
+  if (0 < num_order) {
+    const double sigma(2.0 * (1.0 - momentum_) * curr_prediction_error);
     const double mu(step_size_factor_ / (num_order * curr_epsilon));
     const double* e(&buffer->buffer_for_phi_digital_filter_[1]);
     double* gradient(&buffer->gradient_[0]);
-    double* b(&buffer->mlsa_digital_filter_coefficients_[0]);
-    b[0] = 0.5 * std::log(curr_epsilon);
+    double* b(&buffer->mlsa_digital_filter_coefficients_[1]);
     for (int i(0); i < num_order; ++i) {
-      gradient[i] = momentum_ * gradient[i] - c * e[i];
-      b[i + 1] -= mu * gradient[i];
+      gradient[i] = momentum_ * gradient[i] - sigma * e[i];
+      b[i] -= mu * gradient[i];
     }
   }
+  buffer->mlsa_digital_filter_coefficients_[0] = 0.5 * std::log(curr_epsilon);
 
   // Store outputs.
   *prediction_error = curr_prediction_error;

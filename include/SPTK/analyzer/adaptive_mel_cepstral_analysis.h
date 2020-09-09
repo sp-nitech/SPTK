@@ -60,12 +60,12 @@ namespace sptk {
  * @image html amcep_1.png
  *
  * where \f$x(n)\f$ is an input signal and \f$e(n)\f$ is the output of the
- * inverse filter \f$1/D(z)\f$. The \f$D(z)\f$ is impelmented as a MLSA filter.
+ * inverse filter \f$1/D(z)\f$. The \f$D(z)\f$ is implemented as a MLSA filter.
  * The coefficients of the MLSA filter \f$\boldsymbol{b}\f$ is updated every
  * sample as
  * \f[
  *   \boldsymbol{b}^{(n+1)} =
-       \boldsymbol{b} - \mu^{(n)} \bar{\nabla} \epsilon^{(n)}
+ *     \boldsymbol{b}^{(n)} - \mu^{(n)} \bar{\nabla} \epsilon^{(n)}
  * \f]
  * where
  * \f{eqnarray}{
@@ -73,18 +73,20 @@ namespace sptk {
  *   \epsilon^{(n)} &=& \lambda \epsilon^{(n-1)} + (1-\lambda) e^2(n),
  * \f}
  * and \f$a\f$ is the step-size factor and \f$\lambda\f$ is the forgetting
- * factor. The estimate of \f$\nabla \epsilon\f$ is
+ * factor. If \f$\epsilon^{(n)}\f$ is less than \f$\epsilon_{min}\f$,
+ * \f$\epsilon^{(n)}\f$ is set to \f$\epsilon_{min}\f$. The estimate of
+ * \f$\nabla \epsilon\f$ is
  * \f[
  *   \bar{\nabla} \epsilon^{(n)} = \tau \bar{\nabla} \epsilon^{(n-1)}
-       -2 (1-\tau) e(n) \boldsymbol{e}^{(n)}_{\Phi}
+ *     -2 (1-\tau) e(n) \boldsymbol{e}^{(n)}_{\Phi}
  * \f]
  * where \f$\tau\f$ is the moment and
  * \f$\boldsymbol{e}^{(n)}_{\Phi}=[e_1(n),e_2(n),\ldots,e_M(n)]^{\mathsf{T}}\f$
  * is the set of outputs of the filter \f$\Phi_m(z)\f$:
  * @image html amcep_2.png
  *
- * The coefficients of the MLSA filter is converted to the mel-cepstral
- * coeffients by a linear transformation.
+ * The coefficients of the MLSA filter are converted to the mel-cepstral
+ * coefficients by a linear transformation.
  *
  * @sa sptk::MlsaDigitalFilterCoefficientsToMelCepstrum
  */
