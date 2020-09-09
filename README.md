@@ -28,6 +28,31 @@ Then the SPTK commands can be used by adding `SPTK/bin/` directory to the `PATH`
 If you would like to use a part of the SPTK library, please link the static library `SPTK/lib/libsptk.a`.
 
 
+Changes from SPTK3
+------------------
+- Input and output types are changed to double from float
+- Ungeneralized commands are deprecated
+  - `acep`
+  - `c2sp`
+  - `gc2gc`
+  - `gcep`
+  - `glsadf`
+  - `lmadf`
+  - `lsp2sp`
+  - `mcep`
+  - `mlsadf`
+  - `vq`
+- Multifunctional commands are split
+  - `dtw` -> `dtw` and `dtw_merge`
+  - `mglsadf` -> `mglsadf` and `imglsadf`
+  - `train` -> `train` and `mseq`
+  - `ulaw` -> `ulaw` and `iulaw`
+  - `vstat` -> `vstat` and `median`
+- Smoothing flag in adaptive analysis is stripped
+  - `agcep`
+  - `amcep`
+
+
 Authors
 -------
 * **Keiichi Tokuda** - *Produce and Design* - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~tokuda/)
