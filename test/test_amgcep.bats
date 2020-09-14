@@ -54,24 +54,35 @@ teardown() {
    rm -rf tmp
 }
 
-@test "amcep: compatibility" {
+@test "amgcep: compatibility (a > 0)" {
    $sptk3/nrand -l 20 | $sptk3/amcep -m 3 tmp/3 > tmp/1
-   $sptk3/nrand -l 20 | $sptk4/amcep -m 3 -E tmp/4 > tmp/2
+   $sptk3/nrand -l 20 | $sptk4/amgcep -m 3 -E tmp/4 > tmp/2
    run $sptk4/aeq tmp/1 tmp/2
    [ "$status" -eq 0 ]
    run $sptk4/aeq tmp/3 tmp/4
    [ "$status" -eq 0 ]
 }
 
-@test "amcep: adaptive cepstral analysis" {
+@test "amgcep: compatibility (c > 0)" {
+   $sptk3/nrand -l 20 | $sptk3/agcep -m 3 -c 1 tmp/3 > tmp/1
+   $sptk3/nrand -l 20 | $sptk4/amgcep -m 3 -c 1 -a 0 -E tmp/4 > tmp/2
+   run $sptk4/aeq tmp/1 tmp/2
+   [ "$status" -eq 0 ]
+   run $sptk4/aeq tmp/3 tmp/4
+   [ "$status" -eq 0 ]
+}
+
+@test "amgcep: compatibility (a = 0, c = 0)" {
    $sptk3/nrand -l 20 | $sptk3/acep -m 3 > tmp/1
-   $sptk3/nrand -l 20 | $sptk4/amcep -m 3 -a 0 > tmp/2
+   $sptk3/nrand -l 20 | $sptk4/amgcep -m 3 -a 0 > tmp/2
    run $sptk4/aeq tmp/1 tmp/2
    [ "$status" -eq 0 ]
 }
 
 @test "amcep: valgrind" {
    $sptk3/nrand -l 20 > tmp/1
-   run valgrind $sptk4/amcep -m 3 tmp/1 > /dev/null
+   run valgrind $sptk4/amgcep -m 3 tmp/1 > /dev/null
+   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+   run valgrind $sptk4/amgcep -m 3 -c 1 -a 0 tmp/1 > /dev/null
    [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
 }

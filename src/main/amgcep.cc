@@ -50,14 +50,15 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/analyzer/adaptive_mel_cepstral_analysis.h"
+#include "SPTK/analyzer/adaptive_mel_generalized_cepstral_analysis.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
 
 const int kDefaultNumOrder(25);
 const double kDefaultAlpha(0.35);
-const double kDefaultMinimumEpsilon(1e-16);
+const int kDefaultNumStage(0);
+const double kDefaultMinEpsilon(1e-16);
 const double kDefaultMomentum(0.9);
 const double kDefaultForgettingFactor(0.98);
 const double kDefaultStepSizeFactor(0.1);
@@ -67,14 +68,15 @@ const int kDefaultNumPadeOrder(4);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " amcep - adaptive mel-cepstral analysis" << std::endl;
+  *stream << " amgcep - adaptive mel-generalized cepstral analysis" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
-  *stream << "       amcep [ options ] [ infile ] > stdout" << std::endl;
+  *stream << "       amgcep [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -m m  : order of mel-cepstrum        (   int)[" << std::setw(5) << std::right << kDefaultNumOrder         << "][    0 <= m <=     ]" << std::endl;  // NOLINT
   *stream << "       -a a  : all-pass constant            (double)[" << std::setw(5) << std::right << kDefaultAlpha            << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
-  *stream << "       -e e  : minimum value for epsilon    (double)[" << std::setw(5) << std::right << kDefaultMinimumEpsilon   << "][  0.0 <  e <=     ]" << std::endl;  // NOLINT
+  *stream << "       -c c  : gamma = -1 / c               (   int)[" << std::setw(5) << std::right << kDefaultNumStage         << "][    0 <= c <=     ]" << std::endl;  // NOLINT
+  *stream << "       -e e  : minimum value for epsilon    (double)[" << std::setw(5) << std::right << kDefaultMinEpsilon       << "][  0.0 <  e <=     ]" << std::endl;  // NOLINT
   *stream << "       -t t  : momentum constant            (double)[" << std::setw(5) << std::right << kDefaultMomentum         << "][  0.0 <= t <  1.0 ]" << std::endl;  // NOLINT
   *stream << "       -l l  : forgetting factor            (double)[" << std::setw(5) << std::right << kDefaultForgettingFactor << "][  0.0 <= l <  1.0 ]" << std::endl;  // NOLINT
   *stream << "       -k k  : step-size factor             (double)[" << std::setw(5) << std::right << kDefaultStepSizeFactor   << "][  0.0 <  s <  1.0 ]" << std::endl;  // NOLINT
@@ -86,7 +88,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  infile:" << std::endl;
   *stream << "       data sequence                        (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       mel-cepstrum                         (double)" << std::endl;  // NOLINT
+  *stream << "       mel-generalized cepstrum             (double)" << std::endl;  // NOLINT
+  *stream << "  notice:" << std::endl;
+  *stream << "       a != 0 and c != 0 is not supported currently" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -96,12 +100,14 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a amcep [ \e option ] [ \e infile ]
+ * \a amgcep [ \e option ] [ \e infile ]
  *
  * - \b -m \e int
  *   - order of mel-cepstral coefficients \f$(0 \le M)\f$
  * - \b -a \e double
  *   - all-pass constant \f$(|\alpha|<1)\f$
+ * - \b -c \e int
+ *   - gamma \f$\gamma = -1 / C\f$ \f$(1 \le C)\f$
  * - \b -e \e double
  *   - minimum epsilon \f$(0 < \epsilon_{min})\f$
  * - \b -t \e double
@@ -119,19 +125,25 @@ void PrintUsage(std::ostream* stream) {
  * - \b infile \e str
  *   - double-type input signals
  * - \b stdout
- *   - double-type mel-cepstral coefficients
+ *   - double-type mel-generalized cepstral coefficients
  *
  * The below example extracts 15-th order mel-cepstral coefficients for every
  * block of 100 samples.
  *
  * @code{.sh}
- *   amcep -m 15 -p 100 < data.raw > data.mcep
+ *   amgcep -m 15 -p 100 < data.raw > data.mcep
  * @endcode
  *
  * The smoothed mel-cepstral coefficients can be computed as
  *
  * @code{.sh}
- *   amcep -m 15 -p 1 < data.raw | vstat -m 15 -t 100 -o 1 > data.mcep
+ *   amgcep -m 15 -p 1 < data.raw | vstat -m 15 -t 100 -o 1 > data.mcep
+ * @endcode
+ *
+ * 15-th order generalized cepstral coefficients can be obtained as
+ *
+ * @code{.sh}
+ *   amgcep -m 15 -c 1 -a 0 < data.raw > data.gcep
  * @endcode
  *
  * @param[in] argc Number of arguments.
@@ -141,7 +153,8 @@ void PrintUsage(std::ostream* stream) {
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   double alpha(kDefaultAlpha);
-  double minimum_epsilon(kDefaultMinimumEpsilon);
+  int num_stage(kDefaultNumStage);
+  double min_epsilon(kDefaultMinEpsilon);
   double momentum(kDefaultMomentum);
   double forgetting_factor(kDefaultForgettingFactor);
   double step_size_factor(kDefaultStepSizeFactor);
@@ -151,7 +164,7 @@ int main(int argc, char* argv[]) {
 
   for (;;) {
     const int option_char(
-        getopt_long(argc, argv, "m:a:e:t:l:k:p:P:E:h", NULL, NULL));
+        getopt_long(argc, argv, "m:a:c:e:t:l:k:p:P:E:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -161,7 +174,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -m option must be a "
                         << "non-negative integer";
-          sptk::PrintErrorMessage("amcep", error_message);
+          sptk::PrintErrorMessage("amgcep", error_message);
           return 1;
         }
         break;
@@ -172,18 +185,29 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -a option must be in (-1.0, 1.0)";
-          sptk::PrintErrorMessage("amcep", error_message);
+          sptk::PrintErrorMessage("amgcep", error_message);
+          return 1;
+        }
+        break;
+      }
+      case 'c': {
+        if (!sptk::ConvertStringToInteger(optarg, &num_stage) ||
+            num_stage < 0) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -c option must be a "
+                        << "non-negative integer";
+          sptk::PrintErrorMessage("amgcep", error_message);
           return 1;
         }
         break;
       }
       case 'e': {
-        if (!sptk::ConvertStringToDouble(optarg, &minimum_epsilon) ||
-            minimum_epsilon <= 0.0) {
+        if (!sptk::ConvertStringToDouble(optarg, &min_epsilon) ||
+            min_epsilon <= 0.0) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -e option must be a positive number";
-          sptk::PrintErrorMessage("amcep", error_message);
+          sptk::PrintErrorMessage("amgcep", error_message);
           return 1;
         }
         break;
@@ -194,7 +218,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -t option must be in [0.0, 1.0)";
-          sptk::PrintErrorMessage("amcep", error_message);
+          sptk::PrintErrorMessage("amgcep", error_message);
           return 1;
         }
         break;
@@ -205,7 +229,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -l option must be in [0.0, 1.0)";
-          sptk::PrintErrorMessage("amcep", error_message);
+          sptk::PrintErrorMessage("amgcep", error_message);
           return 1;
         }
         break;
@@ -216,7 +240,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -k option must be in (0.0, 1.0)";
-          sptk::PrintErrorMessage("amcep", error_message);
+          sptk::PrintErrorMessage("amgcep", error_message);
           return 1;
         }
         break;
@@ -227,7 +251,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -p option must be a positive integer";
-          sptk::PrintErrorMessage("amcep", error_message);
+          sptk::PrintErrorMessage("amgcep", error_message);
           return 1;
         }
         break;
@@ -240,7 +264,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -P option must be an integer "
                         << "in the range of " << min << " to " << max;
-          sptk::PrintErrorMessage("amcep", error_message);
+          sptk::PrintErrorMessage("amgcep", error_message);
           return 1;
         }
         break;
@@ -260,11 +284,19 @@ int main(int argc, char* argv[]) {
     }
   }
 
+  if (0.0 != alpha && 0 != num_stage) {
+    std::ostringstream error_message;
+    error_message
+        << "Adaptive mel-generalized cepstral analysis is not supported";
+    sptk::PrintErrorMessage("amgcep", error_message);
+    return 1;
+  }
+
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
     error_message << "Too many input files";
-    sptk::PrintErrorMessage("amcep", error_message);
+    sptk::PrintErrorMessage("amgcep", error_message);
     return 1;
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
@@ -274,7 +306,7 @@ int main(int argc, char* argv[]) {
   if (ifs.fail() && NULL != input_file) {
     std::ostringstream error_message;
     error_message << "Cannot open file " << input_file;
-    sptk::PrintErrorMessage("amcep", error_message);
+    sptk::PrintErrorMessage("amgcep", error_message);
     return 1;
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
@@ -285,34 +317,36 @@ int main(int argc, char* argv[]) {
     if (ofs.fail()) {
       std::ostringstream error_message;
       error_message << "Cannot open file " << prediction_error_file;
-      sptk::PrintErrorMessage("amcep", error_message);
+      sptk::PrintErrorMessage("amgcep", error_message);
       return 1;
     }
   }
   std::ostream& output_stream(ofs);
 
-  sptk::AdaptiveMelCepstralAnalysis analysis(
-      num_order, num_pade_order, alpha, minimum_epsilon, momentum,
+  sptk::AdaptiveMelGeneralizedCepstralAnalysis analysis(
+      num_order, num_pade_order, num_stage, alpha, min_epsilon, momentum,
       forgetting_factor, step_size_factor);
-  sptk::AdaptiveMelCepstralAnalysis::Buffer buffer_for_analysis;
+  sptk::AdaptiveMelGeneralizedCepstralAnalysis::Buffer buffer;
   if (!analysis.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to initialize AdaptiveMelCepstralAnalysis";
-    sptk::PrintErrorMessage("amcep", error_message);
+    error_message
+        << "Failed to initialize AdaptiveMelGeneralizedCepstralAnalysis";
+    sptk::PrintErrorMessage("amgcep", error_message);
     return 1;
   }
 
   const int length(num_order + 1);
-  std::vector<double> mel_cepstrum(length);
+  std::vector<double> mel_generalized_cepstrum(length);
   double input_signal;
 
   for (int i(1); sptk::ReadStream(&input_signal, &input_stream); ++i) {
     double prediction_error;
-    if (!analysis.Run(input_signal, &prediction_error, &mel_cepstrum,
-                      &buffer_for_analysis)) {
+    if (!analysis.Run(input_signal, &prediction_error,
+                      &mel_generalized_cepstrum, &buffer)) {
       std::ostringstream error_message;
-      error_message << "Failed to run adaptive mel-cepstral analysis";
-      sptk::PrintErrorMessage("amcep", error_message);
+      error_message
+          << "Failed to run adaptive mel-generalized cepstral analysis";
+      sptk::PrintErrorMessage("amgcep", error_message);
       return 1;
     }
 
@@ -320,16 +354,17 @@ int main(int argc, char* argv[]) {
       if (!sptk::WriteStream(prediction_error, &output_stream)) {
         std::ostringstream error_message;
         error_message << "Failed to write prediction error";
-        sptk::PrintErrorMessage("amcep", error_message);
+        sptk::PrintErrorMessage("amgcep", error_message);
         return 1;
       }
     }
 
     if (0 == i % output_period) {
-      if (!sptk::WriteStream(0, length, mel_cepstrum, &std::cout, NULL)) {
+      if (!sptk::WriteStream(0, length, mel_generalized_cepstrum, &std::cout,
+                             NULL)) {
         std::ostringstream error_message;
-        error_message << "Failed to write mel-cepstrum";
-        sptk::PrintErrorMessage("amcep", error_message);
+        error_message << "Failed to write mel-generalized cepstrum";
+        sptk::PrintErrorMessage("amgcep", error_message);
         return 1;
       }
       i = 0;

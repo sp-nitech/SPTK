@@ -866,8 +866,7 @@ INPUT                  = \
                          ../include/SPTK/normalizer/generalized_cepstrum_inverse_gain_normalization.h \
                          ../src/main/aeq.cc \
                          ../src/main/acorr.cc \
-                         ../src/main/agcep.cc \
-                         ../src/main/amcep.cc \
+                         ../src/main/amgcep.cc \
                          ../src/main/b2mc.cc \
                          ../src/main/c2acr.cc \
                          ../src/main/c2mpir.cc \
