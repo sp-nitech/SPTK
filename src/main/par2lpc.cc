@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -64,12 +65,12 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       par2lpc [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of linear predictive coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumOrder << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of coefficients  (   int)[" << std::setw(5) << std::right << kDefaultNumOrder << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       PARCOR coefficients                             (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       PARCOR coefficients            (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       linear predictive coefficients                  (double)" << std::endl;  // NOLINT
+  *stream << "       linear predictive coefficients (double)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -78,6 +79,32 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * \a par2lpc [ \e option ] [ \e infile ]
+ *
+ * - \b -m \e int
+ *   - order of coefficients \f$(0 \le M)\f$
+ * - \b infile \e str
+ *   - double-type PARCOR coefficients
+ * - \b stdout
+ *   - double-type LPC coefficients
+ *
+ * The below example converts PARCOR coefficients into LPC coefficients:
+ *
+ * @code{.sh}
+ *   par2lpc < data.rc > data.lpc
+ * @endcode
+ *
+ * The converted LPC coefficients can be reverted by
+ *
+ * @code{.sh}
+ *   lpc2par < data.lpc > data.rc
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on false.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
 
@@ -108,7 +135,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -118,7 +144,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -134,20 +159,19 @@ int main(int argc, char* argv[]) {
   sptk::ParcorCoefficientsToLinearPredictiveCoefficients::Buffer buffer;
   if (!parcor_coefficients_to_linear_predictive_coefficients.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set the condition";
+    error_message << "Failed to initialize "
+                  << "ParcorCoefficientsToLinearPredictiveCoefficients";
     sptk::PrintErrorMessage("par2lpc", error_message);
     return 1;
   }
 
   const int length(num_order + 1);
-  std::vector<double> parcor_coefficients(length);
-  std::vector<double> linear_predictive_coefficients(length);
+  std::vector<double> coefficients(length);
 
-  for (int frame_index(0); sptk::ReadStream(
-           false, 0, 0, length, &parcor_coefficients, &input_stream, NULL);
-       ++frame_index) {
+  while (sptk::ReadStream(false, 0, 0, length, &coefficients, &input_stream,
+                          NULL)) {
     if (!parcor_coefficients_to_linear_predictive_coefficients.Run(
-            parcor_coefficients, &linear_predictive_coefficients, &buffer)) {
+            &coefficients, &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to transform PARCOR coefficients to "
                     << "linear predictive coefficients";
@@ -155,8 +179,7 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    if (!sptk::WriteStream(0, length, linear_predictive_coefficients,
-                           &std::cout, NULL)) {
+    if (!sptk::WriteStream(0, length, coefficients, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write linear predictive coefficients";
       sptk::PrintErrorMessage("par2lpc", error_message);

@@ -49,53 +49,68 @@
 
 namespace sptk {
 
+ParcorCoefficientsToLinearPredictiveCoefficients::
+    ParcorCoefficientsToLinearPredictiveCoefficients(int num_order)
+    : num_order_(num_order), is_valid_(true) {
+  if (num_order_ < 0) {
+    is_valid_ = false;
+    return;
+  }
+}
+
 bool ParcorCoefficientsToLinearPredictiveCoefficients::Run(
     const std::vector<double>& parcor_coefficients,
     std::vector<double>* linear_predictive_coefficients,
     ParcorCoefficientsToLinearPredictiveCoefficients::Buffer* buffer) const {
-  // check inputs
+  // Check inputs.
+  const int length(num_order_ + 1);
   if (!is_valid_ ||
-      parcor_coefficients.size() != static_cast<std::size_t>(num_order_ + 1) ||
+      parcor_coefficients.size() != static_cast<std::size_t>(length) ||
       NULL == linear_predictive_coefficients || NULL == buffer) {
     return false;
   }
 
-  // prepare memory
-  const int output_length(num_order_ + 1);
+  // Prepare memories.
   if (linear_predictive_coefficients->size() !=
-      static_cast<std::size_t>(output_length)) {
-    linear_predictive_coefficients->resize(output_length);
+      static_cast<std::size_t>(length)) {
+    linear_predictive_coefficients->resize(length);
+  }
+  if (buffer->a_.size() != static_cast<std::size_t>(num_order_)) {
+    buffer->a_.resize(num_order_);
   }
 
+  // Copy gain.
   (*linear_predictive_coefficients)[0] = parcor_coefficients[0];
   if (0 == num_order_) {
     return true;
   }
 
-  // prepare buffer
-  if (buffer->k_.size() != static_cast<std::size_t>(output_length)) {
-    buffer->k_.resize(output_length);
-  }
+  // Set initial condition.
+  std::copy(parcor_coefficients.begin(), parcor_coefficients.end() - 1,
+            buffer->a_.begin());
 
-  // get value
-  double* output(&((*linear_predictive_coefficients)[0]));
-
-  // transform parcor coefficients to linear predictive coefficients
-  std::copy(parcor_coefficients.begin(), parcor_coefficients.end(),
-            buffer->k_.begin());
-
-  double* k(&buffer->k_[0]);
-  for (int i(1); i <= num_order_; ++i) {
-    for (int j(1); j < i; ++j) {
-      output[j] = k[j] + k[i] * k[i - j];
+  // Apply recursive formula.
+  const double* k(&(parcor_coefficients[0]));
+  double* prev_a(&buffer->a_[0]);
+  double* a(&((*linear_predictive_coefficients)[0]));
+  for (int i(2); i <= num_order_; ++i) {
+    for (int m(1); m < i; ++m) {
+      a[m] = prev_a[m] + k[i] * prev_a[i - m];
     }
-    for (int j(1); j < i; ++j) {
-      k[j] = output[j];
+    for (int m(1); m < i; ++m) {
+      prev_a[m] = a[m];
     }
   }
-  output[num_order_] = k[num_order_];
+  a[num_order_] = k[num_order_];
 
   return true;
+}
+
+bool ParcorCoefficientsToLinearPredictiveCoefficients::Run(
+    std::vector<double>* input_and_output,
+    ParcorCoefficientsToLinearPredictiveCoefficients::Buffer* buffer) const {
+  if (NULL == input_and_output) return false;
+  return Run(*input_and_output, input_and_output, buffer);
 }
 
 }  // namespace sptk

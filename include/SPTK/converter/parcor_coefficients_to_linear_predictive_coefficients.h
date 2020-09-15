@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -51,57 +51,104 @@
 
 namespace sptk {
 
+/**
+ * Transform PARCOR coefficients to LPC coefficients.
+ *
+ * The input is the \f$M\f$-th order PARCOR coefficients:
+ * \f[
+ *   \begin{array}{cccc}
+ *     K, & k(1), & \ldots, & k(M),
+ *   \end{array}
+ * \f]
+ * and the output is the \f$M\f$-th order LPC coefficients:
+ * \f[
+ *   \begin{array}{cccc}
+ *     K, & a(1), & \ldots, & a(M),
+ *   \end{array}
+ * \f]
+ * where \f$K\f$ is the gain. The transformation is given by the following
+ * recursion formula:
+ * \f[
+ *   a^{(i)}(m) = a^{(i-1)}(m) + k(i) a^{(i-1)}(i-m) \\
+ *   i = 2,\ldots,M
+ * \f]
+ * with the initial condition \f$a^{(i)}(i)=k(i)\f$ for \f$i = 1,\ldots,M-1\f$.
+ * The outputs can then be written as
+ * \f[
+ *   a(m) = \left\{ \begin{array}{ll}
+ *     a^{(M)}(m), & 1 \le m < M \\
+ *     k(m). & m = M
+ *   \end{array} \right.
+ * \f]
+ */
 class ParcorCoefficientsToLinearPredictiveCoefficients {
  public:
+  /**
+   * Buffer for ParcorCoefficientsToLinearPredictiveCoefficients class.
+   */
   class Buffer {
    public:
     Buffer() {
     }
+
     virtual ~Buffer() {
     }
 
    private:
-    std::vector<double> k_;
+    std::vector<double> a_;
+
     friend class ParcorCoefficientsToLinearPredictiveCoefficients;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
 
-  //
-  explicit ParcorCoefficientsToLinearPredictiveCoefficients(int num_order)
-      : num_order_(num_order), is_valid_(true) {
-    if (num_order_ < 0) {
-      is_valid_ = false;
-    }
-  }
+  /**
+   * @param[in] num_order Order of coefficients.
+   */
+  explicit ParcorCoefficientsToLinearPredictiveCoefficients(int num_order);
 
-  //
   virtual ~ParcorCoefficientsToLinearPredictiveCoefficients() {
   }
 
-  //
+  /**
+   * @return Order of coefficients.
+   */
   int GetNumOrder() const {
     return num_order_;
   }
 
-  //
+  /**
+   * @return True if this obejct is valid.
+   */
   bool IsValid() const {
     return is_valid_;
   }
 
-  //
+  /**
+   * @param[in] parcor_coefficients \f$M\f$-th order PARCOR coefficients.
+   * @param[out] linear_predictive_coefficients \f$M\f$-th order LPC
+   *             coefficients.
+   * @param[out] buffer Buffer.
+   * @return True on success, false on failure.
+   */
   bool Run(
       const std::vector<double>& parcor_coefficients,
       std::vector<double>* linear_predictive_coefficients,
       ParcorCoefficientsToLinearPredictiveCoefficients::Buffer* buffer) const;
 
+  /**
+   * @param[in,out] input_and_output \f$M\f$-th order coefficients.
+   * @param[out] buffer Buffer.
+   * @return True on success, false on failure.
+   */
+  bool Run(
+      std::vector<double>* input_and_output,
+      ParcorCoefficientsToLinearPredictiveCoefficients::Buffer* buffer) const;
+
  private:
-  //
   const int num_order_;
 
-  //
   bool is_valid_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(ParcorCoefficientsToLinearPredictiveCoefficients);
 };
 
