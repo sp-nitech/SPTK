@@ -847,6 +847,7 @@ WARN_LOGFILE           =
 INPUT                  = \
                          ../include/SPTK/analyzer/adaptive_generalized_cepstral_analysis.h \
                          ../include/SPTK/analyzer/adaptive_mel_cepstral_analysis.h \
+                         ../include/SPTK/analyzer/fast_fourier_transform_cepstral_analysis.h \
                          ../include/SPTK/compressor/mu_law_compression.h \
                          ../include/SPTK/compressor/mu_law_expansion.h \
                          ../include/SPTK/converter/cepstrum_to_autocorrelation.h \
@@ -872,6 +873,7 @@ INPUT                  = \
                          ../src/main/c2mpir.cc \
                          ../src/main/csm2acr.cc \
                          ../src/main/fft.cc \
+                         ../src/main/fftcep.cc \
                          ../src/main/fftr.cc \
                          ../src/main/freqt.cc \
                          ../src/main/gnorm.cc \
