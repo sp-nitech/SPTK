@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -44,10 +44,9 @@
 
 #include "SPTK/converter/linear_predictive_coefficients_to_parcor_coefficients.h"
 
-#include <algorithm>   // std::copy, std::fill, std::transform
-#include <cmath>       // std::fabs
-#include <cstddef>     // std::size_t
-#include <functional>  // std::bind1st, std::multiplies
+#include <algorithm>  // std::copy, std::transform
+#include <cmath>      // std::fabs
+#include <cstddef>    // std::size_t
 
 namespace sptk {
 
@@ -57,6 +56,7 @@ LinearPredictiveCoefficientsToParcorCoefficients::
     : num_order_(num_order), gamma_(gamma), is_valid_(true) {
   if (num_order_ < 0 || !sptk::IsValidGamma(gamma_)) {
     is_valid_ = false;
+    return;
   }
 }
 
@@ -64,69 +64,69 @@ bool LinearPredictiveCoefficientsToParcorCoefficients::Run(
     const std::vector<double>& linear_predictive_coefficients,
     std::vector<double>* parcor_coefficients, bool* is_stable,
     LinearPredictiveCoefficientsToParcorCoefficients::Buffer* buffer) const {
-  // check inputs
+  // Check inputs.
+  const int length(num_order_ + 1);
   if (!is_valid_ ||
       linear_predictive_coefficients.size() !=
-          static_cast<std::size_t>(num_order_ + 1) ||
-      NULL == parcor_coefficients || NULL == buffer || NULL == is_stable) {
+          static_cast<std::size_t>(length) ||
+      NULL == parcor_coefficients || NULL == is_stable || NULL == buffer) {
     return false;
   }
 
-  // prepare memory
-  const int output_length(num_order_ + 1);
-  if (parcor_coefficients->size() != static_cast<std::size_t>(output_length)) {
-    parcor_coefficients->resize(output_length);
+  // Prepare memories.
+  if (parcor_coefficients->size() != static_cast<std::size_t>(length)) {
+    parcor_coefficients->resize(length);
+  }
+  if (buffer->a_.size() != static_cast<std::size_t>(length)) {
+    buffer->a_.resize(length);
   }
 
-  // set value
   *is_stable = true;
 
+  // Copy gain.
   (*parcor_coefficients)[0] = linear_predictive_coefficients[0];
   if (0 == num_order_) {
     return true;
   }
-  if (0.0 == gamma_) {
-    std::fill(parcor_coefficients->begin() + 1, parcor_coefficients->end(),
-              0.0);
-    return true;
-  }
 
-  // prepare buffer
-  if (buffer->a_.size() != static_cast<std::size_t>(output_length)) {
-    buffer->a_.resize(output_length);
-  }
-
-  // get value
-  double* output(&((*parcor_coefficients)[0]));
-
-  // transform linear predictive coefficients to parcor coefficients
+  // Set initial condition.
   if (1.0 == gamma_) {
     std::copy(linear_predictive_coefficients.begin(),
               linear_predictive_coefficients.end(), buffer->a_.begin());
   } else {
-    buffer->a_[0] = linear_predictive_coefficients[0];
+    const double gamma(gamma_);
     std::transform(linear_predictive_coefficients.begin() + 1,
                    linear_predictive_coefficients.end(), buffer->a_.begin() + 1,
-                   std::bind1st(std::multiplies<double>(), gamma_));
+                   [gamma](double x) { return x * gamma; });
   }
+
+  // Apply recursive formula.
   double* a(&buffer->a_[0]);
+  double* k(&((*parcor_coefficients)[0]));
   for (int i(num_order_); 1 <= i; --i) {
-    for (int j(1); j <= i; ++j) {
-      output[j] = a[j];
+    for (int m(1); m <= i; ++m) {
+      k[m] = a[m];
     }
-    const double denominator(1.0 - output[i] * output[i]);
+    const double denominator(1.0 - k[i] * k[i]);
     if (0.0 == denominator) {
       return false;
     }
-    if (1.0 <= std::fabs(output[i])) {
+    if (1.0 <= std::fabs(k[i])) {
       *is_stable = false;
     }
-    for (int j(1); j < i; ++j) {
-      a[j] = (output[j] - output[i] * output[i - j]) / denominator;
+    for (int m(1); m < i; ++m) {
+      a[m] = (k[m] - k[i] * k[i - m]) / denominator;
     }
   }
 
   return true;
+}
+
+bool LinearPredictiveCoefficientsToParcorCoefficients::Run(
+    std::vector<double>* input_and_output, bool* is_stable,
+    LinearPredictiveCoefficientsToParcorCoefficients::Buffer* buffer) const {
+  if (NULL == input_and_output) return false;
+  return Run(*input_and_output, input_and_output, is_stable, buffer);
 }
 
 }  // namespace sptk

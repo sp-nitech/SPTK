@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -71,7 +72,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -m m  : order of linear predictive coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumOrder    << "][    0 <= m <=     ]" << std::endl;  // NOLINT
   *stream << "       -g g  : gamma of generalized cepstrum           (double)[" << std::setw(5) << std::right << kDefaultGamma       << "][ -1.0 <= g <= 1.0 ]" << std::endl;  // NOLINT
   *stream << "       -c c  : gamma of generalized cepstrum = -1 / c  (   int)[" << std::setw(5) << std::right << "N/A"               << "][    1 <= c <=     ]" << std::endl;  // NOLINT
-  *stream << "       -e e  : warning type of unstable index          (   int)[" << std::setw(5) << std::right << kDefaultWarningType << "][    0 <= e <= 2   ]" << std::endl;  // NOLINT
+  *stream << "       -w w  : warning type of unstable index          (   int)[" << std::setw(5) << std::right << kDefaultWarningType << "][    0 <= e <= 2   ]" << std::endl;  // NOLINT
   *stream << "                 0 (no warning)" << std::endl;
   *stream << "                 1 (output the index to stderr)" << std::endl;
   *stream << "                 2 (output the index to stderr" << std::endl;
@@ -89,13 +90,42 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * \a lpc2par [ \e option ] [ \e infile ]
+ *
+ * - \b -m \e int
+ *   - order of coefficients \f$(0 \le M)\f$
+ * - \b -g \e double
+ *   - gamma \f$(|\gamma| \le 1)\f$
+ * - \b -c \e double
+ *   - gamma \f$\gamma = -1 / C\f$ \f$(1 \le C)\f$
+ * - \b -w \e int
+ *   - type of warning of unstable coefficients
+ *     \arg \c 0 no warning
+ *     \arg \c 1 output the index to stderr
+ *     \arg \c 2 output the index to stderr and exit immediately
+ * - \b infile \e str
+ *   - double-type LPC coefficients
+ * - \b stdout
+ *   - double-type PARCOR coefficients
+ *
+ * The below example extract PARCOR coefficients from \c data.d
+ *
+ * @code{.sh}
+ *   frame < data.d | window | lpc | lpc2par > data.rc
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   double gamma(kDefaultGamma);
   WarningType warning_type(kDefaultWarningType);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "m:g:c:e:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "m:g:c:w:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -133,14 +163,14 @@ int main(int argc, char* argv[]) {
         gamma = -1.0 / tmp;
         break;
       }
-      case 'e': {
+      case 'w': {
         const int min(0);
         const int max(static_cast<int>(kNumWarningTypes) - 1);
         int tmp;
         if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
             !sptk::IsInRange(tmp, min, max)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -e option must be an integer "
+          error_message << "The argument for the -w option must be an integer "
                         << "in the range of " << min << " to " << max;
           sptk::PrintErrorMessage("lpc2par", error_message);
           return 1;
@@ -159,7 +189,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -169,7 +198,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -185,23 +213,21 @@ int main(int argc, char* argv[]) {
   sptk::LinearPredictiveCoefficientsToParcorCoefficients::Buffer buffer;
   if (!linear_predictive_coefficients_to_parcor_coefficients.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set the condition";
+    error_message << "Failed to initialize "
+                     "LinearPredictiveCoefficientsToParcorCoefficients";
     sptk::PrintErrorMessage("lpc2par", error_message);
     return 1;
   }
 
   const int length(num_order + 1);
-  std::vector<double> linear_predictive_coefficients(length);
-  std::vector<double> parcor_coefficients(length);
+  std::vector<double> coefficients(length);
 
-  for (int frame_index(0);
-       sptk::ReadStream(false, 0, 0, length, &linear_predictive_coefficients,
-                        &input_stream, NULL);
+  for (int frame_index(0); sptk::ReadStream(false, 0, 0, length, &coefficients,
+                                            &input_stream, NULL);
        ++frame_index) {
     bool is_stable(false);
     if (!linear_predictive_coefficients_to_parcor_coefficients.Run(
-            linear_predictive_coefficients, &parcor_coefficients, &is_stable,
-            &buffer)) {
+            &coefficients, &is_stable, &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to transform linear predictive coefficients to "
                     << "PARCOR coefficients";
@@ -216,7 +242,7 @@ int main(int argc, char* argv[]) {
       if (kExit == warning_type) return 1;
     }
 
-    if (!sptk::WriteStream(0, length, parcor_coefficients, &std::cout, NULL)) {
+    if (!sptk::WriteStream(0, length, coefficients, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write PARCOR coefficients";
       sptk::PrintErrorMessage("lpc2par", error_message);

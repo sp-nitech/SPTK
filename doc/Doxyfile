@@ -853,6 +853,7 @@ INPUT                  = \
                          ../include/SPTK/converter/cepstrum_to_autocorrelation.h \
                          ../include/SPTK/converter/cepstrum_to_minimum_phase_impulse_response.h \
                          ../include/SPTK/converter/composite_sinusoidal_modeling_to_autocorrelation.h \
+                         ../include/SPTK/converter/linear_predictive_coefficients_to_parcor_coefficients.h \
                          ../include/SPTK/converter/mel_cepstrum_to_mlsa_digital_filter_coefficients.h \
                          ../include/SPTK/converter/mlsa_digital_filter_coefficients_to_mel_cepstrum.h \
                          ../include/SPTK/converter/parcor_coefficients_to_linear_predictive_coefficients.h \
@@ -881,6 +882,7 @@ INPUT                  = \
                          ../src/main/ifft.cc \
                          ../src/main/ignorm.cc \
                          ../src/main/iulaw.cc \
+                         ../src/main/lpc2par.cc \
                          ../src/main/mc2b.cc \
                          ../src/main/nan.cc \
                          ../src/main/par2lpc.cc \

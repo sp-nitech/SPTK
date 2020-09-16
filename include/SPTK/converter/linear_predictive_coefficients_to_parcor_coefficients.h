@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -51,60 +51,119 @@
 
 namespace sptk {
 
+/**
+ * Transform LPC coefficients to PARCOR coefficients.
+ *
+ * The input is the \f$M\f$-th order LPC coefficients:
+ * \f[
+ *   \begin{array}{cccc}
+ *     K, & a(1), & \ldots, & a(M),
+ *   \end{array}
+ * \f]
+ * and the output is the \f$M\f$-th order PARCOR coefficients:
+ * \f[
+ *   \begin{array}{cccc}
+ *     K, & k(1), & \ldots, & k(M),
+ *   \end{array}
+ * \f]
+ * where \f$K\f$ is the gain. The transformation is given by the following
+ * recursion formula:
+ * \f{eqnarray}{
+ *   k(i) &=& a^{(i)}(i), \\
+ *   a^{(i-1)}(m) &=& \frac{a^{(i)}(m) + a^{(i)}(i) a^{(i)}(i-m)}{1-k^2(i)}, \\
+ *   && i = M,\ldots,1
+ * \f}
+ * with the initial condition \f$a^{(M)}(i)=a(i)\f$ for \f$i = 1,\ldots,M\f$.
+ *
+ * The input can be the \f$M\f$-th order normalized generalized cepstral
+ * coefficients:
+ * \f[
+ *   \begin{array}{cccc}
+ *     K, & c'_\gamma(1), & \ldots, & c'_\gamma(M).
+ *   \end{array}
+ * \f]
+ * In the case, the initial condition is \f$a^{(M)}(i)=\gamma \, c'_\gamma(i)\f$
+ * for \f$i = 1,\ldots,M\f$.
+ */
 class LinearPredictiveCoefficientsToParcorCoefficients {
  public:
+  /**
+   * Buffer for LinearPredictiveCoefficientsToParcorCoefficients class.
+   */
   class Buffer {
    public:
     Buffer() {
     }
+
     virtual ~Buffer() {
     }
 
    private:
     std::vector<double> a_;
+
     friend class LinearPredictiveCoefficientsToParcorCoefficients;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
 
-  //
+  /**
+   * @param[in] num_order Order of coefficients.
+   * @param[in] gamma Gamma.
+   */
   LinearPredictiveCoefficientsToParcorCoefficients(int num_order, double gamma);
 
-  //
   virtual ~LinearPredictiveCoefficientsToParcorCoefficients() {
   }
 
-  //
+  /**
+   * @return Order of coefficients.
+   */
   int GetNumOrder() const {
     return num_order_;
   }
 
-  //
+  /**
+   * @return Gamma.
+   */
   double GetGamma() const {
     return gamma_;
   }
 
-  //
+  /**
+   * @return True if this obejct is valid.
+   */
   bool IsValid() const {
     return is_valid_;
   }
 
-  //
+  /**
+   * @param[in] linear_predictive_coefficients \f$M\f$-th order LPC
+   *            coefficients.
+   * @param[out] parcor_coefficients \f$M\f$-th order PARCOR coefficients.
+   * @param[out] is_stable True if given coefficients are stable.
+   * @param[out] buffer Buffer.
+   * @return True on success, false on failure.
+   */
   bool Run(
       const std::vector<double>& linear_predictive_coefficients,
       std::vector<double>* parcor_coefficients, bool* is_stable,
       LinearPredictiveCoefficientsToParcorCoefficients::Buffer* buffer) const;
 
- private:
-  //
-  const int num_order_;
+  /**
+   * @param[in,out] input_and_output \f$M\f$-th order coefficients.
+   * @param[out] is_stable True if given coefficients are stable.
+   * @param[out] buffer Buffer.
+   * @return True on success, false on failure.
+   */
+  bool Run(
+      std::vector<double>* input_and_output, bool* is_stable,
+      LinearPredictiveCoefficientsToParcorCoefficients::Buffer* buffer) const;
 
-  //
+ private:
+  const int num_order_;
   const double gamma_;
 
-  //
   bool is_valid_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(LinearPredictiveCoefficientsToParcorCoefficients);
 };
 
