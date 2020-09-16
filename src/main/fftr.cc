@@ -130,7 +130,7 @@ void PrintUsage(std::ostream* stream) {
  *
  * @param[in] argc Number of arguments.
  * @param[in] argv Argument vector.
- * @return 0 on success, 1 on false.
+ * @return 0 on success, 1 on failure.
  */
 int main(int argc, char* argv[]) {
   int fft_length(kDefaultFftLength);
