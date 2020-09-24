@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -51,21 +51,17 @@ namespace sptk {
 
 class PitchExtractionInterface {
  public:
-  //
   enum Polarity {
     kUnknown = 0,
     kPositive,
     kNegative,
   };
 
-  //
   virtual ~PitchExtractionInterface() {
   }
 
-  //
   virtual bool IsValid() const = 0;
 
-  //
   virtual bool Get(const std::vector<double>& waveform, std::vector<double>* f0,
                    std::vector<double>* epochs, Polarity* polarity) const = 0;
 };

@@ -848,6 +848,7 @@ INPUT                  = \
                          ../include/SPTK/analyzer/adaptive_generalized_cepstral_analysis.h \
                          ../include/SPTK/analyzer/adaptive_mel_cepstral_analysis.h \
                          ../include/SPTK/analyzer/fast_fourier_transform_cepstral_analysis.h \
+                         ../include/SPTK/analyzer/pitch_extraction.h \
                          ../include/SPTK/compressor/mu_law_compression.h \
                          ../include/SPTK/compressor/mu_law_expansion.h \
                          ../include/SPTK/converter/cepstrum_to_autocorrelation.h \
@@ -886,6 +887,8 @@ INPUT                  = \
                          ../src/main/mc2b.cc \
                          ../src/main/nan.cc \
                          ../src/main/par2lpc.cc \
+                         ../src/main/pitch.cc \
+                         ../src/main/pitch_mark.cc \
                          ../src/main/poledf.cc \
                          ../src/main/ulaw.cc \
                          ../src/main/zerodf.cc \

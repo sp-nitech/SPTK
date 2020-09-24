@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,7 +42,8 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>   // getopt_long_only
+#include <getopt.h>  // getopt_long_only
+
 #include <algorithm>  // std::transform
 #include <cmath>      // std::log
 #include <fstream>    // std::ifstream
@@ -69,8 +70,8 @@ const sptk::PitchExtraction::Algorithms kDefaultAlgorithm(
     sptk::PitchExtraction::Algorithms::kRapt);
 const int kDefaultFrameShift(80);
 const double kDefaultSamplingRate(16.0);
-const double kDefaultMinimumF0(60.0);
-const double kDefaultMaximumF0(240.0);
+const double kDefaultLowerF0(60.0);
+const double kDefaultUpperF0(240.0);
 const double kDefaultVoicingThresholdForRapt(0.0);
 const double kDefaultVoicingThresholdForSwipe(0.3);
 const double kDefaultVoicingThresholdForReaper(0.9);
@@ -93,16 +94,16 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 3 (WORLD)" << std::endl;
   *stream << "       -p p  : frame shift [point]           (   int)[" << std::setw(5) << std::right << kDefaultFrameShift                << "][    0 <  p <=       ]" << std::endl;  // NOLINT
   *stream << "       -s s  : sampling rate [kHz]           (double)[" << std::setw(5) << std::right << kDefaultSamplingRate              << "][  6.0 <  s <  98.0  ]" << std::endl;  // NOLINT
-  *stream << "       -L L  : minimum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultMinimumF0                 << "][ 10.0 <  L <  H     ]" << std::endl;  // NOLINT
+  *stream << "       -L L  : minimum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultLowerF0                   << "][ 10.0 <  L <  H     ]" << std::endl;  // NOLINT
   *stream << "               to search for [Hz]" << std::endl;
-  *stream << "       -H H  : maximum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultMaximumF0                 << "][    L <  H <  500*s ]" << std::endl;  // NOLINT
+  *stream << "       -H H  : maximum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultUpperF0                   << "][    L <  H <  500*s ]" << std::endl;  // NOLINT
   *stream << "               to search for [Hz]" << std::endl;
   *stream << "       -t0 t : voicing threshold for RAPT    (double)[" << std::setw(5) << std::right << kDefaultVoicingThresholdForRapt   << "][ -0.6 <= t <= 0.7   ]" << std::endl;  // NOLINT
   *stream << "       -t1 t : voicing threshold for SWIPE'  (double)[" << std::setw(5) << std::right << kDefaultVoicingThresholdForSwipe  << "][  0.2 <= t <= 0.5   ]" << std::endl;  // NOLINT
   *stream << "       -t2 t : voicing threshold for REAPER  (double)[" << std::setw(5) << std::right << kDefaultVoicingThresholdForReaper << "][ -0.5 <= t <= 1.6   ]" << std::endl;  // NOLINT
   *stream << "       -t3 t : voicing threshold for WORLD   (double)[" << std::setw(5) << std::right << kDefaultVoicingThresholdForWorld  << "][ 0.02 <= t <= 0.2   ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format                 (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat              << "][    0 <= o <= 2     ]" << std::endl;  // NOLINT
-  *stream << "                 0 (pitch)" << std::endl;
+  *stream << "                 0 (1/F0)" << std::endl;
   *stream << "                 1 (F0)" << std::endl;
   *stream << "                 2 (log F0)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
@@ -111,8 +112,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  stdout:" << std::endl;
   *stream << "       pitch                                 (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
-  *stream << "       if t is raised, the number of voiced frames will increase in RAPT, REAPER, and WORLD" << std::endl;  // NOLINT
-  *stream << "       if t is dropped, the number of voiced frames will increase in SWIPE'" << std::endl;  // NOLINT
+  *stream << "       if t is raised, the number of voiced frames increase in RAPT, REAPER, and WORLD" << std::endl;  // NOLINT
+  *stream << "       if t is dropped, the number of voiced frames increase in SWIPE'" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -121,12 +122,59 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * \a pitch [ \e option ] [ \e infile ]
+ *
+ * - \b -a \e int
+ *   - algorithm used for pitch extraction
+ *     \arg \c 0 RAPT
+ *     \arg \c 1 SWIPE'
+ *     \arg \c 2 REAPER
+ *     \arg \c 3 WORLD (DIO)
+ * - \b -p \e int
+ *   - frame shift [point] \f$(1 \le P)\f$
+ * - \b -s \e double
+ *   - sampling rate [kHz] \f$(6 < S < 98)\f$
+ * - \b -L \e dobule
+ *   - minimum F0 to search for [Hz] \f$(10 < L < H)\f$
+ * - \b -H \e dobule
+ *   - maximum F0 to search for [Hz] \f$(L < H < 500S)\f$
+ * - \b -t0 \e dobule
+ *   - voicing threshold for RAPT \f$(-0.6 \le T \le 0.7)\f$
+ * - \b -t1 \e dobule
+ *   - voicing threshold for SWIPE' \f$(0.2 \le T \le 0.5)\f$
+ * - \b -t2 \e dobule
+ *   - voicing threshold for REAPER \f$(-0.5 \le T \le 1.6)\f$
+ * - \b -t3 \e dobule
+ *   - voicing threshold for WORLD \f$(0.02 \le T \le 0.2)\f$
+ * - \b -o \e int
+ *   - output format
+ *     \arg \c 0 pitch (S / F0)
+ *     \arg \c 1 F0
+ *     \arg \c 2 log F0
+ * - \b infile \e str
+ *   - double-type waveform
+ * - \b stdout
+ *   - double-type pitch
+ *
+ * If \f$T\f$ is raised, the number of voiced frames increase except SWIPE'.
+ *
+ * The below is a simple example to extract pitch from \c data.d
+ *
+ * @code{.sh}
+ *   pitch -s 16 -p 80 -L 80 -H 200 -o 1 < data.d > data.f0
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   sptk::PitchExtraction::Algorithms algorithm(kDefaultAlgorithm);
   int frame_shift(kDefaultFrameShift);
   double sampling_rate(kDefaultSamplingRate);
-  double minimum_f0(kDefaultMinimumF0);
-  double maximum_f0(kDefaultMaximumF0);
+  double lower_f0(kDefaultLowerF0);
+  double upper_f0(kDefaultUpperF0);
   std::vector<double> voicing_thresholds{
       kDefaultVoicingThresholdForRapt, kDefaultVoicingThresholdForSwipe,
       kDefaultVoicingThresholdForReaper, kDefaultVoicingThresholdForWorld,
@@ -189,8 +237,8 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'L': {
-        if (!sptk::ConvertStringToDouble(optarg, &minimum_f0) ||
-            minimum_f0 <= 10.0) {
+        if (!sptk::ConvertStringToDouble(optarg, &lower_f0) ||
+            lower_f0 <= 10.0) {
           std::ostringstream error_message;
           error_message << "The argument for the -L option must be a number "
                         << "greater than 10";
@@ -200,8 +248,8 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'H': {
-        if (!sptk::ConvertStringToDouble(optarg, &maximum_f0) ||
-            maximum_f0 <= 0.0) {
+        if (!sptk::ConvertStringToDouble(optarg, &upper_f0) ||
+            upper_f0 <= 0.0) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -H option must be a positive number";
@@ -297,23 +345,21 @@ int main(int argc, char* argv[]) {
   }
 
   const double sampling_rate_in_hz(1000.0 * sampling_rate);
-  if (0.5 * sampling_rate_in_hz <= maximum_f0) {
+  if (0.5 * sampling_rate_in_hz <= upper_f0) {
     std::ostringstream error_message;
     error_message
-        << "Maximum fundamental frequency must be less than Nyquist frequency";
+        << "Upper fundamental frequency must be less than Nyquist frequency";
     sptk::PrintErrorMessage("pitch", error_message);
     return 1;
   }
 
-  if (maximum_f0 <= minimum_f0) {
+  if (upper_f0 <= lower_f0) {
     std::ostringstream error_message;
-    error_message
-        << "Minimum fundamental frequency must be less than maximum one";
+    error_message << "Lower fundamental frequency must be less than upper one";
     sptk::PrintErrorMessage("pitch", error_message);
     return 1;
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -323,7 +369,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -334,13 +379,12 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for pitch extraction
   sptk::PitchExtraction pitch_extraction(
-      frame_shift, sampling_rate_in_hz, minimum_f0, maximum_f0,
+      frame_shift, sampling_rate_in_hz, lower_f0, upper_f0,
       voicing_thresholds[algorithm], algorithm);
   if (!pitch_extraction.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for pitch extraction";
+    error_message << "Failed to initialize set PitchExtraction";
     sptk::PrintErrorMessage("pitch", error_message);
     return 1;
   }

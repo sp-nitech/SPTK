@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -54,20 +54,21 @@ namespace sptk {
 
 PitchExtractionByReaper::PitchExtractionByReaper(int frame_shift,
                                                  double sampling_rate,
-                                                 double minimum_f0,
-                                                 double maximum_f0,
+                                                 double lower_f0,
+                                                 double upper_f0,
                                                  double voicing_threshold)
     : frame_shift_(frame_shift),
       sampling_rate_(sampling_rate),
-      minimum_f0_(minimum_f0),
-      maximum_f0_(maximum_f0),
+      lower_f0_(lower_f0),
+      upper_f0_(upper_f0),
       voicing_threshold_(voicing_threshold),
       is_valid_(true) {
-  if (frame_shift_ <= 0 || sampling_rate_ / 2 <= maximum_f0_ ||
+  if (frame_shift_ <= 0 || sampling_rate_ / 2 <= upper_f0_ ||
       (sampling_rate_ <= reaper::kMinSampleRate || 98000.0 <= sampling_rate_) ||
-      (minimum_f0_ <= 10.0 || maximum_f0_ <= minimum_f0_) ||
+      (lower_f0_ <= 10.0 || upper_f0_ <= lower_f0_) ||
       (voicing_threshold_ < -0.5 || 1.6 < voicing_threshold_)) {
     is_valid_ = false;
+    return;
   }
 }
 
@@ -75,6 +76,7 @@ bool PitchExtractionByReaper::Get(
     const std::vector<double>& waveform, std::vector<double>* f0,
     std::vector<double>* epochs,
     PitchExtractionInterface::Polarity* polarity) const {
+  // Check inputs.
   if (!is_valid_ || waveform.empty()) {
     return false;
   }
@@ -83,13 +85,12 @@ bool PitchExtractionByReaper::Get(
   epoch_tracker.set_unvoiced_cost(voicing_threshold_);
   std::vector<int16_t> integer_waveform(waveform.begin(), waveform.end());
   if (!epoch_tracker.Init(&(integer_waveform[0]), waveform.size(),
-                          sampling_rate_, minimum_f0_, maximum_f0_, true,
-                          false)) {
+                          sampling_rate_, lower_f0_, upper_f0_, true, false)) {
     return false;
   }
 
-  // ComputePolarity should be run before calling ComputeFeatures
   if (NULL != polarity) {
+    // ComputePolarity should be run before calling ComputeFeatures.
     int tmp;
     if (!epoch_tracker.ComputePolarity(&tmp)) {
       return false;

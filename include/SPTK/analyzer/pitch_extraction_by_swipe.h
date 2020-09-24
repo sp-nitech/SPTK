@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -54,70 +54,81 @@ namespace sptk {
 
 class PitchExtractionBySwipe : public PitchExtractionInterface {
  public:
-  //
-  PitchExtractionBySwipe(int frame_shift, double sampling_rate,
-                         double minimum_f0, double maximum_f0,
-                         double voicing_threshold);
+  /**
+   * @param[in] frame_shift Frame shift in point.
+   * @param[in] sampling_rate Sampling rate in Hz.
+   * @param[in] lower_f0 Lower bound of F0 in Hz.
+   * @param[in] upper_f0 Upper bound of F0 in Hz.
+   * @param[in] voicing_threshold Threshold for determining voiced/unvoiced.
+   * @param[in] algorithm Algorithm used for pitch extraction.
+   */
+  PitchExtractionBySwipe(int frame_shift, double sampling_rate, double lower_f0,
+                         double upper_f0, double voicing_threshold);
 
-  //
   virtual ~PitchExtractionBySwipe() {
   }
 
-  //
+  /**
+   * @return Frame shift.
+   */
   int GetFrameShift() const {
     return frame_shift_;
   }
 
-  //
+  /**
+   * @return Sampling rate.
+   */
   double GetSamplingRate() const {
     return sampling_rate_;
   }
 
-  //
-  double GetMinimumF0() const {
-    return minimum_f0_;
+  /**
+   * @return Minimum fundamental frequency to search for.
+   */
+  double GetLowerF0() const {
+    return lower_f0_;
   }
 
-  //
-  double GetMaximumF0() const {
-    return maximum_f0_;
+  /**
+   * @return Maximum fundamental frequency to search for.
+   */
+  double GetUpperF0() const {
+    return upper_f0_;
   }
 
-  //
+  /**
+   * @return Voicing threshold.
+   */
   double GetVoicingThreshold() const {
     return voicing_threshold_;
   }
 
-  //
+  /**
+   * @return True if this obejct is valid.
+   */
   virtual bool IsValid() const {
     return is_valid_;
   }
 
-  //
+  /**
+   * @param[in] waveform Waveform.
+   * @param[out] f0 Extracted pitch in Hz.
+   * @param[out] epochs Pitchmark (not used).
+   * @param[out] polarity Polarity (not used).
+   */
   virtual bool Get(const std::vector<double>& waveform, std::vector<double>* f0,
                    std::vector<double>* epochs,
                    PitchExtractionInterface::Polarity* polarity) const;
 
  private:
-  //
   const int frame_shift_;
-
-  //
   const double sampling_rate_;
-
-  //
-  const double minimum_f0_;
-
-  //
-  const double maximum_f0_;
-
-  //
+  const double lower_f0_;
+  const double upper_f0_;
   const double voicing_threshold_;
 
-  //
   bool is_valid_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(PitchExtractionBySwipe);
 };
 

@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -52,39 +52,73 @@
 
 namespace sptk {
 
+/**
+ * Extract pitch (fundamental frequency) from waveform.
+ *
+ * The input is whole audio waveform and the output is the sequence of the
+ * fundamental frequency. The implemented algorithms of the extraction are
+ * RAPT, SWIPE, REAPER, and DIO.
+ *
+ * [1] D. Talkin, &quot;A robust algorithm for pitch tracking,&quot; Speech
+ *     Coding and Synthesis, pp. 497-518, 1995.
+ *
+ * [2] A. Camacho, &quot;SWIPE: A sawtooth waveform inspired pitch estimator
+ *     for speech and music,&quot; Doctoral dissertation, 2007.
+ *
+ * [3] D. Talkin, &quot;REAPER: Robust epoch and pitch estimator,&quot;
+ *     https://github.com/google/REAPER, 2015.
+ *
+ * [4] M. Morise, H. Kawahara and H. Katayose, &quot;Fast and reliable F0
+ *     estimation method based on the period extraction of vocal fold vibration
+ *     of singing voice and speech, Proc. of AES 35th International Conference,
+ *     2009.
+ */
 class PitchExtraction {
  public:
-  //
+  /**
+   * Pitch extraction algorithm type.
+   */
   enum Algorithms { kRapt = 0, kSwipe, kReaper, kWorld, kNumAlgorithms };
 
-  //
-  PitchExtraction(int frame_shift, double sampling_rate, double minimum_f0,
-                  double maximum_f0, double voicing_threshold,
+  /**
+   * @param[in] frame_shift Frame shift in point.
+   * @param[in] sampling_rate Sampling rate in Hz.
+   * @param[in] lower_f0 Lower bound of F0 in Hz.
+   * @param[in] upper_f0 Upper bound of F0 in Hz.
+   * @param[in] voicing_threshold Threshold for determining voiced/unvoiced.
+   * @param[in] algorithm Algorithm used for pitch extraction.
+   */
+  PitchExtraction(int frame_shift, double sampling_rate, double lower_f0,
+                  double upper_f0, double voicing_threshold,
                   Algorithms algorithm);
 
-  //
   virtual ~PitchExtraction() {
-    delete pitch_extractor_;
+    delete pitch_extraction_;
   }
 
-  //
+  /**
+   * @return True if this obejct is valid.
+   */
   bool IsValid() const {
-    return (NULL != pitch_extractor_ && pitch_extractor_->IsValid());
+    return (NULL != pitch_extraction_ && pitch_extraction_->IsValid());
   }
 
-  //
+  /**
+   * @param[in] waveform Waveform.
+   * @param[out] f0 Extracted pitch in Hz.
+   * @param[out] epochs Pitchmark (valid only for REAPER).
+   * @param[out] polarity Polarity (valid only for REAPER).
+   */
   bool Run(const std::vector<double>& waveform, std::vector<double>* f0,
            std::vector<double>* epochs,
            PitchExtractionInterface::Polarity* polarity) const {
-    return (NULL != pitch_extractor_ &&
-            pitch_extractor_->Get(waveform, f0, epochs, polarity));
+    return (NULL != pitch_extraction_ &&
+            pitch_extraction_->Get(waveform, f0, epochs, polarity));
   }
 
  private:
-  //
-  PitchExtractionInterface* pitch_extractor_;
+  PitchExtractionInterface* pitch_extraction_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(PitchExtraction);
 };
 

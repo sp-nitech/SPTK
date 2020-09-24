@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -52,36 +52,32 @@
 namespace sptk {
 
 PitchExtraction::PitchExtraction(int frame_shift, double sampling_rate,
-                                 double minimum_f0, double maximum_f0,
+                                 double lower_f0, double upper_f0,
                                  double voicing_threshold,
                                  PitchExtraction::Algorithms algorithm) {
   switch (algorithm) {
     case kRapt: {
-      pitch_extractor_ =
-          new PitchExtractionByRapt(frame_shift, sampling_rate, minimum_f0,
-                                    maximum_f0, voicing_threshold);
+      pitch_extraction_ = new PitchExtractionByRapt(
+          frame_shift, sampling_rate, lower_f0, upper_f0, voicing_threshold);
       break;
     }
     case kSwipe: {
-      pitch_extractor_ =
-          new PitchExtractionBySwipe(frame_shift, sampling_rate, minimum_f0,
-                                     maximum_f0, voicing_threshold);
+      pitch_extraction_ = new PitchExtractionBySwipe(
+          frame_shift, sampling_rate, lower_f0, upper_f0, voicing_threshold);
       break;
     }
     case kReaper: {
-      pitch_extractor_ =
-          new PitchExtractionByReaper(frame_shift, sampling_rate, minimum_f0,
-                                      maximum_f0, voicing_threshold);
+      pitch_extraction_ = new PitchExtractionByReaper(
+          frame_shift, sampling_rate, lower_f0, upper_f0, voicing_threshold);
       break;
     }
     case kWorld: {
-      pitch_extractor_ =
-          new PitchExtractionByWorld(frame_shift, sampling_rate, minimum_f0,
-                                     maximum_f0, voicing_threshold);
+      pitch_extraction_ = new PitchExtractionByWorld(
+          frame_shift, sampling_rate, lower_f0, upper_f0, voicing_threshold);
       break;
     }
     default: {
-      pitch_extractor_ = NULL;
+      pitch_extraction_ = NULL;
       break;
     }
   }

@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,15 +42,15 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>    // getopt_long
-#include <algorithm>   // std::transform
-#include <cmath>       // std::round
-#include <fstream>     // std::ifstream
-#include <functional>  // std::bind1st, std::multiplies
-#include <iomanip>     // std::setw
-#include <iostream>    // std::cerr, std::cin, std::cout, std::endl, etc.
-#include <sstream>     // std::ostringstream
-#include <vector>      // std::vector
+#include <getopt.h>  // getopt_long
+
+#include <algorithm>  // std::transform
+#include <cmath>      // std::round
+#include <fstream>    // std::ifstream
+#include <iomanip>    // std::setw
+#include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>    // std::ostringstream
+#include <vector>     // std::vector
 
 #include "SPTK/analyzer/pitch_extraction.h"
 #include "SPTK/utils/sptk_utils.h"
@@ -60,13 +60,13 @@ namespace {
 enum OutputFormats {
   kBinarySequence = 0,
   kPositionInSeconds,
-  kPosition,
+  kPositionInSamples,
   kNumOutputFormats
 };
 
 const double kDefaultSamplingRate(16.0);
-const double kDefaultMinimumF0(60.0);
-const double kDefaultMaximumF0(240.0);
+const double kDefaultLowerF0(60.0);
+const double kDefaultUpperF0(240.0);
 const double kDefaultVoicingThreshold(0.9);
 const OutputFormats kDefaultOutputFormat(kBinarySequence);
 
@@ -79,23 +79,23 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       pitch_mark [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -s s  : sampling rate [kHz]           (double)[" << std::setw(5) << std::right << kDefaultSamplingRate     << "][  6.0 <  s <= 98.0  ]" << std::endl;  // NOLINT
-  *stream << "       -L L  : minimum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultMinimumF0        << "][ 10.0 <  L <  H     ]" << std::endl;  // NOLINT
+  *stream << "       -L L  : minimum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultLowerF0          << "][ 10.0 <  L <  H     ]" << std::endl;  // NOLINT
   *stream << "               to search for [Hz]" << std::endl;
-  *stream << "       -H H  : maximum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultMaximumF0        << "][    L <  H <  500*s ]" << std::endl;  // NOLINT
+  *stream << "       -H H  : maximum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultUpperF0          << "][    L <  H <  500*s ]" << std::endl;  // NOLINT
   *stream << "               to search for [Hz]" << std::endl;
   *stream << "       -t t  : voicing threshold             (double)[" << std::setw(5) << std::right << kDefaultVoicingThreshold << "][ -0.5 <= t <= 1.6   ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format                 (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat     << "][    0 <= o <= 2     ]" << std::endl;  // NOLINT
   *stream << "                 0 (binary sequence)" << std::endl;
   *stream << "                 1 (position in seconds)" << std::endl;
-  *stream << "                 2 (position)" << std::endl;
+  *stream << "                 2 (position in samples)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       waveform                              (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
   *stream << "       pitch mark                            (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
-  *stream << "       if t is raised, the number of pitch marks will increase" << std::endl;  // NOLINT
-  *stream << "       if o = 0, 1 or -1 indicating pitch mark is outputted considering polarity" << std::endl;  // NOLINT
+  *stream << "       if t is raised, the number of pitch marks increase" << std::endl;  // NOLINT
+  *stream << "       if o = 0, value 1 or -1 indicating pitch mark is outputted considering polarity" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -104,10 +104,43 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * \a pitch_mark [ \e option ] [ \e infile ]
+ *
+ * - \b -s \e double
+ *   - sampling rate [kHz] \f$(6 < S < 98)\f$
+ * - \b -L \e dobule
+ *   - minimum F0 to search for [Hz] \f$(10 < L < H)\f$
+ * - \b -H \e dobule
+ *   - maximum F0 to search for [Hz] \f$(L < H < 500S)\f$
+ * - \b -t \e dobule
+ *   - voicing threshold \f$(-0.5 \le T \le 1.6)\f$
+ * - \b -o \e int
+ *   - output format
+ *     \arg \c 0 binary sequence
+ *     \arg \c 1 position in seconds
+ *     \arg \c 2 position in samples
+ * - \b infile \e str
+ *   - double-type waveform
+ * - \b stdout
+ *   - double-type pitch mark
+ *
+ * The below is a simple example to extract pitch marks from \c data.d
+ *
+ * @code{.sh}
+ *   pitch_mark -s 16 -L 80 -H 200 -o 0 < data.d > data.gci
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ *
+ * @sa sptk::PitchExtraction
+ */
 int main(int argc, char* argv[]) {
   double sampling_rate(kDefaultSamplingRate);
-  double minimum_f0(kDefaultMinimumF0);
-  double maximum_f0(kDefaultMaximumF0);
+  double lower_f0(kDefaultLowerF0);
+  double upper_f0(kDefaultUpperF0);
   double voicing_threshold(kDefaultVoicingThreshold);
   OutputFormats output_format(kDefaultOutputFormat);
 
@@ -130,8 +163,8 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'L': {
-        if (!sptk::ConvertStringToDouble(optarg, &minimum_f0) ||
-            minimum_f0 <= 10.0) {
+        if (!sptk::ConvertStringToDouble(optarg, &lower_f0) ||
+            lower_f0 <= 10.0) {
           std::ostringstream error_message;
           error_message << "The argument for the -L option must be a number "
                         << "greater than 10";
@@ -141,8 +174,8 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'H': {
-        if (!sptk::ConvertStringToDouble(optarg, &maximum_f0) ||
-            maximum_f0 <= 0.0) {
+        if (!sptk::ConvertStringToDouble(optarg, &upper_f0) ||
+            upper_f0 <= 0.0) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -H option must be a positive number";
@@ -191,23 +224,21 @@ int main(int argc, char* argv[]) {
   }
 
   const double sampling_rate_in_hz(1000.0 * sampling_rate);
-  if (0.5 * sampling_rate_in_hz <= maximum_f0) {
+  if (0.5 * sampling_rate_in_hz <= upper_f0) {
     std::ostringstream error_message;
     error_message
-        << "Maximum fundamental frequency must be less than Nyquist frequency";
+        << "Upper fundamental frequency must be less than Nyquist frequency";
     sptk::PrintErrorMessage("pitch_mark", error_message);
     return 1;
   }
 
-  if (maximum_f0 <= minimum_f0) {
+  if (upper_f0 <= lower_f0) {
     std::ostringstream error_message;
-    error_message
-        << "Minimum fundamental frequency must be less than maximum one";
+    error_message << "Lower fundamental frequency must be less than upper one";
     sptk::PrintErrorMessage("pitch_mark", error_message);
     return 1;
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -217,7 +248,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -228,13 +258,12 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for pitch mark extraction
   sptk::PitchExtraction pitch_extraction(
-      1, sampling_rate_in_hz, minimum_f0, maximum_f0, voicing_threshold,
+      1, sampling_rate_in_hz, lower_f0, upper_f0, voicing_threshold,
       sptk::PitchExtraction::Algorithms::kReaper);
   if (!pitch_extraction.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for pitch mark extraction";
+    error_message << "Failed to initialize PitchExtraction";
     sptk::PrintErrorMessage("pitch_mark", error_message);
     return 1;
   }
@@ -257,10 +286,10 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  if (kBinarySequence == output_format || kPosition == output_format) {
+  if (kBinarySequence == output_format || kPositionInSamples == output_format) {
     std::transform(
         pitch_mark.begin(), pitch_mark.end(), pitch_mark.begin(),
-        std::bind1st(std::multiplies<double>(), sampling_rate_in_hz));
+        [sampling_rate_in_hz](double x) { return x * sampling_rate_in_hz; });
   }
 
   switch (output_format) {
@@ -301,7 +330,7 @@ int main(int argc, char* argv[]) {
       break;
     }
     case kPositionInSeconds:
-    case kPosition: {
+    case kPositionInSamples: {
       if (!pitch_mark.empty() &&
           !sptk::WriteStream(0, pitch_mark.size(), pitch_mark, &std::cout,
                              NULL)) {
