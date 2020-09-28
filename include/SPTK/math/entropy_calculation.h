@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,56 +42,89 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/math/entropy_calculator.h"
+#ifndef SPTK_MATH_ENTROPY_CALCULATION_H_
+#define SPTK_MATH_ENTROPY_CALCULATION_H_
 
-#include <cstddef>  // std::size_t
+#include <vector>  // std::vector
+
+#include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
-EntropyCalculator::EntropyCalculator(int num_element, EntropyUnits entropy_unit)
-    : num_element_(num_element), entropy_unit_(entropy_unit), is_valid_(true) {
-  if (num_element_ <= 0 || kNumUnits == entropy_unit_) {
-    is_valid_ = false;
-  }
-}
+/**
+ * Calculate entropy.
+ *
+ * The input is the probabilities of \f$N\f$ events:
+ * \f[
+ *   \begin{array}{cccc}
+ *     p(1), & p(2), & \ldots, & p(N),
+ *   \end{array}
+ * \f]
+ * where
+ * \f[
+ *   \sum_{n=1}^N \, p(n) = 1.
+ * \f]
+ * The output is the entropy for the probabilities:
+ * \f[
+ *   \begin{array}{cccc}
+ *     H = -\displaystyle\sum_{n=1}^N p(n) \log_b p(n)
+ *   \end{array}
+ * \f]
+ * where \f$b\f$ is 2, \f$e\f$, or 10.
+ */
+class EntropyCalculation {
+ public:
+  /**
+   * Unit of entropy.
+   */
+  enum EntropyUnits { kBit = 0, kNat, kDit, kNumUnits };
 
-bool EntropyCalculator::Run(const std::vector<double>& probability,
-                            double* entropy) const {
-  // check inputs
-  if (!is_valid_ ||
-      probability.size() != static_cast<std::size_t>(num_element_) ||
-      NULL == entropy) {
-    return false;
-  }
+  /**
+   * @param[in] num_element Number of elements, \f$N\f$.
+   * @param[in] entropy_unit Unit of entropy.
+   */
+  EntropyCalculation(int num_element, EntropyUnits entropy_unit);
 
-  const double* p(&(probability[0]));
-  double sum(0.0);
-
-  switch (entropy_unit_) {
-    case kBit: {
-      for (int i(0); i < num_element_; ++i) {
-        sum += p[i] * FloorLog2(p[i]);
-      }
-      break;
-    }
-    case kNat: {
-      for (int i(0); i < num_element_; ++i) {
-        sum += p[i] * FloorLog(p[i]);
-      }
-      break;
-    }
-    case kDit: {
-      for (int i(0); i < num_element_; ++i) {
-        sum += p[i] * FloorLog10(p[i]);
-      }
-      break;
-    }
-    default: { return false; }
+  virtual ~EntropyCalculation() {
   }
 
-  *entropy = -sum;
+  /**
+   * @return Number of elements.
+   */
+  int GetNumElement() const {
+    return num_element_;
+  }
 
-  return true;
-}
+  /**
+   * @return Unit of entropy.
+   */
+  EntropyUnits GetEntropyUnit() const {
+    return entropy_unit_;
+  }
+
+  /**
+   * @return True if this obejct is valid.
+   */
+  bool IsValid() const {
+    return is_valid_;
+  }
+
+  /**
+   * @param[in] probability Probabiltiy distribution.
+   * @param[out] entropy Entropy.
+   * @return True on success, false on failure.
+   */
+  bool Run(const std::vector<double>& probability, double* entropy) const;
+
+ private:
+  const int num_element_;
+  const EntropyUnits entropy_unit_;
+
+  bool is_valid_;
+
+  DISALLOW_COPY_AND_ASSIGN(EntropyCalculation);
+};
 
 }  // namespace sptk
+
+#endif  // SPTK_MATH_ENTROPY_CALCULATION_H_

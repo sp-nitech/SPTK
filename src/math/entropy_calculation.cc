@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,59 +42,57 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_MATH_ENTROPY_CALCULATOR_H_
-#define SPTK_MATH_ENTROPY_CALCULATOR_H_
+#include "SPTK/math/entropy_calculation.h"
 
-#include <vector>  // std::vector
-
-#include "SPTK/utils/sptk_utils.h"
+#include <cstddef>  // std::size_t
 
 namespace sptk {
 
-class EntropyCalculator {
- public:
-  //
-  enum EntropyUnits { kBit = 0, kNat, kDit, kNumUnits };
+EntropyCalculation::EntropyCalculation(int num_element,
+                                       EntropyUnits entropy_unit)
+    : num_element_(num_element), entropy_unit_(entropy_unit), is_valid_(true) {
+  if (num_element_ <= 0 || kNumUnits == entropy_unit_) {
+    is_valid_ = false;
+    return;
+  }
+}
 
-  //
-  EntropyCalculator(int num_element, EntropyUnits entropy_unit);
-
-  //
-  virtual ~EntropyCalculator() {
+bool EntropyCalculation::Run(const std::vector<double>& probability,
+                             double* entropy) const {
+  if (!is_valid_ ||
+      probability.size() != static_cast<std::size_t>(num_element_) ||
+      NULL == entropy) {
+    return false;
   }
 
-  //
-  int GetNumElement() const {
-    return num_element_;
+  const double* p(&(probability[0]));
+  double sum(0.0);
+
+  switch (entropy_unit_) {
+    case kBit: {
+      for (int i(0); i < num_element_; ++i) {
+        sum += p[i] * FloorLog2(p[i]);
+      }
+      break;
+    }
+    case kNat: {
+      for (int i(0); i < num_element_; ++i) {
+        sum += p[i] * FloorLog(p[i]);
+      }
+      break;
+    }
+    case kDit: {
+      for (int i(0); i < num_element_; ++i) {
+        sum += p[i] * FloorLog10(p[i]);
+      }
+      break;
+    }
+    default: { return false; }
   }
 
-  //
-  EntropyUnits GetEntropyUnit() const {
-    return entropy_unit_;
-  }
+  *entropy = -sum;
 
-  //
-  bool IsValid() const {
-    return is_valid_;
-  }
-
-  //
-  bool Run(const std::vector<double>& probability, double* entropy) const;
-
- private:
-  //
-  const int num_element_;
-
-  //
-  const EntropyUnits entropy_unit_;
-
-  //
-  bool is_valid_;
-
-  //
-  DISALLOW_COPY_AND_ASSIGN(EntropyCalculator);
-};
+  return true;
+}
 
 }  // namespace sptk
-
-#endif  // SPTK_MATH_ENTROPY_CALCULATOR_H_

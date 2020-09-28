@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,21 +43,22 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/math/entropy_calculator.h"
+#include "SPTK/math/entropy_calculation.h"
 #include "SPTK/math/statistics_accumulator.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
 
 const int kDefaultNumElement(256);
-const sptk::EntropyCalculator::EntropyUnits kDefaultEntropyUnit(
-    sptk::EntropyCalculator::EntropyUnits::kBit);
+const sptk::EntropyCalculation::EntropyUnits kDefaultEntropyUnit(
+    sptk::EntropyCalculation::EntropyUnits::kBit);
 const bool kDefaultOutputFrameByFrameFlag(false);
 
 void PrintUsage(std::ostream* stream) {
@@ -87,9 +88,70 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * \a entropy [ \e option ] [ \e infile ]
+ *
+ * - \b -l \e int
+ *   - number of elements \f$(1 \le N)\f$
+ * - \b -o \e int
+ *   - output format \f$O\f$
+ *     \arg \c 0 bit
+ *     \arg \c 1 nat
+ *     \arg \c 2 dit
+ * - \b -f \e bool
+ *   - output entropy frame by frame
+ * - \b infile \e str
+ *   - double-type probability sequence
+ * - \b stdout
+ *   - double-type entropy
+ *
+ * The input is a set of probabilities:
+ * \f[
+ *   \begin{array}{ccc}
+ *     \underbrace{p_1(1),\,p_1(2),\,\ldots,\,p_1(N)}_{\boldsymbol{p}(0)}, &
+ *     \underbrace{p_2(1),\,p_2(2),\,\ldots,\,p_2(N)}_{\boldsymbol{p}(1)}, &
+ *     \ldots,
+ *   \end{array}
+ * \f]
+ * If \c -f option is given, the output sequence is
+ * \f[
+ *   \begin{array}{cccc}
+ *     H(0), & H(1), & H(2), & \ldots,
+ *   \end{array}
+ * \f]
+ * where \f$H(t)\f$ is the entropy at \f$t\f$-th frame:
+ * \f[
+ *   H(t) = -\sum_{n=1}^{N} p_t(n) \log_b p_t(n)
+ *        = -\boldsymbol{p}(t)^\mathsf{T} \log_b \boldsymbol{p}(t).
+ * \f]
+ * The base \f$b\f$ depends on the value of \f$O\f$:
+ * \f[
+ *   b = \left\{\begin{array}{ll}
+ *     2,\quad & O = 0 \\
+ *     e,      & O = 1 \\
+ *     10.     & O = 2 \\
+ *   \end{array}\right.
+ * \f]
+ * If \c -f option is not given, only the average of the entropies,
+ * \f$\bar{H}\f$, is sent to the standard output:
+ * \f[
+ *   \bar{H} = \frac{1}{T} \sum_{t=0}^{T-1} H(t),
+ * \f]
+ * where \f$T\f$ is the number of the set of probabilities.
+ *
+ * The below example calculates maximum value of entropy:
+ *
+ * @code{.sh}
+ *   step -l 4 | bin/sopr -d 4 | entropy -l 4 | x2x +da
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_element(kDefaultNumElement);
-  sptk::EntropyCalculator::EntropyUnits entropy_unit(kDefaultEntropyUnit);
+  sptk::EntropyCalculation::EntropyUnits entropy_unit(kDefaultEntropyUnit);
   bool output_frame_by_frame(kDefaultOutputFrameByFrameFlag);
 
   for (;;) {
@@ -110,9 +172,9 @@ int main(int argc, char* argv[]) {
       }
       case 'o': {
         const int min(0);
-        const int max(
-            static_cast<int>(sptk::EntropyCalculator::EntropyUnits::kNumUnits) -
-            1);
+        const int max(static_cast<int>(
+                          sptk::EntropyCalculation::EntropyUnits::kNumUnits) -
+                      1);
         int tmp;
         if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
             !sptk::IsInRange(tmp, min, max)) {
@@ -122,7 +184,7 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("entropy", error_message);
           return 1;
         }
-        entropy_unit = static_cast<sptk::EntropyCalculator::EntropyUnits>(tmp);
+        entropy_unit = static_cast<sptk::EntropyCalculation::EntropyUnits>(tmp);
         break;
       }
       case 'f': {
@@ -140,7 +202,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -150,7 +211,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -163,20 +223,20 @@ int main(int argc, char* argv[]) {
 
   sptk::StatisticsAccumulator statistics_accumulator(0, 1);
   sptk::StatisticsAccumulator::Buffer buffer;
-  sptk::EntropyCalculator entropy_calculator(num_element, entropy_unit);
-  if (!statistics_accumulator.IsValid() || !entropy_calculator.IsValid()) {
+  sptk::EntropyCalculation entropy_calculation(num_element, entropy_unit);
+  if (!statistics_accumulator.IsValid() || !entropy_calculation.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for calculation";
+    error_message << "Failed to initialize EntropyCalculation";
     sptk::PrintErrorMessage("entropy", error_message);
     return 1;
   }
 
   std::vector<double> probability(num_element);
+  double entropy;
 
   while (sptk::ReadStream(false, 0, 0, num_element, &probability, &input_stream,
                           NULL)) {
-    double entropy;
-    if (!entropy_calculator.Run(probability, &entropy)) {
+    if (!entropy_calculation.Run(probability, &entropy)) {
       std::ostringstream error_message;
       error_message << "Failed to calculate entropy";
       sptk::PrintErrorMessage("entropy", error_message);
@@ -216,7 +276,6 @@ int main(int argc, char* argv[]) {
       sptk::PrintErrorMessage("entropy", error_message);
       return 1;
     }
-
     if (!sptk::WriteStream(0, 1, average_entropy, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write entropy";
