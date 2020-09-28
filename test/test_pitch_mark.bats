@@ -64,6 +64,6 @@ teardown() {
 
 @test "pitch_mark: valgrind" {
    $sptk3/x2x +sd $data > tmp/1
-   run valgrind $sptk4/pitch_mark tmp/1 > /dev/null
+   run valgrind $sptk4/pitch_mark tmp/1
    [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
 }

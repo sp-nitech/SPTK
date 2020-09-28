@@ -70,6 +70,6 @@ teardown() {
 
 @test "par2lpc: valgrind" {
    $sptk3/nrand -l 20 > tmp/1
-   run valgrind $sptk4/par2lpc -m 9 tmp/1 > /dev/null
+   run valgrind $sptk4/par2lpc -m 9 tmp/1
    [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
 }
