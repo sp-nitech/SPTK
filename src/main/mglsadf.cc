@@ -350,7 +350,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // Open stream for reading filter coeffcients.
+  // Open stream for reading filter coefficients.
   std::ifstream ifs1;
   ifs1.open(filter_coefficients_file, std::ios::in | std::ios::binary);
   if (ifs1.fail()) {
