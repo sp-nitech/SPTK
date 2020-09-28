@@ -56,7 +56,7 @@
 #include "SPTK/filter/inverse_mglsa_digital_filter.h"
 #include "SPTK/input/input_source_from_stream.h"
 #include "SPTK/input/input_source_interpolation.h"
-#include "SPTK/normalizer/generalized_cepstrum_gain_normalization.h"
+#include "SPTK/converter/generalized_cepstrum_gain_normalization.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

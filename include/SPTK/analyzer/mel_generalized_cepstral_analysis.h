@@ -55,8 +55,8 @@
 #include "SPTK/math/real_valued_fast_fourier_transform.h"
 #include "SPTK/math/real_valued_inverse_fast_fourier_transform.h"
 #include "SPTK/math/toeplitz_plus_hankel_system_solver.h"
-#include "SPTK/normalizer/generalized_cepstrum_gain_normalization.h"
-#include "SPTK/normalizer/generalized_cepstrum_inverse_gain_normalization.h"
+#include "SPTK/converter/generalized_cepstrum_gain_normalization.h"
+#include "SPTK/converter/generalized_cepstrum_inverse_gain_normalization.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {

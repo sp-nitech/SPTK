@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2020  Nagoya Institute of Technology          //
+//                1996-2019  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,58 +42,46 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/normalizer/generalized_cepstrum_gain_normalization.h"
+#include "SPTK/converter/filter_coefficient_normalization.h"
 
-#include <algorithm>  // std::copy, std::transform
-#include <cmath>      // std::exp, std::pow
-#include <cstddef>    // std::size_t
+#include <algorithm>   // std::transform
+#include <cstddef>     // std::size_t
+#include <functional>  // std::bind1st, std::multiplies
 
 namespace sptk {
 
-GeneralizedCepstrumGainNormalization::GeneralizedCepstrumGainNormalization(
-    int num_order, double gamma)
-    : num_order_(num_order), gamma_(gamma), is_valid_(true) {
-  if (num_order_ < 0 || !sptk::IsValidGamma(gamma_)) {
+FilterCoefficientNormalization::FilterCoefficientNormalization(int num_order)
+    : num_order_(num_order), is_valid_(true) {
+  if (num_order_ < 0) {
     is_valid_ = false;
-    return;
   }
 }
 
-bool GeneralizedCepstrumGainNormalization::Run(
-    const std::vector<double>& generalized_cepstrum,
-    std::vector<double>* normalized_generalized_cepstrum) const {
-  // Check inputs.
+bool FilterCoefficientNormalization::Run(
+    const std::vector<double>& filter_coefficients,
+    std::vector<double>* normalized_filter_coefficients) const {
+  // check inputs
   if (!is_valid_ ||
-      generalized_cepstrum.size() != static_cast<std::size_t>(num_order_ + 1) ||
-      NULL == normalized_generalized_cepstrum) {
+      filter_coefficients.size() != static_cast<std::size_t>(num_order_ + 1) ||
+      0.0 == filter_coefficients[0] || NULL == normalized_filter_coefficients) {
     return false;
   }
 
-  // Prepare memories.
-  if (normalized_generalized_cepstrum->size() !=
+  // prepare memory
+  if (normalized_filter_coefficients->size() !=
       static_cast<std::size_t>(num_order_ + 1)) {
-    normalized_generalized_cepstrum->resize(num_order_ + 1);
+    normalized_filter_coefficients->resize(num_order_ + 1);
   }
 
-  if (0.0 == gamma_) {
-    (*normalized_generalized_cepstrum)[0] = std::exp(generalized_cepstrum[0]);
-    std::copy(generalized_cepstrum.begin() + 1, generalized_cepstrum.end(),
-              normalized_generalized_cepstrum->begin() + 1);
-  } else {
-    const double z(1.0 + gamma_ * generalized_cepstrum[0]);
-    (*normalized_generalized_cepstrum)[0] = std::pow(z, 1.0 / gamma_);
-    std::transform(generalized_cepstrum.begin() + 1, generalized_cepstrum.end(),
-                   normalized_generalized_cepstrum->begin() + 1,
-                   [z](double c) { return c / z; });
-  }
+  // normarize
+  (*normalized_filter_coefficients)[0] = 1.0 / filter_coefficients[0];
+
+  std::transform(filter_coefficients.begin() + 1, filter_coefficients.end(),
+                 normalized_filter_coefficients->begin() + 1,
+                 std::bind1st(std::multiplies<double>(),
+                              (*normalized_filter_coefficients)[0]));
 
   return true;
-}
-
-bool GeneralizedCepstrumGainNormalization::Run(
-    std::vector<double>* input_and_output) const {
-  if (NULL == input_and_output) return false;
-  return Run(*input_and_output, input_and_output);
 }
 
 }  // namespace sptk
