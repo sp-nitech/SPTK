@@ -860,6 +860,7 @@ INPUT                  = \
                          ../include/SPTK/converter/parcor_coefficients_to_linear_predictive_coefficients.h \
                          ../include/SPTK/converter/waveform_to_autocorrelation.h \
                          ../include/SPTK/filter/all_pole_digital_filter.h \
+                         ../include/SPTK/filter/all_pole_lattice_digital_filter.h \
                          ../include/SPTK/filter/all_zero_digital_filter.h \
                          ../include/SPTK/math/entropy_calculation.h \
                          ../include/SPTK/math/fast_fourier_transform.h \
@@ -886,6 +887,7 @@ INPUT                  = \
                          ../src/main/ignorm.cc \
                          ../src/main/iulaw.cc \
                          ../src/main/lpc2par.cc \
+                         ../src/main/ltcdf.cc \
                          ../src/main/mc2b.cc \
                          ../src/main/nan.cc \
                          ../src/main/par2lpc.cc \

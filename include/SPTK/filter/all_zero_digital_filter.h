@@ -66,8 +66,8 @@ namespace sptk {
  *     b(0), & b(1), & \ldots, & b(M),
  *   \end{array}
  * \f]
- * an output signal is obtained by applying \f$H(z)\f$ to a input signal in time
- * domain.
+ * an output signal is obtained by applying \f$H(z)\f$ to an input signal in
+ * time domain.
  */
 class AllZeroDigitalFilter {
  public:

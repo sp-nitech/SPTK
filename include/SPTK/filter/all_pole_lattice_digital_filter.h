@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -51,64 +51,86 @@
 
 namespace sptk {
 
+/**
+ * Apply all-pole lattice filter for speech synthesis.
+ *
+ * Given the \f$M\f$-th order PARCOR coefficients,
+ * \f[
+ *   \begin{array}{cccc}
+ *     K, & k(1), & \ldots, & k(M),
+ *   \end{array}
+ * \f]
+ * an output signal is obtained by applying the all-pole lattice filter to an
+ * input signal in time domain.
+ */
 class AllPoleLatticeDigitalFilter {
  public:
+  /**
+   * Buffer for AllPoleLatticeDigitalFilter class.
+   */
   class Buffer {
    public:
-    //
     Buffer() {
     }
 
-    //
     virtual ~Buffer() {
     }
 
    private:
-    //
-    std::vector<double> signals_;
+    std::vector<double> d_;
 
-    //
     friend class AllPoleLatticeDigitalFilter;
-
-    //
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
 
-  //
-  explicit AllPoleLatticeDigitalFilter(int num_filter_order)
-      : num_filter_order_(num_filter_order), is_valid_(true) {
-    if (num_filter_order_ < 0) {
-      is_valid_ = false;
-    }
-  }
+  /**
+   * @param[in] num_filter_order Order of filter coefficients, \f$M\f$.
+   */
+  explicit AllPoleLatticeDigitalFilter(int num_filter_order);
 
-  //
   virtual ~AllPoleLatticeDigitalFilter() {
   }
 
-  //
+  /**
+   * @return Order of coefficients.
+   */
   int GetNumFilterOrder() const {
     return num_filter_order_;
   }
 
-  //
+  /**
+   * @return True if this obejct is valid.
+   */
   bool IsValid() const {
     return is_valid_;
   }
 
-  //
+  /**
+   * @param[in] filter_coefficients \f$M\f$-th order PARCOR coefficients.
+   * @param[in] filter_input Input signal.
+   * @param[out] filter_output Output signal.
+   * @param[in,out] buffer Buffer.
+   * @return True on success, false on failure.
+   */
   bool Run(const std::vector<double>& filter_coefficients, double filter_input,
            double* filter_output,
-           AllPoleLatticeDigitalFilter::Buffer* signals) const;
+           AllPoleLatticeDigitalFilter::Buffer* buffer) const;
+
+  /**
+   * @param[in] filter_coefficients \f$M\f$-th order PARCOR coefficients.
+   * @param[in,out] input_and_output Input/output signal.
+   * @param[in,out] buffer Buffer.
+   * @return True on success, false on failure.
+   */
+  bool Run(const std::vector<double>& filter_coefficients,
+           double* input_and_output,
+           AllPoleLatticeDigitalFilter::Buffer* buffer) const;
 
  private:
-  //
   const int num_filter_order_;
 
-  //
   bool is_valid_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(AllPoleLatticeDigitalFilter);
 };
 
