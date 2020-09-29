@@ -49,7 +49,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/normalizer/filter_coefficient_normalization.h"
+#include "SPTK/converter/filter_coefficient_normalization.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

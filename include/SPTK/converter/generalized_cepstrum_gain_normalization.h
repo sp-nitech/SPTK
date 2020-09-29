@@ -42,8 +42,8 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_NORMALIZER_GENERALIZED_CEPSTRUM_GAIN_NORMALIZATION_H_
-#define SPTK_NORMALIZER_GENERALIZED_CEPSTRUM_GAIN_NORMALIZATION_H_
+#ifndef SPTK_CONVERTER_GENERALIZED_CEPSTRUM_GAIN_NORMALIZATION_H_
+#define SPTK_CONVERTER_GENERALIZED_CEPSTRUM_GAIN_NORMALIZATION_H_
 
 #include <vector>  // std::vector
 
@@ -142,4 +142,4 @@ class GeneralizedCepstrumGainNormalization {
 
 }  // namespace sptk
 
-#endif  // SPTK_NORMALIZER_GENERALIZED_CEPSTRUM_GAIN_NORMALIZATION_H_
+#endif  // SPTK_CONVERTER_GENERALIZED_CEPSTRUM_GAIN_NORMALIZATION_H_

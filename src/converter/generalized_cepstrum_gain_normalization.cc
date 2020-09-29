@@ -42,7 +42,7 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/normalizer/generalized_cepstrum_gain_normalization.h"
+#include "SPTK/converter/generalized_cepstrum_gain_normalization.h"
 
 #include <algorithm>  // std::copy, std::transform
 #include <cmath>      // std::exp, std::pow

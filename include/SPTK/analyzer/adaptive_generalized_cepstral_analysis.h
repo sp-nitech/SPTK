@@ -47,7 +47,7 @@
 
 #include <vector>  // std::vector
 
-#include "SPTK/normalizer/generalized_cepstrum_inverse_gain_normalization.h"
+#include "SPTK/converter/generalized_cepstrum_inverse_gain_normalization.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {

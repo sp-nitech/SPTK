@@ -42,61 +42,104 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/normalizer/generalized_cepstrum_inverse_gain_normalization.h"
+#ifndef SPTK_CONVERTER_GENERALIZED_CEPSTRUM_INVERSE_GAIN_NORMALIZATION_H_
+#define SPTK_CONVERTER_GENERALIZED_CEPSTRUM_INVERSE_GAIN_NORMALIZATION_H_
 
-#include <algorithm>  // std::copy, std::transform
-#include <cmath>      // std::log, std::pow
-#include <cstddef>    // std::size_t
+#include <vector>  // std::vector
+
+#include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
-GeneralizedCepstrumInverseGainNormalization::
-    GeneralizedCepstrumInverseGainNormalization(int num_order, double gamma)
-    : num_order_(num_order), gamma_(gamma), is_valid_(true) {
-  if (num_order_ < 0 || !sptk::IsValidGamma(gamma_)) {
-    is_valid_ = false;
-    return;
+/**
+ * Transform normalized generalized cepstral coefficients to generalized
+ * cepstral coefficients.
+ *
+ * The input is the \f$M\f$-th order normalized generalized cepstral
+ * coefficients and the gain \f$K\f$:
+ * \f[
+ *   \begin{array}{cccc}
+ *     K, & c'_\gamma(1), & \ldots, & c'_\gamma(M),
+ *   \end{array}
+ * \f]
+ * and the output is the \f$M\f$-th order generalized cepstral coefficients:
+ * \f[
+ *   \begin{array}{cccc}
+ *     c_\gamma(0), & c_\gamma(1), & \ldots, & c_\gamma(M).
+ *   \end{array}
+ * \f]
+ * The zeroth generalized cepstral coefficient is given by
+ * \f[
+ *   c_\gamma(0) = \left\{ \begin{array}{ll}
+ *     (K^\gamma - 1) / \gamma, \quad & 0 < |\gamma| \le 1 \\
+ *     \log \, K. & \gamma = 0
+ *   \end{array} \right.
+ * \f]
+ * The other generalized cepstral coefficients are obtained as follows:
+ * \f[
+ *   c_\gamma(m) = (1 + \gamma \, c_\gamma(0)) c'_\gamma(m).
+ * \f]
+ *
+ * [1] T. Kobayashi and S. Imai, &quot;Spectral analysis using generalized
+ *     cepstrum,&quot; IEEE Transactions on Acoustics, Speech, and Signal
+ *     Processing, vol. 32, no. 5, pp. 1087-1089, 1984.
+ */
+class GeneralizedCepstrumInverseGainNormalization {
+ public:
+  /**
+   * @param[in] num_order Order of coefficients, \f$M\f$.
+   * @param[in] gamma Exponent parameter, \f$\gamma\f$.
+   */
+  GeneralizedCepstrumInverseGainNormalization(int num_order, double gamma);
+
+  virtual ~GeneralizedCepstrumInverseGainNormalization() {
   }
-}
 
-bool GeneralizedCepstrumInverseGainNormalization::Run(
-    const std::vector<double>& normalized_generalized_cepstrum,
-    std::vector<double>* generalized_cepstrum) const {
-  // Check inputs.
-  if (!is_valid_ ||
-      normalized_generalized_cepstrum.size() !=
-          static_cast<std::size_t>(num_order_ + 1) ||
-      NULL == generalized_cepstrum) {
-    return false;
+  /**
+   * @return Order of coefficients.
+   */
+  int GetNumOrder() const {
+    return num_order_;
   }
 
-  // Prepare memories.
-  if (generalized_cepstrum->size() !=
-      static_cast<std::size_t>(num_order_ + 1)) {
-    generalized_cepstrum->resize(num_order_ + 1);
+  /**
+   * @return Exponent parameter.
+   */
+  double GetGamma() const {
+    return gamma_;
   }
 
-  if (0.0 == gamma_) {
-    (*generalized_cepstrum)[0] = std::log(normalized_generalized_cepstrum[0]);
-    std::copy(normalized_generalized_cepstrum.begin() + 1,
-              normalized_generalized_cepstrum.end(),
-              generalized_cepstrum->begin() + 1);
-  } else {
-    const double z(std::pow(normalized_generalized_cepstrum[0], gamma_));
-    (*generalized_cepstrum)[0] = (z - 1.0) / gamma_;
-    std::transform(normalized_generalized_cepstrum.begin() + 1,
-                   normalized_generalized_cepstrum.end(),
-                   generalized_cepstrum->begin() + 1,
-                   [z](double c) { return c * z; });
+  /**
+   * @return True if this obejct is valid.
+   */
+  bool IsValid() const {
+    return is_valid_;
   }
 
-  return true;
-}
+  /**
+   * @param[in] normalized_generalized_cepstrum \f$M\f$-th order normalized
+   *            cepstral coefficients.
+   * @param[out] generalized_cepstrum \f$M\f$-th order cepstral coefficients.
+   * @return True on success, false on failure.
+   */
+  bool Run(const std::vector<double>& normalized_generalized_cepstrum,
+           std::vector<double>* generalized_cepstrum) const;
 
-bool GeneralizedCepstrumInverseGainNormalization::Run(
-    std::vector<double>* input_and_output) const {
-  if (NULL == input_and_output) return false;
-  return Run(*input_and_output, input_and_output);
-}
+  /**
+   * @param[in,out] input_and_output \f$M\f$-th order coefficients.
+   * @return True on success, false on failure.
+   */
+  bool Run(std::vector<double>* input_and_output) const;
+
+ private:
+  const int num_order_;
+  const double gamma_;
+
+  bool is_valid_;
+
+  DISALLOW_COPY_AND_ASSIGN(GeneralizedCepstrumInverseGainNormalization);
+};
 
 }  // namespace sptk
+
+#endif  // SPTK_CONVERTER_GENERALIZED_CEPSTRUM_INVERSE_GAIN_NORMALIZATION_H_
