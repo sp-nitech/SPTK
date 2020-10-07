@@ -48,6 +48,7 @@ BUILDDIR       = build
 INCLUDEDIR     = include
 LIBDIR         = lib
 BINDIR         = bin
+DOCDIR         = doc
 THIRDPARTYDIR  = third_party
 THIRDPARTYDIRS = $(wildcard $(THIRDPARTYDIR)/*)
 
@@ -82,8 +83,8 @@ $(THIRDPARTYDIRS):
 	$(MAKE) -C $@
 
 doc:
-	cd doc; ../tools/doxygen/build/bin/doxygen
-	. ./tools/venv/bin/activate; cd doc; make html
+	cd $(DOCDIR); ../tools/doxygen/build/bin/doxygen
+	. ./tools/venv/bin/activate; cd $(DOCDIR); make html
 
 format:
 	clang-format -i $(wildcard $(SOURCEDIR)/*/*.cc)
@@ -99,6 +100,7 @@ clean:
 	for dir in $(THIRDPARTYDIRS); do \
 		$(MAKE) clean -C $$dir; \
 	done
-	rm -rf $(BUILDDIR) $(LIBDIR) $(BINDIR)
+	rm -rf $(BUILDDIR) $(LIBDIR) $(BINDIR) $(DOCDIR)/xml
+	. ./tools/venv/bin/activate; cd $(DOCDIR); make clean
 
 .PHONY: all $(THIRDPARTYDIRS) doc format test clean
