@@ -31,26 +31,27 @@ If you would like to use a part of the SPTK library, please link the static libr
 Changes from SPTK3
 ------------------
 - Input and output types are changed to double from float
-- Ungeneralized commands are deprecated
+- Deprecated commands:
   - `acep`
   - `c2sp`
   - `gc2gc`
   - `gcep`
   - `glsadf`
+  - `ivq`
   - `lmadf`
   - `lsp2sp`
   - `mcep`
   - `mlsadf`
+  - `uels`
   - `vq`
-- Multifunctional commands are split
+- Split commands:
   - `dtw` -> `dtw` and `dtw_merge`
   - `mglsadf` -> `mglsadf` and `imglsadf`
   - `train` -> `train` and `mseq`
   - `ulaw` -> `ulaw` and `iulaw`
   - `vstat` -> `vstat` and `median`
-- Smoothing flag in adaptive analysis is stripped
-  - `agcep`
-  - `amcep`
+- Integrated commands:
+  - `agcep` and `amcep` -> `amgcep`
 
 
 Authors
