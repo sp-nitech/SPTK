@@ -52,10 +52,10 @@
 #include <sstream>    // std::ostringstream
 #include <vector>     // std::vector
 
-#include "SPTK/analyzer/mel_generalized_cepstral_analysis.h"
-#include "SPTK/converter/generalized_cepstrum_gain_normalization.h"
-#include "SPTK/converter/mel_cepstrum_to_mlsa_digital_filter_coefficients.h"
-#include "SPTK/converter/waveform_to_spectrum.h"
+#include "SPTK/analysis/mel_generalized_cepstral_analysis.h"
+#include "SPTK/conversion/generalized_cepstrum_gain_normalization.h"
+#include "SPTK/conversion/mel_cepstrum_to_mlsa_digital_filter_coefficients.h"
+#include "SPTK/conversion/waveform_to_spectrum.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
