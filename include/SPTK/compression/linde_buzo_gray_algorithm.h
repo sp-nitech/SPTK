@@ -47,9 +47,9 @@
 
 #include <vector>  // std::vector
 
+#include "SPTK/compression/vector_quantization.h"
 #include "SPTK/math/distance_calculator.h"
 #include "SPTK/math/statistics_accumulator.h"
-#include "SPTK/compression/vector_quantization.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {

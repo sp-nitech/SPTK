@@ -48,6 +48,8 @@
 #include <vector>  // std::vector
 
 #include "SPTK/analysis/mel_cepstral_analysis.h"
+#include "SPTK/conversion/generalized_cepstrum_gain_normalization.h"
+#include "SPTK/conversion/generalized_cepstrum_inverse_gain_normalization.h"
 #include "SPTK/conversion/mel_cepstrum_to_mlsa_digital_filter_coefficients.h"
 #include "SPTK/conversion/mel_generalized_cepstrum_to_mel_generalized_cepstrum.h"
 #include "SPTK/conversion/mlsa_digital_filter_coefficients_to_mel_cepstrum.h"
@@ -55,8 +57,6 @@
 #include "SPTK/math/real_valued_fast_fourier_transform.h"
 #include "SPTK/math/real_valued_inverse_fast_fourier_transform.h"
 #include "SPTK/math/toeplitz_plus_hankel_system_solver.h"
-#include "SPTK/conversion/generalized_cepstrum_gain_normalization.h"
-#include "SPTK/conversion/generalized_cepstrum_inverse_gain_normalization.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {

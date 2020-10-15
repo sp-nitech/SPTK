@@ -48,9 +48,9 @@
 #include <cstddef>     // std::size_t
 #include <functional>  // std::bind1st, std::multiplies
 
-#include "SPTK/math/frequency_transform.h"
 #include "SPTK/conversion/generalized_cepstrum_gain_normalization.h"
 #include "SPTK/conversion/generalized_cepstrum_inverse_gain_normalization.h"
+#include "SPTK/math/frequency_transform.h"
 
 namespace {
 
