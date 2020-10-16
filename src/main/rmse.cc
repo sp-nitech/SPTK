@@ -94,7 +94,8 @@ int main(int argc, char* argv[]) {
   bool output_frame_by_frame(kDefaultOutputFrameByFrameFlag);
 
   const struct option long_option[] = {
-      {"magic", required_argument, NULL, kMagic}, {0, 0, 0, 0},
+      {"magic", required_argument, NULL, kMagic},
+      {0, 0, 0, 0},
   };
 
   for (;;) {
