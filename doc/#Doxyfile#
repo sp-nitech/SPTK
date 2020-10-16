@@ -853,9 +853,8 @@ INPUT                  = \
                          ../include/SPTK/compression/mu_law_expansion.h \
                          ../include/SPTK/conversion/cepstrum_to_autocorrelation.h \
                          ../include/SPTK/conversion/cepstrum_to_minimum_phase_impulse_response.h \
-                         ../include/SPTK/conversion/composite_sinusoidal_modeling_to_autocorrelation.h \
-                         ../include/SPTK/conversion/generalized_cepstrum_gain_normalization.h \
-                         ../include/SPTK/conversion/generalized_cepstrum_inverse_gain_normalization.h \
+                         ../include/SPTK/conversion/composite_sinusoidal_modeling_to_autocorrelation.h../include/SPTK/conversion/generalized_cepstrum_gain_normalization.h \
+			 ../include/SPTK/conversion/generalized_cepstrum_inverse_gain_normalization.h \
                          ../include/SPTK/conversion/linear_predictive_coefficients_to_parcor_coefficients.h \
                          ../include/SPTK/conversion/mel_cepstrum_to_mlsa_digital_filter_coefficients.h \
                          ../include/SPTK/conversion/mlsa_digital_filter_coefficients_to_mel_cepstrum.h \
