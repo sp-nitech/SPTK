@@ -12,5 +12,7 @@ _build
 html/
 xml/
 
-*~
 *.done
+
+*~
+\#*#
