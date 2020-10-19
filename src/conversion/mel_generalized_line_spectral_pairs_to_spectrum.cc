@@ -95,10 +95,10 @@ bool MelGeneralizedLineSpectralPairsToSpectrum::Run(
 
   for (int j(0); j < output_length; ++j, omega += delta) {
     const double warped_omega(
-        0.0 == alpha_
-            ? omega
-            : omega + 2.0 * std::atan(alpha_ * std::sin(omega) /
-                                      (1.0 - alpha_ * std::cos(omega))));
+        0.0 == alpha_ ? omega
+                      : omega +
+                            2.0 * std::atan(alpha_ * std::sin(omega) /
+                                            (1.0 - alpha_ * std::cos(omega))));
     const double cos_omega(std::cos(warped_omega));
 
     double p(0.0);
