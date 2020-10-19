@@ -48,7 +48,7 @@
 #include <iostream>  // std::cerr, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
 
-#include "SPTK/generator/normal_distributed_random_value_generation.h"
+#include "SPTK/generation/normal_distributed_random_value_generation.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

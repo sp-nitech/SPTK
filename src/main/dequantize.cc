@@ -48,7 +48,7 @@
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
 
-#include "SPTK/quantizer/inverse_uniform_quantization.h"
+#include "SPTK/compression/inverse_uniform_quantization.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

@@ -49,7 +49,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/converter/waveform_to_autocorrelation.h"
+#include "SPTK/conversion/waveform_to_autocorrelation.h"
 #include "SPTK/math/levinson_durbin_recursion.h"
 #include "SPTK/utils/sptk_utils.h"
 

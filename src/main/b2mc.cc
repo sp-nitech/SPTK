@@ -50,7 +50,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/converter/mlsa_digital_filter_coefficients_to_mel_cepstrum.h"
+#include "SPTK/conversion/mlsa_digital_filter_coefficients_to_mel_cepstrum.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

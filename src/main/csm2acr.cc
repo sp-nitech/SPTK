@@ -50,7 +50,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/converter/composite_sinusoidal_modeling_to_autocorrelation.h"
+#include "SPTK/conversion/composite_sinusoidal_modeling_to_autocorrelation.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

@@ -47,7 +47,7 @@
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
 
-#include "SPTK/compressor/huffman_decoding.h"
+#include "SPTK/compression/huffman_decoding.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

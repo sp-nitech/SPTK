@@ -53,8 +53,8 @@
 #include <sstream>    // std::ostringstream
 #include <vector>     // std::vector
 
-#include "SPTK/analyzer/fast_fourier_transform_cepstral_analysis.h"
-#include "SPTK/converter/waveform_to_spectrum.h"
+#include "SPTK/analysis/fast_fourier_transform_cepstral_analysis.h"
+#include "SPTK/conversion/waveform_to_spectrum.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

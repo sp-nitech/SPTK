@@ -49,7 +49,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/converter/autocorrelation_to_composite_sinusoidal_modeling.h"
+#include "SPTK/conversion/autocorrelation_to_composite_sinusoidal_modeling.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

@@ -254,7 +254,7 @@ bool RecursiveMaximumLikelihoodParameterGeneration::Forward() {
     for (int m(0); m < static_size; ++m) {
       for (int j(-half_window_width); j <= half_window_width; ++j) {
         if (DBL_MAX ==
-	    buffer_.p[m][(current_frame_ + j) % calculation_field_]
+            buffer_.p[m][(current_frame_ + j) % calculation_field_]
                      [calculation_field_]) {
           update = false;
           break;

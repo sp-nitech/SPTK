@@ -50,8 +50,8 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/converter/filter_coefficients_to_spectrum.h"
-#include "SPTK/converter/waveform_to_spectrum.h"
+#include "SPTK/conversion/filter_coefficients_to_spectrum.h"
+#include "SPTK/conversion/waveform_to_spectrum.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

@@ -49,7 +49,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/quantizer/inverse_multistage_vector_quantization.h"
+#include "SPTK/compression/inverse_multistage_vector_quantization.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

@@ -49,7 +49,7 @@
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
 
-#include "SPTK/compressor/mu_law_expansion.h"
+#include "SPTK/compression/mu_law_expansion.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

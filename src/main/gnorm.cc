@@ -50,7 +50,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/converter/generalized_cepstrum_gain_normalization.h"
+#include "SPTK/conversion/generalized_cepstrum_gain_normalization.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

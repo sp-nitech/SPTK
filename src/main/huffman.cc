@@ -50,7 +50,7 @@
 #include <string>    // std::string
 #include <vector>    // std::vector
 
-#include "SPTK/compressor/huffman_coding.h"
+#include "SPTK/compression/huffman_coding.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

@@ -50,7 +50,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/converter/cepstrum_to_minimum_phase_impulse_response.h"
+#include "SPTK/conversion/cepstrum_to_minimum_phase_impulse_response.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

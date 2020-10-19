@@ -48,7 +48,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/compressor/huffman_encoding.h"
+#include "SPTK/compression/huffman_encoding.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

@@ -50,7 +50,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/analyzer/adaptive_mel_generalized_cepstral_analysis.h"
+#include "SPTK/analysis/adaptive_mel_generalized_cepstral_analysis.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

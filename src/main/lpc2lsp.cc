@@ -52,7 +52,7 @@
 #include <sstream>     // std::ostringstream
 #include <vector>      // std::vector
 
-#include "SPTK/converter/linear_predictive_coefficients_to_line_spectral_pairs.h"
+#include "SPTK/conversion/linear_predictive_coefficients_to_line_spectral_pairs.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

@@ -50,7 +50,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/converter/parcor_coefficients_to_linear_predictive_coefficients.h"
+#include "SPTK/conversion/parcor_coefficients_to_linear_predictive_coefficients.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

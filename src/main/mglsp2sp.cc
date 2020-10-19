@@ -52,7 +52,7 @@
 #include <sstream>     // std::ostringstream
 #include <vector>      // std::vector
 
-#include "SPTK/converter/mel_generalized_line_spectral_pairs_to_spectrum.h"
+#include "SPTK/conversion/mel_generalized_line_spectral_pairs_to_spectrum.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
