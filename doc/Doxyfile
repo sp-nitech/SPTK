@@ -269,7 +269,8 @@ TAB_SIZE               = 4
 # commands \{ and \} for these it is advised to use the version @{ and @} or use
 # a double escape (\\{ and \\})
 
-ALIASES                =
+ALIASES                = "rst=\verbatim embed:rst:leading-asterisk"
+ALIASES               += "endrst=\endverbatim"
 
 # Set the OPTIMIZE_OUTPUT_FOR_C tag to YES if your project consists of C sources
 # only. Doxygen will then generate output that is more tailored for C. For
@@ -848,6 +849,8 @@ INPUT                  = \
                          ../include/SPTK/analysis/adaptive_generalized_cepstral_analysis.h \
                          ../include/SPTK/analysis/adaptive_mel_cepstral_analysis.h \
                          ../include/SPTK/analysis/fast_fourier_transform_cepstral_analysis.h \
+                         ../include/SPTK/analysis/mel_filter_bank_analysis.h \
+                         ../include/SPTK/analysis/mel_frequency_cepstral_coefficients_analysis.h \
                          ../include/SPTK/analysis/pitch_extraction.h \
                          ../include/SPTK/compression/mu_law_compression.h \
                          ../include/SPTK/compression/mu_law_expansion.h \
@@ -878,6 +881,7 @@ INPUT                  = \
                          ../src/main/c2mpir.cc \
                          ../src/main/csm2acr.cc \
                          ../src/main/entropy.cc \
+                         ../src/main/fbank.cc \
                          ../src/main/fft.cc \
                          ../src/main/fftcep.cc \
                          ../src/main/fftr.cc \
@@ -889,6 +893,7 @@ INPUT                  = \
                          ../src/main/lpc2par.cc \
                          ../src/main/ltcdf.cc \
                          ../src/main/mc2b.cc \
+                         ../src/main/mfcc.cc \
                          ../src/main/nan.cc \
                          ../src/main/par2lpc.cc \
                          ../src/main/pitch.cc \
@@ -1213,7 +1218,7 @@ IGNORE_PREFIX          =
 # If the GENERATE_HTML tag is set to YES, doxygen will generate HTML output
 # The default value is: YES.
 
-GENERATE_HTML          = YES
+GENERATE_HTML          = NO
 
 # The HTML_OUTPUT tag is used to specify where the HTML docs will be put. If a
 # relative path is entered the value of OUTPUT_DIRECTORY will be put in front of
