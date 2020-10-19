@@ -52,7 +52,7 @@
 #include <sstream>    // std::ostringstream
 #include <vector>     // std::vector
 
-#include "SPTK/analyzer/pitch_extraction.h"
+#include "SPTK/analysis/pitch_extraction.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

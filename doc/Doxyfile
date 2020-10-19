@@ -845,20 +845,22 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = \
-                         ../include/SPTK/analyzer/adaptive_generalized_cepstral_analysis.h \
-                         ../include/SPTK/analyzer/adaptive_mel_cepstral_analysis.h \
-                         ../include/SPTK/analyzer/fast_fourier_transform_cepstral_analysis.h \
-                         ../include/SPTK/analyzer/pitch_extraction.h \
-                         ../include/SPTK/compressor/mu_law_compression.h \
-                         ../include/SPTK/compressor/mu_law_expansion.h \
-                         ../include/SPTK/converter/cepstrum_to_autocorrelation.h \
-                         ../include/SPTK/converter/cepstrum_to_minimum_phase_impulse_response.h \
-                         ../include/SPTK/converter/composite_sinusoidal_modeling_to_autocorrelation.h \
-                         ../include/SPTK/converter/linear_predictive_coefficients_to_parcor_coefficients.h \
-                         ../include/SPTK/converter/mel_cepstrum_to_mlsa_digital_filter_coefficients.h \
-                         ../include/SPTK/converter/mlsa_digital_filter_coefficients_to_mel_cepstrum.h \
-                         ../include/SPTK/converter/parcor_coefficients_to_linear_predictive_coefficients.h \
-                         ../include/SPTK/converter/waveform_to_autocorrelation.h \
+                         ../include/SPTK/analysis/adaptive_generalized_cepstral_analysis.h \
+                         ../include/SPTK/analysis/adaptive_mel_cepstral_analysis.h \
+                         ../include/SPTK/analysis/fast_fourier_transform_cepstral_analysis.h \
+                         ../include/SPTK/analysis/pitch_extraction.h \
+                         ../include/SPTK/compression/mu_law_compression.h \
+                         ../include/SPTK/compression/mu_law_expansion.h \
+                         ../include/SPTK/conversion/cepstrum_to_autocorrelation.h \
+                         ../include/SPTK/conversion/cepstrum_to_minimum_phase_impulse_response.h \
+                         ../include/SPTK/conversion/composite_sinusoidal_modeling_to_autocorrelation.h \
+                         ../include/SPTK/conversion/generalized_cepstrum_gain_normalization.h \
+                         ../include/SPTK/conversion/generalized_cepstrum_inverse_gain_normalization.h \
+                         ../include/SPTK/conversion/linear_predictive_coefficients_to_parcor_coefficients.h \
+                         ../include/SPTK/conversion/mel_cepstrum_to_mlsa_digital_filter_coefficients.h \
+                         ../include/SPTK/conversion/mlsa_digital_filter_coefficients_to_mel_cepstrum.h \
+                         ../include/SPTK/conversion/parcor_coefficients_to_linear_predictive_coefficients.h \
+                         ../include/SPTK/conversion/waveform_to_autocorrelation.h \
                          ../include/SPTK/filter/all_pole_digital_filter.h \
                          ../include/SPTK/filter/all_pole_lattice_digital_filter.h \
                          ../include/SPTK/filter/all_zero_digital_filter.h \
@@ -868,8 +870,6 @@ INPUT                  = \
                          ../include/SPTK/math/inverse_fast_fourier_transform.h \
                          ../include/SPTK/math/real_valued_fast_fourier_transform.h \
                          ../include/SPTK/math/real_valued_inverse_fast_fourier_transform.h \
-                         ../include/SPTK/normalizer/generalized_cepstrum_gain_normalization.h \
-                         ../include/SPTK/normalizer/generalized_cepstrum_inverse_gain_normalization.h \
                          ../src/main/aeq.cc \
                          ../src/main/acorr.cc \
                          ../src/main/amgcep.cc \

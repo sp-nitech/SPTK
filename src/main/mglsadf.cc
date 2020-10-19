@@ -52,11 +52,11 @@
 #include <sstream>     // std::ostringstream
 #include <vector>      // std::vector
 
-#include "SPTK/converter/mel_cepstrum_to_mlsa_digital_filter_coefficients.h"
+#include "SPTK/conversion/generalized_cepstrum_gain_normalization.h"
+#include "SPTK/conversion/mel_cepstrum_to_mlsa_digital_filter_coefficients.h"
 #include "SPTK/filter/mglsa_digital_filter.h"
 #include "SPTK/input/input_source_from_stream.h"
 #include "SPTK/input/input_source_interpolation.h"
-#include "SPTK/converter/generalized_cepstrum_gain_normalization.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
