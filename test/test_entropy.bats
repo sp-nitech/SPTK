@@ -54,13 +54,6 @@ teardown() {
    rm -rf tmp
 }
 
-@test "entropy: minimum and maximum" {
-   result=$($sptk3/impulse -l 4 | $sptk4/entropy -l 4 | x2x +da)
-   [ $result -eq 0 ]
-   result=$($sptk3/step -l 4 | $sptk3/sopr -d 4 | $sptk4/entropy -l 4 | x2x +da)
-   [ $result -eq 2 ]
-}
-
 @test "entropy: valgrind" {
    $sptk3/step -l 10 | $sptk3/window -l 10 -L 20 -n 2 -w 0 > tmp/1
    run valgrind $sptk4/entropy -l 10 -f tmp/1
