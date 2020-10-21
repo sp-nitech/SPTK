@@ -886,6 +886,7 @@ INPUT                  = \
                          ../src/main/fft.cc \
                          ../src/main/fftcep.cc \
                          ../src/main/fftr.cc \
+                         ../src/main/frame.cc \
                          ../src/main/freqt.cc \
                          ../src/main/gnorm.cc \
                          ../src/main/ifft.cc \
