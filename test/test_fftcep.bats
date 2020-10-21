@@ -54,7 +54,7 @@ teardown() {
    rm -rf tmp
 }
 
-@test "fftcep: compatibility" {
+@test "fftcep: compatibility (j = 0)" {
    $sptk3/nrand -l 32 | $sptk3/fftcep -l 16 -m 4 -j 0 > tmp/1
    $sptk3/nrand -l 32 | $sptk4/fftcep -l 16 -m 4 -i 0 > tmp/2
    run $sptk4/aeq tmp/1 tmp/2
