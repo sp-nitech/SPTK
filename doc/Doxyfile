@@ -867,6 +867,7 @@ INPUT                  = \
                          ../include/SPTK/filter/all_pole_digital_filter.h \
                          ../include/SPTK/filter/all_pole_lattice_digital_filter.h \
                          ../include/SPTK/filter/all_zero_digital_filter.h \
+                         ../include/SPTK/generation/recursive_maximum_likelihood_parameter_generation.h \
                          ../include/SPTK/math/entropy_calculation.h \
                          ../include/SPTK/math/fast_fourier_transform.h \
                          ../include/SPTK/math/frequency_transform.h \
@@ -894,6 +895,7 @@ INPUT                  = \
                          ../src/main/ltcdf.cc \
                          ../src/main/mc2b.cc \
                          ../src/main/mfcc.cc \
+                         ../src/main/mlpg.cc \
                          ../src/main/nan.cc \
                          ../src/main/par2lpc.cc \
                          ../src/main/pitch.cc \
