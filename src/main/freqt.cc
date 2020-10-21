@@ -86,19 +86,19 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a freqt [ \e option ] [ \e infile ]
+ * @a freqt [ @e option ] [ \e infile ]
  *
- * - \b -m \e int
- *   - order of minimum phase sequence \f$(0 \le M_1)\f$
- * - \b -M \e int
- *   - order of warped sequence \f$(0 \le M_2)\f$
- * - \b -a \e double
- *   - all-pass constant of input sequence \f$(|\alpha_1|<1)\f$
- * - \b -A \e double
- *   - all-pass constant of output sequence \f$(|\alpha_2|<1)\f$
- * - \b infile \e str
+ * - @b -m @e int
+ *   - order of minimum phase sequence @f$(0 \le M_1)@f$
+ * - @b -M @e int
+ *   - order of warped sequence @f$(0 \le M_2)@f$
+ * - @b -a @e double
+ *   - all-pass constant of input sequence @f$(|\alpha_1|<1)@f$
+ * - @b -A @e double
+ *   - all-pass constant of output sequence @f$(|\alpha_2|<1)@f$
+ * - @b infile @e str
  *   - double-type minimum phase sequence
- * - \b stdout
+ * - @b stdout
  *   - double-type warped sequence
  *
  * The below example converts LPC coefficients into LPC mel-cepstral
@@ -108,8 +108,8 @@ void PrintUsage(std::ostream* stream) {
  *   lpc2c < data.lpc | freqt -A 0.42 > data.lpcmc
  * @endcode
  *
- * The converted LPC mel-cepstral coefficients can be reverted if \f$M_2\f$
- * is sufficiently greater than \f$M_1\f$:
+ * The converted LPC mel-cepstral coefficients can be reverted if @f$M_2@f$
+ * is sufficiently greater than @f$M_1@f$:
  *
  * @code{.sh}
  *   freqt -A -0.42 < data.lpcmc > data.lpc

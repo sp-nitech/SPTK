@@ -93,21 +93,21 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a ltcdf [ \e option ] \e kfile [ \e infile ]
+ * @a ltcdf [ @e option ] \e kfile [ \e infile ]
  *
- * - \b -m \e int
- *   - order of coefficients \f$(0 \le M)\f$
- * - \b -p \e int
- *   - frame period \f$(1 \le P)\f$
- * - \b -i \e int
- *   - interpolation period \f$(0 \le I \le P/2)\f$
- * - \b -k \e bool
- *   - filtering without gain \f$K\f$
- * - \b kfile \e str
+ * - @b -m @e int
+ *   - order of coefficients @f$(0 \le M)@f$
+ * - @b -p @e int
+ *   - frame period @f$(1 \le P)@f$
+ * - @b -i @e int
+ *   - interpolation period @f$(0 \le I \le P/2)@f$
+ * - @b -k @e bool
+ *   - filtering without gain @f$K@f$
+ * - @b kfile @e str
  *   - double-type PARCOR coefficients
- * - \b infile \e str
+ * - @b infile @e str
  *   - double-type input sequence
- * - \b stdout
+ * - @b stdout
  *   - double-type output sequence
  *
  * In the below example, an exciation signal generated from pitch information is

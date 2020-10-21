@@ -76,14 +76,14 @@ class AdaptiveMelGeneralizedCepstralAnalysis {
   };
 
   /**
-   * @param[in] num_order Order of mel-cepstral coefficients, \f$M\f$.
+   * @param[in] num_order Order of mel-cepstral coefficients, @f$M@f$.
    * @param[in] num_pade_order Order of Pade approximation.
-   * @param[in] num_stage Number of stages, \f$C\f$.
-   * @param[in] alpha Frequency warping factor, \f$\alpha\f$.
-   * @param[in] min_epsilon Minimum value of \f$\epsilon\f$.
-   * @param[in] momentum Momentum, \f$\tau\f$.
-   * @param[in] forgetting_factor Forgetting factor, \f$\lambda\f$.
-   * @param[in] step_size_factor Step-size factor, \f$a\f$.
+   * @param[in] num_stage Number of stages, @f$C@f$.
+   * @param[in] alpha Frequency warping factor, @f$\alpha@f$.
+   * @param[in] min_epsilon Minimum value of @f$\epsilon@f$.
+   * @param[in] momentum Momentum, @f$\tau@f$.
+   * @param[in] forgetting_factor Forgetting factor, @f$\lambda@f$.
+   * @param[in] step_size_factor Step-size factor, @f$a@f$.
    */
   AdaptiveMelGeneralizedCepstralAnalysis(int num_order, int num_pade_order,
                                          int num_stage, double alpha,
@@ -158,9 +158,9 @@ class AdaptiveMelGeneralizedCepstralAnalysis {
   }
 
   /**
-   * @param[in] input_signal An input signal, \f$x(n)\f$.
-   * @param[out] prediction_error A prediction error, \f$e(n)\f$.
-   * @param[out] mel_generalized_cepstrum \f$M\f$-th order mel-generalized
+   * @param[in] input_signal An input signal, @f$x(n)@f$.
+   * @param[out] prediction_error A prediction error, @f$e(n)@f$.
+   * @param[out] mel_generalized_cepstrum @f$M@f$-th order mel-generalized
    *             cepstral coefficients.
    * @param[in,out] buffer Buffer.
    * @return True on success, false on failure.

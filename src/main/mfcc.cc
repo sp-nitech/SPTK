@@ -165,7 +165,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b stdout
  *   - double-type MFCCs
  *
- * The below example extracts the 12-th order MFCCs from \c data.short. The
+ * The below example extracts the 12-th order MFCCs from @c data.short. The
  * analysis condition is that: frame length is 10 ms, frame shift is 25 ms,
  * and sampling rate is 16 kHz. A pre-emphais filter and the hamming window
  * are applied to the input signal.

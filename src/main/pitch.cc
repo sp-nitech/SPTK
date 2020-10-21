@@ -123,43 +123,43 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a pitch [ \e option ] [ \e infile ]
+ * @a pitch [ @e option ] [ @e infile ]
  *
- * - \b -a \e int
+ * - @b -a @e int
  *   - algorithm used for pitch extraction
- *     \arg \c 0 RAPT
- *     \arg \c 1 SWIPE'
- *     \arg \c 2 REAPER
- *     \arg \c 3 WORLD (DIO)
- * - \b -p \e int
- *   - frame shift [point] \f$(1 \le P)\f$
- * - \b -s \e double
- *   - sampling rate [kHz] \f$(6 < S < 98)\f$
- * - \b -L \e dobule
- *   - minimum F0 to search for [Hz] \f$(10 < L < H)\f$
- * - \b -H \e dobule
- *   - maximum F0 to search for [Hz] \f$(L < H < 500S)\f$
- * - \b -t0 \e dobule
- *   - voicing threshold for RAPT \f$(-0.6 \le T \le 0.7)\f$
- * - \b -t1 \e dobule
- *   - voicing threshold for SWIPE' \f$(0.2 \le T \le 0.5)\f$
- * - \b -t2 \e dobule
- *   - voicing threshold for REAPER \f$(-0.5 \le T \le 1.6)\f$
- * - \b -t3 \e dobule
- *   - voicing threshold for WORLD \f$(0.02 \le T \le 0.2)\f$
- * - \b -o \e int
+ *     @arg @c 0 RAPT
+ *     @arg @c 1 SWIPE'
+ *     @arg @c 2 REAPER
+ *     @arg @c 3 WORLD (DIO)
+ * - @b -p @e int
+ *   - frame shift [point] @f$(1 \le P)@f$
+ * - @b -s @e double
+ *   - sampling rate [kHz] @f$(6 < F_s < 98)@f$
+ * - @b -L @e dobule
+ *   - minimum F0 to search for [Hz] @f$(10 < F_l < F_h)@f$
+ * - @b -H @e dobule
+ *   - maximum F0 to search for [Hz] @f$(F_l < F_h < 500F_s)@f$
+ * - @b -t0 @e dobule
+ *   - voicing threshold for RAPT @f$(-0.6 \le T \le 0.7)@f$
+ * - @b -t1 @e dobule
+ *   - voicing threshold for SWIPE' @f$(0.2 \le T \le 0.5)@f$
+ * - @b -t2 @e dobule
+ *   - voicing threshold for REAPER @f$(-0.5 \le T \le 1.6)@f$
+ * - @b -t3 @e dobule
+ *   - voicing threshold for WORLD @f$(0.02 \le T \le 0.2)@f$
+ * - @b -o @e int
  *   - output format
- *     \arg \c 0 pitch (S / F0)
- *     \arg \c 1 F0
- *     \arg \c 2 log F0
- * - \b infile \e str
+ *     @arg @c 0 pitch @f$(F_s / F_0)@f$
+ *     @arg @c 1 F0
+ *     @arg @c 2 log F0
+ * - @b infile @e str
  *   - double-type waveform
- * - \b stdout
+ * - @b stdout
  *   - double-type pitch
  *
- * If \f$T\f$ is raised, the number of voiced frames increase except SWIPE'.
+ * If @f$T@f$ is raised, the number of voiced frames increase except SWIPE'.
  *
- * The below is a simple example to extract pitch from \c data.d
+ * The below is a simple example to extract pitch from @c data.d
  *
  * @code{.sh}
  *   pitch -s 16 -p 80 -L 80 -H 200 -o 1 < data.d > data.f0

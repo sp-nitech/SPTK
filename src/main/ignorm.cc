@@ -83,17 +83,17 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a ignorm [ \e option ] [ \e infile ]
+ * @a ignorm [ @e option ] [ \e infile ]
  *
- * - \b -m \e int
- *   - order of coefficients \f$(0 \le M)\f$
- * - \b -g \e double
- *   - gamma \f$(|\gamma| \le 1)\f$
- * - \b -c \e int
- *   - gamma \f$\gamma = -1 / C\f$ \f$(1 \le C)\f$
- * - \b infile \e str
+ * - @b -m @e int
+ *   - order of coefficients @f$(0 \le M)@f$
+ * - @b -g @e double
+ *   - gamma @f$(|\gamma| \le 1)@f$
+ * - @b -c @e int
+ *   - gamma @f$\gamma = -1 / C@f$ @f$(1 \le C)@f$
+ * - @b infile @e str
  *   - double-type normalized generalized cepstral coefficients
- * - \b stdout
+ * - @b stdout
  *   - double-type generalized cepstral coefficients
  *
  * The below example denormalizes generalized cepstral coefficients:

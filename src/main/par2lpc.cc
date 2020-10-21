@@ -80,13 +80,13 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a par2lpc [ \e option ] [ \e infile ]
+ * @a par2lpc [ @e option ] [ \e infile ]
  *
- * - \b -m \e int
- *   - order of coefficients \f$(0 \le M)\f$
- * - \b infile \e str
+ * - @b -m @e int
+ *   - order of coefficients @f$(0 \le M)@f$
+ * - @b infile @e str
  *   - double-type PARCOR coefficients
- * - \b stdout
+ * - @b stdout
  *   - double-type LPC coefficients
  *
  * The below example converts PARCOR coefficients into LPC coefficients:

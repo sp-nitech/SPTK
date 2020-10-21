@@ -55,21 +55,21 @@ namespace sptk {
 /**
  * Calculate DFT of real-valued input data.
  *
- * The input is \f$M\f$-th order real-valued data:
- * \f[
+ * The input is @f$M@f$-th order real-valued data:
+ * @f[
  *   \begin{array}{cccc}
  *     x(0), & x(1), & \ldots, & x(M).
  *   \end{array}
- * \f]
+ * @f]
  * The outputs are
- * \f[
+ * @f[
  *   \begin{array}{cccc}
  *   \mathrm{Re}(X(0)), & \mathrm{Re}(X(1)), & \ldots, & \mathrm{Re}(X(L-1)), \\
  *   \mathrm{Im}(X(0)), & \mathrm{Im}(X(1)), & \ldots, & \mathrm{Im}(X(L-1)),
  *   \end{array}
- * \f]
- * where \f$L\f$ is the FFT length and \f$X\f$ is the frequency representation
- * of \f$x\f$.
+ * @f]
+ * where @f$L@f$ is the FFT length and @f$X@f$ is the frequency representation
+ * of @f$x@f$.
  */
 class RealValuedFastFourierTransform {
  public:
@@ -93,13 +93,13 @@ class RealValuedFastFourierTransform {
   };
 
   /**
-   * @param[in] fft_length FFT length, \f$L\f$.
+   * @param[in] fft_length FFT length, @f$L@f$.
    */
   explicit RealValuedFastFourierTransform(int fft_length);
 
   /**
-   * @param[in] num_order Order of input, \f$M\f$.
-   * @param[in] fft_length FFT length, \f$L\f$.
+   * @param[in] num_order Order of input, @f$M@f$.
+   * @param[in] fft_length FFT length, @f$L@f$.
    */
   RealValuedFastFourierTransform(int num_order, int fft_length);
 
@@ -128,7 +128,7 @@ class RealValuedFastFourierTransform {
   }
 
   /**
-   * @param[in] real_part_input \f$M\f$-th order real part of input.
+   * @param[in] real_part_input @f$M@f$-th order real part of input.
    * @param[out] real_part_output Real part of output.
    * @param[out] imag_part_output Imaginary part of output.
    * @param[out] buffer Buffer.

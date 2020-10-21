@@ -95,23 +95,23 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a zerodf [ \e option ] \e bfile [ \e infile ]
+ * @a zerodf [ @e option ] \e bfile [ \e infile ]
  *
- * - \b -m \e int
- *   - order of coefficients \f$(0 \le M)\f$
- * - \b -p \e int
- *   - frame period \f$(1 \le P)\f$
- * - \b -i \e int
- *   - interpolation period \f$(0 \le I \le P/2)\f$
- * - \b -t \e bool
+ * - @b -m @e int
+ *   - order of coefficients @f$(0 \le M)@f$
+ * - @b -p @e int
+ *   - frame period @f$(1 \le P)@f$
+ * - @b -i @e int
+ *   - interpolation period @f$(0 \le I \le P/2)@f$
+ * - @b -t @e bool
  *   - transpose filter
- * - \b -k \e bool
+ * - @b -k @e bool
  *   - filtering without gain
- * - \b bfile \e str
+ * - @b bfile @e str
  *   - double-type FIR filter coefficients
- * - \b infile \e str
+ * - @b infile @e str
  *   - double-type input sequence
- * - \b stdout
+ * - @b stdout
  *   - double-type output sequence
  *
  * In the below example, an exciation signal generated from pitch information is

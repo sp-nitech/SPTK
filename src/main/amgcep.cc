@@ -100,31 +100,31 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a amgcep [ \e option ] [ \e infile ]
+ * @a amgcep [ @e option ] [ \e infile ]
  *
- * - \b -m \e int
- *   - order of mel-cepstral coefficients \f$(0 \le M)\f$
- * - \b -a \e double
- *   - all-pass constant \f$(|\alpha|<1)\f$
- * - \b -c \e int
- *   - gamma \f$\gamma = -1 / C\f$ \f$(1 \le C)\f$
- * - \b -e \e double
- *   - minimum epsilon \f$(0 < \epsilon_{min})\f$
- * - \b -t \e double
- *   - momentum \f$(0 \le \tau < 1)\f$
- * - \b -l \e double
- *   - forgetting factor \f$(0 \le \lambda < 1)\f$
- * - \b -k \e double
- *   - step-size factor \f$(0 < a < 1)\f$
- * - \b -p \e int
- *   - output period \f$(1 \le p)\f$
- * - \b -P \e int
- *   - order of Pade approximation \f$(4 \le P \le 7)\f$
- * - \b -E \e str
+ * - @b -m @e int
+ *   - order of mel-cepstral coefficients @f$(0 \le M)@f$
+ * - @b -a @e double
+ *   - all-pass constant @f$(|\alpha|<1)@f$
+ * - @b -c @e int
+ *   - gamma @f$\gamma = -1 / C@f$ @f$(1 \le C)@f$
+ * - @b -e @e double
+ *   - minimum epsilon @f$(0 < \epsilon_{min})@f$
+ * - @b -t @e double
+ *   - momentum @f$(0 \le \tau < 1)@f$
+ * - @b -l @e double
+ *   - forgetting factor @f$(0 \le \lambda < 1)@f$
+ * - @b -k @e double
+ *   - step-size factor @f$(0 < a < 1)@f$
+ * - @b -p @e int
+ *   - output period @f$(1 \le p)@f$
+ * - @b -P @e int
+ *   - order of Pade approximation @f$(4 \le P \le 7)@f$
+ * - @b -E @e str
  *   - double-type prediction errors
- * - \b infile \e str
+ * - @b infile @e str
  *   - double-type input signals
- * - \b stdout
+ * - @b stdout
  *   - double-type mel-generalized cepstral coefficients
  *
  * The below example extracts 15-th order mel-cepstral coefficients for every

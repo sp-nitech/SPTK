@@ -54,20 +54,20 @@ namespace sptk {
 /**
  * Transform a minimum phase sequence into a frequency-warped sequence.
  *
- * The input is the \f$M_1\f$-th order minimum phase sequence:
- * \f[
+ * The input is the @f$M_1@f$-th order minimum phase sequence:
+ * @f[
  *   \begin{array}{cccc}
  *     c_{\alpha_1}(0), & c_{\alpha_1}(1), & \ldots, & c_{\alpha_1}(M_1),
  *   \end{array}
- * \f]
- * and the output is the \f$M_2\f$-th order frequency-warped sequence:
- * \f[
+ * @f]
+ * and the output is the @f$M_2@f$-th order frequency-warped sequence:
+ * @f[
  *   \begin{array}{cccc}
  *     c_{\alpha_2}(0), & c_{\alpha_2}(1), & \ldots, & c_{\alpha_2}(M_2),
  *   \end{array}
- * \f]
+ * @f]
  * The output sequence can be obtained by using the following recursion formula:
- * \f[
+ * @f[
  *   c_{\alpha_2}^{(i)}(m) = \left\{\begin{array}{ll}
  *     c_{\alpha_1}(-i) + \alpha\,c_{\alpha_2}^{(i-1)}(0), & m=0 \\
  *     (1-\alpha^2)\,c_{\alpha_2}^{(i-1)}(0) +
@@ -76,13 +76,13 @@ namespace sptk {
  *       c_{\alpha_2}^{(i)}(m-1)), & m=2,3,\ldots,M_2
  *   \end{array} \right. \\
  *   i = -M_1,\ldots,-1,0
- * \f]
+ * @f]
  * where
- * \f[
+ * @f[
  *   \alpha = (\alpha_2 - \alpha_1)\,/\,(1 - \alpha_1 \alpha_2).
- * \f]
+ * @f]
  * The initial condition of the recursion is
- * \f$c_{\alpha_2}^{(-M_1-1)}(m) = 0\f$ for any \f$m\f$.
+ * @f$c_{\alpha_2}^{(-M_1-1)}(m) = 0@f$ for any @f$m@f$.
  *
  * The transformation is based on the cascade of all-pass networks. For more
  * detail, see [1]. Note that the above recursion can be represented as a linear
@@ -116,9 +116,9 @@ class FrequencyTransform {
   };
 
   /**
-   * @param[in] num_input_order Order of input, \f$M_1\f$.
-   * @param[in] num_output_order Order of output, \f$M_2\f$.
-   * @param[in] alpha Frequency warping factor, \f$\alpha\f$.
+   * @param[in] num_input_order Order of input, @f$M_1@f$.
+   * @param[in] num_output_order Order of output, @f$M_2@f$.
+   * @param[in] alpha Frequency warping factor, @f$\alpha@f$.
    */
   FrequencyTransform(int num_input_order, int num_output_order, double alpha);
 
@@ -154,8 +154,8 @@ class FrequencyTransform {
   }
 
   /**
-   * @param[in] minimum_phase_sequence \f$M_1\f$-th order input sequence.
-   * @param[out] warped_sequence \f$M_2\f$-th order output sequence.
+   * @param[in] minimum_phase_sequence @f$M_1@f$-th order input sequence.
+   * @param[out] warped_sequence @f$M_2@f$-th order output sequence.
    * @param[out] buffer Buffer.
    * @return True on success, false on failure.
    */

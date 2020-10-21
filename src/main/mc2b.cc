@@ -82,15 +82,15 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a mc2b [ \e option ] [ \e infile ]
+ * @a mc2b [ @e option ] [ \e infile ]
  *
- * - \b -m \e int
- *   - order of coefficients \f$(0 \le M)\f$
- * - \b -a \e double
- *   - all-pass constant \f$(|\alpha|<1)\f$
- * - \b infile \e str
+ * - @b -m @e int
+ *   - order of coefficients @f$(0 \le M)@f$
+ * - @b -a @e double
+ *   - all-pass constant @f$(|\alpha|<1)@f$
+ * - @b infile @e str
  *   - double-type mel-cepstral coefficients
- * - \b stdout
+ * - @b stdout
  *   - double-type MLSA digital filter coefficients
  *
  * The below example converts mel-cepstral coefficients into MLSA digital filter

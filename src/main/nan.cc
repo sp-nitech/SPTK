@@ -75,11 +75,11 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a nan [ \e infile ]
+ * @a nan [ @e infile ]
  *
- * - \b infile \e str
+ * - @b infile @e str
  *   - double-type data sequence
- * - \b stdout
+ * - @b stdout
  *   - result messages
  *
  * This command checks whether given data sequence contains NaN or infinity.

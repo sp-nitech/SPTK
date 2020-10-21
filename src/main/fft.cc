@@ -100,22 +100,22 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a fft [ \e option ] [ \e infile ]
+ * @a fft [ @e option ] [ \e infile ]
  *
- * - \b -m \e int
- *   - order of sequence \f$(0 \le M < L)\f$
- * - \b -l \e int
- *   - FFT length \f$(1 \le L)\f$
- * - \b -o \e int
+ * - @b -m @e int
+ *   - order of sequence @f$(0 \le M < L)@f$
+ * - @b -l @e int
+ *   - FFT length @f$(1 \le L)@f$
+ * - @b -o @e int
  *   - output format
- *     \arg \c 0 real and imaginary parts
- *     \arg \c 1 real part
- *     \arg \c 2 imaginary part
- *     \arg \c 3 amplitude spectrum
- *     \arg \c 4 power spectrum
- * - \b infile \e str
+ *     \arg @c 0 real and imaginary parts
+ *     \arg @c 1 real part
+ *     \arg @c 2 imaginary part
+ *     \arg @c 3 amplitude spectrum
+ *     \arg @c 4 power spectrum
+ * - @b infile @e str
  *   - double-type data sequence
- * - \b stdout
+ * - @b stdout
  *   - double-type FFT sequence
  *
  * The below example analyzes a sine wave using Blackman window by padding

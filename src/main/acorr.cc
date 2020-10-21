@@ -95,35 +95,35 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a acorr [ \e option ] [ \e infile ]
+ * @a acorr [ @e option ] [ \e infile ]
  *
- * - \b -l \e int
- *   - frame length \f$(1 \le L)\f$
- * - \b -m \e int
- *   - order of autocorrelation coefficients \f$(0 \le M)\f$
- * - \b -o \e double
+ * - @b -l @e int
+ *   - frame length @f$(1 \le L)@f$
+ * - @b -m @e int
+ *   - order of autocorrelation coefficients @f$(0 \le M)@f$
+ * - @b -o @e double
  *   - output format
- *     \arg \c 0 autocorrelation
- *     \arg \c 1 biased autocorrelation
- *     \arg \c 2 normalized autocorrelation
- * - \b infile \e str
+ *     \arg @c 0 autocorrelation
+ *     \arg @c 1 biased autocorrelation
+ *     \arg @c 2 normalized autocorrelation
+ * - @b infile @e str
  *   - double-type data sequence
- * - \b stdout
+ * - @b stdout
  *   - double-type autocorrelation sequence.
  *
  * If `-o 1`, output the biased autocorrelation:
- * \f[
+ * @f[
  *   \begin{array}{cccc}
  *     r(0)/L, & r(1)/L, & \ldots, & r(M)/L,
  *   \end{array}
- * \f]
- * where \f$r(m)\f$ is the \f$m\f$-th autocorrelation coefficient.
+ * @f]
+ * where @f$r(m)@f$ is the @f$m@f$-th autocorrelation coefficient.
  * If `-o 2`, output the normalized autocorrelation:
- * \f[
+ * @f[
  *   \begin{array}{cccc}
  *     1, & r(1)/r(0), & \ldots, & r(M)/r(0).
  *   \end{array}
- * \f]
+ * @f]
  *
  * The below example extracts 10-th order autocorrelation coefficients from
  * windowed waveform.

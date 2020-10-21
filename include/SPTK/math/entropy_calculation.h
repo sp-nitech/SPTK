@@ -54,23 +54,23 @@ namespace sptk {
 /**
  * Calculate entropy.
  *
- * The input is the probabilities of \f$N\f$ events:
- * \f[
+ * The input is the probabilities of @f$N@f$ events:
+ * @f[
  *   \begin{array}{cccc}
  *     p(1), & p(2), & \ldots, & p(N),
  *   \end{array}
- * \f]
+ * @f]
  * where
- * \f[
+ * @f[
  *   \sum_{n=1}^N \, p(n) = 1.
- * \f]
+ * @f]
  * The output is the entropy for the probabilities:
- * \f[
+ * @f[
  *   \begin{array}{cccc}
  *     H = -\displaystyle\sum_{n=1}^N p(n) \log_b p(n)
  *   \end{array}
- * \f]
- * where \f$b\f$ is 2, \f$e\f$, or 10.
+ * @f]
+ * where @f$b@f$ is 2, @f$e@f$, or 10.
  */
 class EntropyCalculation {
  public:
@@ -80,7 +80,7 @@ class EntropyCalculation {
   enum EntropyUnits { kBit = 0, kNat, kDit, kNumUnits };
 
   /**
-   * @param[in] num_element Number of elements, \f$N\f$.
+   * @param[in] num_element Number of elements, @f$N@f$.
    * @param[in] entropy_unit Unit of entropy.
    */
   EntropyCalculation(int num_element, EntropyUnits entropy_unit);

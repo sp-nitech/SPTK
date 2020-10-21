@@ -81,19 +81,19 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a iulaw [ \e option ] [ \e infile ]
+ * @a iulaw [ @e option ] [ \e infile ]
  *
- * - \b -v \e int
- *   - absolute maximum value of input \f$(0 < V)\f$
- * - \b -u \e double
- *   - compression factor \f$(0 < \mu)\f$
- * - \b infile \e str
+ * - @b -v @e int
+ *   - absolute maximum value of input @f$(0 < V)@f$
+ * - @b -u @e double
+ *   - compression factor @f$(0 < \mu)@f$
+ * - @b infile @e str
  *   - double-type compressed data sequence
- * - \b stdout
+ * - @b stdout
  *   - double-type output data sequence
  *
  * In the below example, 8-bit compressed and quantized data read from
- * \c data.ulaw is transformed into raw waveform.
+ * @c data.ulaw is transformed into raw waveform.
  *
  * @code{.sh}
  *   dequantize data.ulaw | iulaw > data.raw

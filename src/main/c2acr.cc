@@ -84,21 +84,21 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a c2acr [ \e option ] [ \e infile ]
+ * @a c2acr [ @e option ] [ \e infile ]
  *
- * - \b -m \e int
- *   - order of cepstral coefficients \f$(0 \le M_1 < L)\f$
- * - \b -M \e int
- *   - order of autocorrelation coefficients \f$(0 \le M_2 < L)\f$
- * - \b -l \e int
- *   - FFT length \f$(2 \le L)\f$
- * - \b infile \e str
+ * - @b -m @e int
+ *   - order of cepstral coefficients @f$(0 \le M_1 < L)@f$
+ * - @b -M @e int
+ *   - order of autocorrelation coefficients @f$(0 \le M_2 < L)@f$
+ * - @b -l @e int
+ *   - FFT length @f$(2 \le L)@f$
+ * - @b infile @e str
  *   - double-type cepstral coefficients
- * - \b stdout
+ * - @b stdout
  *   - double-type autocorrelation coefficients
  *
  * The following example converts the 30-th order cepstral coefficients in
- * \c data.cep into the 15-th order LPC coefficients.
+ * @c data.cep into the 15-th order LPC coefficients.
  *
  * @code{.sh}
  *   c2acr -m 30 -M 15 < data.cep | levdur -m 15 > data.lpc

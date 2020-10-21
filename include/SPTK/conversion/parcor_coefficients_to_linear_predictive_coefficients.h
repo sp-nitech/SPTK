@@ -54,32 +54,32 @@ namespace sptk {
 /**
  * Transform PARCOR coefficients to LPC coefficients.
  *
- * The input is the \f$M\f$-th order PARCOR coefficients:
- * \f[
+ * The input is the @f$M@f$-th order PARCOR coefficients:
+ * @f[
  *   \begin{array}{cccc}
  *     K, & k(1), & \ldots, & k(M),
  *   \end{array}
- * \f]
- * and the output is the \f$M\f$-th order LPC coefficients:
- * \f[
+ * @f]
+ * and the output is the @f$M@f$-th order LPC coefficients:
+ * @f[
  *   \begin{array}{cccc}
  *     K, & a(1), & \ldots, & a(M),
  *   \end{array}
- * \f]
- * where \f$K\f$ is the gain. The transformation is given by the following
+ * @f]
+ * where @f$K@f$ is the gain. The transformation is given by the following
  * recursion formula:
- * \f[
+ * @f[
  *   a^{(i)}(m) = a^{(i-1)}(m) + k(i) a^{(i-1)}(i-m) \\
  *   i = 2,\ldots,M
- * \f]
- * with the initial condition \f$a^{(i)}(i)=k(i)\f$ for \f$i = 1,\ldots,M-1\f$.
+ * @f]
+ * with the initial condition @f$a^{(i)}(i)=k(i)@f$ for @f$i = 1,\ldots,M-1@f$.
  * The outputs can then be written as
- * \f[
+ * @f[
  *   a(m) = \left\{ \begin{array}{ll}
  *     a^{(M)}(m), & 1 \le m < M \\
  *     k(m). & m = M
  *   \end{array} \right.
- * \f]
+ * @f]
  */
 class ParcorCoefficientsToLinearPredictiveCoefficients {
  public:
@@ -124,8 +124,8 @@ class ParcorCoefficientsToLinearPredictiveCoefficients {
   }
 
   /**
-   * @param[in] parcor_coefficients \f$M\f$-th order PARCOR coefficients.
-   * @param[out] linear_predictive_coefficients \f$M\f$-th order LPC
+   * @param[in] parcor_coefficients @f$M@f$-th order PARCOR coefficients.
+   * @param[out] linear_predictive_coefficients @f$M@f$-th order LPC
    *             coefficients.
    * @param[out] buffer Buffer.
    * @return True on success, false on failure.
@@ -136,7 +136,7 @@ class ParcorCoefficientsToLinearPredictiveCoefficients {
       ParcorCoefficientsToLinearPredictiveCoefficients::Buffer* buffer) const;
 
   /**
-   * @param[in,out] input_and_output \f$M\f$-th order coefficients.
+   * @param[in,out] input_and_output @f$M@f$-th order coefficients.
    * @param[out] buffer Buffer.
    * @return True on success, false on failure.
    */

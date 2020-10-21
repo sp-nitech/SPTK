@@ -81,18 +81,18 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a ulaw [ \e option ] [ \e infile ]
+ * @a ulaw [ @e option ] [ \e infile ]
  *
- * - \b -v \e int
- *   - absolute maximum value of input \f$(0 < V)\f$
- * - \b -u \e double
- *   - compression factor \f$(0 < \mu)\f$
- * - \b infile \e str
+ * - @b -v @e int
+ *   - absolute maximum value of input @f$(0 < V)@f$
+ * - @b -u @e double
+ *   - compression factor @f$(0 < \mu)@f$
+ * - @b infile @e str
  *   - double-type input data sequence
- * - \b stdout
+ * - @b stdout
  *   - double-type compressed data sequence
  *
- * In the below example, 16-bit data read from \c data.short is compressed to
+ * In the below example, 16-bit data read from @c data.short is compressed to
  * 8-bit ulaw format.
  *
  * @code{.sh}

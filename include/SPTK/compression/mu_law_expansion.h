@@ -50,21 +50,21 @@
 namespace sptk {
 
 /**
- * Nonlinearly decompress data based on \f$\mu\f$-law algorithm.
+ * Nonlinearly decompress data based on @f$\mu@f$-law algorithm.
  *
- * Given the input data \f$y(n)\f$, the expansion is performed as follows:
- * \f[
+ * Given the input data @f$y(n)@f$, the expansion is performed as follows:
+ * @f[
  *   x(n) = V \, \mathrm{sgn}(y(n))
  *     \frac{(1 + \mu)^{|y(n)|/V} - 1}{\mu}
- * \f]
- * where \f$V\f$ is the absolute maximum value of the input data and \f$\mu\f$
+ * @f]
+ * where @f$V@f$ is the absolute maximum value of the input data and @f$\mu@f$
  * is the compression factor, which is typically set to 255.
  */
 class MuLawExpansion {
  public:
   /**
    * @param[in] abs_max_value Absolute maximum value.
-   * @param[in] compression_factor Compression factor, \f$\mu\f$.
+   * @param[in] compression_factor Compression factor, @f$\mu@f$.
    */
   MuLawExpansion(double abs_max_value, double compression_factor);
 

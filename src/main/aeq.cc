@@ -83,34 +83,34 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a aeq [ \e option ] \e exfile [ \e infile ]
+ * @a aeq [ @e option ] \e exfile [ \e infile ]
  *
- * - \b -t \e double
- *   - absolute tolerance \f$(0 \le \epsilon)\f$
- * - \b -L \e bool
+ * - @b -t @e double
+ *   - absolute tolerance @f$(0 \le \epsilon)@f$
+ * - @b -L @e bool
  *   - disable to check length
- * - \b exfile \e str
+ * - @b exfile @e str
  *   - double-type expected values
- * - \b infile \e str
+ * - @b infile @e str
  *   - double-type actual values
- * - \b stdout
+ * - @b stdout
  *   - result messages
  *
  * This command checks whether two data sequences are almost equal or not.
  *
  * Given the two data sequences
- * \f[
+ * @f[
  *   \begin{array}{cccc}
  *     x_1(0), & x_1(1), & \ldots, & x_1(T_1), \\
  *     x_2(0), & x_2(1), & \ldots, & x_2(T_2), \\
  *   \end{array}
- * \f]
- * the absolute error \f$e(t)\f$ is calculated sample-by-sample:
- * \f[
+ * @f]
+ * the absolute error @f$e(t)@f$ is calculated sample-by-sample:
+ * @f[
  *   e(t) = | x_1(t) - x_2(t) |.
- * \f]
- * If \f$e(t)\f$ is greater than tolerance \f$\epsilon\f$ or \f$T_1\f$ is not
- * equal to \f$T_2\f$, the command prints a warning message.
+ * @f]
+ * If @f$e(t)@f$ is greater than tolerance @f$\epsilon@f$ or @f$T_1@f$ is not
+ * equal to @f$T_2@f$, the command prints a warning message.
  *
  * The below example checks the equality between two data:
  *

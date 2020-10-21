@@ -91,25 +91,25 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a lpc2par [ \e option ] [ \e infile ]
+ * @a lpc2par [ @e option ] [ \e infile ]
  *
- * - \b -m \e int
- *   - order of coefficients \f$(0 \le M)\f$
- * - \b -g \e double
- *   - gamma \f$(|\gamma| \le 1)\f$
- * - \b -c \e double
- *   - gamma \f$\gamma = -1 / C\f$ \f$(1 \le C)\f$
- * - \b -w \e int
+ * - @b -m @e int
+ *   - order of coefficients @f$(0 \le M)@f$
+ * - @b -g @e double
+ *   - gamma @f$(|\gamma| \le 1)@f$
+ * - @b -c @e double
+ *   - gamma @f$\gamma = -1 / C@f$ @f$(1 \le C)@f$
+ * - @b -w @e int
  *   - type of warning of unstable coefficients
- *     \arg \c 0 no warning
- *     \arg \c 1 output the index to stderr
- *     \arg \c 2 output the index to stderr and exit immediately
- * - \b infile \e str
+ *     \arg @c 0 no warning
+ *     \arg @c 1 output the index to stderr
+ *     \arg @c 2 output the index to stderr and exit immediately
+ * - @b infile @e str
  *   - double-type LPC coefficients
- * - \b stdout
+ * - @b stdout
  *   - double-type PARCOR coefficients
  *
- * The below example extract PARCOR coefficients from \c data.d
+ * The below example extract PARCOR coefficients from @c data.d
  *
  * @code{.sh}
  *   frame < data.d | window | lpc | lpc2par > data.rc

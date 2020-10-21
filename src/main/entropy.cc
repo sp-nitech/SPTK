@@ -89,55 +89,55 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a entropy [ \e option ] [ \e infile ]
+ * @a entropy [ @e option ] [ \e infile ]
  *
- * - \b -l \e int
- *   - number of elements \f$(1 \le N)\f$
- * - \b -o \e int
- *   - output format \f$O\f$
- *     \arg \c 0 bit
- *     \arg \c 1 nat
- *     \arg \c 2 dit
- * - \b -f \e bool
+ * - @b -l @e int
+ *   - number of elements @f$(1 \le N)@f$
+ * - @b -o @e int
+ *   - output format @f$O@f$
+ *     \arg @c 0 bit
+ *     \arg @c 1 nat
+ *     \arg @c 2 dit
+ * - @b -f @e bool
  *   - output entropy frame by frame
- * - \b infile \e str
+ * - @b infile @e str
  *   - double-type probability sequence
- * - \b stdout
+ * - @b stdout
  *   - double-type entropy
  *
  * The input is a set of probabilities:
- * \f[
+ * @f[
  *   \begin{array}{ccc}
  *     \underbrace{p_1(1),\,p_1(2),\,\ldots,\,p_1(N)}_{\boldsymbol{p}(0)}, &
  *     \underbrace{p_2(1),\,p_2(2),\,\ldots,\,p_2(N)}_{\boldsymbol{p}(1)}, &
  *     \ldots,
  *   \end{array}
- * \f]
- * If \c -f option is given, the output sequence is
- * \f[
+ * @f]
+ * If @c -f option is given, the output sequence is
+ * @f[
  *   \begin{array}{cccc}
  *     H(0), & H(1), & H(2), & \ldots,
  *   \end{array}
- * \f]
- * where \f$H(t)\f$ is the entropy at \f$t\f$-th frame:
- * \f[
+ * @f]
+ * where @f$H(t)@f$ is the entropy at @f$t@f$-th frame:
+ * @f[
  *   H(t) = -\sum_{n=1}^{N} p_t(n) \log_b p_t(n)
  *        = -\boldsymbol{p}(t)^\mathsf{T} \log_b \boldsymbol{p}(t).
- * \f]
- * The base \f$b\f$ depends on the value of \f$O\f$:
- * \f[
+ * @f]
+ * The base @f$b@f$ depends on the value of @f$O@f$:
+ * @f[
  *   b = \left\{\begin{array}{ll}
  *     2,\quad & O = 0 \\
  *     e,      & O = 1 \\
  *     10.     & O = 2 \\
  *   \end{array}\right.
- * \f]
- * If \c -f option is not given, only the average of the entropies,
- * \f$\bar{H}\f$, is sent to the standard output:
- * \f[
+ * @f]
+ * If @c -f option is not given, only the average of the entropies,
+ * @f$\bar{H}@f$, is sent to the standard output:
+ * @f[
  *   \bar{H} = \frac{1}{T} \sum_{t=0}^{T-1} H(t),
- * \f]
- * where \f$T\f$ is the number of the set of probabilities.
+ * @f]
+ * where @f$T@f$ is the number of the set of probabilities.
  *
  * The below example calculates maximum value of entropy:
  *

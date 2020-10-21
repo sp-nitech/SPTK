@@ -106,23 +106,23 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a ifft [ \e option ] [ \e infile ]
+ * @a ifft [ @e option ] [ \e infile ]
  *
- * - \b -l \e int
- *   - FFT length \f$(1 \le L)\f$
- * - \b -q \e int
+ * - @b -l @e int
+ *   - FFT length @f$(1 \le L)@f$
+ * - @b -q @e int
  *   - input format
- *     \arg \c 0 real and imaginary parts
- *     \arg \c 1 real part
- *     \arg \c 2 imaginary part
- * - \b -o \e int
+ *     \arg @c 0 real and imaginary parts
+ *     \arg @c 1 real part
+ *     \arg @c 2 imaginary part
+ * - @b -o @e int
  *   - output format
- *     \arg \c 0 real and imaginary parts
- *     \arg \c 1 real part
- *     \arg \c 2 imaginary part
- * - \b infile \e str
+ *     \arg @c 0 real and imaginary parts
+ *     \arg @c 1 real part
+ *     \arg @c 2 imaginary part
+ * - @b infile @e str
  *   - double-type data sequence
- * - \b stdout
+ * - @b stdout
  *   - double-type inverse FFT sequence
  *
  * @param[in] argc Number of arguments.

@@ -55,29 +55,29 @@ namespace sptk {
  * Calculate autocorrelation.
  *
  * The input is the framed waveform signal:
- * \f[
+ * @f[
  *   \begin{array}{cccc}
  *     x(0), & x(1), & \ldots, & x(L-1),
  *   \end{array}
- * \f]
- * where \f$L\f$ is the frame length. The output is the \f$M\f$-th order
+ * @f]
+ * where @f$L@f$ is the frame length. The output is the @f$M@f$-th order
  * autocorrelation coefficients:
- * \f[
+ * @f[
  *   \begin{array}{cccc}
  *     r(0), & r(1), & \ldots, & r(M).
  *   \end{array}
- * \f]
+ * @f]
  * The autocorrelation is given by
- * \f[
+ * @f[
  *   r(m) = \sum_{l=0}^{L-1-m} x(l)x(l+m),
- * \f]
- * where \f$m\f$ is the lag.
+ * @f]
+ * where @f$m@f$ is the lag.
  */
 class WaveformToAutocorrelation {
  public:
   /**
-   * @param[in] frame_length Frame length, \f$L\f$.
-   * @param[in] num_order Order of autocorrelation, \f$M\f$.
+   * @param[in] frame_length Frame length, @f$L@f$.
+   * @param[in] num_order Order of autocorrelation, @f$M@f$.
    */
   WaveformToAutocorrelation(int frame_length, int num_order);
 
@@ -106,8 +106,8 @@ class WaveformToAutocorrelation {
   }
 
   /**
-   * @param[in] waveform \f$L\f$-length framed waveform.
-   * @param[out] autocorrelation \f$M\f$-th order autocorrelation coefficients.
+   * @param[in] waveform @f$L@f$-length framed waveform.
+   * @param[out] autocorrelation @f$M@f$-th order autocorrelation coefficients.
    */
   bool Run(const std::vector<double>& waveform,
            std::vector<double>* autocorrelation) const;

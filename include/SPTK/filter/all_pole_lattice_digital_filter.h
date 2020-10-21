@@ -54,12 +54,12 @@ namespace sptk {
 /**
  * Apply all-pole lattice filter for speech synthesis.
  *
- * Given the \f$M\f$-th order PARCOR coefficients,
- * \f[
+ * Given the @f$M@f$-th order PARCOR coefficients,
+ * @f[
  *   \begin{array}{cccc}
  *     K, & k(1), & \ldots, & k(M),
  *   \end{array}
- * \f]
+ * @f]
  * an output signal is obtained by applying the all-pole lattice filter to an
  * input signal in time domain.
  */
@@ -84,7 +84,7 @@ class AllPoleLatticeDigitalFilter {
   };
 
   /**
-   * @param[in] num_filter_order Order of filter coefficients, \f$M\f$.
+   * @param[in] num_filter_order Order of filter coefficients, @f$M@f$.
    */
   explicit AllPoleLatticeDigitalFilter(int num_filter_order);
 
@@ -106,7 +106,7 @@ class AllPoleLatticeDigitalFilter {
   }
 
   /**
-   * @param[in] filter_coefficients \f$M\f$-th order PARCOR coefficients.
+   * @param[in] filter_coefficients @f$M@f$-th order PARCOR coefficients.
    * @param[in] filter_input Input signal.
    * @param[out] filter_output Output signal.
    * @param[in,out] buffer Buffer.
@@ -117,7 +117,7 @@ class AllPoleLatticeDigitalFilter {
            AllPoleLatticeDigitalFilter::Buffer* buffer) const;
 
   /**
-   * @param[in] filter_coefficients \f$M\f$-th order PARCOR coefficients.
+   * @param[in] filter_coefficients @f$M@f$-th order PARCOR coefficients.
    * @param[in,out] input_and_output Input/output signal.
    * @param[in,out] buffer Buffer.
    * @return True on success, false on failure.

@@ -80,13 +80,13 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a csm2acr [ \e option ] [ \e infile ]
+ * @a csm2acr [ @e option ] [ \e infile ]
  *
- * - \b -m \e int
- *   - order of autocorrelation \f$(1 \le M)\f$
- * - \b infile \e str
+ * - @b -m @e int
+ *   - order of autocorrelation @f$(1 \le M)@f$
+ * - @b infile @e str
  *   - double-type CSM parameters
- * - \b stdout
+ * - @b stdout
  *   - double-type autocorrelation
  *
  * The below example converts CSM parameters into autocorrelation coefficients:
