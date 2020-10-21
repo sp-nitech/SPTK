@@ -58,10 +58,10 @@ teardown() {
    $sptk3/nrand -l 30 > tmp/1
    for l in $(seq 1 10); do
       for p in $(seq 1 10); do
-	 $sptk3/frame -l $l -p $p tmp/1 > tmp/2
-	 $sptk4/frame -l $l -p $p tmp/1 > tmp/3
-	 run $sptk4/aeq tmp/2 tmp/3
-	 [ "$status" -eq 0 ]
+         $sptk3/frame -l $l -p $p tmp/1 > tmp/2
+         $sptk4/frame -l $l -p $p tmp/1 > tmp/3
+         run $sptk4/aeq tmp/2 tmp/3
+         [ "$status" -eq 0 ]
       done
    done
 }
@@ -70,10 +70,10 @@ teardown() {
    $sptk3/nrand -l 30 > tmp/1
    for l in $(seq 1 10); do
       for p in $(seq 1 10); do
-	 $sptk3/frame -l $l -p $p -n tmp/1 > tmp/2
-	 $sptk4/frame -l $l -p $p -n 1 tmp/1 > tmp/3
-	 run $sptk4/aeq tmp/2 tmp/3
-	 [ "$status" -eq 0 ]
+         $sptk3/frame -l $l -p $p -n tmp/1 > tmp/2
+         $sptk4/frame -l $l -p $p -n 1 tmp/1 > tmp/3
+         run $sptk4/aeq tmp/2 tmp/3
+         [ "$status" -eq 0 ]
       done
    done
 }
