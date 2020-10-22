@@ -893,6 +893,7 @@ INPUT                  = \
                          ../src/main/gnorm.cc \
                          ../src/main/ifft.cc \
                          ../src/main/ignorm.cc \
+                         ../src/main/impulse.cc \
                          ../src/main/iulaw.cc \
                          ../src/main/lpc2par.cc \
                          ../src/main/ltcdf.cc \
