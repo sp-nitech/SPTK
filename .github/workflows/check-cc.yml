@@ -1,12 +1,18 @@
-name: C/C++ CI
+name: build
 
 on:
   push:
     branches:
       - master
+    paths-ignore:
+      - 'doc/**'
+      - '**.md'
   pull_request:
     branches:
       - '**'
+    paths-ignore:
+      - 'doc/**'
+      - '**.md'
 
 jobs:
   build:
