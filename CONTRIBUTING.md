@@ -11,6 +11,7 @@ Development
 -----------
 For the development of SPTK, you may need to install the following programs:
 
+- ClangFormat
 - CMake 3.3+
 - Python 3.6
 - Valgrind
