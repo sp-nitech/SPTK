@@ -109,6 +109,9 @@ bool ComputeProbabilityOfTDistribution(double percentage_point,
 bool ComputePercentagePointOfTDistribution(double probability,
                                            int degrees_of_freedom,
                                            double* percentage_point);
+bool Perform1DConvolution(const std::vector<double>& f,
+                          const std::vector<double>& g,
+                          std::vector<double>* result);
 void PrintDataType(const std::string& symbol, std::ostream* stream);
 void PrintErrorMessage(const std::string& program_name,
                        const std::ostringstream& message);

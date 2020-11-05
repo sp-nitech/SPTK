@@ -857,6 +857,7 @@ INPUT                  = \
                          ../include/SPTK/conversion/cepstrum_to_autocorrelation.h \
                          ../include/SPTK/conversion/cepstrum_to_minimum_phase_impulse_response.h \
                          ../include/SPTK/conversion/composite_sinusoidal_modeling_to_autocorrelation.h \
+                         ../include/SPTK/conversion/filter_coefficients_to_group_delay.h \
                          ../include/SPTK/conversion/filter_coefficients_to_phase_spectrum.h \
                          ../include/SPTK/conversion/generalized_cepstrum_gain_normalization.h \
                          ../include/SPTK/conversion/generalized_cepstrum_inverse_gain_normalization.h \
@@ -892,6 +893,7 @@ INPUT                  = \
                          ../src/main/frame.cc \
                          ../src/main/freqt.cc \
                          ../src/main/gnorm.cc \
+                         ../src/main/grpdelay.cc \
                          ../src/main/ifft.cc \
                          ../src/main/ignorm.cc \
                          ../src/main/impulse.cc \

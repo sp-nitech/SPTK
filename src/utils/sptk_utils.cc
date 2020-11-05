@@ -44,7 +44,7 @@
 
 #include "SPTK/utils/sptk_utils.h"
 
-#include <algorithm>  // std::fill_n, std::transform
+#include <algorithm>  // std::fill_n, std::max, std::min, std::transform
 #include <cctype>     // std::tolower
 #include <cerrno>     // errno, ERANGE
 #include <cmath>      // std::ceil, std::exp, std::log, std::sqrt, etc.
@@ -530,6 +530,32 @@ bool ComputePercentagePointOfTDistribution(double probability,
     const double delta((computed_probability - (1.0 - probability)) /
                        std::exp((n * tmp1 + tmp2 - 1.0 - tmp3) / 2.0));
     *percentage_point -= delta;
+  }
+  return true;
+}
+
+bool Perform1DConvolution(const std::vector<double>& f,
+                          const std::vector<double>& g,
+                          std::vector<double>* result) {
+  if (f.empty() || g.empty() || NULL == result) {
+    return false;
+  }
+
+  const int m(f.size());
+  const int n(g.size());
+  const int output_size(m + n - 1);
+  if (result->size() != static_cast<std::size_t>(output_size)) {
+    result->resize(output_size);
+  }
+
+  std::fill(result->begin(), result->end(), 0.0);
+  double* output(&((*result)[0]));
+  for (int i(0); i < output_size; ++i) {
+    const int begin(std::max(i - n + 1, 0));
+    const int end(std::min(i, m - 1));
+    for (int j(begin); j <= end; ++j) {
+      output[i] += f[j] * g[i - j];
+    }
   }
   return true;
 }
