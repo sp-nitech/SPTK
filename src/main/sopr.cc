@@ -77,6 +77,8 @@ enum LongOptions {
   kCOS,
   kTAN,
   kATAN,
+  kTANH,
+  kATANH,
   kMagic,
   kMAGIC,
 };
@@ -121,6 +123,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -COS         : cosine                              [     cos(x) ]" << std::endl;  // NOLINT
   *stream << "       -TAN         : tangent                             [     tan(x) ]" << std::endl;  // NOLINT
   *stream << "       -ATAN        : arctangent                          [    atan(x) ]" << std::endl;  // NOLINT
+  *stream << "       -TANH        : hyperbolic tangent                  [    tanh(x) ]" << std::endl;  // NOLINT
+  *stream << "       -ATANH       : hyperbolic arctangent               [   atanh(x) ]" << std::endl;  // NOLINT
   *stream << "       -magic magic : remove magic number  (double)[  N/A][            ]" << std::endl;  // NOLINT
   *stream << "       -MAGIC MAGIC : replace magic number (double)[  N/A][      MAGIC ]" << std::endl;  // NOLINT
   *stream << "       -h           : print this message" << std::endl;
@@ -181,6 +185,8 @@ int main(int argc, char* argv[]) {
       {"COS", no_argument, NULL, kCOS},
       {"TAN", no_argument, NULL, kTAN},
       {"ATAN", no_argument, NULL, kATAN},
+      {"TANH", no_argument, NULL, kTANH},
+      {"ATANH", no_argument, NULL, kATANH},
       {"magic", required_argument, NULL, kMagic},
       {"MAGIC", required_argument, NULL, kMAGIC},
       {0, 0, 0, 0},
@@ -552,6 +558,24 @@ int main(int argc, char* argv[]) {
         if (!scalar_operation.AddArctangentOperation()) {
           std::ostringstream error_message;
           error_message << "Failed to add operation by -ATAN option";
+          sptk::PrintErrorMessage("sopr", error_message);
+          return 1;
+        }
+        break;
+      }
+      case kTANH: {
+        if (!scalar_operation.AddHyperbolicTangentOperation()) {
+          std::ostringstream error_message;
+          error_message << "Failed to add operation by -TANH option";
+          sptk::PrintErrorMessage("sopr", error_message);
+          return 1;
+        }
+        break;
+      }
+      case kATANH: {
+        if (!scalar_operation.AddHyperbolicArctangentOperation()) {
+          std::ostringstream error_message;
+          error_message << "Failed to add operation by -ATANH option";
           sptk::PrintErrorMessage("sopr", error_message);
           return 1;
         }

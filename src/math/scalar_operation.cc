@@ -466,6 +466,34 @@ class Arctangent : public OperationInterface {
   DISALLOW_COPY_AND_ASSIGN(Arctangent);
 };
 
+class HyperbolicTangent : public OperationInterface {
+ public:
+  HyperbolicTangent() {
+  }
+
+  virtual bool Run(double* number) const {
+    *number = std::tanh(*number);
+    return true;
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(HyperbolicTangent);
+};
+
+class HyperbolicArctangent : public OperationInterface {
+ public:
+  HyperbolicArctangent() {
+  }
+
+  virtual bool Run(double* number) const {
+    *number = std::atanh(*number);
+    return true;
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(HyperbolicArctangent);
+};
+
 class MagicNumberRemover : public sptk::ScalarOperation::ModuleInterface {
  public:
   explicit MagicNumberRemover(double magic_number)
@@ -645,6 +673,16 @@ bool ScalarOperation::AddTangentOperation() {
 
 bool ScalarOperation::AddArctangentOperation() {
   modules_.push_back(new OperationPerformer(new Arctangent()));
+  return true;
+}
+
+bool ScalarOperation::AddHyperbolicTangentOperation() {
+  modules_.push_back(new OperationPerformer(new HyperbolicTangent()));
+  return true;
+}
+
+bool ScalarOperation::AddHyperbolicArctangentOperation() {
+  modules_.push_back(new OperationPerformer(new HyperbolicArctangent()));
   return true;
 }
 
