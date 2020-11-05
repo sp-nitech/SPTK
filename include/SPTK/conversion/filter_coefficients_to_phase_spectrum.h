@@ -72,28 +72,24 @@ namespace sptk {
  * where @f$L@f$ is the FFT length.
  *
  * The general form of transfer function is given by
- * @f[
- *   H(z) = \frac{\sum_{m=0}^M b(m) z^{-m}}{\sum_{n=0}^N a(n) z^{-n}}.
- * @f]
- * where @f$a(0)=1@f$. It can be represented as
- * @f[
- *   H(z) = \frac{\mathcal{F} \, [b(m)]}{\mathcal{F} \, [a(m)]}.
- * @f]
- * The @f$l@f$-th component is
  * @f{eqnarray}{
- *   H(l) &=& \frac{x_b(l) + i y_b(l)}{x_a(l) + i y_a(l)} \\
- *        &=& \frac{x_b(l) + i y_b(l)}{x_a(l) + i y_a(l)} \cdot
- *            \frac{x_a(l) - i y_a(l)}{x_a(l) - i y_a(l)} \\
- *        &=& \frac{x_b(l) x_a(l) + y_b(l) y_a(l)}{x_a^2(l) + y_a^2(l)} +i
- *            \frac{y_b(l) x_a(l) - x_b(l) y_a(l)}{x_a^2(l) + y_a^2(l)}.
+ *   H(z) &=& \frac{\sum_{m=0}^M b(m) z^{-m}}{\sum_{n=0}^N a(n) z^{-n}} \\
+ *        &=& \frac{B(z)}{A(z)}.
  * @f}
+ * where @f$a(0)=1@f$. It can be rewritten as
+ * @f{eqnarray}{
+ *   H(z) &=& \frac{B_R(z) + i B_I(z)}{A_R(z) + i A_I(z)} \\
+ *        &=& \frac{B_R(z) + i B_I(z)}{A_R(z) + i A_I(z)} \cdot
+ *            \frac{A_R(z) - i A_I(z)}{A_R(z) - i A_I(z)} \\
+ *        &=& \frac{B_R(z) A_R(z) + B_I(z) A_I(z)}{A_R^2(z) + A_I^2(z)} +i
+ *            \frac{B_I(z) A_R(z) - B_R(z) A_I(z)}{A_R^2(z) + A_I^2(z)}.
+ * @f}
+ * where the subscripts @f$R@f$ and @f$I@f$ denote the real and imaginary parts.
  * Thus
  * @f{eqnarray}{
- *   \angle H(l) &=& \tan^{-1}
- *     \left( \frac{\mathrm{Im}[H(l)]}{\mathrm{Re}[H(l)]} \right) \\
- *               &=& \tan^{-1}
- *     \left( \frac{y_b(l) x_a(l) - x_b(l) y_a(l)}
- *                 {x_b(l) x_a(l) + y_b(l) y_a(l)} \right).
+ *   \angle H(z) &=& \tan^{-1} \left(\frac{H_I(z)}{H_R(z)}\right) \\
+ *               &=& \tan^{-1} \left( \frac{B_I(z) A_R(z) - B_R(z) A_I(z)}
+ *                             {B_R(z) A_R(z) + B_I(z) A_I(z)} \right).
  * @f}
  */
 class FilterCoefficientsToPhaseSpectrum {

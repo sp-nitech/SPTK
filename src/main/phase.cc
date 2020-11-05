@@ -68,9 +68,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       phase [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : FFT length                        (   int)[" << std::setw(5) << std::right << kDefaultFftLength           << "][   2 <= l <=     ]" << std::endl;  // NOLINT
-  *stream << "       -m m  : order of numerator coefficients   (   int)[" << std::setw(5) << std::right << kDefaultNumNumeratorOrder   << "][   0 <= m <=     ]" << std::endl;  // NOLINT
-  *stream << "       -n n  : order of denominator coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumDenominatorOrder << "][   0 <= n <=     ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length                        (   int)[" << std::setw(5) << std::right << kDefaultFftLength           << "][ 2 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of numerator coefficients   (   int)[" << std::setw(5) << std::right << kDefaultNumNumeratorOrder   << "][ 0 <= m <  l ]" << std::endl;  // NOLINT
+  *stream << "       -n n  : order of denominator coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumDenominatorOrder << "][ 0 <= n <  l ]" << std::endl;  // NOLINT
   *stream << "       -z z  : name of file containing           (string)[" << std::setw(5) << std::right << "N/A"                       << "]" << std::endl;  // NOLINT
   *stream << "               numerator coefficients" << std::endl;
   *stream << "       -p p  : name of file containing           (string)[" << std::setw(5) << std::right << "N/A"                       << "]" << std::endl;  // NOLINT
@@ -94,10 +94,12 @@ void PrintUsage(std::ostream* stream) {
 /**
  * @a phase [ @e option ] [ \e infile ]
  *
+ * - @b -l @e int
+ *   - FFT length @f$(2 \le L)@f$
  * - @b -m @e int
- *   - order of numerator coefficients @f$(0 \le M)@f$
+ *   - order of numerator coefficients @f$(0 \le M < L)@f$
  * - @b -n @e int
- *   - order of denominator coefficients @f$(0 \le N)@f$
+ *   - order of denominator coefficients @f$(0 \le N < L)@f$
  * - @b -z @e str
  *   - name of file containing numerator coefficients
  * - @b -p @e str
@@ -113,14 +115,14 @@ void PrintUsage(std::ostream* stream) {
  * coefficients:
  *
  * @code{.sh}
- *   phase -z data.z -m 10 -p data.p -n 10 -l 256 > data.ph
+ *   phase -z data.z -m 10 -p data.p -n 10 -l 16 > data.ph
  * @endcode
  *
  * If the filter coefficients are stable, the below example gives the same
  * result:
  *
  * @code{.sh}
- *   impulse -l 256 | dfs -z data.z -p data.p | phase -l 256 > data.ph
+ *   impulse -l 16 | dfs -z data.z -p data.p | phase -l 16 > data.ph
  * @endcode
  *
  * @param[in] argc Number of arguments.

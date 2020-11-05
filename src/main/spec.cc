@@ -73,8 +73,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       spec [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -l l  : FFT length                             (   int)[" << std::setw(5) << std::right << kDefaultFftLength           << "][   2 <= l <=     ]" << std::endl;  // NOLINT
-  *stream << "       -m m  : order of numerator coefficients        (   int)[" << std::setw(5) << std::right << kDefaultNumNumeratorOrder   << "][   0 <= m <=     ]" << std::endl;  // NOLINT
-  *stream << "       -n n  : order of denominator coefficients      (   int)[" << std::setw(5) << std::right << kDefaultNumDenominatorOrder << "][   0 <= n <=     ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of numerator coefficients        (   int)[" << std::setw(5) << std::right << kDefaultNumNumeratorOrder   << "][   0 <= m <  l   ]" << std::endl;  // NOLINT
+  *stream << "       -n n  : order of denominator coefficients      (   int)[" << std::setw(5) << std::right << kDefaultNumDenominatorOrder << "][   0 <= n <  l   ]" << std::endl;  // NOLINT
   *stream << "       -z z  : name of file containing                (string)[" << std::setw(5) << std::right << "N/A"                       << "]" << std::endl;  // NOLINT
   *stream << "               numerator coefficients" << std::endl;
   *stream << "       -p p  : name of file containing                (string)[" << std::setw(5) << std::right << "N/A"                       << "]" << std::endl;  // NOLINT
