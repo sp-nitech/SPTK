@@ -44,7 +44,7 @@
 
 #include "SPTK/conversion/filter_coefficients_to_group_delay.h"
 
-#include <algorithm>  // std::copy, std::fill
+#include <algorithm>  // std::copy, std::fill, std::reverse_copy
 #include <cmath>      // std::pow
 #include <cstddef>    // std::size_t
 

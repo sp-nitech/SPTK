@@ -46,6 +46,7 @@
 
 #include <algorithm>  // std::fill, std::max, std::min
 #include <cmath>      // std::log, std::sqrt
+#include <cstddef>    // std::size_t
 #include <numeric>    // std::accumulate
 
 namespace {

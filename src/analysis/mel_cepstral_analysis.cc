@@ -44,7 +44,7 @@
 
 #include "SPTK/analysis/mel_cepstral_analysis.h"
 
-#include <algorithm>   // std::copy, std::fill, std::reverse_copy, etc.
+#include <algorithm>   // std::copy, std::fill, std::transform, etc.
 #include <cfloat>      // DBL_MAX
 #include <cmath>       // std::exp, std::fabs, std::log
 #include <cstddef>     // std::size_t

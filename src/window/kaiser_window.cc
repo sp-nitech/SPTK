@@ -44,7 +44,7 @@
 
 #include "SPTK/window/kaiser_window.h"
 
-#include <cmath>  // std::cosh, std::pow, std::sqrt
+#include <cmath>  // std::pow, std::sqrt
 
 namespace {
 

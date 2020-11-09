@@ -44,7 +44,7 @@
 
 #include "SPTK/analysis/fast_fourier_transform_cepstral_analysis.h"
 
-#include <algorithm>  // std::transform
+#include <algorithm>  // std::reverse_copy, std::transform
 #include <cmath>      // std::log
 #include <cstddef>    // std::size_t
 

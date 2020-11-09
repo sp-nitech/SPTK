@@ -44,7 +44,7 @@
 
 #include "SPTK/analysis/mel_frequency_cepstral_coefficients_analysis.h"
 
-#include <algorithm>  // std::copy, std::transform
+#include <algorithm>  // std::transform
 #include <cmath>      // std::sin, std::sqrt
 #include <cstddef>    // std::size_t
 

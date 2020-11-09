@@ -45,6 +45,7 @@
 #include "SPTK/window/standard_window.h"
 
 #include <algorithm>  // std::fill
+#include <cmath>      // std::round
 
 #include "SPTK/window/cosine_window.h"
 
@@ -109,7 +110,7 @@ void MakeRectangular(std::vector<double>* window) {
 
 void MakeTrapezoidal(bool periodic, std::vector<double>* window) {
   const int size(window->size());
-  const int quarter_size(std::round(0.25 * size));
+  const int quarter_size(static_cast<int>(std::round(0.25 * size)));
   const double slope(4.0 / (periodic ? size : size - 1));
   double* w(&((*window)[0]));
   for (int i(0); i < quarter_size; ++i) {
