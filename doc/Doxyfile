@@ -862,9 +862,11 @@ INPUT                  = \
                          ../include/SPTK/conversion/generalized_cepstrum_gain_normalization.h \
                          ../include/SPTK/conversion/generalized_cepstrum_inverse_gain_normalization.h \
                          ../include/SPTK/conversion/linear_predictive_coefficients_to_parcor_coefficients.h \
+                         ../include/SPTK/conversion/log_area_ratio_to_parcor_coefficients.h \
                          ../include/SPTK/conversion/mel_cepstrum_to_mlsa_digital_filter_coefficients.h \
                          ../include/SPTK/conversion/mlsa_digital_filter_coefficients_to_mel_cepstrum.h \
                          ../include/SPTK/conversion/parcor_coefficients_to_linear_predictive_coefficients.h \
+                         ../include/SPTK/conversion/parcor_coefficients_to_log_area_ratio.h \
                          ../include/SPTK/conversion/waveform_to_autocorrelation.h \
                          ../include/SPTK/filter/all_pole_digital_filter.h \
                          ../include/SPTK/filter/all_pole_lattice_digital_filter.h \
@@ -899,12 +901,14 @@ INPUT                  = \
                          ../src/main/ignorm.cc \
                          ../src/main/impulse.cc \
                          ../src/main/iulaw.cc \
+                         ../src/main/lar2par.cc \
                          ../src/main/lpc2par.cc \
                          ../src/main/ltcdf.cc \
                          ../src/main/mc2b.cc \
                          ../src/main/mfcc.cc \
                          ../src/main/mlpg.cc \
                          ../src/main/nan.cc \
+                         ../src/main/par2lar.cc \
                          ../src/main/par2lpc.cc \
                          ../src/main/phase.cc \
                          ../src/main/pitch.cc \
