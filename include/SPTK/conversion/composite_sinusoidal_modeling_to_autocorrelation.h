@@ -52,7 +52,7 @@
 namespace sptk {
 
 /**
- * Transform CSM parameters to autocorrelation.
+ * Convert CSM parameters to autocorrelation.
  *
  * The input is the @f$2N@f$ CSM parameters:
  * @f[

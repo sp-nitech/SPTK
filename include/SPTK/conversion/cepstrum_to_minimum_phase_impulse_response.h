@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -52,7 +52,7 @@
 namespace sptk {
 
 /**
- * Transform minimum phase impulse response to cepstrum.
+ * Convert minimum phase impulse response to cepstrum.
  *
  * The input is the @f$M_1@f$-th order cepstral coefficients:
  * @f[

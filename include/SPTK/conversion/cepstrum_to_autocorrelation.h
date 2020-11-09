@@ -53,7 +53,7 @@
 namespace sptk {
 
 /**
- * Transform cepstral coefficients to autocorrelation coefficients.
+ * Convert cepstral coefficients to autocorrelation coefficients.
  *
  * The input is the @f$M_1@f$-th order cepstral coefficients:
  * @f[

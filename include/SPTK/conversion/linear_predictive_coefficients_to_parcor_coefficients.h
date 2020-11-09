@@ -52,7 +52,7 @@
 namespace sptk {
 
 /**
- * Transform LPC coefficients to PARCOR coefficients.
+ * Convert LPC coefficients to PARCOR coefficients.
  *
  * The input is the @f$M@f$-th order LPC coefficients:
  * @f[
@@ -66,7 +66,7 @@ namespace sptk {
  *     K, & k(1), & \ldots, & k(M),
  *   \end{array}
  * @f]
- * where @f$K@f$ is the gain. The transformation is given by the following
+ * where @f$K@f$ is the gain. The conversion is given by the following
  * recursion formula:
  * @f{eqnarray}{
  *   k(i) &=& a^{(i)}(i), \\

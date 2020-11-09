@@ -52,7 +52,7 @@
 namespace sptk {
 
 /**
- * Transform normalized generalized cepstral coefficients to generalized
+ * Convert normalized generalized cepstral coefficients to generalized
  * cepstral coefficients.
  *
  * The input is the @f$M@f$-th order normalized generalized cepstral

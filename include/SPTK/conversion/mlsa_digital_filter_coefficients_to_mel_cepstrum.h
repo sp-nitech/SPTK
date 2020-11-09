@@ -52,7 +52,7 @@
 namespace sptk {
 
 /**
- * Transform MLSA digital filter coefficients to mel-cepstral coefficients.
+ * Convert MLSA digital filter coefficients to mel-cepstral coefficients.
  *
  * The input is the @f$M@f$-th order MLSA digital filter coefficients:
  * @f[

@@ -52,7 +52,7 @@
 namespace sptk {
 
 /**
- * Transform mel-cepstral coefficients to MLSA digital filter coefficients.
+ * Convert mel-cepstral coefficients to MLSA digital filter coefficients.
  *
  * The input is the @f$M@f$-th order mel-cepstral coefficients:
  * @f[
@@ -87,7 +87,7 @@ namespace sptk {
  *     \tilde{c}(0) & \tilde{c}(1) & \cdots & \tilde{c}(M)
  *   \end{array} \right]^{\mathsf{T}}.
  * @f}
- * The transformation is implemented with low computational complexity in a
+ * The conversion is implemented with low computational complexity in a
  * recursive manner as follows:
  * @f[
  *   b(m) = \left\{ \begin{array}{ll}
