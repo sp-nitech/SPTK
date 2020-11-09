@@ -73,7 +73,7 @@ ChebyshevWindow::ChebyshevWindow(int window_length, double ripple_ratio,
       ripple_ratio_(ripple_ratio),
       periodic_(periodic),
       is_valid_(true) {
-  if (0 == window_length_ || ripple_ratio_ <= 0.0) {
+  if (window_length_ <= 0 || ripple_ratio_ <= 0.0) {
     is_valid_ = false;
     return;
   }

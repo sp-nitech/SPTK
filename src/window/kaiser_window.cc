@@ -74,7 +74,7 @@ KaiserWindow::KaiserWindow(int window_length, double beta, bool periodic)
       beta_(beta),
       periodic_(periodic),
       is_valid_(true) {
-  if (window_length_ == 0 || beta_ < 0.0) {
+  if (window_length_ <= 0 || beta_ < 0.0) {
     is_valid_ = false;
     return;
   }

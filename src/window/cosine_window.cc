@@ -51,7 +51,7 @@ namespace sptk {
 CosineWindow::CosineWindow(int window_length, const std::vector<double>& alpha,
                            bool periodic)
     : window_length_(window_length), periodic_(periodic), is_valid_(true) {
-  if (0 == window_length_ || alpha.empty()) {
+  if (window_length_ <= 0 || alpha.empty()) {
     is_valid_ = false;
     return;
   }

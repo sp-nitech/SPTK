@@ -132,7 +132,7 @@ StandardWindow::StandardWindow(int window_length, WindowType window_type,
       window_type_(window_type),
       periodic_(periodic),
       is_valid_(true) {
-  if (0 == window_length_) {
+  if (window_length_ <= 0) {
     is_valid_ = false;
     return;
   }
