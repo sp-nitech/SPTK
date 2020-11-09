@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -81,6 +82,39 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a dfs [ @e option ] [ \e infile ]
+ *
+ * - @b -a @e int+
+ *   - denominator coefficients
+ * - @b -b @e int+
+ *   - numerator coefficients
+ * - @b -p @e str
+ *   - file containing denominator coefficients
+ * - @b -z @e str
+ *   - file containing numerator coefficients
+ * - @b infile @e str
+ *   - double-type filter input
+ * - @b stdout
+ *   - double-type filter output
+ *
+ * The below example applies a pre-emphasis filter to signals in @c data.d
+ *
+ * @code{.sh}
+ *   dfs -a 1 -0.97 < data.d > data.d2
+ * @endcode
+ *
+ * This is equivalent to the following procedure.
+ *
+ * @code{.sh}
+ *   echo 1 -0.97 | x2x +ad > data.p
+ *   dfs -p data.p < data.d > data.d2
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   std::vector<double> denominator_coefficients;
   std::vector<double> numerator_coefficients;
@@ -145,7 +179,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -155,7 +188,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -218,26 +250,28 @@ int main(int argc, char* argv[]) {
     numerator_coefficients.push_back(1.0);
   }
 
-  double filter_input, filter_output;
   sptk::InfiniteImpulseResponseDigitalFilter filter(denominator_coefficients,
                                                     numerator_coefficients);
   sptk::InfiniteImpulseResponseDigitalFilter::Buffer buffer;
   if (!filter.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for filtering";
+    error_message
+        << "Failed to initialize InfiniteImpulseResponseDigitalFilter";
     sptk::PrintErrorMessage("dfs", error_message);
     return 1;
   }
 
-  while (sptk::ReadStream(&filter_input, &input_stream)) {
-    if (!filter.Run(filter_input, &filter_output, &buffer)) {
+  double signal;
+
+  while (sptk::ReadStream(&signal, &input_stream)) {
+    if (!filter.Run(&signal, &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to apply digital filter";
       sptk::PrintErrorMessage("dfs", error_message);
       return 1;
     }
 
-    if (!sptk::WriteStream(filter_output, &std::cout)) {
+    if (!sptk::WriteStream(signal, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write a filter output";
       sptk::PrintErrorMessage("dfs", error_message);
