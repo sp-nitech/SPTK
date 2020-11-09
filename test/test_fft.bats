@@ -56,7 +56,7 @@ teardown() {
 
 @test "fft: compatibility" {
    ary=("" "-R" "-I" "-A" "-P")
-   for o in `seq 0 4`; do
+   for o in $(seq 0 4); do
       $sptk3/nrand -l 20 | $sptk3/fft -m 4 -l 8 ${ary[$o]} > tmp/1
       $sptk3/nrand -l 20 | $sptk4/fft -m 4 -l 8 -o $o > tmp/2
       run $sptk4/aeq tmp/1 tmp/2

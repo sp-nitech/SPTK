@@ -56,7 +56,7 @@ teardown() {
 
 @test "ifft: compatibility" {
    ary=("" "-R" "-I")
-   for o in `seq 0 2`; do
+   for o in $(seq 0 2); do
       $sptk3/nrand -l 32 | $sptk3/ifft -l 8 ${ary[$o]} > tmp/1
       $sptk3/nrand -l 32 | $sptk4/ifft -l 8 -o $o > tmp/2
       run $sptk4/aeq tmp/1 tmp/2
