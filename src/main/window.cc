@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,22 +43,24 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/utils/data_windowing.h"
 #include "SPTK/utils/sptk_utils.h"
+#include "SPTK/window/data_windowing.h"
+#include "SPTK/window/standard_window.h"
 
 namespace {
 
 const int kDefaultFrameLength(256);
 const sptk::DataWindowing::NormalizationType kDefaultNormalizationType(
     sptk::DataWindowing::NormalizationType::kPower);
-const sptk::DataWindowing::WindowType kDefaultWindowType(
-    sptk::DataWindowing::WindowType::kBlackman);
+const sptk::StandardWindow::WindowType kDefaultWindowType(
+    sptk::StandardWindow::WindowType::kBlackman);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -68,14 +70,13 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       window [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : frame length of data sequence (   int)[" << std::setw(5) << std::right << kDefaultFrameLength       << "][ 0 <  l <= L ]" << std::endl;  // NOLINT
-  *stream << "       -L L  : frame length of windowed data (   int)[" << std::setw(5) << std::right << "l"                       << "][ l <= L <=   ]" << std::endl;  // NOLINT
-  *stream << "               sequence" << std::endl;
-  *stream << "       -n n  : normalization type            (   int)[" << std::setw(5) << std::right << kDefaultNormalizationType << "][ 0 <= n <= 2 ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : frame length of input  (   int)[" << std::setw(5) << std::right << kDefaultFrameLength       << "][ 0 <  l <= L ]" << std::endl;  // NOLINT
+  *stream << "       -L L  : frame length of output (   int)[" << std::setw(5) << std::right << "l"                       << "][ l <= L <=   ]" << std::endl;  // NOLINT
+  *stream << "       -n n  : normalization type     (   int)[" << std::setw(5) << std::right << kDefaultNormalizationType << "][ 0 <= n <= 2 ]" << std::endl;  // NOLINT
   *stream << "                 0 (none)" << std::endl;
   *stream << "                 1 (power)" << std::endl;
   *stream << "                 2 (magnitude)" << std::endl;
-  *stream << "       -w w  : window type                   (   int)[" << std::setw(5) << std::right << kDefaultWindowType        << "][ 0 <= w <= 5 ]" << std::endl;  // NOLINT
+  *stream << "       -w w  : window type            (   int)[" << std::setw(5) << std::right << kDefaultWindowType        << "][ 0 <= w <= 5 ]" << std::endl;  // NOLINT
   *stream << "                 0 (Blackman)" << std::endl;
   *stream << "                 1 (Hamming)" << std::endl;
   *stream << "                 2 (Hanning)" << std::endl;
@@ -84,9 +85,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 5 (rectangular)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       data sequence                         (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       data sequence                  (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       windowed data sequence                (double)" << std::endl;  // NOLINT
+  *stream << "       windowed data sequence         (double)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -95,13 +96,48 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a window [ @e option ] [ \e infile ]
+ *
+ * - @b -l @e int
+ *   - input length @f$(1 \le L_1)@f$
+ * - @b -L @e int
+ *   - output length @f$(1 \le L_2)@f$
+ * - @b -n @e int
+ *   - normalization type
+ *     \arg @c 0 none
+ *     \arg @c 1 power
+ *     \arg @c 2 magnitude
+ * - @b -w @e int
+ *   - window type
+ *     \arg @c 0 Blackman
+ *     \arg @c 1 Hamming
+ *     \arg @c 2 Hanning
+ *     \arg @c 3 Bartlett
+ *     \arg @c 4 Trapezoidal
+ *     \arg @c 5 Rectangular
+ * - @b infile @e str
+ *   - double-type data sequence
+ * - @b stdout
+ *   - double-type windowed data sequence
+ *
+ * The below example performs spectral analysis with Blackman window.
+ *
+ * @code{.sh}
+ *   frame -l 400 -p 80 data.d | window -l 400 -L 512 | spec -l 512 > data.spec
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int input_length(kDefaultFrameLength);
   int output_length(kDefaultFrameLength);
   bool is_output_length_specified(false);
   sptk::DataWindowing::NormalizationType normalization_type(
       kDefaultNormalizationType);
-  sptk::DataWindowing::WindowType window_type(kDefaultWindowType);
+  sptk::StandardWindow::WindowType window_type(kDefaultWindowType);
 
   for (;;) {
     const int option_char(getopt_long(argc, argv, "l:L:n:w:h", NULL, NULL));
@@ -151,9 +187,7 @@ int main(int argc, char* argv[]) {
       }
       case 'w': {
         const int min(0);
-        const int max(
-            static_cast<int>(sptk::DataWindowing::WindowType::kNumWindowTypes) -
-            1);
+        const int max(5);
         int tmp;
         if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
             !sptk::IsInRange(tmp, min, max)) {
@@ -163,7 +197,19 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("window", error_message);
           return 1;
         }
-        window_type = static_cast<sptk::DataWindowing::WindowType>(tmp);
+        if (0 == tmp) {
+          window_type = sptk::StandardWindow::kBlackman;
+        } else if (1 == tmp) {
+          window_type = sptk::StandardWindow::kHamming;
+        } else if (2 == tmp) {
+          window_type = sptk::StandardWindow::kHanning;
+        } else if (3 == tmp) {
+          window_type = sptk::StandardWindow::kBartlett;
+        } else if (4 == tmp) {
+          window_type = sptk::StandardWindow::kTrapezoidal;
+        } else if (5 == tmp) {
+          window_type = sptk::StandardWindow::kRectangular;
+        }
         break;
       }
       case 'h': {
@@ -177,7 +223,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // check length
   if (!is_output_length_specified) {
     output_length = input_length;
   } else if (output_length < input_length) {
@@ -189,7 +234,6 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -199,7 +243,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -210,11 +253,12 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  sptk::DataWindowing data_windowing(input_length - 1, output_length - 1,
-                                     window_type, normalization_type);
+  sptk::StandardWindow standard_window(input_length, window_type, false);
+  sptk::DataWindowing data_windowing(&standard_window, output_length,
+                                     normalization_type);
   if (!data_windowing.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for data windowing";
+    error_message << "Failed to initialize DataWindowing";
     sptk::PrintErrorMessage("window", error_message);
     return 1;
   }

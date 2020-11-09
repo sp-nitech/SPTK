@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,88 +42,83 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_UTILS_DATA_WINDOWING_H_
-#define SPTK_UTILS_DATA_WINDOWING_H_
+#include "SPTK/window/data_windowing.h"
 
-#include <vector>  // std::vector
-
-#include "SPTK/utils/sptk_utils.h"
+#include <algorithm>  // std::fill, std::transform
+#include <cmath>      // std::sqrt
+#include <cstddef>    // std::size_t
+#include <numeric>    // std::accumulate, std::inner_product
 
 namespace sptk {
 
-class DataWindowing {
- public:
-  //
-  enum WindowType {
-    kBlackman = 0,
-    kHamming,
-    kHanning,
-    kBartlett,
-    kTrapezoidal,
-    kRectangular,
-    kNumWindowTypes
-  };
-
-  //
-  enum NormalizationType {
-    kNone = 0,
-    kPower,
-    kMagnitude,
-    kNumNormalizationTypes
-  };
-
-  //
-  DataWindowing(int num_input_order, int num_output_order,
-                WindowType window_type, NormalizationType normalization_type);
-
-  //
-  virtual ~DataWindowing() {
+DataWindowing::DataWindowing(WindowInterface* window_interface,
+                             int output_length,
+                             NormalizationType normalization_type)
+    : input_length_(window_interface ? window_interface->GetWindowLength() : 0),
+      output_length_(output_length),
+      is_valid_(true) {
+  if (input_length_ <= 0 || output_length_ < input_length_) {
+    is_valid_ = false;
+    return;
   }
 
-  //
-  int GetNumInputOrder() const {
-    return num_input_order_;
+  // Get window.
+  window_ = window_interface->Get();
+
+  double normalization_constant(1.0);
+  switch (normalization_type) {
+    case kNone: {
+      // nothing to do
+      break;
+    }
+    case kPower: {
+      const double power(std::inner_product(window_.begin(), window_.end(),
+                                            window_.begin(), 0.0));
+      normalization_constant = 1.0 / std::sqrt(power);
+      break;
+    }
+    case kMagnitude: {
+      const double magnitude(
+          std::accumulate(window_.begin(), window_.end(), 0.0));
+      normalization_constant = 1.0 / magnitude;
+      break;
+    }
+    default: {
+      is_valid_ = false;
+      return;
+    }
   }
 
-  //
-  int GetNumOutputOrder() const {
-    return num_output_order_;
+  if (1.0 != normalization_constant) {
+    std::transform(window_.begin(), window_.end(), window_.begin(),
+                   [normalization_constant](double w) {
+                     return w * normalization_constant;
+                   });
+  }
+}
+
+bool DataWindowing::Run(const std::vector<double>& data,
+                        std::vector<double>* windowed_data) const {
+  // Check inputs.
+  if (!is_valid_ || data.size() != static_cast<std::size_t>(input_length_) ||
+      NULL == windowed_data) {
+    return false;
   }
 
-  //
-  bool IsValid() const {
-    return is_valid_;
+  // Prepare memories.
+  if (windowed_data->size() != static_cast<std::size_t>(output_length_)) {
+    windowed_data->resize(output_length_);
   }
 
-  //
-  bool Run(const std::vector<double>& data_sequence,
-           std::vector<double>* windowed_data_sequence) const;
+  // Apply window.
+  std::transform(data.begin(), data.begin() + input_length_, window_.begin(),
+                 windowed_data->begin(),
+                 [](double x, double w) { return x * w; });
 
- private:
-  //
-  void CreateBlackmanWindow();
-  void CreateHammingWindow();
-  void CreateHanningWindow();
-  void CreateBartlettWindow();
-  void CreateTrapezoidalWindow();
-  void CreateRectangularWindow();
+  // Fill zero.
+  std::fill(windowed_data->begin() + input_length_, windowed_data->end(), 0.0);
 
-  //
-  const int num_input_order_;
-
-  //
-  const int num_output_order_;
-
-  //
-  bool is_valid_;
-
-  //
-  std::vector<double> window_;
-
-  //
-  DISALLOW_COPY_AND_ASSIGN(DataWindowing);
-};
+  return true;
+}
 
 }  // namespace sptk
-
-#endif  // SPTK_UTILS_DATA_WINDOWING_H_

@@ -91,6 +91,7 @@ const char* ConvertBooleanToString(bool input);
 bool ConvertStringToInteger(const std::string& input, int* output);
 bool ConvertStringToDouble(const std::string& input, double* output);
 bool ConvertSpecialStringToDouble(const std::string& input, double* output);
+bool IsEven(int num);
 bool IsInRange(int num, int min, int max);
 bool IsInRange(double num, double min, double max);
 bool IsPowerOfTwo(int num);

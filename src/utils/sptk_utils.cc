@@ -355,6 +355,10 @@ bool ConvertSpecialStringToDouble(const std::string& input, double* output) {
   return false;
 }
 
+bool IsEven(int num) {
+  return (0 == num % 2);
+}
+
 bool IsInRange(int num, int min, int max) {
   return (min <= num && num <= max);
 }
