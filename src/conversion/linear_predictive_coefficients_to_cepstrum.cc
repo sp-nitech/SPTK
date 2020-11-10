@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -56,13 +56,14 @@ LinearPredictiveCoefficientsToCepstrum::LinearPredictiveCoefficientsToCepstrum(
       is_valid_(true) {
   if (num_input_order_ < 0 || num_output_order_ < 0) {
     is_valid_ = false;
+    return;
   }
 }
 
 bool LinearPredictiveCoefficientsToCepstrum::Run(
     const std::vector<double>& linear_predictive_coefficients,
     std::vector<double>* cepstrum) const {
-  // check inputs
+  // Check inputs.
   if (!is_valid_ ||
       linear_predictive_coefficients.size() !=
           static_cast<std::size_t>(num_input_order_ + 1) ||
@@ -70,13 +71,12 @@ bool LinearPredictiveCoefficientsToCepstrum::Run(
     return false;
   }
 
-  // prepare memory
+  // Prepare memories.
   const int output_length(num_output_order_ + 1);
   if (cepstrum->size() != static_cast<std::size_t>(output_length)) {
     cepstrum->resize(output_length);
   }
 
-  // get values
   const double* input(&(linear_predictive_coefficients[0]));
   double* output(&((*cepstrum)[0]));
 
@@ -85,16 +85,16 @@ bool LinearPredictiveCoefficientsToCepstrum::Run(
 
   output[1] = -input[1];
 
-  for (int n(2); n <= num_output_order_; ++n) {
+  for (int m(2); m <= num_output_order_; ++m) {
     double sum(0.0);
-    const int k_first((num_input_order_ < n) ? (n - num_input_order_) : 1);
-    for (int k(k_first); k < n; ++k) {
-      sum -= k * output[k] * input[n - k];
+    const int k_first((num_input_order_ < m) ? (m - num_input_order_) : 1);
+    for (int k(k_first); k < m; ++k) {
+      sum += k * output[k] * input[m - k];
     }
-    output[n] = sum / n;
+    output[m] = -sum / m;
 
-    if (n <= num_input_order_) {
-      output[n] -= input[n];
+    if (m <= num_input_order_) {
+      output[m] -= input[m];
     }
   }
 
