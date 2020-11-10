@@ -61,7 +61,7 @@ const double kDefaultConvergenceThreshold(1e-12);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " acr2csm - transform autocorrelation to composite sinusoidal modeling (CSM)" << std::endl;  // NOLINT
+  *stream << " acr2csm - convert autocorrelation to composite sinusoidal modeling (CSM)" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       acr2csm [ options ] [ infile ] > stdout" << std::endl;
@@ -180,7 +180,7 @@ int main(int argc, char* argv[]) {
     if (!autocorrelation_to_composite_sinusoidal_modeling.Run(
             autocorrelation, &composite_sinusoidal_modeling, &buffer)) {
       std::ostringstream error_message;
-      error_message << "Failed to transform autocorrelation to composite "
+      error_message << "Failed to convert autocorrelation to composite "
                        "sinusoidal modeling";
       sptk::PrintErrorMessage("acr2csm", error_message);
       return 1;

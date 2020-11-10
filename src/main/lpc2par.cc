@@ -64,7 +64,7 @@ const WarningType kDefaultWarningType(kIgnore);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " lpc2par - transform linear predictive coefficients to PARCOR coefficients" << std::endl;  // NOLINT
+  *stream << " lpc2par - convert linear predictive coefficients to PARCOR coefficients" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       lpc2par [ options ] [ infile ] > stdout" << std::endl;
@@ -229,7 +229,7 @@ int main(int argc, char* argv[]) {
     if (!linear_predictive_coefficients_to_parcor_coefficients.Run(
             &coefficients, &is_stable, &buffer)) {
       std::ostringstream error_message;
-      error_message << "Failed to transform linear predictive coefficients to "
+      error_message << "Failed to convert linear predictive coefficients to "
                     << "PARCOR coefficients";
       sptk::PrintErrorMessage("lpc2par", error_message);
       return 1;

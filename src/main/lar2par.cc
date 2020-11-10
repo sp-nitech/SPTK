@@ -60,7 +60,7 @@ const int kDefaultNumOrder(25);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " lar2par - transform log area ratio to PARCOR coefficients" << std::endl;  // NOLINT
+  *stream << " lar2par - convert log area ratio to PARCOR coefficients" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       lar2par [ options ] [ infile ] > stdout" << std::endl;
@@ -165,7 +165,7 @@ int main(int argc, char* argv[]) {
     if (!log_area_ratio_to_parcor_coefficients.Run(&coefficients)) {
       std::ostringstream error_message;
       error_message
-          << "Failed to transform log area ratio to PARCOR coefficients";
+          << "Failed to convert log area ratio to PARCOR coefficients";
       sptk::PrintErrorMessage("lar2par", error_message);
       return 1;
     }

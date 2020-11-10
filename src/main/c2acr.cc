@@ -62,7 +62,7 @@ const int kDefaultFftLength(256);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " c2acr - transform cepstrum to autocorrelation" << std::endl;
+  *stream << " c2acr - convert cepstrum to autocorrelation" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       c2acr [ options ] [ infile ] > stdout" << std::endl;
@@ -207,7 +207,7 @@ int main(int argc, char* argv[]) {
                           NULL)) {
     if (!cepstrum_to_autocorrelation.Run(cepstrum, &autocorrelation, &buffer)) {
       std::ostringstream error_message;
-      error_message << "Failed to transform cepstrum to autocorrelation";
+      error_message << "Failed to convert cepstrum to autocorrelation";
       sptk::PrintErrorMessage("c2acr", error_message);
       return 1;
     }

@@ -61,7 +61,7 @@ const double kDefaultAlpha(0.35);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " b2mc - transform MLSA digital filter coefficients to mel-cepstrum" << std::endl;  // NOLINT
+  *stream << " b2mc - convert MLSA digital filter coefficients to mel-cepstrum" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       b2mc [ options ] [ infile ] > stdout" << std::endl;
@@ -191,8 +191,8 @@ int main(int argc, char* argv[]) {
     if (!mlsa_digital_filter_coefficients_to_mel_cepstrum.Run(
             mlsa_digital_filter_coefficients, &mel_cepstrum)) {
       std::ostringstream error_message;
-      error_message << "Failed to transform MLSA digital filter coefficients "
-                       "to mel-cepstrum";
+      error_message << "Failed to convert MLSA digital filter coefficients to "
+                    << "mel-cepstrum";
       sptk::PrintErrorMessage("b2mc", error_message);
       return 1;
     }

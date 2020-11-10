@@ -83,7 +83,7 @@ const double kDefaultConvergenceThreshold(1e-6);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " lpc2lsp - transform linear predictive coefficients to line spectral pairs" << std::endl;  // NOLINT
+  *stream << " lpc2lsp - convert linear predictive coefficients to line spectral pairs" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       lpc2lsp [ options ] [ infile ] > stdout" << std::endl;
@@ -271,7 +271,7 @@ int main(int argc, char* argv[]) {
     if (!linear_predictive_coefficients_to_line_spectral_pairs.Run(
             linear_predictive_coefficients, &line_spectral_pairs, &buffer)) {
       std::ostringstream error_message;
-      error_message << "Failed to transform linear predictive coefficients to "
+      error_message << "Failed to convert linear predictive coefficients to "
                        "line spectral pairs";
       sptk::PrintErrorMessage("lpc2lsp", error_message);
       return 1;

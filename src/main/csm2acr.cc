@@ -60,7 +60,7 @@ const int kDefaultNumOrder(25);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " csm2acr - transform composite sinusoidal modeling to autocorrelation" << std::endl;  // NOLINT
+  *stream << " csm2acr - convert composite sinusoidal modeling to autocorrelation" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       csm2acr [ options ] [ infile ] > stdout" << std::endl;
@@ -174,7 +174,7 @@ int main(int argc, char* argv[]) {
     if (!composite_sinusoidal_modeling_to_autocorrelation.Run(
             composite_sinusoidal_modeling, &autocorrelation)) {
       std::ostringstream error_message;
-      error_message << "Failed to transform composite sinusoidal modeling to "
+      error_message << "Failed to convert composite sinusoidal modeling to "
                     << "autocorrelation";
       sptk::PrintErrorMessage("csm2acr", error_message);
       return 1;

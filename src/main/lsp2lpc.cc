@@ -80,8 +80,7 @@ const InputFormats kDefaultInputFormat(kNormalizedFrequencyInRadians);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " lsp2lpc - transform line spectral pairs to " << std::endl;
-  *stream << "           linear predictive coefficients" << std::endl;
+  *stream << " lsp2lpc - convert line spectral pairs to linear predictive coefficients" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       lsp2lpc [ options ] [ infile ] > stdout" << std::endl;
