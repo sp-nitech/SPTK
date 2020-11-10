@@ -873,6 +873,7 @@ INPUT                  = \
                          ../include/SPTK/filter/all_pole_lattice_digital_filter.h \
                          ../include/SPTK/filter/all_zero_digital_filter.h \
                          ../include/SPTK/filter/infinite_impulse_response_digital_filter.h \
+                         ../include/SPTK/filter/second_order_digital_filter.h \
                          ../include/SPTK/generation/recursive_maximum_likelihood_parameter_generation.h \
                          ../include/SPTK/math/entropy_calculation.h \
                          ../include/SPTK/math/delta_calculation.h \
@@ -890,6 +891,7 @@ INPUT                  = \
                          ../src/main/c2mpir.cc \
                          ../src/main/csm2acr.cc \
                          ../src/main/delta.cc \
+                         ../src/main/df2.cc \
                          ../src/main/dfs.cc \
                          ../src/main/entropy.cc \
                          ../src/main/fbank.cc \

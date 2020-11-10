@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,9 +42,9 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>   // getopt_long
+#include <getopt.h>  // getopt_long
+
 #include <algorithm>  // std::max
-#include <cmath>      // std::cos, std::exp
 #include <exception>  // std::exception
 #include <fstream>    // std::ifstream
 #include <iomanip>    // std::setw
@@ -52,7 +52,7 @@
 #include <sstream>    // std::ostringstream
 #include <vector>     // std::vector
 
-#include "SPTK/filter/infinite_impulse_response_digital_filter.h"
+#include "SPTK/filter/second_order_digital_filter.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -67,10 +67,10 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       df2 [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -s s   : sampling rate [kHz]               (double)[" << std::setw(5) << std::right << kDefaultSamplingRate << "][ 0.0 <  s <=       ]" << std::endl;  // NOLINT
-  *stream << "       -p f b : pole frequency and bandwidth [Hz] (double)[" << std::setw(5) << std::right << "N/A"                << "][ 0.0 <  f <  500*s ][ 0.0 <  b <=   ]" << std::endl;  // NOLINT
-  *stream << "       -z q w : zero frequency and bandwidth [Hz] (double)[" << std::setw(5) << std::right << "N/A"                << "][ 0.0 <  q <  500*s ][ 0.0 <  w <=   ]" << std::endl;  // NOLINT
-  *stream << "       -h     : print this message" << std::endl;
+  *stream << "       -s s     : sampling rate [kHz]               (double)[" << std::setw(5) << std::right << kDefaultSamplingRate << "][ 0.0 <  s  <=       ]" << std::endl;  // NOLINT
+  *stream << "       -p f1 b1 : pole frequency and bandwidth [Hz] (double)[" << std::setw(5) << std::right << "N/A"                << "][ 0.0 <  f1 <  500*s ][ 0.0 <  b1 <=   ]" << std::endl;  // NOLINT
+  *stream << "       -z f2 b2 : zero frequency and bandwidth [Hz] (double)[" << std::setw(5) << std::right << "N/A"                << "][ 0.0 <  f2 <  500*s ][ 0.0 <  b2 <=   ]" << std::endl;  // NOLINT
+  *stream << "       -h       : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       filter input                               (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
@@ -85,6 +85,24 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a df2 [ @e option ] [ \e infile ]
+ *
+ * - @b -s @e double
+ *   - sampling rate in kHz @f$(0 < F_s)@f$
+ * - @b -p @e double @e double
+ *   - pole frequency and bandwidth in Hz @f$(0 < F_1 < 500F_s, \, 0 < B_1)@f$
+ * - @b -z @e double @e double
+ *   - zero frequency and bandwidth in Hz @f$(0 < F_2 < 500F_s, \, 0 < B_2)@f$
+ * - @b infile @e str
+ *   - double-type filter input
+ * - @b stdout
+ *   - double-type filter output
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   double sampling_rate(kDefaultSamplingRate);
   std::vector<double> pole_frequencies;
@@ -188,7 +206,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -198,7 +215,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -211,71 +227,62 @@ int main(int argc, char* argv[]) {
 
   const int num_pole_filter(pole_frequencies.size());
   const int num_zero_filter(zero_frequencies.size());
-  const int num_filter(std::max(std::max(num_pole_filter, num_zero_filter), 1));
-  std::vector<sptk::InfiniteImpulseResponseDigitalFilter*> filters;
-  std::vector<sptk::InfiniteImpulseResponseDigitalFilter::Buffer> buffers(
-      num_filter);
+  const int num_filter(std::max(num_pole_filter, num_zero_filter));
+  std::vector<sptk::SecondOrderDigitalFilter*> filters;
+  std::vector<sptk::SecondOrderDigitalFilter::Buffer> buffers(num_filter);
+
+  if (0 == num_filter) {
+    std::ostringstream error_message;
+    error_message << "One or more -p or -z options are required";
+    sptk::PrintErrorMessage("df2", error_message);
+    return 1;
+  }
 
   try {
     for (int i(0); i < num_filter; ++i) {
-      std::vector<double> denominator_coefficients(3);
-      denominator_coefficients[0] = 1.0;
-      if (i < num_pole_filter) {
-        const double pole_radius(
-            std::exp(-sptk::kPi * pole_bandwidths[i] / sampling_rate_in_hz));
-        denominator_coefficients[1] =
-            -2.0 * pole_radius *
-            std::cos(2.0 * sptk::kPi * pole_frequencies[i] /
-                     sampling_rate_in_hz);
-        denominator_coefficients[2] = pole_radius * pole_radius;
+      if (i < num_pole_filter && i < num_zero_filter) {
+        filters.push_back(new sptk::SecondOrderDigitalFilter(
+            pole_frequencies[i], pole_bandwidths[i], zero_frequencies[i],
+            zero_bandwidths[i], sampling_rate_in_hz));
+      } else if (i < num_pole_filter) {
+        filters.push_back(new sptk::SecondOrderDigitalFilter(
+            sptk::SecondOrderDigitalFilter::kPole, pole_frequencies[i],
+            pole_bandwidths[i], sampling_rate_in_hz));
+      } else if (i < num_zero_filter) {
+        filters.push_back(new sptk::SecondOrderDigitalFilter(
+            sptk::SecondOrderDigitalFilter::kZero, zero_frequencies[i],
+            zero_bandwidths[i], sampling_rate_in_hz));
       }
-
-      std::vector<double> numerator_coefficients(3);
-      numerator_coefficients[0] = 1.0;
-      if (i < num_zero_filter) {
-        const double zero_radius(
-            std::exp(-sptk::kPi * zero_bandwidths[i] / sampling_rate_in_hz));
-        numerator_coefficients[1] =
-            -2.0 * zero_radius *
-            std::cos(2.0 * sptk::kPi * zero_frequencies[i] /
-                     sampling_rate_in_hz);
-        numerator_coefficients[2] = zero_radius * zero_radius;
-      }
-
-      filters.push_back(new sptk::InfiniteImpulseResponseDigitalFilter(
-          denominator_coefficients, numerator_coefficients));
-
       if (!filters.back()->IsValid()) {
         std::ostringstream error_message;
-        error_message << "Failed to set condition for filtering";
+        error_message << "Failed to initialize SecondOrderDigitalFilter";
         sptk::PrintErrorMessage("df2", error_message);
-        for (sptk::InfiniteImpulseResponseDigitalFilter* filter : filters) {
+        for (sptk::SecondOrderDigitalFilter* filter : filters) {
           delete filter;
         }
         return 1;
       }
     }
 
-    double filter_input, filter_output;
-    while (sptk::ReadStream(&filter_input, &input_stream)) {
+    double signal;
+    while (sptk::ReadStream(&signal, &input_stream)) {
       for (int i(0); i < num_filter; ++i) {
-        if (!filters[i]->Run(filter_input, &filter_output, &buffers[i])) {
+        if (!filters[i]->Run(&signal, &buffers[i])) {
           std::ostringstream error_message;
-          error_message << "Failed to apply digital filter";
+          error_message << "Failed to apply second order digital filter";
           sptk::PrintErrorMessage("df2", error_message);
-          for (sptk::InfiniteImpulseResponseDigitalFilter* filter : filters) {
+          for (sptk::SecondOrderDigitalFilter* filter : filters) {
             delete filter;
           }
           return 1;
         }
-        filter_input = filter_output;
       }
 
-      if (!sptk::WriteStream(filter_output, &std::cout)) {
+      if (!sptk::WriteStream(signal, &std::cout)) {
         std::ostringstream error_message;
         error_message << "Failed to write a filter output";
         sptk::PrintErrorMessage("df2", error_message);
-        for (sptk::InfiniteImpulseResponseDigitalFilter* filter : filters) {
+        for (sptk::SecondOrderDigitalFilter* filter : filters) {
           delete filter;
         }
         return 1;
@@ -285,13 +292,13 @@ int main(int argc, char* argv[]) {
     std::ostringstream error_message;
     error_message << "Unknown exception";
     sptk::PrintErrorMessage("df2", error_message);
-    for (sptk::InfiniteImpulseResponseDigitalFilter* filter : filters) {
+    for (sptk::SecondOrderDigitalFilter* filter : filters) {
       delete filter;
     }
     return 1;
   }
 
-  for (sptk::InfiniteImpulseResponseDigitalFilter* filter : filters) {
+  for (sptk::SecondOrderDigitalFilter* filter : filters) {
     delete filter;
   }
 
