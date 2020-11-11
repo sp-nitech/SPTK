@@ -12,7 +12,7 @@ xml/
 dump/
 
 # tools related
-*.done
+tools/*.done
 tools/bats/
 tools/cpplint/
 tools/doxygen/
