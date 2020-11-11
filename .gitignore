@@ -1,19 +1,25 @@
+# compile related
 bin/
 build/
 lib/
 
+# document related
+_build/
+html/
+xml/
+
+# example related
+dump/
+
+# tools related
+*.done
 tools/bats/
 tools/cpplint/
 tools/doxygen/
 tools/sptk/
 tools/venv/
 
-_build
-html/
-xml/
-
-*.done
-
+# misc
 *~
 \#*#
 *.swp
