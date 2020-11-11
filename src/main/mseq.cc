@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
@@ -66,7 +67,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -m m  : output order       (   int)[" << std::setw(5) << std::right << "l-1" << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  stdout:" << std::endl;
-  *stream << "       M-Sequence                 (double)" << std::endl;
+  *stream << "       m-sequence                 (double)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -75,6 +76,29 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a mseq [ @e option ]
+ *
+ * - @b -l @e int
+ *   - output length @f$(1 \le L)@f$
+ * - @b -m @e int
+ *   - output order @f$(0 \le L - 1)@f$
+ * - @b stdout
+ *   - double-type m-sequence
+ *
+ * The output of this command is @f$1@f$ or @f$-1@f$:
+ * @f[
+ *   \begin{array}{ccccc}
+ *     1, & -1, & 1, & \ldots, & 1
+ *   \end{array}
+ * @f]
+ * where the output length is @f$L@f$. If @f$L@f$ is not given, an inifinite
+ * m-sequence is generated.
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int output_length(kMagicNumberForInfinity);
 
@@ -131,13 +155,13 @@ int main(int argc, char* argv[]) {
     double output;
     if (!generator.Get(&output)) {
       std::ostringstream error_message;
-      error_message << "Failed to generate M-Sequence";
+      error_message << "Failed to generate m-sequence";
       sptk::PrintErrorMessage("mseq", error_message);
       return 1;
     }
     if (!sptk::WriteStream(output, &std::cout)) {
       std::ostringstream error_message;
-      error_message << "Failed to write M-Sequence";
+      error_message << "Failed to write m-sequence";
       sptk::PrintErrorMessage("mseq", error_message);
       return 1;
     }

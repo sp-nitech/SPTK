@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -50,26 +50,32 @@
 
 namespace sptk {
 
+/**
+ * Generate random number based on m-sequence.
+ */
 class MSequenceGeneration : public RandomGenerationInterface {
  public:
-  //
   MSequenceGeneration();
 
-  //
   virtual ~MSequenceGeneration() {
   }
 
-  //
+  /**
+   * Reset internal state.
+   */
   virtual void Reset();
 
-  //
+  /**
+   * Get random number.
+   *
+   * @param[out] output Random number.
+   * @return True on success, false on failure.
+   */
   virtual bool Get(double* output);
 
  private:
-  //
   int x_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(MSequenceGeneration);
 };
 

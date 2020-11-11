@@ -874,6 +874,7 @@ INPUT                  = \
                          ../include/SPTK/filter/all_zero_digital_filter.h \
                          ../include/SPTK/filter/infinite_impulse_response_digital_filter.h \
                          ../include/SPTK/filter/second_order_digital_filter.h \
+                         ../include/SPTK/generation/m_sequence_generation.h \
                          ../include/SPTK/generation/recursive_maximum_likelihood_parameter_generation.h \
                          ../include/SPTK/math/entropy_calculation.h \
                          ../include/SPTK/math/delta_calculation.h \
@@ -913,6 +914,7 @@ INPUT                  = \
                          ../src/main/mc2b.cc \
                          ../src/main/mfcc.cc \
                          ../src/main/mlpg.cc \
+                         ../src/main/mseq.cc \
                          ../src/main/nan.cc \
                          ../src/main/par2lar.cc \
                          ../src/main/par2lpc.cc \
