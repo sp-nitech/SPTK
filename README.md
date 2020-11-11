@@ -29,8 +29,8 @@ Then the SPTK commands can be used by adding `SPTK/bin/` directory to the `PATH`
 If you would like to use a part of the SPTK library, please link the static library `SPTK/lib/libsptk.a`.
 
 
-Example
--------
+Examples
+--------
 The SPTK provides some examples.
 Go to an example directory and execute `run.sh`, e.g.,
 ```sh
