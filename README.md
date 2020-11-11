@@ -29,9 +29,19 @@ Then the SPTK commands can be used by adding `SPTK/bin/` directory to the `PATH`
 If you would like to use a part of the SPTK library, please link the static library `SPTK/lib/libsptk.a`.
 
 
+Example
+-------
+The SPTK provides some examples.
+Go to an example directory and execute `run.sh`, e.g.,
+```sh
+cd egs/analysis_synthesis/mgc
+./run.sh
+```
+
+
 Changes from SPTK3
 ------------------
-- Input and output types are changed to double from float
+- **Input and output types are changed to double from float**
 - Deprecated commands:
   - `acep`
   - `c2sp`
