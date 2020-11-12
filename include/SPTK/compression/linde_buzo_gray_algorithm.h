@@ -48,7 +48,7 @@
 #include <vector>  // std::vector
 
 #include "SPTK/compression/vector_quantization.h"
-#include "SPTK/math/distance_calculator.h"
+#include "SPTK/math/distance_calculation.h"
 #include "SPTK/math/statistics_accumulator.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -142,7 +142,7 @@ class LindeBuzoGrayAlgorithm {
   const double splitting_factor_;
 
   //
-  const DistanceCalculator distance_calculator_;
+  const DistanceCalculation distance_calculation_;
 
   //
   const StatisticsAccumulator statistics_accumulator_;

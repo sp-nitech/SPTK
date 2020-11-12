@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,27 +42,28 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/math/distance_calculator.h"
+#include "SPTK/math/distance_calculation.h"
 
 #include <cmath>    // std::fabs, std::log, std::sqrt
 #include <cstddef>  // std::size_t
 
 namespace sptk {
 
-DistanceCalculator::DistanceCalculator(int num_order,
-                                       DistanceMetrics distance_metric)
+DistanceCalculation::DistanceCalculation(int num_order,
+                                         DistanceMetrics distance_metric)
     : num_order_(num_order),
       distance_metric_(distance_metric),
       is_valid_(true) {
   if (num_order_ < 0 || kNumMetrics == distance_metric_) {
     is_valid_ = false;
+    return;
   }
 }
 
-bool DistanceCalculator::Run(const std::vector<double>& vector1,
-                             const std::vector<double>& vector2,
-                             double* distance) const {
-  // check inputs
+bool DistanceCalculation::Run(const std::vector<double>& vector1,
+                              const std::vector<double>& vector2,
+                              double* distance) const {
+  // Check inputs.
   if (!is_valid_ ||
       vector1.size() != static_cast<std::size_t>(num_order_ + 1) ||
       vector2.size() != static_cast<std::size_t>(num_order_ + 1) ||
@@ -70,7 +71,6 @@ bool DistanceCalculator::Run(const std::vector<double>& vector1,
     return false;
   }
 
-  // get values
   const double* x(&(vector1[0]));
   const double* y(&(vector2[0]));
 
@@ -78,32 +78,32 @@ bool DistanceCalculator::Run(const std::vector<double>& vector1,
 
   switch (distance_metric_) {
     case kManhattan: {
-      for (int i(0); i <= num_order_; ++i) {
-        const double diff(x[i] - y[i]);
+      for (int m(0); m <= num_order_; ++m) {
+        const double diff(x[m] - y[m]);
         sum += std::fabs(diff);
       }
       break;
     }
     case kEuclidean: {
-      for (int i(0); i <= num_order_; ++i) {
-        const double diff(x[i] - y[i]);
+      for (int m(0); m <= num_order_; ++m) {
+        const double diff(x[m] - y[m]);
         sum += diff * diff;
       }
       sum = std::sqrt(sum);
       break;
     }
     case kSquaredEuclidean: {
-      for (int i(0); i <= num_order_; ++i) {
-        const double diff(x[i] - y[i]);
+      for (int m(0); m <= num_order_; ++m) {
+        const double diff(x[m] - y[m]);
         sum += diff * diff;
       }
       break;
     }
     case kSymmetricKullbackLeibler: {
-      for (int i(0); i <= num_order_; ++i) {
-        if (x[i] <= 0.0 || y[i] <= 0.0) return false;
-        const double diff(x[i] - y[i]);
-        const double log_diff(std::log(x[i]) - std::log(y[i]));
+      for (int m(0); m <= num_order_; ++m) {
+        if (x[m] <= 0.0 || y[m] <= 0.0) return false;
+        const double diff(x[m] - y[m]);
+        const double log_diff(std::log(x[m]) - std::log(y[m]));
         sum += diff * log_diff;
       }
       break;

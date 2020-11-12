@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,8 +42,8 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_MATH_DISTANCE_CALCULATOR_H_
-#define SPTK_MATH_DISTANCE_CALCULATOR_H_
+#ifndef SPTK_MATH_DISTANCE_CALCULATION_H_
+#define SPTK_MATH_DISTANCE_CALCULATION_H_
 
 #include <vector>  // std::vector
 
@@ -51,9 +51,14 @@
 
 namespace sptk {
 
-class DistanceCalculator {
+/**
+ * Calculate distance between two vectors.
+ */
+class DistanceCalculation {
  public:
-  //
+  /**
+   * Metric of distance
+   */
   enum DistanceMetrics {
     kManhattan = 0,
     kEuclidean,
@@ -62,46 +67,53 @@ class DistanceCalculator {
     kNumMetrics
   };
 
-  //
-  DistanceCalculator(int num_order, DistanceMetrics distance_metric);
+  /**
+   * @param[in] num_order Order of vector, @f$M@f$.
+   * @param[in] distance_metric Distance metric.
+   */
+  DistanceCalculation(int num_order, DistanceMetrics distance_metric);
 
-  //
-  virtual ~DistanceCalculator() {
+  virtual ~DistanceCalculation() {
   }
 
-  //
+  /**
+   * @return Order of vector.
+   */
   int GetNumOrder() const {
     return num_order_;
   }
 
-  //
+  /**
+   * @return Distance metric.
+   */
   DistanceMetrics GetDistanceMetric() const {
     return distance_metric_;
   }
 
-  //
+  /**
+   * @return True if this obejct is valid.
+   */
   bool IsValid() const {
     return is_valid_;
   }
 
-  //
+  /**
+   * @param[in] vector1 @f$M@f$-th order vector.
+   * @param[in] vector2 @f$M@f$-th order vector.
+   * @param[out] distance Distance between the two vectors.
+   */
   bool Run(const std::vector<double>& vector1,
            const std::vector<double>& vector2, double* distance) const;
 
  private:
-  //
   const int num_order_;
-
-  //
   const DistanceMetrics distance_metric_;
 
-  //
   bool is_valid_;
 
-  //
-  DISALLOW_COPY_AND_ASSIGN(DistanceCalculator);
+  DISALLOW_COPY_AND_ASSIGN(DistanceCalculation);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_MATH_DISTANCE_CALCULATOR_H_
+#endif  // SPTK_MATH_DISTANCE_CALCULATION_H_

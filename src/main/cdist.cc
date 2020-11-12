@@ -50,7 +50,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/math/distance_calculator.h"
+#include "SPTK/math/distance_calculation.h"
 #include "SPTK/math/statistics_accumulator.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -187,10 +187,10 @@ int main(int argc, char* argv[]) {
 
   sptk::StatisticsAccumulator statistics_accumulator(0, 1);
   sptk::StatisticsAccumulator::Buffer buffer;
-  sptk::DistanceCalculator distance_calculator(
+  sptk::DistanceCalculation distance_calculation(
       num_order - 1,
-      sptk::DistanceCalculator::DistanceMetrics::kSquaredEuclidean);
-  if (!statistics_accumulator.IsValid() || !distance_calculator.IsValid()) {
+      sptk::DistanceCalculation::DistanceMetrics::kSquaredEuclidean);
+  if (!statistics_accumulator.IsValid() || !distance_calculation.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for calculation";
     sptk::PrintErrorMessage("cdist", error_message);
@@ -205,7 +205,7 @@ int main(int argc, char* argv[]) {
          sptk::ReadStream(false, 1, 0, num_order, &cepstrum2,
                           &stream_for_cepstrum2, NULL)) {
     double distance;
-    if (!distance_calculator.Run(cepstrum1, cepstrum2, &distance)) {
+    if (!distance_calculation.Run(cepstrum1, cepstrum2, &distance)) {
       std::ostringstream error_message;
       error_message << "Failed to calculate distance";
       sptk::PrintErrorMessage("cdist", error_message);

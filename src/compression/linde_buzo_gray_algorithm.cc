@@ -64,8 +64,8 @@ LindeBuzoGrayAlgorithm::LindeBuzoGrayAlgorithm(
       num_iteration_(num_iteration),
       convergence_threshold_(convergence_threshold),
       splitting_factor_(splitting_factor),
-      distance_calculator_(
-          num_order_, DistanceCalculator::DistanceMetrics::kSquaredEuclidean),
+      distance_calculation_(
+          num_order_, DistanceCalculation::DistanceMetrics::kSquaredEuclidean),
       statistics_accumulator_(num_order_, 1),
       vector_quantization_(num_order_),
       is_valid_(true) {
@@ -73,7 +73,7 @@ LindeBuzoGrayAlgorithm::LindeBuzoGrayAlgorithm(
       target_codebook_size_ <= initial_codebook_size_ ||
       minimum_num_vector_in_cluster <= 0 || num_iteration_ <= 0 ||
       convergence_threshold < 0.0 || splitting_factor <= 0.0 ||
-      !distance_calculator_.IsValid() || !statistics_accumulator_.IsValid() ||
+      !distance_calculation_.IsValid() || !statistics_accumulator_.IsValid() ||
       !vector_quantization_.IsValid()) {
     is_valid_ = false;
   }
@@ -149,8 +149,8 @@ bool LindeBuzoGrayAlgorithm::Run(
         }
 
         double distance;
-        if (!distance_calculator_.Run(input_vectors[i],
-                                      (*codebook_vectors)[index], &distance)) {
+        if (!distance_calculation_.Run(input_vectors[i],
+                                       (*codebook_vectors)[index], &distance)) {
           return false;
         }
         total_distance += distance;
