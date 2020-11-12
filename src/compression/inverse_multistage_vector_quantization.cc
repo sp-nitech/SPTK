@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -44,9 +44,8 @@
 
 #include "SPTK/compression/inverse_multistage_vector_quantization.h"
 
-#include <algorithm>   // std::fill, std::transform
-#include <cstddef>     // std::size_t
-#include <functional>  // std::plus
+#include <algorithm>  // std::fill, std::transform
+#include <cstddef>    // std::size_t
 
 namespace sptk {
 
@@ -59,35 +58,38 @@ InverseMultistageVectorQuantization::InverseMultistageVectorQuantization(
   if (num_order_ < 0 || num_stage_ <= 0 ||
       !inverse_vector_quantization_.IsValid()) {
     is_valid_ = false;
+    return;
   }
 }
 
 bool InverseMultistageVectorQuantization::Run(
-    const std::vector<int>& codebook_index,
+    const std::vector<int>& codebook_indices,
     const std::vector<std::vector<std::vector<double> > >& codebook_vectors,
     std::vector<double>* reconstructed_vector,
     InverseMultistageVectorQuantization::Buffer* buffer) const {
+  // Check inputs.
   if (!is_valid_ ||
-      codebook_index.size() != static_cast<std::size_t>(num_stage_) ||
+      codebook_indices.size() != static_cast<std::size_t>(num_stage_) ||
       codebook_vectors.size() != static_cast<std::size_t>(num_stage_) ||
       NULL == reconstructed_vector || NULL == buffer) {
     return false;
   }
 
-  if (reconstructed_vector->size() !=
-      static_cast<std::size_t>(num_order_ + 1)) {
-    reconstructed_vector->resize(num_order_ + 1);
+  // Prepare memories.
+  const int length(num_order_ + 1);
+  if (reconstructed_vector->size() != static_cast<std::size_t>(length)) {
+    reconstructed_vector->resize(length);
   }
-  if (buffer->quantization_error_.size() !=
-      static_cast<std::size_t>(num_order_ + 1)) {
-    buffer->quantization_error_.resize(num_order_ + 1);
+  if (buffer->quantization_error_.size() != static_cast<std::size_t>(length)) {
+    buffer->quantization_error_.resize(length);
   }
 
+  // Initialize reconstructed vector.
   std::fill(reconstructed_vector->begin(), reconstructed_vector->end(), 0.0);
 
-  for (int stage(0); stage < num_stage_; ++stage) {
-    if (!inverse_vector_quantization_.Run(codebook_index[stage],
-                                          codebook_vectors[stage],
+  for (int n(0); n < num_stage_; ++n) {
+    if (!inverse_vector_quantization_.Run(codebook_indices[n],
+                                          codebook_vectors[n],
                                           &buffer->quantization_error_)) {
       return false;
     }
@@ -95,7 +97,7 @@ bool InverseMultistageVectorQuantization::Run(
     std::transform(buffer->quantization_error_.begin(),
                    buffer->quantization_error_.end(),
                    reconstructed_vector->begin(), reconstructed_vector->begin(),
-                   std::plus<double>());
+                   [](double e, double x) { return e + x; });
   }
 
   return true;

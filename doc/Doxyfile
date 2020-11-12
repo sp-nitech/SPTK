@@ -852,8 +852,12 @@ INPUT                  = \
                          ../include/SPTK/analysis/mel_filter_bank_analysis.h \
                          ../include/SPTK/analysis/mel_frequency_cepstral_coefficients_analysis.h \
                          ../include/SPTK/analysis/pitch_extraction.h \
+                         ../include/SPTK/compression/inverse_multistage_vector_quantization.h \
+                         ../include/SPTK/compression/inverse_vector_quantization.h \
                          ../include/SPTK/compression/mu_law_compression.h \
                          ../include/SPTK/compression/mu_law_expansion.h \
+                         ../include/SPTK/compression/multistage_vector_quantization.h \
+                         ../include/SPTK/compression/vector_quantization.h \
                          ../include/SPTK/conversion/cepstrum_to_autocorrelation.h \
                          ../include/SPTK/conversion/cepstrum_to_minimum_phase_impulse_response.h \
                          ../include/SPTK/conversion/composite_sinusoidal_modeling_to_autocorrelation.h \
@@ -906,6 +910,7 @@ INPUT                  = \
                          ../src/main/ifft.cc \
                          ../src/main/ignorm.cc \
                          ../src/main/impulse.cc \
+                         ../src/main/imsvq.cc \
                          ../src/main/iulaw.cc \
                          ../src/main/lar2par.cc \
                          ../src/main/lpc2c.cc \
@@ -915,6 +920,7 @@ INPUT                  = \
                          ../src/main/mfcc.cc \
                          ../src/main/mlpg.cc \
                          ../src/main/mseq.cc \
+                         ../src/main/msvq.cc \
                          ../src/main/nan.cc \
                          ../src/main/par2lar.cc \
                          ../src/main/par2lpc.cc \

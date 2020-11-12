@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -51,38 +51,58 @@
 
 namespace sptk {
 
+/**
+ * Perform inverse vector quantization.
+ *
+ * The input is the index of a codebook vector @f$i@f$ and the @f$M@f$-th order
+ * codebook vectors:
+ * @f[
+ *   \begin{array}{cccc}
+ *     \boldsymbol{c}_1, & \boldsymbol{c}_2, & \ldots, & \boldsymbol{c}_I.
+ *   \end{array}
+ * @f]
+ * The output is simply the @f$i@f$-th codebook vector @f$\boldsymbol{c}_i@f$.
+ */
 class InverseVectorQuantization {
  public:
-  //
+  /**
+   * @param[in] num_order Order of vector, @f$M@f$.
+   */
   explicit InverseVectorQuantization(int num_order);
 
-  //
   virtual ~InverseVectorQuantization() {
   }
 
-  //
+  /**
+   * @return Order of vector.
+   */
   int GetNumOrder() const {
     return num_order_;
   }
 
-  //
+  /**
+   * @return True if this obejct is valid.
+   */
   bool IsValid() const {
     return is_valid_;
   }
 
-  //
+  /**
+   * @param[in] codebook_index Codebook index.
+   * @param[in] codebook_vectors @f$M@f$-th order @f$I@f$ codebook vectors.
+   *            The shape is @f$[I, M]@f$.
+   * @param[out] reconstructed_vector @f$M@f$-th order codebook vector.
+   * @return True on success, false on failure.
+   */
   bool Run(int codebook_index,
            const std::vector<std::vector<double> >& codebook_vectors,
            std::vector<double>* reconstructed_vector) const;
 
  private:
-  //
   const int num_order_;
 
-  //
   bool is_valid_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(InverseVectorQuantization);
 };
 

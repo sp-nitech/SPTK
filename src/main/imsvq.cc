@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -82,6 +83,31 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a imsvq [ @e option ] [ \e infile ]
+ *
+ * - @b -l @e int
+ *   - length of vector @f$(1 \le M + 1)@f$
+ * - @b -m @e int
+ *   - order of vector @f$(0 \le M)@f$
+ * - @b -s @e str
+ *   - codebook file
+ * - @b infile @e str
+ *   - int-type codebook index
+ * - @b stdout
+ *   - double-type quantized vector
+ *
+ * In the below example, decoding of multistage vector quantization is performed
+ * using two codebook files @c cbfile1 and @c cbfile2.
+ *
+ * @code{.sh}
+ *   imsvq -s cbfile1 -s cbfile2 < data.i > data.q
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   std::vector<char*> codebook_vectors_file;
@@ -137,17 +163,16 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // read codebook
   const int length(num_order + 1);
   std::vector<std::vector<std::vector<double> > > codebook_vectors;
-  for (int i(0); i < num_stage; ++i) {
+  for (int n(0); n < num_stage; ++n) {
     std::vector<std::vector<double> > codebook;
     {
       std::ifstream ifs;
-      ifs.open(codebook_vectors_file[i], std::ios::in | std::ios::binary);
+      ifs.open(codebook_vectors_file[n], std::ios::in | std::ios::binary);
       if (ifs.fail()) {
         std::ostringstream error_message;
-        error_message << "Cannot open file " << codebook_vectors_file[i];
+        error_message << "Cannot open file " << codebook_vectors_file[n];
         sptk::PrintErrorMessage("imsvq", error_message);
         return 1;
       }
@@ -161,7 +186,6 @@ int main(int argc, char* argv[]) {
     codebook_vectors.push_back(codebook);
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -171,7 +195,6 @@ int main(int argc, char* argv[]) {
   }
   const char* codebook_index_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(codebook_index_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != codebook_index_file) {
@@ -187,19 +210,20 @@ int main(int argc, char* argv[]) {
   sptk::InverseMultistageVectorQuantization::Buffer buffer;
   if (!inverse_multistage_vector_quantization.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for decoding";
+    error_message << "Failed to initialize InverseMultistageVectorQuantization";
     sptk::PrintErrorMessage("imsvq", error_message);
     return 1;
   }
 
   std::vector<int> codebook_index(num_stage);
   std::vector<double> reconstructed_vector(length);
+
   while (sptk::ReadStream(false, 0, 0, num_stage, &codebook_index,
                           &stream_for_codebook_index, NULL)) {
     if (!inverse_multistage_vector_quantization.Run(
             codebook_index, codebook_vectors, &reconstructed_vector, &buffer)) {
       std::ostringstream error_message;
-      error_message << "Failed to decode";
+      error_message << "Failed to decode codebook index";
       sptk::PrintErrorMessage("imsvq", error_message);
       return 1;
     }

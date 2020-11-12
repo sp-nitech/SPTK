@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -82,6 +83,30 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a msvq [ @e option ] [ \e infile ]
+ *
+ * - @b -l @e int
+ *   - length of vector @f$(1 \le M + 1)@f$
+ * - @b -m @e int
+ *   - order of vector @f$(0 \le M)@f$
+ * - @b -s @e str
+ *   - codebook file
+ * - @b infile @e str
+ *   - double-type vector to be quantized
+ * - @b stdout
+ *   - int-type codebook index
+ *
+ * The below example quantizes and reconstructs vectors in @c data.d.
+ *
+ * @code{.sh}
+ *   msvq -s cbfile < data.d | imsvq -s cbfile > data.q
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   std::vector<char*> codebook_vectors_file;
@@ -137,17 +162,16 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // read codebook
   const int length(num_order + 1);
   std::vector<std::vector<std::vector<double> > > codebook_vectors;
-  for (int i(0); i < num_stage; ++i) {
+  for (int n(0); n < num_stage; ++n) {
     std::vector<std::vector<double> > codebook;
     {
       std::ifstream ifs;
-      ifs.open(codebook_vectors_file[i], std::ios::in | std::ios::binary);
+      ifs.open(codebook_vectors_file[n], std::ios::in | std::ios::binary);
       if (ifs.fail()) {
         std::ostringstream error_message;
-        error_message << "Cannot open file " << codebook_vectors_file[i];
+        error_message << "Cannot open file " << codebook_vectors_file[n];
         sptk::PrintErrorMessage("msvq", error_message);
         return 1;
       }
@@ -161,7 +185,6 @@ int main(int argc, char* argv[]) {
     codebook_vectors.push_back(codebook);
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -171,7 +194,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_vectors_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_vectors_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_vectors_file) {
@@ -187,19 +209,20 @@ int main(int argc, char* argv[]) {
   sptk::MultistageVectorQuantization::Buffer buffer;
   if (!multistage_vector_quantization.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for quantization";
+    error_message << "Failed to initialize MultistageVectorQuantization";
     sptk::PrintErrorMessage("msvq", error_message);
     return 1;
   }
 
   std::vector<double> input_vector(length);
   std::vector<int> codebook_index(num_stage);
+
   while (sptk::ReadStream(false, 0, 0, length, &input_vector,
                           &stream_for_input_vectors, NULL)) {
     if (!multistage_vector_quantization.Run(input_vector, codebook_vectors,
                                             &codebook_index, &buffer)) {
       std::ostringstream error_message;
-      error_message << "Failed to quantize";
+      error_message << "Failed to quantize vector";
       sptk::PrintErrorMessage("msvq", error_message);
       return 1;
     }
