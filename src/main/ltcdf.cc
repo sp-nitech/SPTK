@@ -111,8 +111,7 @@ void PrintUsage(std::ostream* stream) {
  *   - double-type output sequence
  *
  * In the below example, an exciation signal generated from pitch information is
- * passed through the standard form synthesis filter built from PARCOR
- * coefficients.
+ * passed through the synthesis filter built from PARCOR coefficients.
  *
  * @code{.sh}
  *   excite < data.pitch | ltcdf data.rc > data.syn
@@ -245,7 +244,7 @@ int main(int argc, char* argv[]) {
   if (!preprocessing.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to initialize InputSource";
-    sptk::PrintErrorMessage("poledf", error_message);
+    sptk::PrintErrorMessage("ltcdf", error_message);
     return 1;
   }
 
