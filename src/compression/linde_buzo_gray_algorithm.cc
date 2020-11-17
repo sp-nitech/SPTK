@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -53,17 +53,17 @@
 namespace sptk {
 
 LindeBuzoGrayAlgorithm::LindeBuzoGrayAlgorithm(
-    int num_order, int seed, int initial_codebook_size,
-    int target_codebook_size, int minimum_num_vector_in_cluster,
-    int num_iteration, double convergence_threshold, double splitting_factor)
+    int num_order, int initial_codebook_size, int target_codebook_size,
+    int min_num_vector_in_cluster, int num_iteration,
+    double convergence_threshold, double splitting_factor, int seed)
     : num_order_(num_order),
-      seed_(seed),
       initial_codebook_size_(initial_codebook_size),
       target_codebook_size_(target_codebook_size),
-      minimum_num_vector_in_cluster_(minimum_num_vector_in_cluster),
+      min_num_vector_in_cluster_(min_num_vector_in_cluster),
       num_iteration_(num_iteration),
       convergence_threshold_(convergence_threshold),
       splitting_factor_(splitting_factor),
+      seed_(seed),
       distance_calculation_(
           num_order_, DistanceCalculation::DistanceMetrics::kSquaredEuclidean),
       statistics_accumulator_(num_order_, 1),
@@ -71,85 +71,89 @@ LindeBuzoGrayAlgorithm::LindeBuzoGrayAlgorithm(
       is_valid_(true) {
   if (num_order_ < 0 || initial_codebook_size_ <= 0 ||
       target_codebook_size_ <= initial_codebook_size_ ||
-      minimum_num_vector_in_cluster <= 0 || num_iteration_ <= 0 ||
-      convergence_threshold < 0.0 || splitting_factor <= 0.0 ||
+      min_num_vector_in_cluster_ <= 0 || num_iteration_ <= 0 ||
+      convergence_threshold_ < 0.0 || splitting_factor_ <= 0.0 ||
       !distance_calculation_.IsValid() || !statistics_accumulator_.IsValid() ||
       !vector_quantization_.IsValid()) {
     is_valid_ = false;
+    return;
   }
 }
 
 bool LindeBuzoGrayAlgorithm::Run(
     const std::vector<std::vector<double> >& input_vectors,
     std::vector<std::vector<double> >* codebook_vectors,
-    std::vector<int>* codebook_index) const {
-  // check inputs
+    std::vector<int>* codebook_indices) const {
+  // Check inputs.
   const int num_input_vector(input_vectors.size());
   if (!is_valid_ ||
-      num_input_vector <
-          minimum_num_vector_in_cluster_ * target_codebook_size_ ||
-      NULL == codebook_vectors || NULL == codebook_index ||
+      num_input_vector < min_num_vector_in_cluster_ * target_codebook_size_ ||
+      NULL == codebook_vectors || NULL == codebook_indices ||
       codebook_vectors->size() !=
           static_cast<std::size_t>(initial_codebook_size_)) {
     return false;
   }
 
-  // prepare memory
-  if (codebook_index->size() != static_cast<std::size_t>(num_input_vector)) {
-    codebook_index->resize(num_input_vector);
+  // Prepare memories.
+  if (codebook_indices->size() != static_cast<std::size_t>(num_input_vector)) {
+    codebook_indices->resize(num_input_vector);
   }
   std::vector<StatisticsAccumulator::Buffer> buffers(target_codebook_size_);
 
-  // prepare random value generator
+  // Prepare random value generator.
   NormalDistributedRandomValueGeneration random_value_generation(seed_);
 
-  // design codebook
+  // Design codebook.
   int current_codebook_size(initial_codebook_size_);
-  while (2 * current_codebook_size <= target_codebook_size_) {
-    // increase codebook size by two times
-    codebook_vectors->resize(2 * current_codebook_size);
+  for (int next_codebook_size(current_codebook_size * 2);
+       next_codebook_size <= target_codebook_size_; next_codebook_size *= 2) {
+    // Double codebook size.
+    codebook_vectors->resize(next_codebook_size);
     for (std::vector<std::vector<double> >::iterator itr(
              codebook_vectors->begin() + current_codebook_size);
          itr != codebook_vectors->end(); ++itr) {
       itr->resize(num_order_ + 1);
     }
-    for (int e(0); e < current_codebook_size; ++e) {
+
+    // Perturb codebook vectors.
+    for (int i(0); i < current_codebook_size; ++i) {
       for (int m(0); m <= num_order_; ++m) {
         double random_value;
         if (!random_value_generation.Get(&random_value)) {
           return false;
         }
         const double perturbation(splitting_factor_ * random_value);
-        const int f(e + current_codebook_size);
-        (*codebook_vectors)[f][m] = (*codebook_vectors)[e][m] - perturbation;
-        (*codebook_vectors)[e][m] = (*codebook_vectors)[e][m] + perturbation;
+        const int j(i + current_codebook_size);
+        (*codebook_vectors)[j][m] = (*codebook_vectors)[i][m] - perturbation;
+        (*codebook_vectors)[i][m] = (*codebook_vectors)[i][m] + perturbation;
       }
     }
-    current_codebook_size *= 2;
+
+    current_codebook_size = next_codebook_size;
 
     double prev_total_distance(DBL_MAX);
     for (int n(0); n < num_iteration_; ++n) {
-      // initialize
+      // Initialize.
       double total_distance(0.0);
-      for (int e(0); e < current_codebook_size; ++e) {
-        statistics_accumulator_.Clear(&(buffers[e]));
+      for (int i(0); i < current_codebook_size; ++i) {
+        statistics_accumulator_.Clear(&(buffers[i]));
       }
 
-      // accumulate statistics (E-step)
-      for (int i(0); i < num_input_vector; ++i) {
+      // Accumulate statistics (E-step).
+      for (int t(0); t < num_input_vector; ++t) {
         int index;
-        if (!vector_quantization_.Run(input_vectors[i], *codebook_vectors,
+        if (!vector_quantization_.Run(input_vectors[t], *codebook_vectors,
                                       &index)) {
           return false;
         }
-        (*codebook_index)[i] = index;
+        (*codebook_indices)[t] = index;
 
-        if (!statistics_accumulator_.Run(input_vectors[i], &(buffers[index]))) {
+        if (!statistics_accumulator_.Run(input_vectors[t], &(buffers[index]))) {
           return false;
         }
 
         double distance;
-        if (!distance_calculation_.Run(input_vectors[i],
+        if (!distance_calculation_.Run(input_vectors[t],
                                        (*codebook_vectors)[index], &distance)) {
           return false;
         }
@@ -157,7 +161,7 @@ bool LindeBuzoGrayAlgorithm::Run(
       }
       total_distance /= num_input_vector;
 
-      // check convergence
+      // Check convergence.
       const double criterion_value(
           std::fabs(prev_total_distance - total_distance) / total_distance);
       if (0.0 == total_distance || criterion_value < convergence_threshold_) {
@@ -165,57 +169,58 @@ bool LindeBuzoGrayAlgorithm::Run(
       }
       prev_total_distance = total_distance;
 
-      // update codebook (M-step) and
-      // search a cluster that contains maximum number of vectors
+      // Update codebook (M-step) and find a maximum cluster.
       int majority_index(-1);
-      int maximum_num_vector_in_cluster(0);
-      for (int e(0); e < current_codebook_size; ++e) {
+      int max_num_vector_in_cluster(0);
+      for (int i(0); i < current_codebook_size; ++i) {
         int num_vector;
-        if (!statistics_accumulator_.GetNumData(buffers[e], &num_vector)) {
+        if (!statistics_accumulator_.GetNumData(buffers[i], &num_vector)) {
           return false;
         }
 
-        if (minimum_num_vector_in_cluster_ <= num_vector) {
-          if (!statistics_accumulator_.GetMean(buffers[e],
-                                               &((*codebook_vectors)[e]))) {
+        if (max_num_vector_in_cluster < num_vector) {
+          majority_index = i;
+          max_num_vector_in_cluster = num_vector;
+        }
+
+        // Update if the cluster contains enough data.
+        if (min_num_vector_in_cluster_ <= num_vector) {
+          if (!statistics_accumulator_.GetMean(buffers[i],
+                                               &((*codebook_vectors)[i]))) {
             return false;
           }
         }
-
-        if (maximum_num_vector_in_cluster < num_vector) {
-          majority_index = e;
-          maximum_num_vector_in_cluster = num_vector;
-        }
       }
 
-      for (int e(0); e < current_codebook_size; ++e) {
+      // Update the remaining centroids.
+      for (int i(0); i < current_codebook_size; ++i) {
         int num_vector;
-        if (!statistics_accumulator_.GetNumData(buffers[e], &num_vector)) {
+        if (!statistics_accumulator_.GetNumData(buffers[i], &num_vector)) {
           return false;
         }
 
-        if (num_vector < minimum_num_vector_in_cluster_) {
+        if (num_vector < min_num_vector_in_cluster_) {
           for (int m(0); m <= num_order_; ++m) {
             double random_value;
             if (!random_value_generation.Get(&random_value)) {
               return false;
             }
             const double perturbation(splitting_factor_ * random_value);
-            const int f(majority_index);
-            (*codebook_vectors)[e][m] =
-                (*codebook_vectors)[f][m] - perturbation;
-            (*codebook_vectors)[f][m] =
-                (*codebook_vectors)[f][m] + perturbation;
+            const int j(majority_index);
+            (*codebook_vectors)[i][m] =
+                (*codebook_vectors)[j][m] - perturbation;
+            (*codebook_vectors)[j][m] =
+                (*codebook_vectors)[j][m] + perturbation;
           }
         }
       }
     }
   }
 
-  // save final results
-  for (int i(0); i < num_input_vector; ++i) {
-    if (!vector_quantization_.Run(input_vectors[i], *codebook_vectors,
-                                  &((*codebook_index)[i]))) {
+  // Save final results.
+  for (int t(0); t < num_input_vector; ++t) {
+    if (!vector_quantization_.Run(input_vectors[t], *codebook_vectors,
+                                  &((*codebook_indices)[t]))) {
       return false;
     }
   }

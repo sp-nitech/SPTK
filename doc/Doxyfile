@@ -854,6 +854,7 @@ INPUT                  = \
                          ../include/SPTK/analysis/pitch_extraction.h \
                          ../include/SPTK/compression/inverse_multistage_vector_quantization.h \
                          ../include/SPTK/compression/inverse_vector_quantization.h \
+                         ../include/SPTK/compression/linde_buzo_gray_algorithm.h \
                          ../include/SPTK/compression/mu_law_compression.h \
                          ../include/SPTK/compression/mu_law_expansion.h \
                          ../include/SPTK/compression/multistage_vector_quantization.h \
@@ -913,6 +914,7 @@ INPUT                  = \
                          ../src/main/imsvq.cc \
                          ../src/main/iulaw.cc \
                          ../src/main/lar2par.cc \
+                         ../src/main/lbg.cc \
                          ../src/main/lpc2c.cc \
                          ../src/main/lpc2par.cc \
                          ../src/main/ltcdf.cc \
