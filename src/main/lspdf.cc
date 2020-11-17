@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -70,7 +71,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << " lspdf - line spectral pairs digital filter for speech synthesis" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
-  *stream << "       lspdf [ options ] lspfile [ infile ] > stdout" << std::endl;  // NOLINT
+  *stream << "       lspdf [ options ] wfile [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -m m  : order of filter coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumFilterOrder      << "][ 0 <= m <=     ]" << std::endl;  // NOLINT
   *stream << "       -p p  : frame period                 (   int)[" << std::setw(5) << std::right << kDefaultFramePeriod         << "][ 0 <  p <=     ]" << std::endl;  // NOLINT
@@ -80,7 +81,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 1 (log gain)" << std::endl;
   *stream << "                 2 (unity gain)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
-  *stream << "  lspfile:" << std::endl;
+  *stream << "  wfile:" << std::endl;
   *stream << "       line spectral paris coefficients     (double)" << std::endl;  // NOLINT
   *stream << "  infile:" << std::endl;
   *stream << "       filter input                         (double)[stdin]" << std::endl;  // NOLINT
@@ -88,6 +89,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       filter output                        (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
   *stream << "       if i = 0, don't interpolate filter coefficients" << std::endl;  // NOLINT
+  *stream << "       if m is large, filter output may be unstable" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -96,6 +98,37 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a lspdf [ @e option ] \e wfile [ \e infile ]
+ *
+ * - @b -m @e int
+ *   - order of coefficients @f$(0 \le M)@f$
+ * - @b -p @e int
+ *   - frame period @f$(1 \le P)@f$
+ * - @b -i @e int
+ *   - interpolation period @f$(0 \le I \le P/2)@f$
+ * - @b -k @e int
+ *     \arg @c 0 linear gain
+ *     \arg @c 1 log gain
+ *     \arg @c 2 unity gain
+ * - @b wfile @e str
+ *   - double-type LSP coefficients
+ * - @b infile @e str
+ *   - double-type input sequence
+ * - @b stdout
+ *   - double-type output sequence
+ *
+ * In the below example, an exciation signal generated from pitch information is
+ * passed through the synthesis filter built from LSP coefficients.
+ *
+ * @code{.sh}
+ *   excite < data.pitch | lspdf data.lsp > data.syn
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_filter_order(kDefaultNumFilterOrder);
   int frame_period(kDefaultFramePeriod);
@@ -189,7 +222,7 @@ int main(int argc, char* argv[]) {
     filter_input_file = NULL;
   } else {
     std::ostringstream error_message;
-    error_message << "Just two input files, lspfile and infile, are required";
+    error_message << "Just two input files, wfile and infile, are required";
     sptk::PrintErrorMessage("lspdf", error_message);
     return 1;
   }
@@ -221,38 +254,44 @@ int main(int argc, char* argv[]) {
   std::vector<double> filter_coefficients(filter_length);
   sptk::InputSourceFromStream input_source(false, filter_length,
                                            &stream_for_filter_coefficients);
-  sptk::InputSourcePreprocessingForFilterGain preprocessing(gain_type,
-                                                            &input_source);
   sptk::InputSourceInterpolation interpolation(
-      frame_period, interpolation_period, true, &preprocessing);
-  double filter_input, filter_output;
-  sptk::LineSpectralPairsDigitalFilter filter(num_filter_order);
-  sptk::LineSpectralPairsDigitalFilter::Buffer buffer;
-
-  if (!interpolation.IsValid() || !filter.IsValid()) {
+      frame_period, interpolation_period, true, &input_source);
+  sptk::InputSourcePreprocessingForFilterGain preprocessing(gain_type,
+                                                            &interpolation);
+  if (!preprocessing.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for filtering";
+    error_message << "Failed to initialize InputSource";
     sptk::PrintErrorMessage("lspdf", error_message);
     return 1;
   }
 
-  while (sptk::ReadStream(&filter_input, &stream_for_filter_input)) {
-    if (!interpolation.Get(&filter_coefficients)) {
+  sptk::LineSpectralPairsDigitalFilter filter(num_filter_order);
+  sptk::LineSpectralPairsDigitalFilter::Buffer buffer;
+  if (!filter.IsValid()) {
+    std::ostringstream error_message;
+    error_message << "Failed to initialize LineSpectralPairsDigitalFilter";
+    sptk::PrintErrorMessage("lspdf", error_message);
+    return 1;
+  }
+
+  double signal;
+
+  while (sptk::ReadStream(&signal, &stream_for_filter_input)) {
+    if (!preprocessing.Get(&filter_coefficients)) {
       std::ostringstream error_message;
       error_message << "Cannot get filter coefficients";
       sptk::PrintErrorMessage("lspdf", error_message);
       return 1;
     }
 
-    if (!filter.Run(filter_coefficients, filter_input, &filter_output,
-                    &buffer)) {
+    if (!filter.Run(filter_coefficients, &signal, &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to apply line spectral pairs digital filter";
       sptk::PrintErrorMessage("lspdf", error_message);
       return 1;
     }
 
-    if (!sptk::WriteStream(filter_output, &std::cout)) {
+    if (!sptk::WriteStream(signal, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write a filter output";
       sptk::PrintErrorMessage("lspdf", error_message);

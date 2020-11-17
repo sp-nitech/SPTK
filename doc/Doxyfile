@@ -878,6 +878,7 @@ INPUT                  = \
                          ../include/SPTK/filter/all_pole_lattice_digital_filter.h \
                          ../include/SPTK/filter/all_zero_digital_filter.h \
                          ../include/SPTK/filter/infinite_impulse_response_digital_filter.h \
+                         ../include/SPTK/filter/line_spectral_pairs_digital_filter.h \
                          ../include/SPTK/filter/second_order_digital_filter.h \
                          ../include/SPTK/generation/m_sequence_generation.h \
                          ../include/SPTK/generation/recursive_maximum_likelihood_parameter_generation.h \
@@ -918,6 +919,7 @@ INPUT                  = \
                          ../src/main/lpc2c.cc \
                          ../src/main/lpc2par.cc \
                          ../src/main/ltcdf.cc \
+                         ../src/main/lspdf.cc \
                          ../src/main/mc2b.cc \
                          ../src/main/mfcc.cc \
                          ../src/main/mlpg.cc \
