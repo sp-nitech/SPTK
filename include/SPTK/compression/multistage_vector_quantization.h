@@ -71,7 +71,7 @@ namespace sptk {
  * @f]
  * where
  * @f[
- *   i(n) = \mathop{\mathrm{argmin}}_j \sum_{j=1}^I \sum_{m=0}^M
+ *   i(n) = \mathop{\mathrm{argmin}}_j \sum_{j=0}^{I-1} \sum_{m=0}^M
  *       (e^{(n)}(m) - c_j^{(n)}(m))^2,
  * @f]
  * and the quantization error is

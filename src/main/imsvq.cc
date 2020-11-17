@@ -215,13 +215,14 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  std::vector<int> codebook_index(num_stage);
+  std::vector<int> codebook_indices(num_stage);
   std::vector<double> reconstructed_vector(length);
 
-  while (sptk::ReadStream(false, 0, 0, num_stage, &codebook_index,
+  while (sptk::ReadStream(false, 0, 0, num_stage, &codebook_indices,
                           &stream_for_codebook_index, NULL)) {
     if (!inverse_multistage_vector_quantization.Run(
-            codebook_index, codebook_vectors, &reconstructed_vector, &buffer)) {
+            codebook_indices, codebook_vectors, &reconstructed_vector,
+            &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to decode codebook index";
       sptk::PrintErrorMessage("imsvq", error_message);

@@ -58,7 +58,7 @@ namespace sptk {
  * codebook vectors:
  * @f[
  *   \begin{array}{cccc}
- *     \boldsymbol{c}_1, & \boldsymbol{c}_2, & \ldots, & \boldsymbol{c}_I.
+ *     \boldsymbol{c}_0, & \boldsymbol{c}_1, & \ldots, & \boldsymbol{c}_{I-1}.
  *   \end{array}
  * @f]
  * The output is simply the @f$i@f$-th codebook vector @f$\boldsymbol{c}_i@f$.

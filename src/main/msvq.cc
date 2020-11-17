@@ -215,18 +215,18 @@ int main(int argc, char* argv[]) {
   }
 
   std::vector<double> input_vector(length);
-  std::vector<int> codebook_index(num_stage);
+  std::vector<int> codebook_indices(num_stage);
 
   while (sptk::ReadStream(false, 0, 0, length, &input_vector,
                           &stream_for_input_vectors, NULL)) {
     if (!multistage_vector_quantization.Run(input_vector, codebook_vectors,
-                                            &codebook_index, &buffer)) {
+                                            &codebook_indices, &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to quantize vector";
       sptk::PrintErrorMessage("msvq", error_message);
       return 1;
     }
-    if (!sptk::WriteStream(0, num_stage, codebook_index, &std::cout, NULL)) {
+    if (!sptk::WriteStream(0, num_stage, codebook_indices, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write codebook index";
       sptk::PrintErrorMessage("msvq", error_message);

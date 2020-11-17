@@ -64,13 +64,13 @@ namespace sptk {
  * and the @f$M@f$-th order codebook vectors:
  * @f[
  *   \begin{array}{cccc}
- *     \boldsymbol{c}_1, & \boldsymbol{c}_2, & \ldots, & \boldsymbol{c}_I,
+ *     \boldsymbol{c}_0, & \boldsymbol{c}_1, & \ldots, & \boldsymbol{c}_{I-1}.
  *   \end{array}
  * @f]
  * The output is the index of the codebook vector that minimizes the distance
  * between the input vector and the codebook vector in an Euclidean sense:
  * @f[
- *   \mathop{\mathrm{argmin}}_i \sum_{i=1}^I \sum_{m=0}^M (x(m) - c_i(m))^2.
+ *   \mathop{\mathrm{argmin}}_i \sum_{i=0}^{I-1} \sum_{m=0}^M (x(m) - c_i(m))^2.
  * @f]
  */
 class VectorQuantization {
