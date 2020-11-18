@@ -63,10 +63,10 @@ namespace sptk {
  *     K,    & a(1), & \ldots, & a(N),
  *   \end{array}
  * @f]
- * and the output is the @f$(2/L+1)@f$-length group delay:
+ * and the output is the @f$(L/2+1)@f$-length group delay:
  * @f[
  *   \begin{array}{cccc}
- *     D(0), & D(1), & \ldots, & D(2/L),
+ *     D(0), & D(1), & \ldots, & D(L/2),
  *   \end{array}
  * @f]
  * where @f$L@f$ is the FFT length.

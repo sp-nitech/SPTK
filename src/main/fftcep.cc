@@ -115,7 +115,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b -l @e int
  *   - FFT length @f$(2 \le N)@f$
  * - @b -m @e int
- *   - order of coefficients @f$(0 \le M \le 2/N)@f$
+ *   - order of coefficients @f$(0 \le M \le N/2)@f$
  * - @b -i @e int
  *   - number of iterations @f$(0 \le J)@f$
  * - @b -a @e double

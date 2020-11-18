@@ -63,10 +63,10 @@ namespace sptk {
  *     K,    & a(1), & \ldots, & a(N),
  *   \end{array}
  * @f]
- * and the output is the @f$(2/L+1)@f$-length phase spectrum:
+ * and the output is the @f$(L/2+1)@f$-length phase spectrum:
  * @f[
  *   \begin{array}{cccc}
- *     \angle H(0), & \angle H(1), & \ldots, & \angle H(2/L),
+ *     \angle H(0), & \angle H(1), & \ldots, & \angle H(L/2),
  *   \end{array}
  * @f]
  * where @f$L@f$ is the FFT length.

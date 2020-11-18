@@ -144,9 +144,9 @@ bool WriteData(const std::vector<double>& data, bool zero_mean) {
  * and the frame length @f$L@f$ is even, the output is
  * @f[
  *   \begin{array}{cccc}
- *     \{x(t)\}_{t=-2/L}^{t=2/L-1}, &
- *     \{x(t)\}_{t=P-2/L}^{t=P+2/L-1}, &
- *     \{x(t)\}_{t=2P-2/L}^{t=2P+2/L-1}, &
+ *     \{x(t)\}_{t=-L/2}^{t=L/2-1}, &
+ *     \{x(t)\}_{t=P-L/2}^{t=P+L/2-1}, &
+ *     \{x(t)\}_{t=2P-L/2}^{t=2P+L/2-1}, &
  *     \ldots
  *   \end{array}
  * @f]
