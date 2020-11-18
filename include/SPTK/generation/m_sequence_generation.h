@@ -55,6 +55,9 @@ namespace sptk {
  */
 class MSequenceGeneration : public RandomGenerationInterface {
  public:
+  /**
+   * Make object.
+   */
   MSequenceGeneration();
 
   virtual ~MSequenceGeneration() {

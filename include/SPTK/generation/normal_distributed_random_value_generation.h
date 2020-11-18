@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -52,41 +52,49 @@
 
 namespace sptk {
 
+/**
+ * Generate random number based on normal distribution.
+ */
 class NormalDistributedRandomValueGeneration
     : public RandomGenerationInterface {
  public:
-  //
+  /**
+   * @param[in] seed Random seed.
+   */
   explicit NormalDistributedRandomValueGeneration(int seed);
 
-  //
   virtual ~NormalDistributedRandomValueGeneration() {
   }
 
-  //
+  /**
+   * Reset internal state.
+   */
   virtual void Reset();
 
-  //
+  /**
+   * Get random number.
+   *
+   * @param[out] output Random number.
+   * @return True on success, false on failure.
+   */
   virtual bool Get(double* output);
 
-  //
+  /**
+   * @return Random seed.
+   */
   int GetSeed() const {
     return seed_;
   }
 
  private:
-  //
   const int seed_;
 
-  //
   std::uint64_t next_;
-
-  //
   bool switch_;
+  double r1_;
+  double r2_;
+  double s_;
 
-  //
-  double r1_, r2_, s_;
-
-  //
   DISALLOW_COPY_AND_ASSIGN(NormalDistributedRandomValueGeneration);
 };
 

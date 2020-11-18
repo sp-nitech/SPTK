@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,7 +43,8 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
-#include <cmath>     // std::sqrt
+
+#include <cmath>     // std::pow, std::sqrt
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
@@ -66,12 +67,12 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       nrand [ options ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : output length      (   int)[" << std::setw(5) << std::right << "INF"                                                 << "][   1 <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -m m  : output order       (   int)[" << std::setw(5) << std::right << "l-1"                                                 << "][   0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -s s  : seed               (   int)[" << std::setw(5) << std::right << kDefaultSeed                                          << "][     <= s <=   ]" << std::endl;  // NOLINT
-  *stream << "       -M M  : mean               (double)[" << std::setw(5) << std::right << kDefaultMean                                          << "][     <= M <=   ]" << std::endl;  // NOLINT
-  *stream << "       -v v  : variance           (double)[" << std::setw(5) << std::right << kDefaultStandardDeviation * kDefaultStandardDeviation << "][ 0.0 <= v <=   ]" << std::endl;  // NOLINT
-  *stream << "       -d d  : standard deviation (double)[" << std::setw(5) << std::right << kDefaultStandardDeviation                             << "][ 0.0 <= d <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : output length      (   int)[" << std::setw(5) << std::right << "INF"                                    << "][   1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : output order       (   int)[" << std::setw(5) << std::right << "l-1"                                    << "][   0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : seed               (   int)[" << std::setw(5) << std::right << kDefaultSeed                             << "][     <= s <=   ]" << std::endl;  // NOLINT
+  *stream << "       -u u  : mean               (double)[" << std::setw(5) << std::right << kDefaultMean                             << "][     <= u <=   ]" << std::endl;  // NOLINT
+  *stream << "       -v v  : variance           (double)[" << std::setw(5) << std::right << std::pow(kDefaultStandardDeviation, 2.0) << "][ 0.0 <= v <=   ]" << std::endl;  // NOLINT
+  *stream << "       -d d  : standard deviation (double)[" << std::setw(5) << std::right << kDefaultStandardDeviation                << "][ 0.0 <= d <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  stdout:" << std::endl;
   *stream << "       random values              (double)" << std::endl;
@@ -83,6 +84,48 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a nrand [ @e option ]
+ *
+ * - @b -l @e int
+ *   - output length @f$(1 \le L)@f$
+ * - @b -m @e int
+ *   - output order @f$(0 \le L - 1)@f$
+ * - @b -s @e int
+ *   - random seed
+ * - @b -u @e double
+ *   - mean @f$(\mu)@f$
+ * - @b -v @e double
+ *   - variance @f$(0 \le \sigma^2)@f$
+ * - @b -d @e double
+ *   - standard deviation @f$(0 \le \sigma)@f$
+ * - @b stdout
+ *   - double-type random values
+ *
+ * The output of this command is
+ * @f[
+ *   \begin{array}{ccccc}
+ *     \epsilon(0), & \epsilon(1), & \ldots, & \epsilon(L - 1)
+ *   \end{array}
+ * @f]
+ * where
+ * @f[
+ *   \epsilon(l) \sim \mathcal{N}(\mu, \sigma^2).
+ * @f]
+ * If the output length @f$L@f$ is not given, an inifinite random value sequence
+ * is generated.
+ *
+ * In the below example, normal distributed random values of length 100 are
+ * generated:
+ *
+ * @code{.sh}
+ *   nrand -l 100 > data.rnd
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int output_length(kMagicNumberForInfinity);
   int seed(kDefaultSeed);
@@ -90,7 +133,7 @@ int main(int argc, char* argv[]) {
   double standard_deviation(kDefaultStandardDeviation);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:m:s:M:v:d:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:s:u:v:d:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -126,10 +169,10 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      case 'M': {
+      case 'u': {
         if (!sptk::ConvertStringToDouble(optarg, &mean)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -M option must be double";
+          error_message << "The argument for the -u option must be double";
           sptk::PrintErrorMessage("nrand", error_message);
           return 1;
         }
@@ -180,14 +223,14 @@ int main(int argc, char* argv[]) {
 
   for (int i(0); kMagicNumberForInfinity == output_length || i < output_length;
        ++i) {
-    double output;
-    if (!generator.Get(&output)) {
+    double random;
+    if (!generator.Get(&random)) {
       std::ostringstream error_message;
       error_message << "Failed to generate random values";
       sptk::PrintErrorMessage("nrand", error_message);
       return 1;
     }
-    output = mean + output * standard_deviation;
+    const double output(mean + random * standard_deviation);
     if (!sptk::WriteStream(output, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write random values";

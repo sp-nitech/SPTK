@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -44,11 +44,11 @@
 
 #include "SPTK/generation/normal_distributed_random_value_generation.h"
 
-#include <cmath>  // std::sqrt, std::log
+#include <cmath>  // std::log, std::sqrt
 
 namespace {
 
-// pseudorandom generation
+// Generate pseudorandom number.
 double PseudoRandomGeneration(std::uint64_t* next) {
   if (NULL == next) {
     return 0.0;
@@ -76,7 +76,6 @@ void NormalDistributedRandomValueGeneration::Reset() {
 }
 
 bool NormalDistributedRandomValueGeneration::Get(double* output) {
-  // check output
   if (NULL == output) {
     return false;
   }
