@@ -93,7 +93,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a ltcdf [ @e option ] \e kfile [ \e infile ]
+ * @a ltcdf [ @e option ] @e kfile [ @e infile ]
  *
  * - @b -m @e int
  *   - order of coefficients @f$(0 \le M)@f$

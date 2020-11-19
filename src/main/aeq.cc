@@ -89,7 +89,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a aeq [ @e option ] \e exfile [ \e infile ]
+ * @a aeq [ @e option ] @e exfile [ @e infile ]
  *
  * - @b -t @e double
  *   - absolute tolerance @f$(0 \le \epsilon)@f$

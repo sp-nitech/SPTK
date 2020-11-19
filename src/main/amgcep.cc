@@ -100,7 +100,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a amgcep [ @e option ] [ \e infile ]
+ * @a amgcep [ @e option ] [ @e infile ]
  *
  * - @b -m @e int
  *   - order of mel-cepstral coefficients @f$(0 \le M)@f$

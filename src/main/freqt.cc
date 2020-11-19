@@ -86,7 +86,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a freqt [ @e option ] [ \e infile ]
+ * @a freqt [ @e option ] [ @e infile ]
  *
  * - @b -m @e int
  *   - order of minimum phase sequence @f$(0 \le M_1)@f$

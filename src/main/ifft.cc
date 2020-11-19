@@ -106,7 +106,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a ifft [ @e option ] [ \e infile ]
+ * @a ifft [ @e option ] [ @e infile ]
  *
  * - @b -l @e int
  *   - FFT length @f$(1 \le L)@f$

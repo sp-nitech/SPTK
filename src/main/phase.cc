@@ -92,7 +92,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a phase [ @e option ] [ \e infile ]
+ * @a phase [ @e option ] [ @e infile ]
  *
  * - @b -l @e int
  *   - FFT length @f$(2 \le L)@f$

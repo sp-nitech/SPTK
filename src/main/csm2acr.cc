@@ -80,7 +80,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a csm2acr [ @e option ] [ \e infile ]
+ * @a csm2acr [ @e option ] [ @e infile ]
  *
  * - @b -m @e int
  *   - order of autocorrelation @f$(1 \le M)@f$

@@ -83,7 +83,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a c2mpir [ @e option ] [ \e infile ]
+ * @a c2mpir [ @e option ] [ @e infile ]
  *
  * - @b -m @e int
  *   - order of cesptral coefficients @f$(0 \le M_1)@f$

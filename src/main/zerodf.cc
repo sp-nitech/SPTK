@@ -95,7 +95,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a zerodf [ @e option ] \e bfile [ \e infile ]
+ * @a zerodf [ @e option ] @e bfile [ @e infile ]
  *
  * - @b -m @e int
  *   - order of coefficients @f$(0 \le M)@f$

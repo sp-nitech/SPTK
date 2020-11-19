@@ -83,7 +83,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a dfs [ @e option ] [ \e infile ]
+ * @a dfs [ @e option ] [ @e infile ]
  *
  * - @b -a @e int+
  *   - denominator coefficients

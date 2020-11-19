@@ -100,7 +100,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a fft [ @e option ] [ \e infile ]
+ * @a fft [ @e option ] [ @e infile ]
  *
  * - @b -m @e int
  *   - order of sequence @f$(0 \le M < L)@f$

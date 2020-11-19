@@ -86,7 +86,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a df2 [ @e option ] [ \e infile ]
+ * @a df2 [ @e option ] [ @e infile ]
  *
  * - @b -s @e double
  *   - sampling rate in kHz @f$(0 < F_s)@f$

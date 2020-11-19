@@ -110,7 +110,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a fftcep [ @e option ] [ \e infile ]
+ * @a fftcep [ @e option ] [ @e infile ]
  *
  * - @b -l @e int
  *   - FFT length @f$(2 \le N)@f$

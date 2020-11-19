@@ -89,7 +89,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a entropy [ @e option ] [ \e infile ]
+ * @a entropy [ @e option ] [ @e infile ]
  *
  * - @b -l @e int
  *   - number of elements @f$(1 \le N)@f$

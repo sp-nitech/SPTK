@@ -95,7 +95,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a poledf [ @e option ] \e afile [ \e infile ]
+ * @a poledf [ @e option ] @e afile [ @e infile ]
  *
  * - @b -m @e int
  *   - order of coefficients @f$(0 \le M)@f$

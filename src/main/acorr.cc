@@ -95,7 +95,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a acorr [ @e option ] [ \e infile ]
+ * @a acorr [ @e option ] [ @e infile ]
  *
  * - @b -l @e int
  *   - frame length @f$(1 \le L)@f$

@@ -84,7 +84,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a c2acr [ @e option ] [ \e infile ]
+ * @a c2acr [ @e option ] [ @e infile ]
  *
  * - @b -m @e int
  *   - order of cepstral coefficients @f$(0 \le M_1 < L)@f$

@@ -103,7 +103,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a lbg [ @e option ] [ \e infile ]
+ * @a lbg [ @e option ] [ @e infile ]
  *
  * - @b -l @e int
  *   - length of vector @f$(1 \le M + 1)@f$

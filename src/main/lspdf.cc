@@ -99,7 +99,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a lspdf [ @e option ] \e wfile [ \e infile ]
+ * @a lspdf [ @e option ] @e wfile [ @e infile ]
  *
  * - @b -m @e int
  *   - order of coefficients @f$(0 \le M)@f$

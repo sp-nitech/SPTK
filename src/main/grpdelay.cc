@@ -94,7 +94,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a grpdelay [ @e option ] [ \e infile ]
+ * @a grpdelay [ @e option ] [ @e infile ]
  *
  * - @b -l @e int
  *   - FFT length @f$(2 \le L)@f$

@@ -83,7 +83,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a lpc2c [ @e option ] [ \e infile ]
+ * @a lpc2c [ @e option ] [ @e infile ]
  *
  * - @b -m @e int
  *   - order of LPC coefficients @f$(0 \le M_1)@f$

@@ -84,7 +84,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a msvq [ @e option ] [ \e infile ]
+ * @a msvq [ @e option ] [ @e infile ]
  *
  * - @b -l @e int
  *   - length of vector @f$(1 \le M + 1)@f$

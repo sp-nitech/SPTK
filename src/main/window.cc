@@ -97,7 +97,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a window [ @e option ] [ \e infile ]
+ * @a window [ @e option ] [ @e infile ]
  *
  * - @b -l @e int
  *   - input length @f$(1 \le L_1)@f$

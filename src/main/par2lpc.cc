@@ -80,7 +80,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a par2lpc [ @e option ] [ \e infile ]
+ * @a par2lpc [ @e option ] [ @e infile ]
  *
  * - @b -m @e int
  *   - order of coefficients @f$(0 \le M)@f$

@@ -81,7 +81,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a iulaw [ @e option ] [ \e infile ]
+ * @a iulaw [ @e option ] [ @e infile ]
  *
  * - @b -v @e int
  *   - absolute maximum value of input @f$(0 < V)@f$
