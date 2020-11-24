@@ -97,7 +97,7 @@ class PitchExtraction {
   }
 
   /**
-   * @return True if this obejct is valid.
+   * @return True if this object is valid.
    */
   bool IsValid() const {
     return (NULL != pitch_extraction_ && pitch_extraction_->IsValid());

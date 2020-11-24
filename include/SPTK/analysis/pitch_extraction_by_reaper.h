@@ -105,7 +105,7 @@ class PitchExtractionByReaper : public PitchExtractionInterface {
   }
 
   /**
-   * @return True if this obejct is valid.
+   * @return True if this object is valid.
    */
   virtual bool IsValid() const {
     return is_valid_;

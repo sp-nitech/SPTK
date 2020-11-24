@@ -184,7 +184,7 @@ class LindeBuzoGrayAlgorithm {
   }
 
   /**
-   * @return True if this obejct is valid.
+   * @return True if this object is valid.
    */
   bool IsValid() const {
     return is_valid_;
