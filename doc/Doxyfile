@@ -936,6 +936,7 @@ INPUT                  = \
                          ../src/main/pitch.cc \
                          ../src/main/pitch_mark.cc \
                          ../src/main/poledf.cc \
+                         ../src/main/step.cc \
                          ../src/main/ulaw.cc \
                          ../src/main/window.cc \
                          ../src/main/zerodf.cc \

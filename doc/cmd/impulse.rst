@@ -4,3 +4,5 @@ impulse
 =======
 
 .. doxygenfile:: impulse.cc
+
+.. seealso:: :ref:`step`

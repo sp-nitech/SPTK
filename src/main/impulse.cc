@@ -94,7 +94,7 @@ void PrintUsage(std::ostream* stream) {
  * where the output length is @f$L@f$. If @f$L@f$ is not given, an inifinite
  * impulse sequence is generated.
  *
- * In the below example, an impulse response of a ditital filter is calculated
+ * In the below example, the impulse response of a ditital filter is calculated
  * and shown on the screen.
  *
  * @code{.sh}
