@@ -217,7 +217,7 @@ int main(int argc, char* argv[]) {
                                                               num_order);
   if (!waveform_to_autocorrelation.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set initialize WaveformToAutocorrelation";
+    error_message << "Failed to initialize WaveformToAutocorrelation";
     sptk::PrintErrorMessage("acorr", error_message);
     return 1;
   }
