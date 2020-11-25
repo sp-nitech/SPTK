@@ -42,8 +42,8 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_FILTER_PSEUDO_QUADRATURE_MIRROR_FILTER_BANKS_H_
-#define SPTK_FILTER_PSEUDO_QUADRATURE_MIRROR_FILTER_BANKS_H_
+#ifndef SPTK_FILTER_INVERSE_PSEUDO_QUADRATURE_MIRROR_FILTER_BANKS_H_
+#define SPTK_FILTER_INVERSE_PSEUDO_QUADRATURE_MIRROR_FILTER_BANKS_H_
 
 #include <vector>  // std::vector
 
@@ -53,20 +53,20 @@
 namespace sptk {
 
 /**
- * Decompose signal into subband signals.
+ * Reconstruct signal from subband signals.
  *
- * The input is the signal @f$x(t)@f$ and the output is the @f$K@f$ subband
- * signals:
+ * The input is the @f$K@f$ subband signals:
  * @f[
  *   \begin{array}{cccc}
  *     x_0(t), & x_1(t), & \ldots, & x_{K-1}(t),
  *   \end{array}
  * @f]
+ * and the output is the signal @f$x(t)@f$.
  * The impulse responses of the analysis filters are cosine-modulated versions
  * of the prototype filter @f$h(n)@f$:
  * @f[
- *   h_k(n) = 2h(n) \cos \left(
- *     (2k+1) \frac{\pi}{2K} \left( n-\frac{M}{2} \right) + (-1)^k \frac{\pi}{4}
+ *   f_k(n) = 2h(n) \cos \left(
+ *     (2k+1) \frac{\pi}{2K} \left( n-\frac{M}{2} \right) - (-1)^k \frac{\pi}{4}
  *   \right).
  * @f]
  * where @f$M@f$ is the filter order.
@@ -83,10 +83,10 @@ namespace sptk {
  * is the shifted impulse response of an ideal lowpass filter. The optimal
  * angular frequency @f$\omega@f$ is calculated based on a simple algorithm.
  */
-class PseudoQuadratureMirrorFilterBanks {
+class InversePseudoQuadratureMirrorFilterBanks {
  public:
   /**
-   * Buffer for PseudoQuadratureMirrorFilterBanks class.
+   * Buffer for InversePseudoQuadratureMirrorFilterBanks class.
    */
   class Buffer {
    public:
@@ -104,7 +104,7 @@ class PseudoQuadratureMirrorFilterBanks {
    private:
     std::vector<AllZeroDigitalFilter::Buffer*> buffer_for_all_zero_filter_;
 
-    friend class PseudoQuadratureMirrorFilterBanks;
+    friend class InversePseudoQuadratureMirrorFilterBanks;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
 
@@ -116,12 +116,14 @@ class PseudoQuadratureMirrorFilterBanks {
    * @param[in] convergence_threshold Convergence threshold.
    * @param[in] initial_step_size Initial step size.
    */
-  PseudoQuadratureMirrorFilterBanks(int num_subband, int num_filter_order,
-                                    double attenuation, int num_iteration,
-                                    double convergence_threshold,
-                                    double initial_step_size);
+  InversePseudoQuadratureMirrorFilterBanks(int num_subband,
+                                           int num_filter_order,
+                                           double attenuation,
+                                           int num_iteration,
+                                           double convergence_threshold,
+                                           double initial_step_size);
 
-  virtual ~PseudoQuadratureMirrorFilterBanks() {
+  virtual ~InversePseudoQuadratureMirrorFilterBanks() {
   }
 
   /**
@@ -153,13 +155,13 @@ class PseudoQuadratureMirrorFilterBanks {
   }
 
   /**
-   * @param[in] input Input signal.
-   * @param[out] output Output subband signals.
+   * @param[in] input Input subband signals.
+   * @param[out] output Output signal.
    * @param[out] buffer Buffer.
    * @return True on success, false on failure.
    */
-  bool Run(double input, std::vector<double>* output,
-           PseudoQuadratureMirrorFilterBanks::Buffer* buffer) const;
+  bool Run(const std::vector<double>& input, double* output,
+           InversePseudoQuadratureMirrorFilterBanks::Buffer* buffer) const;
 
  private:
   const int num_subband_;
@@ -169,9 +171,9 @@ class PseudoQuadratureMirrorFilterBanks {
   bool is_converged_;
   std::vector<std::vector<double> > filter_banks_;
 
-  DISALLOW_COPY_AND_ASSIGN(PseudoQuadratureMirrorFilterBanks);
+  DISALLOW_COPY_AND_ASSIGN(InversePseudoQuadratureMirrorFilterBanks);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_FILTER_PSEUDO_QUADRATURE_MIRROR_FILTER_BANKS_H_
+#endif  // SPTK_INVERSE_FILTER_PSEUDO_QUADRATURE_MIRROR_FILTER_BANKS_H_

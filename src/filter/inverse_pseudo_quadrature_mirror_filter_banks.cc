@@ -42,7 +42,7 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/filter/pseudo_quadrature_mirror_filter_banks.h"
+#include "SPTK/filter/inverse_pseudo_quadrature_mirror_filter_banks.h"
 
 #include <cstddef>  // std::size_t
 
@@ -50,9 +50,13 @@
 
 namespace sptk {
 
-PseudoQuadratureMirrorFilterBanks::PseudoQuadratureMirrorFilterBanks(
-    int num_subband, int num_filter_order, double attenuation,
-    int num_iteration, double convergence_threshold, double initial_step_size)
+InversePseudoQuadratureMirrorFilterBanks::
+    InversePseudoQuadratureMirrorFilterBanks(int num_subband,
+                                             int num_filter_order,
+                                             double attenuation,
+                                             int num_iteration,
+                                             double convergence_threshold,
+                                             double initial_step_size)
     : num_subband_(num_subband),
       all_zero_filter_(num_filter_order, false),
       is_valid_(true) {
@@ -62,7 +66,7 @@ PseudoQuadratureMirrorFilterBanks::PseudoQuadratureMirrorFilterBanks(
   }
 
   if (!MakePseudoQuadratureMirrorFilterBanks(
-          false, num_subband_, num_filter_order, attenuation, num_iteration,
+          true, num_subband_, num_filter_order, attenuation, num_iteration,
           convergence_threshold, initial_step_size, &filter_banks_,
           &is_converged_)) {
     is_valid_ = false;
@@ -70,16 +74,15 @@ PseudoQuadratureMirrorFilterBanks::PseudoQuadratureMirrorFilterBanks(
   }
 }
 
-bool PseudoQuadratureMirrorFilterBanks::Run(
-    double input, std::vector<double>* output,
-    PseudoQuadratureMirrorFilterBanks::Buffer* buffer) const {
+bool InversePseudoQuadratureMirrorFilterBanks::Run(
+    const std::vector<double>& input, double* output,
+    InversePseudoQuadratureMirrorFilterBanks::Buffer* buffer) const {
   // Check inputs.
-  if (!is_valid_ || output == nullptr || buffer == nullptr) return false;
+  if (!is_valid_ || input.size() != static_cast<std::size_t>(num_subband_) ||
+      output == nullptr || buffer == nullptr)
+    return false;
 
   // Prepare memories.
-  if (output->size() != static_cast<std::size_t>(num_subband_)) {
-    output->resize(num_subband_);
-  }
   if (buffer->buffer_for_all_zero_filter_.size() !=
       static_cast<std::size_t>(num_subband_)) {
     for (std::vector<AllZeroDigitalFilter::Buffer*>::iterator itr(
@@ -97,12 +100,16 @@ bool PseudoQuadratureMirrorFilterBanks::Run(
     }
   }
 
+  double sum(0.0);
   for (int k(0); k < num_subband_; ++k) {
-    if (!all_zero_filter_.Run(filter_banks_[k], input, &((*output)[k]),
+    double tmp;
+    if (!all_zero_filter_.Run(filter_banks_[k], input[k], &tmp,
                               buffer->buffer_for_all_zero_filter_[k])) {
       return false;
     }
+    sum += tmp;
   }
+  *output = sum;
 
   return true;
 }

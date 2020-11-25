@@ -879,6 +879,7 @@ INPUT                  = \
                          ../include/SPTK/filter/all_pole_lattice_digital_filter.h \
                          ../include/SPTK/filter/all_zero_digital_filter.h \
                          ../include/SPTK/filter/infinite_impulse_response_digital_filter.h \
+                         ../include/SPTK/filter/inverse_pseudo_quadrature_mirror_filter_banks.h \
                          ../include/SPTK/filter/line_spectral_pairs_digital_filter.h \
                          ../include/SPTK/filter/pseudo_quadrature_mirror_filter_banks.h \
                          ../include/SPTK/filter/second_order_digital_filter.h \
@@ -917,6 +918,7 @@ INPUT                  = \
                          ../src/main/ignorm.cc \
                          ../src/main/impulse.cc \
                          ../src/main/imsvq.cc \
+                         ../src/main/ipqmf.cc \
                          ../src/main/iulaw.cc \
                          ../src/main/lar2par.cc \
                          ../src/main/lbg.cc \
