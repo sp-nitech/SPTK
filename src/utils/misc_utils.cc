@@ -195,7 +195,7 @@ bool MakePseudoQuadratureMirrorFilterBanks(
 
     // Prepare FFT.
     const int fft_size(sptk::NextPow(filter_size));
-    sptk::RealValuedFastFourierTransform fft(filter_size, fft_size);
+    sptk::RealValuedFastFourierTransform fft(num_filter_order, fft_size);
     sptk::RealValuedFastFourierTransform::Buffer buffer_for_fft;
     if (!fft.IsValid()) {
       return false;

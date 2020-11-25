@@ -63,7 +63,8 @@ PseudoQuadratureMirrorFilterBanks::PseudoQuadratureMirrorFilterBanks(
 
   if (!MakePseudoQuadratureMirrorFilterBanks(
           false, num_subband_, num_filter_order, attenuation, num_iteration,
-          convergence_threshold, initial_step_size, &filter_banks_, NULL)) {
+          convergence_threshold, initial_step_size, &filter_banks_,
+          &is_converged_)) {
     is_valid_ = false;
     return;
   }

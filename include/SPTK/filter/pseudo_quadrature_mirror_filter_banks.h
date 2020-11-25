@@ -78,7 +78,7 @@ namespace sptk {
  * where @f$w(n)@f$ is the Kaiser window and
  * @f[
  *   g(n) = \frac{\sin \left( n-\frac{M}{2} \right) \omega}
- *               {\pi \left( n-\frac{M}{2} \right)}.
+ *               {\pi \left( n-\frac{M}{2} \right)}
  * @f]
  * is the shifted impulse response of an ideal lowpass filter. The optimal
  * angular frequency @f$\omega@f$ is calculated based on a simple algorithm.
@@ -113,10 +113,10 @@ class PseudoQuadratureMirrorFilterBanks {
    * @param[in] num_filter_order Order of filter, @f$M@f$.
    * @param[in] attenuation Stopband attenuation in dB.
    * @param[in] num_iteration Number of iterations.
-   * @param[in] convergnce_threshold Convergence threshold, @f$\epsilon@f$.
+   * @param[in] convergence_threshold Convergence threshold, @f$\epsilon@f$.
    * @param[in] initial_step_size Initial step size, @f$\Delta@f$.
    */
-  PseudoQuadratureMirrorFilterBanks(int num_subbands, int num_filter_order,
+  PseudoQuadratureMirrorFilterBanks(int num_subband, int num_filter_order,
                                     double attenuation, int num_iteration,
                                     double convergence_threshold,
                                     double initial_step_size);
@@ -146,6 +146,13 @@ class PseudoQuadratureMirrorFilterBanks {
   }
 
   /**
+   * @return True if built filter is in convergence point.
+   */
+  bool IsConverged() const {
+    return is_converged_;
+  }
+
+  /**
    * @param[in] input Input signal.
    * @param[out] output Output subband signals.
    * @param[out] buffer Buffer.
@@ -159,7 +166,7 @@ class PseudoQuadratureMirrorFilterBanks {
   const AllZeroDigitalFilter all_zero_filter_;
 
   bool is_valid_;
-
+  bool is_converged_;
   std::vector<std::vector<double> > filter_banks_;
 
   DISALLOW_COPY_AND_ASSIGN(PseudoQuadratureMirrorFilterBanks);
