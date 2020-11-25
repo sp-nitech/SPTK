@@ -86,6 +86,9 @@ doc:
 	cd $(DOCDIR); ../tools/doxygen/build/bin/doxygen
 	. ./tools/venv/bin/activate; cd $(DOCDIR); make html
 
+doc-clean:
+	. ./tools/venv/bin/activate; cd $(DOCDIR); make clean
+
 format:
 	clang-format -i $(wildcard $(SOURCEDIR)/*/*.cc)
 	clang-format -i	$(wildcard $(INCLUDEDIR)/SPTK/*/*.h)
@@ -96,11 +99,10 @@ format:
 test:
 	./tools/bats/bin/bats test
 
-clean:
+clean: doc-clean
 	for dir in $(THIRDPARTYDIRS); do \
 		$(MAKE) clean -C $$dir; \
 	done
 	rm -rf $(BUILDDIR) $(LIBDIR) $(BINDIR) $(DOCDIR)/xml
-	. ./tools/venv/bin/activate; cd $(DOCDIR); make clean
 
-.PHONY: all $(THIRDPARTYDIRS) doc format test clean
+.PHONY: all $(THIRDPARTYDIRS) doc doc-clean format test clean
