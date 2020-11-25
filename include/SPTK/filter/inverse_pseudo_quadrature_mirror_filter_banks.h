@@ -176,4 +176,4 @@ class InversePseudoQuadratureMirrorFilterBanks {
 
 }  // namespace sptk
 
-#endif  // SPTK_INVERSE_FILTER_PSEUDO_QUADRATURE_MIRROR_FILTER_BANKS_H_
+#endif  // SPTK_FILTER_INVERSE_PSEUDO_QUADRATURE_MIRROR_FILTER_BANKS_H_
