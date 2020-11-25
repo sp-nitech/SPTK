@@ -381,6 +381,17 @@ bool IsValidGamma(double gamma) {
   return (std::fabs(gamma) <= 1.0);
 }
 
+int NextPow(int num) {
+  num--;
+  num |= num >> 1;
+  num |= num >> 2;
+  num |= num >> 4;
+  num |= num >> 8;
+  num |= num >> 16;
+  num++;
+  return num;
+}
+
 int ExtractSign(double x) {
   if (0.0 < x) return 1;
   if (x < 0.0) return -1;
@@ -408,160 +419,6 @@ double AddInLogSpace(double log_x, double log_y) {
   const double diff(smaller - greater);
   if (diff < kThresholdOfInformationLossInLogSpace) return greater;
   return greater + std::log(std::exp(diff) + 1.0);
-}
-
-// Compute the percentage point of the standard normal distribution
-// using the formula for the approximation by Toda and Ono.
-//
-// H. Toda and H. Ono, ``The minimax approximation for percentage points of
-// the standard normal distribution,'' Japanese journal of applied statistics,
-// vol. 22, no. 1, pp. 13--21, 1993.
-bool ComputePercentagePointOfStandardNormalDistribution(
-    double probability, double* percentage_point) {
-  if (probability <= 0.0 || 1.0 <= probability || NULL == percentage_point) {
-    return false;
-  }
-
-  if (0.5 == probability) {
-    *percentage_point = 0.0;
-    return true;
-  }
-
-  const double y(-std::log(4.0 * probability * (1.0 - probability)));
-  const std::vector<double> parameters{
-      0.1570796288e1,   0.3706987906e-1,  -0.8364353589e-3, -0.2250947176e-3,
-      0.6841218299e-5,  0.5824238515e-5,  -0.1045274970e-5, 0.8360937017e-7,
-      -0.3231081277e-8, 0.3657763036e-10, 0.6936233982e-12};
-
-  double sum(0.0);
-  for (int i(0); i < static_cast<int>(parameters.size()); ++i) {
-    sum += parameters[i] * std::pow(y, i);
-  }
-  *percentage_point =
-      (0.5 < probability) ? -std::sqrt(sum * y) : std::sqrt(sum * y);
-  return true;
-}
-
-bool ComputeProbabilityOfTDistribution(double percentage_point,
-                                       int degrees_of_freedom,
-                                       double* probability) {
-  if (degrees_of_freedom <= 0 || NULL == probability) {
-    return false;
-  }
-
-  const double cosine_squared(
-      degrees_of_freedom /
-      (degrees_of_freedom + percentage_point * percentage_point));
-  const double sine((percentage_point < 0.0) ? -std::sqrt(1.0 - cosine_squared)
-                                             : std::sqrt(1.0 - cosine_squared));
-
-  double sum(0.0);
-  double prod(sine);
-  for (int i(degrees_of_freedom % 2 + 2); i <= degrees_of_freedom; i += 2) {
-    sum += prod;
-    prod *= (i - 1) * cosine_squared / i;
-  }
-  if (0 == degrees_of_freedom % 2) {
-    *probability = (1.0 + sum) / 2.0;
-  } else {
-    const double theta(
-        std::atan(percentage_point / std::sqrt(degrees_of_freedom)));
-    *probability = 0.5 + (sum * std::sqrt(cosine_squared) + theta) / sptk::kPi;
-  }
-
-  return true;
-}
-
-// Compute the percentage point of the t-distribution using the Cornish-Fisher
-// expansion in the percentage point of the standard normal distribution.
-//
-// R. A. Fisher and E. A. Cornish, ``The percentile points of distributions
-// having known cumulants,'' Technometrics, vol. 2, no. 2, pp. 209--225, 1960.
-bool ComputePercentagePointOfTDistribution(double probability,
-                                           int degrees_of_freedom,
-                                           double* percentage_point) {
-  if (probability <= 0.0 || 1.0 <= probability || degrees_of_freedom <= 0 ||
-      NULL == percentage_point) {
-    return false;
-  }
-
-  if (0.5 == probability) {
-    *percentage_point = 0.0;
-    return true;
-  }
-
-  double z;
-  if (!ComputePercentagePointOfStandardNormalDistribution(probability, &z)) {
-    return false;
-  }
-  const double z_squared(z * z);
-  const std::vector<double> parameters{
-      1.0,  1.0,   4.0,   5.0,     16.0,   3.0,     96.0,    3.0,    19.0,
-      17.0, -15.0, 384.0, 79.0,    776.0,  1482.0,  -1920.0, -945.0, 92160.0,
-      27.0, 339.0, 930.0, -1782.0, -765.0, 17955.0, 368640.0};
-
-  std::vector<double> term(5);
-  for (int i(0), index(0); i < static_cast<int>(term.size()); ++i) {
-    term[i] = parameters[index++];
-    for (int j(0); j <= i; ++j) {
-      term[i] = term[i] * z_squared + parameters[index++];
-    }
-    term[i] /= parameters[index++];
-  }
-
-  const double inverse_degrees_of_freedom(1.0 / degrees_of_freedom);
-  *percentage_point = 0.0;
-  for (int i(term.size() - 1); 0 <= i; --i) {
-    *percentage_point =
-        (*percentage_point + term[i]) * inverse_degrees_of_freedom;
-  }
-  *percentage_point = (*percentage_point + 1.0) * z;
-
-  if (degrees_of_freedom <=
-      std::pow(std::log10(1.0 - probability), 2.0) + 3.0) {
-    const double n(degrees_of_freedom + 1);
-    double computed_probability;
-    if (!ComputeProbabilityOfTDistribution(
-            *percentage_point, degrees_of_freedom, &computed_probability)) {
-      return false;
-    }
-    const double percentage_point_squared(*percentage_point *
-                                          *percentage_point);
-    const double tmp1(
-        std::log(n / (degrees_of_freedom + percentage_point_squared)));
-    const double tmp2(std::log(degrees_of_freedom / (n * sptk::kTwoPi)));
-    const double tmp3(1.0 / (6.0 * n * degrees_of_freedom));
-    const double delta((computed_probability - (1.0 - probability)) /
-                       std::exp((n * tmp1 + tmp2 - 1.0 - tmp3) / 2.0));
-    *percentage_point -= delta;
-  }
-  return true;
-}
-
-bool Perform1DConvolution(const std::vector<double>& f,
-                          const std::vector<double>& g,
-                          std::vector<double>* result) {
-  if (f.empty() || g.empty() || NULL == result) {
-    return false;
-  }
-
-  const int m(f.size());
-  const int n(g.size());
-  const int output_size(m + n - 1);
-  if (result->size() != static_cast<std::size_t>(output_size)) {
-    result->resize(output_size);
-  }
-
-  std::fill(result->begin(), result->end(), 0.0);
-  double* output(&((*result)[0]));
-  for (int i(0); i < output_size; ++i) {
-    const int begin(std::max(i - n + 1, 0));
-    const int end(std::min(i, m - 1));
-    for (int j(begin); j <= end; ++j) {
-      output[i] += f[j] * g[i - j];
-    }
-  }
-  return true;
 }
 
 void PrintDataType(const std::string& symbol, std::ostream* stream) {

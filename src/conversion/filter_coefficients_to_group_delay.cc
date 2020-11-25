@@ -48,6 +48,8 @@
 #include <cmath>      // std::pow
 #include <cstddef>    // std::size_t
 
+#include "SPTK/utils/misc_utils.h"
+
 namespace sptk {
 
 FilterCoefficientsToGroupDelay::FilterCoefficientsToGroupDelay(
