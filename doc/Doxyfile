@@ -918,6 +918,7 @@ INPUT                  = \
                          ../src/main/ignorm.cc \
                          ../src/main/impulse.cc \
                          ../src/main/imsvq.cc \
+                         ../src/main/interpolate.cc \
                          ../src/main/ipqmf.cc \
                          ../src/main/iulaw.cc \
                          ../src/main/lar2par.cc \
