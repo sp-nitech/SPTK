@@ -68,7 +68,7 @@ teardown() {
    [ "$status" -eq 0 ]
 }
 
-@test "iulaw: reversiblity" {
+@test "iulaw: reversibility" {
    $sptk3/nrand -l 20 > tmp/1
    $sptk4/iulaw tmp/1 | $sptk4/ulaw > tmp/2
    run $sptk4/aeq tmp/1 tmp/2

@@ -68,7 +68,7 @@ teardown() {
    [ "$status" -eq 0 ]
 }
 
-@test "mc2b: reversiblity" {
+@test "mc2b: reversibility" {
    $sptk3/nrand -l 20 > tmp/1
    $sptk4/mc2b -m 9 -a 0.4 tmp/1 | $sptk4/b2mc -m 9 -a 0.4 > tmp/2
    run $sptk4/aeq tmp/1 tmp/2

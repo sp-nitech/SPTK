@@ -68,7 +68,7 @@ teardown() {
    [ "$status" -eq 0 ]
 }
 
-@test "gnorm: reversiblity" {
+@test "gnorm: reversibility" {
    $sptk3/nrand -l 20 > tmp/1
    $sptk4/gnorm -m 9 -g 0.5 tmp/1 | $sptk4/ignorm -m 9 -g 0.5 > tmp/2
    run $sptk4/aeq tmp/1 tmp/2

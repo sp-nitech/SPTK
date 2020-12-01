@@ -68,7 +68,7 @@ teardown() {
    [ "$status" -eq 0 ]
 }
 
-@test "lpc2par: reversiblity" {
+@test "lpc2par: reversibility" {
    $sptk3/nrand -l 20 > tmp/1
    $sptk4/lpc2par -m 9 tmp/1 | $sptk4/par2lpc -m 9 > tmp/2
    run $sptk4/aeq tmp/1 tmp/2

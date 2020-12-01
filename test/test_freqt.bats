@@ -68,7 +68,7 @@ teardown() {
    [ "$status" -eq 0 ]
 }
 
-@test "freqt: reversiblity" {
+@test "freqt: reversibility" {
    $sptk3/nrand -l 20 > tmp/1
    $sptk4/freqt -m 9 -M 19 -a 0.0 -A 0.2 tmp/1 | \
       $sptk4/freqt -m 19 -M 9 -a 0.0 -A -0.2 > tmp/2

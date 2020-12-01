@@ -61,7 +61,7 @@ teardown() {
    [ "$status" -eq 0 ]
 }
 
-@test "csm2acr: reversiblity" {
+@test "csm2acr: reversibility" {
    # Make fake CSM parameters.
    $sptk3/ramp -s 0.314 -l 5 -t 0.628 > tmp/1
    $sptk3/nrand -l 5 >> tmp/1

@@ -64,7 +64,7 @@ teardown() {
    done
 }
 
-@test "fftr: reversiblity" {
+@test "fftr: reversibility" {
    $sptk3/nrand -l 16 > tmp/1
    $sptk4/fftr -l 16 tmp/1 | $sptk4/ifft -l 16 -o 1 > tmp/2
    run $sptk4/aeq tmp/1 tmp/2

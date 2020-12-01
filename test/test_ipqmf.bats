@@ -55,7 +55,7 @@ teardown() {
    rm -rf tmp
 }
 
-@test "ipqmf: reversiblity" {
+@test "ipqmf: reversibility" {
    $sptk3/x2x +sd $data > tmp/1
    $sptk4/pqmf -k 1 -m 50 tmp/1 | \
       $sptk4/ipqmf -k 1 -m 50 | \
