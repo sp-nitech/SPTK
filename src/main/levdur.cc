@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -62,8 +63,7 @@ const WarningType kDefaultWarningType(kIgnore);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " levdur - solve an autocorrelation normal equation" << std::endl;
-  *stream << "          using Levinson-Durbin recursion" << std::endl;
+  *stream << " levdur - solve autocorrelation normal equations by Levinson-Durbin recursion" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       levdur [ options ] [ infile ] > stdout" << std::endl;
@@ -76,7 +76,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                    and exit immediately)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       autocorrelation sequence               (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       autocorrelation                        (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
   *stream << "       linear predictive coefficients         (double)" << std::endl;  // NOLINT
   *stream << std::endl;
@@ -87,6 +87,31 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a levdur [ @e option ] [ @e infile ]
+ *
+ * - @b -m @e int
+ *   - order of coefficients @f$(0 \le M)@f$
+ * - @b -e @e int
+ *   - warning type
+ *     \arg @c 0 no warning
+ *     \arg @c 1 output index
+ *     \arg @c 2 output index and exit immediately
+ * - @b infile @e str
+ *   - double-type autocorrelation
+ * - @b stdout
+ *   - double-type linear predictive coefficients
+ *
+ * The below example calculates the LPC coefficients of @c data.d.
+ *
+ * @code{.sh}
+ *   frame < data.d | window | acorr -m 20 | levdur -m 20 > data.lpc
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   WarningType warning_type(kDefaultWarningType);
@@ -133,7 +158,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -143,7 +167,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -158,20 +181,20 @@ int main(int argc, char* argv[]) {
   sptk::LevinsonDurbinRecursion::Buffer buffer;
   if (!levinson_durbin_recursion.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set the condition";
+    error_message << "Failed to initialize LevinsonDurbinRecursion";
     sptk::PrintErrorMessage("levdur", error_message);
     return 1;
   }
 
   const int length(num_order + 1);
-  std::vector<double> autocorrelation_sequence(length);
+  std::vector<double> autocorrelation(length);
   std::vector<double> linear_predictive_coefficients(length);
 
   for (int frame_index(0); sptk::ReadStream(
-           false, 0, 0, length, &autocorrelation_sequence, &input_stream, NULL);
+           false, 0, 0, length, &autocorrelation, &input_stream, NULL);
        ++frame_index) {
     bool is_stable(false);
-    if (!levinson_durbin_recursion.Run(autocorrelation_sequence,
+    if (!levinson_durbin_recursion.Run(autocorrelation,
                                        &linear_predictive_coefficients,
                                        &is_stable, &buffer)) {
       std::ostringstream error_message;
