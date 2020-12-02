@@ -89,6 +89,12 @@ void PrintUsage(std::ostream* stream) {
  * - @b stdout
  *   - double-type autocorrelation
  *
+ * The below example converts LPC coefficients in @c data.lpc to CSM parameters.
+ *
+ * @code{.sh}
+ *   rlevdur -m 10 < data.lpc | acr2csm -m 10 > data.csm
+ * @endcode
+ *
  * @param[in] argc Number of arguments.
  * @param[in] argv Argument vector.
  * @return 0 on success, 1 on failure.

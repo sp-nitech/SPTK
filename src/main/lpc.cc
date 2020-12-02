@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -69,7 +70,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       lpc [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : frame length                            (   int)[" << std::setw(5) << std::right << kDefaultFrameLength << "][ 0 <  l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : frame length                            (   int)[" << std::setw(5) << std::right << kDefaultFrameLength << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -m m  : order of linear predictive coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumOrder    << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -e e  : warning type of unstable index          (   int)[" << std::setw(5) << std::right << kDefaultWarningType << "][ 0 <= e <= 2 ]" << std::endl;  // NOLINT
   *stream << "                 0 (no warning)" << std::endl;
@@ -78,7 +79,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                    exit immediately)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       windowed sequence                               (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       windowed data sequence                          (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
   *stream << "       linear predictive coefficients                  (double)" << std::endl;  // NOLINT
   *stream << std::endl;
@@ -89,6 +90,39 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a lpc [ @e option ] [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - frame length @f$(1 \le L)@f$
+ * - @b -m @e int
+ *   - order of coefficients @f$(0 \le M)@f$
+ * - @b -e @e int
+ *   - warning type
+ *     \arg @c 0 no warning
+ *     \arg @c 1 output index
+ *     \arg @c 2 output index and exit immediately
+ * - @b infile @e str
+ *   - double-type windowed data sequence
+ * - @b stdout
+ *   - double-type linear predictive coefficients
+ *
+ * The below example calculates the LPC coefficients of @c data.d.
+ *
+ * @code{.sh}
+ *   frame < data.d | window | lpc -m 20 > data.lpc
+ * @endcode
+ *
+ * This is equivalent to the following line.
+ *
+ * @code{.sh}
+ *   frame < data.d | window | acorr -m 20 | levdur -m 20 > data.lpc
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int frame_length(kDefaultFrameLength);
   int num_order(kDefaultNumOrder);
@@ -147,7 +181,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -157,7 +190,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -172,7 +204,7 @@ int main(int argc, char* argv[]) {
                                                               num_order);
   if (!waveform_to_autocorrelation.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for obtaining autocorrelation";
+    error_message << "Failed to initialize WaveformToAutocorrelation";
     sptk::PrintErrorMessage("lpc", error_message);
     return 1;
   }
@@ -181,29 +213,28 @@ int main(int argc, char* argv[]) {
   sptk::LevinsonDurbinRecursion::Buffer buffer;
   if (!levinson_durbin_recursion.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for Levinson-Durbin recursion";
+    error_message << "Failed to initialize LevinsonDurbinRecursion";
     sptk::PrintErrorMessage("lpc", error_message);
     return 1;
   }
 
   const int output_length(num_order + 1);
   std::vector<double> windowed_sequence(frame_length);
-  std::vector<double> autocorrelation_sequence(output_length);
+  std::vector<double> autocorrelation(output_length);
   std::vector<double> linear_predictive_coefficients(output_length);
 
   for (int frame_index(0); sptk::ReadStream(
            false, 0, 0, frame_length, &windowed_sequence, &input_stream, NULL);
        ++frame_index) {
-    if (!waveform_to_autocorrelation.Run(windowed_sequence,
-                                         &autocorrelation_sequence)) {
+    if (!waveform_to_autocorrelation.Run(windowed_sequence, &autocorrelation)) {
       std::ostringstream error_message;
-      error_message << "Failed to obtain autocorrelation sequence";
+      error_message << "Failed to obtain autocorrelation";
       sptk::PrintErrorMessage("lpc", error_message);
       return 1;
     }
 
     bool is_stable(false);
-    if (!levinson_durbin_recursion.Run(autocorrelation_sequence,
+    if (!levinson_durbin_recursion.Run(autocorrelation,
                                        &linear_predictive_coefficients,
                                        &is_stable, &buffer)) {
       std::ostringstream error_message;

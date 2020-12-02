@@ -927,6 +927,7 @@ INPUT                  = \
                          ../src/main/lar2par.cc \
                          ../src/main/lbg.cc \
                          ../src/main/levdur.cc \
+                         ../src/main/lpc.cc \
                          ../src/main/lpc2c.cc \
                          ../src/main/lpc2par.cc \
                          ../src/main/ltcdf.cc \
