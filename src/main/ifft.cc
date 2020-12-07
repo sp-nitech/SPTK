@@ -216,27 +216,24 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  std::vector<double> input_x(fft_length);
-  std::vector<double> input_y(fft_length);
-  std::vector<double> output_x(fft_length);
-  std::vector<double> output_y(fft_length);
+  std::vector<double> real(fft_length);
+  std::vector<double> imag(fft_length);
 
   for (;;) {
     if ((kInputRealAndImagParts == input_format ||
          kInputRealPart == input_format) &&
-        !sptk::ReadStream(false, 0, 0, fft_length, &input_x, &input_stream,
+        !sptk::ReadStream(false, 0, 0, fft_length, &real, &input_stream,
                           NULL)) {
       break;
     }
     if ((kInputRealAndImagParts == input_format ||
          kInputImagPart == input_format) &&
-        !sptk::ReadStream(false, 0, 0, fft_length, &input_y, &input_stream,
+        !sptk::ReadStream(false, 0, 0, fft_length, &imag, &input_stream,
                           NULL)) {
       break;
     }
 
-    if (!inverse_fast_fourier_transform.Run(input_x, input_y, &output_x,
-                                            &output_y)) {
+    if (!inverse_fast_fourier_transform.Run(&real, &imag)) {
       std::ostringstream error_message;
       error_message << "Failed to run inverse fast Fourier transform";
       sptk::PrintErrorMessage("ifft", error_message);
@@ -245,7 +242,7 @@ int main(int argc, char* argv[]) {
 
     if ((kOutputRealAndImagParts == output_format ||
          kOutputRealPart == output_format) &&
-        !sptk::WriteStream(0, fft_length, output_x, &std::cout, NULL)) {
+        !sptk::WriteStream(0, fft_length, real, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write real parts";
       sptk::PrintErrorMessage("ifft", error_message);
@@ -254,7 +251,7 @@ int main(int argc, char* argv[]) {
 
     if ((kOutputRealAndImagParts == output_format ||
          kOutputImagPart == output_format) &&
-        !sptk::WriteStream(0, fft_length, output_y, &std::cout, NULL)) {
+        !sptk::WriteStream(0, fft_length, imag, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write imaginary parts";
       sptk::PrintErrorMessage("ifft", error_message);

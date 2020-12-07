@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -56,7 +56,7 @@ DiscreteCosineTransform::DiscreteCosineTransform(int dct_length)
     return;
   }
 
-  const int dft_length(2 * dct_length_);
+  const int dft_length(fourier_transform_.GetLength());
   const double argument(sptk::kPi / dft_length);
   const double c(1.0 / std::sqrt(dft_length));
   cosine_table_.resize(dct_length_);
@@ -71,73 +71,74 @@ DiscreteCosineTransform::DiscreteCosineTransform(int dct_length)
 
 bool DiscreteCosineTransform::Run(
     const std::vector<double>& real_part_input,
-    const std::vector<double>& imaginary_part_input,
+    const std::vector<double>& imag_part_input,
     std::vector<double>* real_part_output,
-    std::vector<double>* imaginary_part_output,
+    std::vector<double>* imag_part_output,
     DiscreteCosineTransform::Buffer* buffer) const {
-  // check inputs
+  // Check inputs.
   if (!fourier_transform_.IsValid() ||
       real_part_input.size() != static_cast<std::size_t>(dct_length_) ||
-      imaginary_part_input.size() != static_cast<std::size_t>(dct_length_) ||
-      NULL == real_part_output || NULL == imaginary_part_output ||
-      NULL == buffer) {
+      imag_part_input.size() != static_cast<std::size_t>(dct_length_) ||
+      NULL == real_part_output || NULL == imag_part_output || NULL == buffer) {
     return false;
   }
 
-  const int dft_length(2 * dct_length_);
-  if (buffer->fourier_transform_real_part_input_.size() !=
+  // Prepare memories.
+  const int dft_length(fourier_transform_.GetLength());
+  if (buffer->fourier_transform_real_part_.size() !=
       static_cast<std::size_t>(dft_length)) {
-    buffer->fourier_transform_real_part_input_.resize(dft_length);
+    buffer->fourier_transform_real_part_.resize(dft_length);
   }
-  if (buffer->fourier_transform_imaginary_part_input_.size() !=
+  if (buffer->fourier_transform_imag_part_.size() !=
       static_cast<std::size_t>(dft_length)) {
-    buffer->fourier_transform_imaginary_part_input_.resize(dft_length);
+    buffer->fourier_transform_imag_part_.resize(dft_length);
   }
   if (real_part_output->size() != static_cast<std::size_t>(dct_length_)) {
     real_part_output->resize(dct_length_);
   }
-  if (imaginary_part_output->size() != static_cast<std::size_t>(dct_length_)) {
-    imaginary_part_output->resize(dct_length_);
+  if (imag_part_output->size() != static_cast<std::size_t>(dct_length_)) {
+    imag_part_output->resize(dct_length_);
   }
 
   std::copy(real_part_input.begin(), real_part_input.end(),
-            buffer->fourier_transform_real_part_input_.begin());
-  std::reverse_copy(
-      real_part_input.begin(), real_part_input.end(),
-      buffer->fourier_transform_real_part_input_.end() - dct_length_);
+            buffer->fourier_transform_real_part_.begin());
+  std::reverse_copy(real_part_input.begin(), real_part_input.end(),
+                    buffer->fourier_transform_real_part_.end() - dct_length_);
 
-  std::copy(imaginary_part_input.begin(), imaginary_part_input.end(),
-            buffer->fourier_transform_imaginary_part_input_.begin());
-  std::reverse_copy(
-      imaginary_part_input.begin(), imaginary_part_input.end(),
-      buffer->fourier_transform_imaginary_part_input_.end() - dct_length_);
+  std::copy(imag_part_input.begin(), imag_part_input.end(),
+            buffer->fourier_transform_imag_part_.begin());
+  std::reverse_copy(imag_part_input.begin(), imag_part_input.end(),
+                    buffer->fourier_transform_imag_part_.end() - dct_length_);
 
-  if (!fourier_transform_.Run(
-          buffer->fourier_transform_real_part_input_,
-          buffer->fourier_transform_imaginary_part_input_,
-          &buffer->fourier_transform_real_part_output_,
-          &buffer->fourier_transform_imaginary_part_output_)) {
+  if (!fourier_transform_.Run(&buffer->fourier_transform_real_part_,
+                              &buffer->fourier_transform_imag_part_)) {
     return false;
   }
 
+  const double* cosine_table(&(cosine_table_[0]));
+  const double* sine_table(&(sine_table_[0]));
   double* discrete_cosine_transform_real_part_output(&((*real_part_output)[0]));
-  double* discrete_cosine_transform_imaginary_part_output(
-      &((*imaginary_part_output)[0]));
-  double* fourier_transform_real_part_output(
-      &buffer->fourier_transform_real_part_output_[0]);
-  double* fourier_transform_imaginary_part_output(
-      &buffer->fourier_transform_imaginary_part_output_[0]);
+  double* discrete_cosine_transform_imag_part_output(&((*imag_part_output)[0]));
+  double* fourier_transform_real_part(&buffer->fourier_transform_real_part_[0]);
+  double* fourier_transform_imag_part(&buffer->fourier_transform_imag_part_[0]);
 
   for (int i(0); i < dct_length_; ++i) {
     discrete_cosine_transform_real_part_output[i] =
-        fourier_transform_real_part_output[i] * cosine_table_[i] -
-        fourier_transform_imaginary_part_output[i] * sine_table_[i];
-    discrete_cosine_transform_imaginary_part_output[i] =
-        fourier_transform_real_part_output[i] * sine_table_[i] +
-        fourier_transform_imaginary_part_output[i] * cosine_table_[i];
+        fourier_transform_real_part[i] * cosine_table[i] -
+        fourier_transform_imag_part[i] * sine_table[i];
+    discrete_cosine_transform_imag_part_output[i] =
+        fourier_transform_real_part[i] * sine_table[i] +
+        fourier_transform_imag_part[i] * cosine_table[i];
   }
 
   return true;
+}
+
+bool DiscreteCosineTransform::Run(
+    std::vector<double>* real_part, std::vector<double>* imag_part,
+    DiscreteCosineTransform::Buffer* buffer) const {
+  if (NULL == real_part || NULL == imag_part) return false;
+  return Run(*real_part, *imag_part, real_part, imag_part, buffer);
 }
 
 }  // namespace sptk

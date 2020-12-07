@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -58,18 +58,27 @@ class FourierTransform {
     virtual ~FourierTransformInterface() {
     }
 
+    virtual int GetLength() const = 0;
+
     virtual bool IsValid() const = 0;
 
     virtual bool Run(const std::vector<double>& real_part_input,
-                     const std::vector<double>& imaginary_part_input,
+                     const std::vector<double>& imag_part_input,
                      std::vector<double>* real_part_output,
-                     std::vector<double>* imaginary_part_output) const = 0;
+                     std::vector<double>* imag_part_output) const = 0;
+
+    virtual bool Run(std::vector<double>* real_part_output,
+                     std::vector<double>* imag_part_output) const = 0;
   };
 
-  explicit FourierTransform(int data_length);
+  explicit FourierTransform(int length);
 
   ~FourierTransform() {
     delete fourier_transform_;
+  }
+
+  int GetLength() const {
+    return fourier_transform_->GetLength();
   }
 
   bool IsValid() const {
@@ -77,11 +86,16 @@ class FourierTransform {
   }
 
   bool Run(const std::vector<double>& real_part_input,
-           const std::vector<double>& imaginary_part_input,
+           const std::vector<double>& imag_part_input,
            std::vector<double>* real_part_output,
-           std::vector<double>* imaginary_part_output) const {
-    return fourier_transform_->Run(real_part_input, imaginary_part_input,
-                                   real_part_output, imaginary_part_output);
+           std::vector<double>* imag_part_output) const {
+    return fourier_transform_->Run(real_part_input, imag_part_input,
+                                   real_part_output, imag_part_output);
+  }
+
+  bool Run(std::vector<double>* real_part,
+           std::vector<double>* imag_part) const {
+    return fourier_transform_->Run(real_part, imag_part);
   }
 
  private:
