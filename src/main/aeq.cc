@@ -54,7 +54,10 @@
 
 namespace {
 
+enum ErrorTypes { kAbsolute = 0, kRelative, kNumErrorTypes };
+
 const double kDefaultTolerance(1e-6);
+const ErrorTypes kDefaultErrorType(kAbsolute);
 const bool kDefaultEnableCheckLengthFlag(true);
 
 void PrintUsage(std::ostream* stream) {
@@ -66,6 +69,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       aeq [ options ] exfile [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -t t  : tolerance               (double)[" << std::setw(5) << std::right << kDefaultTolerance << "][ 0.0 <= t <=   ]" << std::endl;  // NOLINT
+  *stream << "       -e e  : error type              (   int)[" << std::setw(5) << std::right << kDefaultErrorType << "][   0 <= e <= 1 ]" << std::endl;  // NOLINT
+  *stream << "                 0 (absolute error)" << std::endl;
+  *stream << "                 1 (relative error)" << std::endl;
   *stream << "       -L    : disable to check length (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(!kDefaultEnableCheckLengthFlag) << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  exfile:" << std::endl;
@@ -83,34 +89,38 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a aeq [ \e option ] \e exfile [ \e infile ]
+ * @a aeq [ @e option ] @e exfile [ @e infile ]
  *
- * - \b -t \e double
- *   - absolute tolerance \f$(0 \le \epsilon)\f$
- * - \b -L \e bool
+ * - @b -t @e double
+ *   - absolute tolerance @f$(0 \le \epsilon)@f$
+ * - @b -e @e int
+ *   - error type
+ *     \arg @c 0 absolute error
+ *     \arg @c 1 relative error
+ * - @b -L @e bool
  *   - disable to check length
- * - \b exfile \e str
+ * - @b exfile @e str
  *   - double-type expected values
- * - \b infile \e str
+ * - @b infile @e str
  *   - double-type actual values
- * - \b stdout
+ * - @b stdout
  *   - result messages
  *
  * This command checks whether two data sequences are almost equal or not.
  *
  * Given the two data sequences
- * \f[
+ * @f[
  *   \begin{array}{cccc}
  *     x_1(0), & x_1(1), & \ldots, & x_1(T_1), \\
  *     x_2(0), & x_2(1), & \ldots, & x_2(T_2), \\
  *   \end{array}
- * \f]
- * the absolute error \f$e(t)\f$ is calculated sample-by-sample:
- * \f[
+ * @f]
+ * the absolute error @f$e(t)@f$ is calculated sample-by-sample:
+ * @f[
  *   e(t) = | x_1(t) - x_2(t) |.
- * \f]
- * If \f$e(t)\f$ is greater than tolerance \f$\epsilon\f$ or \f$T_1\f$ is not
- * equal to \f$T_2\f$, the command prints a warning message.
+ * @f]
+ * If @f$e(t)@f$ is greater than tolerance @f$\epsilon@f$ or @f$T_1@f$ is not
+ * equal to @f$T_2@f$, the command prints a warning message.
  *
  * The below example checks the equality between two data:
  *
@@ -126,10 +136,11 @@ void PrintUsage(std::ostream* stream) {
  */
 int main(int argc, char* argv[]) {
   double tolerance(kDefaultTolerance);
+  ErrorTypes error_type(kDefaultErrorType);
   bool enable_check_length(kDefaultEnableCheckLengthFlag);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "t:Lh", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "t:e:Lh", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -142,6 +153,22 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("aeq", error_message);
           return 1;
         }
+        break;
+      }
+      case 'e': {
+        const int min(0);
+        const int max(static_cast<int>(kNumErrorTypes) - 1);
+        int tmp;
+        if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
+            !sptk::IsInRange(tmp, min, max)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -e option must be an integer "
+                        << "in the range of " << min << " to " << max;
+          sptk::PrintErrorMessage("aeq", error_message);
+          return 1;
+        }
+        error_type = static_cast<ErrorTypes>(tmp);
+        break;
         break;
       }
       case 'L': {
@@ -212,7 +239,12 @@ int main(int argc, char* argv[]) {
     if (!result1) {
       break;
     }
-    if (tolerance < std::fabs(actual - expected)) {
+
+    double error(std::fabs(actual - expected));
+    if (kRelative == error_type) {
+      error /= expected;
+    }
+    if (tolerance < error) {
       std::cout << "[No. " << sample_index << "] is not almost equal"
                 << std::endl;
       status = -1;

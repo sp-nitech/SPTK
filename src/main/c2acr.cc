@@ -50,7 +50,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/converter/cepstrum_to_autocorrelation.h"
+#include "SPTK/conversion/cepstrum_to_autocorrelation.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -62,7 +62,7 @@ const int kDefaultFftLength(256);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " c2acr - transform cepstrum to autocorrelation" << std::endl;
+  *stream << " c2acr - convert cepstrum to autocorrelation" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       c2acr [ options ] [ infile ] > stdout" << std::endl;
@@ -84,21 +84,21 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a c2acr [ \e option ] [ \e infile ]
+ * @a c2acr [ @e option ] [ @e infile ]
  *
- * - \b -m \e int
- *   - order of cepstral coefficients \f$(0 \le M_1 < L)\f$
- * - \b -M \e int
- *   - order of autocorrelation coefficients \f$(0 \le M_2 < L)\f$
- * - \b -l \e int
- *   - FFT length \f$(2 \le L)\f$
- * - \b infile \e str
+ * - @b -m @e int
+ *   - order of cepstral coefficients @f$(0 \le M_1 < L)@f$
+ * - @b -M @e int
+ *   - order of autocorrelation coefficients @f$(0 \le M_2 < L)@f$
+ * - @b -l @e int
+ *   - FFT length @f$(2 \le L)@f$
+ * - @b infile @e str
  *   - double-type cepstral coefficients
- * - \b stdout
+ * - @b stdout
  *   - double-type autocorrelation coefficients
  *
  * The following example converts the 30-th order cepstral coefficients in
- * \c data.cep into the 15-th order LPC coefficients.
+ * @c data.cep into the 15-th order LPC coefficients.
  *
  * @code{.sh}
  *   c2acr -m 30 -M 15 < data.cep | levdur -m 15 > data.lpc
@@ -207,7 +207,7 @@ int main(int argc, char* argv[]) {
                           NULL)) {
     if (!cepstrum_to_autocorrelation.Run(cepstrum, &autocorrelation, &buffer)) {
       std::ostringstream error_message;
-      error_message << "Failed to transform cepstrum to autocorrelation";
+      error_message << "Failed to convert cepstrum to autocorrelation";
       sptk::PrintErrorMessage("c2acr", error_message);
       return 1;
     }

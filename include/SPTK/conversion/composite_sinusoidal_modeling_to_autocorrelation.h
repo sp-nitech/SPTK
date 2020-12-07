@@ -52,27 +52,27 @@
 namespace sptk {
 
 /**
- * Transform CSM parameters to autocorrelation.
+ * Convert CSM parameters to autocorrelation.
  *
- * The input is the \f$2N\f$ CSM parameters:
- * \f[
+ * The input is the @f$2N@f$ CSM parameters:
+ * @f[
  *   \begin{array}{cccc}
  *     \omega(1), & \omega(2), & \ldots, & \omega(N), \\
  *     m(1), & m(2), & \ldots, & m(N),
  *   \end{array}
- * \f]
- * where \f$\omega(n)\f$ is the CSM frequency and \f$m(n)\f$ is the CSM
- * intensity. The output is the \f$(2N-1)\f$-th order biased sample
+ * @f]
+ * where @f$\omega(n)@f$ is the CSM frequency and @f$m(n)@f$ is the CSM
+ * intensity. The output is the @f$(2N-1)@f$-th order biased sample
  * autocorrelation coefficients:
- * \f[
+ * @f[
  *   \begin{array}{cccc}
  *     v(0), & v(1), & \ldots, & v(2N-1).
  *   \end{array}
- * \f]
+ * @f]
  * The sample autocorrelation is given by
- * \f[
+ * @f[
  *     v(l) = \sum_{i=1}^N m(i) \cos(l \, \omega(i)).
- * \f]
+ * @f]
  *
  * [1] S. Sagayama and F. Itakura, &quot;Duality theory of composite sinusoidal
  *     modeling and linear prediction,&quot; Proc. of ICASSP 1986,
@@ -81,7 +81,7 @@ namespace sptk {
 class CompositeSinusoidalModelingToAutocorrelation {
  public:
   /**
-   * @param[in] num_sine_wave Number of sine waves, \f$N\f$.
+   * @param[in] num_sine_wave Number of sine waves, @f$N@f$.
    */
   explicit CompositeSinusoidalModelingToAutocorrelation(int num_sine_wave);
 
@@ -96,7 +96,7 @@ class CompositeSinusoidalModelingToAutocorrelation {
   }
 
   /**
-   * @return True if this obejct is valid.
+   * @return True if this object is valid.
    */
   bool IsValid() const {
     return is_valid_;

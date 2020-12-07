@@ -61,7 +61,7 @@ teardown() {
    [ "$status" -eq 0 ]
 }
 
-@test "par2lpc: reversiblity" {
+@test "par2lpc: reversibility" {
    $sptk3/nrand -l 20 > tmp/1
    $sptk4/par2lpc -m 9 tmp/1 | $sptk4/lpc2par -m 9 > tmp/2
    run $sptk4/aeq tmp/1 tmp/2
@@ -70,6 +70,6 @@ teardown() {
 
 @test "par2lpc: valgrind" {
    $sptk3/nrand -l 20 > tmp/1
-   run valgrind $sptk4/par2lpc -m 9 tmp/1 > /dev/null
+   run valgrind $sptk4/par2lpc -m 9 tmp/1
    [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
 }

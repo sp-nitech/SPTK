@@ -157,6 +157,12 @@ class ScalarOperation {
   bool AddArctangentOperation();
 
   //
+  bool AddHyperbolicTangentOperation();
+
+  //
+  bool AddHyperbolicArctangentOperation();
+
+  //
   bool AddMagicNumberRemover(double magic_number);
 
   //

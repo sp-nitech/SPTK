@@ -50,7 +50,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/converter/composite_sinusoidal_modeling_to_autocorrelation.h"
+#include "SPTK/conversion/composite_sinusoidal_modeling_to_autocorrelation.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -60,7 +60,7 @@ const int kDefaultNumOrder(25);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " csm2acr - transform composite sinusoidal modeling to autocorrelation" << std::endl;  // NOLINT
+  *stream << " csm2acr - convert composite sinusoidal modeling to autocorrelation" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       csm2acr [ options ] [ infile ] > stdout" << std::endl;
@@ -80,13 +80,13 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a csm2acr [ \e option ] [ \e infile ]
+ * @a csm2acr [ @e option ] [ @e infile ]
  *
- * - \b -m \e int
- *   - order of autocorrelation \f$(1 \le M)\f$
- * - \b infile \e str
+ * - @b -m @e int
+ *   - order of autocorrelation @f$(1 \le M)@f$
+ * - @b infile @e str
  *   - double-type CSM parameters
- * - \b stdout
+ * - @b stdout
  *   - double-type autocorrelation
  *
  * The below example converts CSM parameters into autocorrelation coefficients:
@@ -174,7 +174,7 @@ int main(int argc, char* argv[]) {
     if (!composite_sinusoidal_modeling_to_autocorrelation.Run(
             composite_sinusoidal_modeling, &autocorrelation)) {
       std::ostringstream error_message;
-      error_message << "Failed to transform composite sinusoidal modeling to "
+      error_message << "Failed to convert composite sinusoidal modeling to "
                     << "autocorrelation";
       sptk::PrintErrorMessage("csm2acr", error_message);
       return 1;

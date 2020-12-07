@@ -50,7 +50,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/converter/generalized_cepstrum_gain_normalization.h"
+#include "SPTK/conversion/generalized_cepstrum_gain_normalization.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -83,17 +83,17 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a gnorm [ \e option ] [ \e infile ]
+ * @a gnorm [ @e option ] [ @e infile ]
  *
- * - \b -m \e int
- *   - order of coefficients \f$(0 \le M)\f$
- * - \b -g \e double
- *   - gamma \f$(|\gamma| \le 1)\f$
- * - \b -c \e int
- *   - gamma \f$\gamma = -1 / C\f$ \f$(1 \le C)\f$
- * - \b infile \e str
+ * - @b -m @e int
+ *   - order of coefficients @f$(0 \le M)@f$
+ * - @b -g @e double
+ *   - gamma @f$(|\gamma| \le 1)@f$
+ * - @b -c @e int
+ *   - gamma @f$\gamma = -1 / C@f$ @f$(1 \le C)@f$
+ * - @b infile @e str
  *   - double-type generalized cepstral coefficients
- * - \b stdout
+ * - @b stdout
  *   - double-type normalized generalized cepstral coefficients
  *
  * The below example normalizes generalized cepstral coefficients:

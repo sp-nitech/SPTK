@@ -57,7 +57,7 @@ teardown() {
 
 @test "pitch: compatibility" {
    # Note -a 3 is not implemented in SPTK3.
-   for a in `seq 0 2`; do
+   for a in $(seq 0 2); do
       $sptk3/x2x +sd $data | $sptk3/pitch -a $a -o 2 > tmp/1
       $sptk3/x2x +sd $data | $sptk4/pitch -a $a -o 2 > tmp/2
       run $sptk4/aeq -L tmp/1 tmp/2
@@ -67,8 +67,8 @@ teardown() {
 
 @test "pitch: valgrind" {
    $sptk3/x2x +sd $data > tmp/1
-   for a in `seq 0 3`; do
-      run valgrind $sptk4/pitch -a $a tmp/1 > /dev/null
+   for a in $(seq 0 3); do
+      run valgrind $sptk4/pitch -a $a tmp/1
       [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
    done
 }

@@ -49,7 +49,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/converter/mel_generalized_cepstrum_to_mel_generalized_cepstrum.h"
+#include "SPTK/conversion/mel_generalized_cepstrum_to_mel_generalized_cepstrum.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

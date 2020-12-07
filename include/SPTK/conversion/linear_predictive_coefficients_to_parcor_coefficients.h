@@ -52,38 +52,38 @@
 namespace sptk {
 
 /**
- * Transform LPC coefficients to PARCOR coefficients.
+ * Convert LPC coefficients to PARCOR coefficients.
  *
- * The input is the \f$M\f$-th order LPC coefficients:
- * \f[
+ * The input is the @f$M@f$-th order LPC coefficients:
+ * @f[
  *   \begin{array}{cccc}
  *     K, & a(1), & \ldots, & a(M),
  *   \end{array}
- * \f]
- * and the output is the \f$M\f$-th order PARCOR coefficients:
- * \f[
+ * @f]
+ * and the output is the @f$M@f$-th order PARCOR coefficients:
+ * @f[
  *   \begin{array}{cccc}
  *     K, & k(1), & \ldots, & k(M),
  *   \end{array}
- * \f]
- * where \f$K\f$ is the gain. The transformation is given by the following
+ * @f]
+ * where @f$K@f$ is the gain. The conversion is given by the following
  * recursion formula:
- * \f{eqnarray}{
+ * @f{eqnarray}{
  *   k(i) &=& a^{(i)}(i), \\
  *   a^{(i-1)}(m) &=& \frac{a^{(i)}(m) + a^{(i)}(i) a^{(i)}(i-m)}{1-k^2(i)}, \\
  *   && i = M,\ldots,1
- * \f}
- * with the initial condition \f$a^{(M)}(i)=a(i)\f$ for \f$i = 1,\ldots,M\f$.
+ * @f}
+ * with the initial condition @f$a^{(M)}(i)=a(i)@f$ for @f$i = 1,\ldots,M@f$.
  *
- * The input can be the \f$M\f$-th order normalized generalized cepstral
+ * The input can be the @f$M@f$-th order normalized generalized cepstral
  * coefficients:
- * \f[
+ * @f[
  *   \begin{array}{cccc}
  *     K, & c'_\gamma(1), & \ldots, & c'_\gamma(M).
  *   \end{array}
- * \f]
- * In the case, the initial condition is \f$a^{(M)}(i)=\gamma \, c'_\gamma(i)\f$
- * for \f$i = 1,\ldots,M\f$.
+ * @f]
+ * In the case, the initial condition is @f$a^{(M)}(i)=\gamma \, c'_\gamma(i)@f$
+ * for @f$i = 1,\ldots,M@f$.
  */
 class LinearPredictiveCoefficientsToParcorCoefficients {
  public:
@@ -129,16 +129,16 @@ class LinearPredictiveCoefficientsToParcorCoefficients {
   }
 
   /**
-   * @return True if this obejct is valid.
+   * @return True if this object is valid.
    */
   bool IsValid() const {
     return is_valid_;
   }
 
   /**
-   * @param[in] linear_predictive_coefficients \f$M\f$-th order LPC
+   * @param[in] linear_predictive_coefficients @f$M@f$-th order LPC
    *            coefficients.
-   * @param[out] parcor_coefficients \f$M\f$-th order PARCOR coefficients.
+   * @param[out] parcor_coefficients @f$M@f$-th order PARCOR coefficients.
    * @param[out] is_stable True if given coefficients are stable.
    * @param[out] buffer Buffer.
    * @return True on success, false on failure.
@@ -149,7 +149,7 @@ class LinearPredictiveCoefficientsToParcorCoefficients {
       LinearPredictiveCoefficientsToParcorCoefficients::Buffer* buffer) const;
 
   /**
-   * @param[in,out] input_and_output \f$M\f$-th order coefficients.
+   * @param[in,out] input_and_output @f$M@f$-th order coefficients.
    * @param[out] is_stable True if given coefficients are stable.
    * @param[out] buffer Buffer.
    * @return True on success, false on failure.

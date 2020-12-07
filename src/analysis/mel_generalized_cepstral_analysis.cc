@@ -44,7 +44,7 @@
 
 #include "SPTK/analysis/mel_generalized_cepstral_analysis.h"
 
-#include <algorithm>   // std::copy, std::fill, std::reverse_copy, etc.
+#include <algorithm>   // std::copy, std::fill, std::transform, etc.
 #include <cmath>       // std::exp, std::fabs, std::pow, std::sqrt
 #include <cstddef>     // std::size_t
 #include <functional>  // std::plus

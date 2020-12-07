@@ -53,8 +53,8 @@
 #include <sstream>    // std::ostringstream
 #include <vector>     // std::vector
 
-#include "SPTK/analyzer/fast_fourier_transform_cepstral_analysis.h"
-#include "SPTK/converter/waveform_to_spectrum.h"
+#include "SPTK/analysis/fast_fourier_transform_cepstral_analysis.h"
+#include "SPTK/conversion/waveform_to_spectrum.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -110,35 +110,35 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a fftcep [ \e option ] [ \e infile ]
+ * @a fftcep [ @e option ] [ @e infile ]
  *
- * - \b -l \e int
- *   - FFT length \f$(2 \le N)\f$
- * - \b -m \e int
- *   - order of coefficients \f$(0 \le M \le 2/N)\f$
- * - \b -i \e int
- *   - number of iterations \f$(0 \le J)\f$
- * - \b -a \e double
- *   - acceleration factor \f$(0 \le \alpha)\f$
- * - \b -q \e int
+ * - @b -l @e int
+ *   - FFT length @f$(2 \le N)@f$
+ * - @b -m @e int
+ *   - order of coefficients @f$(0 \le M \le N/2)@f$
+ * - @b -i @e int
+ *   - number of iterations @f$(0 \le J)@f$
+ * - @b -a @e double
+ *   - acceleration factor @f$(0 \le \alpha)@f$
+ * - @b -q @e int
  *   - input format
- *     \arg \c 0 amplitude spectrum in dB
- *     \arg \c 1 log amplitude spectrum
- *     \arg \c 2 amplitude spectrum
- *     \arg \c 3 power spectrum
- *     \arg \c 4 windowed waveform
- * - \b -e \e double
- *   - small value added to power spectrum to prevent \f$\log(0)\f$
- * - \b -E \e double
+ *     \arg @c 0 amplitude spectrum in dB
+ *     \arg @c 1 log amplitude spectrum
+ *     \arg @c 2 amplitude spectrum
+ *     \arg @c 3 power spectrum
+ *     \arg @c 4 windowed waveform
+ * - @b -e @e double
+ *   - small value added to power spectrum to prevent @f$\log(0)@f$
+ * - @b -E @e double
  *   - relative floor in decibels
- * - \b infile \e str
+ * - @b infile @e str
  *   - double-type windowed sequence or spectrum
- * - \b stdout
+ * - @b stdout
  *   - double-type cepstral coefficients
  *
- * If \f$J>0\f$, the improved cepstral analysis method is performed.
+ * If @f$J>0@f$, the improved cepstral analysis method is performed.
  *
- * The below example extracts 24-th order cepstral coefficients from \c data.d.
+ * The below example extracts 24-th order cepstral coefficients from @c data.d.
  *
  * @code{.sh}
  *   frame -p 80 -l 400 < data.d | window -l 400 -L 512 | \

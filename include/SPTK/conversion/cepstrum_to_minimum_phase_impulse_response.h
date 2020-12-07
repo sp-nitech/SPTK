@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -52,28 +52,28 @@
 namespace sptk {
 
 /**
- * Transform minimum phase impulse response to cepstrum.
+ * Convert minimum phase impulse response to cepstrum.
  *
- * The input is the \f$M_1\f$-th order cepstral coefficients:
- * \f[
+ * The input is the @f$M_1@f$-th order cepstral coefficients:
+ * @f[
  *   \begin{array}{cccc}
  *     c(0), & c(1), & \ldots, & c(M_1),
  *   \end{array}
- * \f]
- * and the output is the \f$M_2\f$-th order impulse response:
- * \f[
+ * @f]
+ * and the output is the @f$M_2@f$-th order impulse response:
+ * @f[
  *   \begin{array}{cccc}
  *     h(0), & h(1), & \ldots, & h(M_2).
  *   \end{array}
- * \f]
+ * @f]
  * The truncated impulse response is obtained from the following recursion
  * formula:
- * \f[
+ * @f[
  *   h(n) = \left\{ \begin{array}{ll}
  *     \exp c(0), & n = 0 \\
  *     \displaystyle\sum_{k=1}^{n} \frac{k}{n} c(k) h(n-k). & n > 0
  *   \end{array} \right.
- * \f]
+ * @f]
  *
  * [1] A. V. Oppenheim and R. W. Schafer, &quot;Discrete-time signal
  *     processing, 3rd edition,&quot; Prentice-Hall Signal Processing Series,
@@ -82,8 +82,8 @@ namespace sptk {
 class CepstrumToMinimumPhaseImpulseResponse {
  public:
   /**
-   * @param[in] num_input_order Order of cepstral coefficients, \f$M_1\f$.
-   * @param[in] num_output_order Order of impulse response, \f$M_2\f$.
+   * @param[in] num_input_order Order of cepstral coefficients, @f$M_1@f$.
+   * @param[in] num_output_order Order of impulse response, @f$M_2@f$.
    */
   CepstrumToMinimumPhaseImpulseResponse(int num_input_order,
                                         int num_output_order);
@@ -106,15 +106,15 @@ class CepstrumToMinimumPhaseImpulseResponse {
   }
 
   /**
-   * @return True if this obejct is valid.
+   * @return True if this object is valid.
    */
   bool IsValid() const {
     return is_valid_;
   }
 
   /**
-   * @param[in] cepstrum \f$M_1\f$-th order cepstral coefficients.
-   * @param[out] minimum_phase_impulse_response \f$M_2\f$-th order impulse
+   * @param[in] cepstrum @f$M_1@f$-th order cepstral coefficients.
+   * @param[out] minimum_phase_impulse_response @f$M_2@f$-th order impulse
    *             response.
    * @return True on success, false on failure.
    */

@@ -1,4 +1,0 @@
-nan
-===
-
-.. doxygenfile:: nan.cc

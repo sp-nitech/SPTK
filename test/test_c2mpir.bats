@@ -63,6 +63,6 @@ teardown() {
 
 @test "c2mpir: valgrind" {
    $sptk3/nrand -l 20 > tmp/1
-   run valgrind $sptk4/c2mpir -m 9 -M 32 tmp/1 > /dev/null
+   run valgrind $sptk4/c2mpir -m 9 -M 32 tmp/1
    [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
 }

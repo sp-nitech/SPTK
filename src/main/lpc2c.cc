@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,13 +43,14 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/converter/linear_predictive_coefficients_to_cepstrum.h"
+#include "SPTK/conversion/linear_predictive_coefficients_to_cepstrum.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -60,7 +61,7 @@ const int kDefaultNumOutputOrder(25);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " lpc2c - transform linear predictive coefficients to cepstrum" << std::endl;  // NOLINT
+  *stream << " lpc2c - convert linear predictive coefficients to cepstrum" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       lpc2c [ options ] [ infile ] > stdout" << std::endl;
@@ -72,7 +73,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  infile:" << std::endl;
   *stream << "       linear predictive coefficients     (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       cepstrum                           (double)" << std::endl;
+  *stream << "       LPC cepstrum                       (double)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -81,6 +82,29 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a lpc2c [ @e option ] [ @e infile ]
+ *
+ * - @b -m @e int
+ *   - order of LPC coefficients @f$(0 \le M_1)@f$
+ * - @b -M @e int
+ *   - order of LPC cepstral coefficients @f$(0 \le M_2)@f$
+ * - @b infile @e str
+ *   - double-type LPC coefficients
+ * - @b stdout
+ *   - double-type LPC cepstral coefficients
+ *
+ * The below example extracts 15-th order LPC cepstral coefficients from
+ * @c data.d.
+ *
+ * @code{.sh}
+ *   frame < data.d | window | lpc -m 10 | lpc2c -m 10 -M 15 > data.cep
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_input_order(kDefaultNumInputOrder);
   int num_output_order(kDefaultNumOutputOrder);
@@ -123,7 +147,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -133,7 +156,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -144,13 +166,13 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for transformation
   sptk::LinearPredictiveCoefficientsToCepstrum
       linear_predictive_coefficients_to_cepstrum(num_input_order,
                                                  num_output_order);
   if (!linear_predictive_coefficients_to_cepstrum.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set the number of input/output orders";
+    error_message
+        << "Failed to initialize LinearPredictiveCoefficientsToCepstrum";
     sptk::PrintErrorMessage("lpc2c", error_message);
     return 1;
   }

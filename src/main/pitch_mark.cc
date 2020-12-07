@@ -52,7 +52,7 @@
 #include <sstream>    // std::ostringstream
 #include <vector>     // std::vector
 
-#include "SPTK/analyzer/pitch_extraction.h"
+#include "SPTK/analysis/pitch_extraction.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -105,27 +105,27 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a pitch_mark [ \e option ] [ \e infile ]
+ * @a pitch_mark [ @e option ] [ @e infile ]
  *
- * - \b -s \e double
- *   - sampling rate [kHz] \f$(6 < S < 98)\f$
- * - \b -L \e dobule
- *   - minimum F0 to search for [Hz] \f$(10 < L < H)\f$
- * - \b -H \e dobule
- *   - maximum F0 to search for [Hz] \f$(L < H < 500S)\f$
- * - \b -t \e dobule
- *   - voicing threshold \f$(-0.5 \le T \le 1.6)\f$
- * - \b -o \e int
+ * - @b -s @e double
+ *   - sampling rate [kHz] @f$(6 < F_s < 98)@f$
+ * - @b -L @e dobule
+ *   - minimum F0 to search for [Hz] @f$(10 < F_l < F_h)@f$
+ * - @b -H @e dobule
+ *   - maximum F0 to search for [Hz] @f$(F_l < F_h < 500F_s)@f$
+ * - @b -t @e dobule
+ *   - voicing threshold @f$(-0.5 \le T \le 1.6)@f$
+ * - @b -o @e int
  *   - output format
- *     \arg \c 0 binary sequence
- *     \arg \c 1 position in seconds
- *     \arg \c 2 position in samples
- * - \b infile \e str
+ *     @arg @c 0 binary sequence
+ *     @arg @c 1 position in seconds
+ *     @arg @c 2 position in samples
+ * - @b infile @e str
  *   - double-type waveform
- * - \b stdout
+ * - @b stdout
  *   - double-type pitch mark
  *
- * The below is a simple example to extract pitch marks from \c data.d
+ * The below is a simple example to extract pitch marks from @c data.d
  *
  * @code{.sh}
  *   pitch_mark -s 16 -L 80 -H 200 -o 0 < data.d > data.gci

@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -47,68 +47,84 @@
 #include <algorithm>  // std::fill, std::max
 #include <cstddef>    // std::size_t
 
+namespace {
+
+void MovePointer(int max, int* p) {
+  --(*p);
+  if (*p < 0) *p = max;
+}
+
+}  // namespace
+
 namespace sptk {
 
 InfiniteImpulseResponseDigitalFilter::InfiniteImpulseResponseDigitalFilter(
-    const std::vector<double>& denominator_filter_coefficients,
-    const std::vector<double>& numerator_filter_coefficients)
-    : denominator_filter_coefficients_(denominator_filter_coefficients),
-      numerator_filter_coefficients_(numerator_filter_coefficients),
-      num_denominator_filter_order_(
-          static_cast<int>(denominator_filter_coefficients.size()) - 1),
-      num_numerator_filter_order_(
-          static_cast<int>(numerator_filter_coefficients.size()) - 1),
-      num_filter_order_(
-          std::max(num_denominator_filter_order_, num_numerator_filter_order_)),
+    const std::vector<double>& denominator_coefficients,
+    const std::vector<double>& numerator_coefficients)
+    : denominator_coefficients_(denominator_coefficients),
+      numerator_coefficients_(numerator_coefficients),
+      num_denominator_order_(static_cast<int>(denominator_coefficients.size()) -
+                             1),
+      num_numerator_order_(static_cast<int>(numerator_coefficients.size()) - 1),
+      num_filter_order_(std::max(num_denominator_order_, num_numerator_order_)),
       is_valid_(true) {
-  if (num_denominator_filter_order_ < 0 || num_numerator_filter_order_ < 0) {
+  if (num_denominator_order_ < 0 || num_numerator_order_ < 0) {
     is_valid_ = false;
+    return;
   }
 }
 
 bool InfiniteImpulseResponseDigitalFilter::Run(
-    double filter_input, double* filter_output,
+    double input, double* output,
     InfiniteImpulseResponseDigitalFilter::Buffer* buffer) const {
-  // check inputs
-  if (!is_valid_ || NULL == filter_output || NULL == buffer) {
+  // Check inputs.
+  if (!is_valid_ || NULL == output || NULL == buffer) {
     return false;
   }
 
-  // prepare memory
-  if (buffer->signals_.size() !=
-      static_cast<std::size_t>(num_filter_order_ + 1)) {
-    buffer->signals_.resize(num_filter_order_ + 1);
-    std::fill(buffer->signals_.begin(), buffer->signals_.end(), 0.0);
+  // Prepare memories.
+  if (buffer->d_.size() != static_cast<std::size_t>(num_filter_order_ + 1)) {
+    buffer->d_.resize(num_filter_order_ + 1);
+    std::fill(buffer->d_.begin(), buffer->d_.end(), 0.0);
+    buffer->p_ = 0;
   }
 
-  double* d(&buffer->signals_[0]);
+  double* d(&buffer->d_[0]);
 
   {
-    const double* a(&(denominator_filter_coefficients_[0]));
-    double x(-filter_input * a[0]);
-    for (int i(1), p(buffer->p_ - 1); i <= num_denominator_filter_order_;
-         ++i, --p) {
-      if (p < 0) p = num_filter_order_;
+    const double* a(&(denominator_coefficients_[0]));
+    double x(-input * a[0]);
+    for (int i(1), p(buffer->p_); i <= num_denominator_order_; ++i) {
+      MovePointer(num_filter_order_, &p);
       x += d[p] * a[i];
     }
     d[buffer->p_] = -x;
   }
 
   {
-    const double* b(&(numerator_filter_coefficients_[0]));
+    const double* b(&(numerator_coefficients_[0]));
     double y(0.0);
-    for (int i(0), p(buffer->p_); i <= num_numerator_filter_order_; ++i, --p) {
-      if (p < 0) p = num_filter_order_;
+    for (int i(0), p(buffer->p_ + 1); i <= num_numerator_order_; ++i) {
+      MovePointer(num_filter_order_, &p);
       y += d[p] * b[i];
     }
-    *filter_output = y;
+    *output = y;
   }
 
-  if (num_filter_order_ < ++buffer->p_) {
+  // Update pointer of ring buffer.
+  ++(buffer->p_);
+  if (num_filter_order_ < buffer->p_) {
     buffer->p_ = 0;
   }
 
   return true;
+}
+
+bool InfiniteImpulseResponseDigitalFilter::Run(
+    double* input_and_output,
+    InfiniteImpulseResponseDigitalFilter::Buffer* buffer) const {
+  if (NULL == input_and_output) return false;
+  return Run(*input_and_output, input_and_output, buffer);
 }
 
 }  // namespace sptk

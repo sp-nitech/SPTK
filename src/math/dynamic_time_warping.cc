@@ -62,12 +62,12 @@ namespace sptk {
 
 DynamicTimeWarping::DynamicTimeWarping(
     int num_order, LocalPathConstraints local_path_constraint,
-    DistanceCalculator::DistanceMetrics distance_metric)
+    DistanceCalculation::DistanceMetrics distance_metric)
     : num_order_(num_order),
       local_path_constraint_(local_path_constraint),
-      distance_calculator_(num_order_, distance_metric),
+      distance_calculation_(num_order_, distance_metric),
       is_valid_(true) {
-  if (num_order_ < 0 || !distance_calculator_.IsValid()) {
+  if (num_order_ < 0 || !distance_calculation_.IsValid()) {
     is_valid_ = false;
     return;
   }
@@ -156,9 +156,9 @@ bool DynamicTimeWarping::Run(
   for (int i(0); i < num_query_vector; ++i) {
     for (int j(0); j < num_reference_vector; ++j) {
       double local_distance;
-      if (!distance_calculator_.Run(query_vector_sequence[i],
-                                    reference_vector_sequence[j],
-                                    &local_distance)) {
+      if (!distance_calculation_.Run(query_vector_sequence[i],
+                                     reference_vector_sequence[j],
+                                     &local_distance)) {
         return false;
       }
 

@@ -26,7 +26,7 @@
 #if 1
 #include <algorithm>  /* std::max, std::min */
 #include <cfloat>     /* FLT_MAX */
-#include "SPTK/generator/normal_distributed_random_value_generation.h"
+#include "SPTK/generation/normal_distributed_random_value_generation.h"
 #endif
 #ifndef TRUE
 # define TRUE 1

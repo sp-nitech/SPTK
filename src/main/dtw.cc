@@ -50,7 +50,7 @@
 #include <utility>   // std::pair
 #include <vector>    // std::vector
 
-#include "SPTK/math/distance_calculator.h"
+#include "SPTK/math/distance_calculation.h"
 #include "SPTK/math/dynamic_time_warping.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -60,8 +60,8 @@ const int kDefaultNumOrder(25);
 const sptk::DynamicTimeWarping::LocalPathConstraints
     kDefaultLocalPathConstraint(
         sptk::DynamicTimeWarping::LocalPathConstraints::kType5);
-const sptk::DistanceCalculator::DistanceMetrics kDefaultDistanceMetric(
-    sptk::DistanceCalculator::DistanceMetrics::kSquaredEuclidean);
+const sptk::DistanceCalculation::DistanceMetrics kDefaultDistanceMetric(
+    sptk::DistanceCalculation::DistanceMetrics::kSquaredEuclidean);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   sptk::DynamicTimeWarping::LocalPathConstraints local_path_constraint(
       kDefaultLocalPathConstraint);
-  sptk::DistanceCalculator::DistanceMetrics distance_metric(
+  sptk::DistanceCalculation::DistanceMetrics distance_metric(
       kDefaultDistanceMetric);
   const char* total_score_file(NULL);
   const char* viterbi_path_file(NULL);
@@ -158,7 +158,7 @@ int main(int argc, char* argv[]) {
         const int min(0);
         const int max(
             static_cast<int>(
-                sptk::DistanceCalculator::DistanceMetrics::kNumMetrics) -
+                sptk::DistanceCalculation::DistanceMetrics::kNumMetrics) -
             1);
         int tmp;
         if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
@@ -170,7 +170,7 @@ int main(int argc, char* argv[]) {
           return 1;
         }
         distance_metric =
-            static_cast<sptk::DistanceCalculator::DistanceMetrics>(tmp);
+            static_cast<sptk::DistanceCalculation::DistanceMetrics>(tmp);
         break;
       }
       case 'P': {

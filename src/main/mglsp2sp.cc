@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,17 +42,17 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>    // getopt_long
-#include <algorithm>   // std::transform
-#include <cmath>       // std::exp
-#include <fstream>     // std::ifstream
-#include <functional>  // std::bind1st, std::multiplies, std::ptr_fun
-#include <iomanip>     // std::setw
-#include <iostream>    // std::cerr, std::cin, std::cout, std::endl, etc.
-#include <sstream>     // std::ostringstream
-#include <vector>      // std::vector
+#include <getopt.h>  // getopt_long
 
-#include "SPTK/converter/mel_generalized_line_spectral_pairs_to_spectrum.h"
+#include <algorithm>  // std::transform
+#include <cmath>      // std::exp
+#include <fstream>    // std::ifstream
+#include <iomanip>    // std::setw
+#include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>    // std::ostringstream
+#include <vector>     // std::vector
+
+#include "SPTK/conversion/mel_generalized_line_spectral_pairs_to_spectrum.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -65,8 +65,8 @@ enum InputGainType {
 };
 
 enum InputFormats {
-  kNormalizedFrequencyInRadians = 0,
-  kNormalizedFrequencyInCycles,
+  kFrequencyInRadians = 0,
+  kFrequencyInCycles,
   kFrequencyInkHz,
   kFrequencyInHz,
   kNumInputFormats
@@ -83,10 +83,10 @@ enum OutputFormats {
 const int kDefaultNumOrder(25);
 const double kDefaultAlpha(0.0);
 const double kDefaultGamma(-1.0);
-const int kDefaultSpectrumLength(128);
-const double kDefaultSamplingFrequency(10.0);
+const int kDefaultFftLength(256);
+const double kDefaultSamplingRate(10.0);
 const InputGainType kDefaultInputGainType(kLinearGain);
-const InputFormats kDefaultInputFormat(kNormalizedFrequencyInRadians);
+const InputFormats kDefaultInputFormat(kFrequencyInRadians);
 const OutputFormats kDefaultOutputFormat(kLogAmplitudeSpectrumInDecibels);
 
 void PrintUsage(std::ostream* stream) {
@@ -97,22 +97,22 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       mglsp2sp [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of mel-generalized line spectral pairs          (   int)[" << std::setw(5) << std::right << kDefaultNumOrder          << "][    0 <= m <=     ]" << std::endl;  // NOLINT
-  *stream << "       -a a  : alpha of mel-generalized line spectral pairs          (double)[" << std::setw(5) << std::right << kDefaultAlpha             << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
-  *stream << "       -g g  : gamma of mel-generalized line spectral pairs          (double)[" << std::setw(5) << std::right << kDefaultGamma             << "][ -1.0 <= g <  0.0 ]" << std::endl;  // NOLINT
-  *stream << "       -c c  : gamma of mel-generalized line spectral pairs = -1 / c (   int)[" << std::setw(5) << std::right << "N/A"                     << "][    1 <= c <=     ]" << std::endl;  // NOLINT
-  *stream << "       -l l  : spectrum legnth                                       (   int)[" << std::setw(5) << std::right << kDefaultSpectrumLength    << "][    0 <  l <=     ]" << std::endl;  // NOLINT
-  *stream << "       -s s  : sampling frequency                                    (double)[" << std::setw(5) << std::right << kDefaultSamplingFrequency << "][  0.0 <  s <=     ]" << std::endl;  // NOLINT
-  *stream << "       -k k  : input gain type                                       (   int)[" << std::setw(5) << std::right << kDefaultInputGainType     << "][    0 <= k <= 2   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of mel-generalized line spectral pairs          (   int)[" << std::setw(5) << std::right << kDefaultNumOrder      << "][    0 <= m <=     ]" << std::endl;  // NOLINT
+  *stream << "       -a a  : alpha of mel-generalized line spectral pairs          (double)[" << std::setw(5) << std::right << kDefaultAlpha         << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -g g  : gamma of mel-generalized line spectral pairs          (double)[" << std::setw(5) << std::right << kDefaultGamma         << "][ -1.0 <= g <  0.0 ]" << std::endl;  // NOLINT
+  *stream << "       -c c  : gamma of mel-generalized line spectral pairs = -1 / c (   int)[" << std::setw(5) << std::right << "N/A"                 << "][    1 <= c <=     ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : fft length                                            (   int)[" << std::setw(5) << std::right << kDefaultFftLength     << "][    1 <= l <=     ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : sampling rate                                         (double)[" << std::setw(5) << std::right << kDefaultSamplingRate  << "][  0.0 <  s <=     ]" << std::endl;  // NOLINT
+  *stream << "       -k k  : input gain type                                       (   int)[" << std::setw(5) << std::right << kDefaultInputGainType << "][    0 <= k <= 2   ]" << std::endl;  // NOLINT
   *stream << "                 0 (linear gain)" << std::endl;
   *stream << "                 1 (log gain)" << std::endl;
   *stream << "                 2 (without gain)" << std::endl;
-  *stream << "       -q q  : input format                                          (   int)[" << std::setw(5) << std::right << kDefaultInputFormat       << "][    0 <= q <= 3   ]" << std::endl;  // NOLINT
-  *stream << "                 0 (normalized frequency [0...pi])" << std::endl;
-  *stream << "                 1 (normalized frequency [0...1/2])" << std::endl;
+  *stream << "       -q q  : input format                                          (   int)[" << std::setw(5) << std::right << kDefaultInputFormat   << "][    0 <= q <= 3   ]" << std::endl;  // NOLINT
+  *stream << "                 0 (frequency [rad])" << std::endl;
+  *stream << "                 1 (frequency [pi rad])" << std::endl;
   *stream << "                 2 (frequency [kHz])" << std::endl;
   *stream << "                 3 (frequency [Hz])" << std::endl;
-  *stream << "       -o o  : output format                                         (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat      << "][    0 <= o <= 3   ]" << std::endl;  // NOLINT
+  *stream << "       -o o  : output format                                         (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat  << "][    0 <= o <= 3   ]" << std::endl;  // NOLINT
   *stream << "                 0 (20*log|H(z)|)" << std::endl;
   *stream << "                 1 (ln|H(z)|)" << std::endl;
   *stream << "                 2 (|H(z)|)" << std::endl;
@@ -123,7 +123,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  stdout:" << std::endl;
   *stream << "       spectrum                                                      (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
-  *stream << "       if k is 2, input length in a frame is assumed to be m instead of m+1" << std::endl;  // NOLINT
+  *stream << "       if k is 2, input length is assumed to be m instead of m+1" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -132,12 +132,53 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a mglsp2sp [ @e option ] [ @e infile ]
+ *
+ * - @b -m @e int
+ *   - order of line spectral pairs @f$(0 \le M)@f$
+ * - @b -a @e double
+ *   - all-pass constant @f$(|\alpha|<1)@f$
+ * - @b -g @e double
+ *   - gamma @f$(-1.0 \le \gamma < 0)@f$
+ * - @b -c @e int
+ *   - gamma @f$\gamma = -1 / C@f$ @f$(1 \le C)@f$
+ * - @b -l @e int
+ *   - FFT length @f$(1 \le L)@f$
+ * - @b -s @e double
+ *   - sampling rate @f$(0 < F_s)@f$
+ * - @b -k @e int
+ *   - input gain type
+ *     \arg @c 0 linear gain
+ *     \arg @c 1 log gain
+ *     \arg @c 2 without gain
+ * - @b -q @e int
+ *   - input format
+ *     \arg @c 0 frequency in rad
+ *     \arg @c 1 frequency in @f$\pi@f$ rad
+ *     \arg @c 2 frequency in kHz
+ *     \arg @c 3 frequency in Hz
+ * - @b -o @e int
+ *   - output format
+ *     \arg @c 0 @f$20 \log_{10}|H(z)|@f$
+ *     \arg @c 1 @f$\log|H(z)|@f$
+ *     \arg @c 2 @f$|H(z)|@f$
+ *     \arg @c 3 @f$|H(z)|^2@f$
+ * - @b infile @e str
+ *   - double-type mel-LSP
+ * - @b stdout
+ *   - double-type spectrum
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   double alpha(kDefaultAlpha);
   double gamma(kDefaultGamma);
-  int spectrum_length(kDefaultSpectrumLength);
-  double sampling_frequency(kDefaultSamplingFrequency);
+  int fft_length(kDefaultFftLength);
+  double sampling_rate(kDefaultSamplingRate);
   InputGainType input_gain_type(kDefaultInputGainType);
   InputFormats input_format(kDefaultInputFormat);
   OutputFormats output_format(kDefaultOutputFormat);
@@ -194,8 +235,8 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'l': {
-        if (!sptk::ConvertStringToInteger(optarg, &spectrum_length) ||
-            spectrum_length <= 0) {
+        if (!sptk::ConvertStringToInteger(optarg, &fft_length) ||
+            fft_length <= 0) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -l option must be a positive integer";
@@ -205,8 +246,8 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 's': {
-        if (!sptk::ConvertStringToDouble(optarg, &sampling_frequency) ||
-            sampling_frequency <= 0.0) {
+        if (!sptk::ConvertStringToDouble(optarg, &sampling_rate) ||
+            sampling_rate <= 0.0) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -s option must be a positive number";
@@ -271,7 +312,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -281,7 +321,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -292,19 +331,19 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare to transform
   sptk::MelGeneralizedLineSpectralPairsToSpectrum
       mel_generalized_line_spectral_pairs_to_spectrum(num_order, alpha, gamma,
-                                                      spectrum_length);
+                                                      fft_length);
   if (!mel_generalized_line_spectral_pairs_to_spectrum.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for transformation";
+    error_message
+        << "Failed to initialize MelGeneralizedLineSpectralPairsToSpectrum";
     sptk::PrintErrorMessage("mglsp2sp", error_message);
     return 1;
   }
 
   const int input_length(num_order + 1);
-  const int output_length(spectrum_length + 1);
+  const int output_length(fft_length / 2 + 1);
   const int read_size(kWithoutGain == input_gain_type ? num_order
                                                       : input_length);
   const int read_point(kWithoutGain == input_gain_type ? 1 : 0);
@@ -332,31 +371,33 @@ int main(int argc, char* argv[]) {
     }
 
     switch (input_format) {
-      case kNormalizedFrequencyInRadians: {
+      case kFrequencyInRadians: {
         // nothing to do
         break;
       }
-      case kNormalizedFrequencyInCycles: {
+      case kFrequencyInCycles: {
         std::transform(mel_generalized_line_spectral_pairs.begin() + 1,
                        mel_generalized_line_spectral_pairs.end(),
                        mel_generalized_line_spectral_pairs.begin() + 1,
-                       std::bind1st(std::multiplies<double>(), sptk::kTwoPi));
+                       [](double x) { return x * sptk::kTwoPi; });
         break;
       }
       case kFrequencyInkHz: {
         std::transform(mel_generalized_line_spectral_pairs.begin() + 1,
                        mel_generalized_line_spectral_pairs.end(),
                        mel_generalized_line_spectral_pairs.begin() + 1,
-                       std::bind1st(std::multiplies<double>(),
-                                    sptk::kTwoPi / sampling_frequency));
+                       [sampling_rate](double x) {
+                         return x * sptk::kTwoPi / sampling_rate;
+                       });
         break;
       }
       case kFrequencyInHz: {
         std::transform(mel_generalized_line_spectral_pairs.begin() + 1,
                        mel_generalized_line_spectral_pairs.end(),
                        mel_generalized_line_spectral_pairs.begin() + 1,
-                       std::bind1st(std::multiplies<double>(),
-                                    sptk::kTwoPi * 0.001 / sampling_frequency));
+                       [sampling_rate](double x) {
+                         return x * sptk::kTwoPi * 0.001 / sampling_rate;
+                       });
         break;
       }
       default: { break; }
@@ -365,8 +406,7 @@ int main(int argc, char* argv[]) {
     if (!mel_generalized_line_spectral_pairs_to_spectrum.Run(
             mel_generalized_line_spectral_pairs, &spectrum)) {
       std::ostringstream error_message;
-      error_message << "Failed to transform mel-generalized line spectral "
-                    << "pairs to spectrum";
+      error_message << "Failed to line spectral pairs to spectrum";
       sptk::PrintErrorMessage("mglsp2sp", error_message);
       return 1;
     }
@@ -374,7 +414,7 @@ int main(int argc, char* argv[]) {
     switch (output_format) {
       case kLogAmplitudeSpectrumInDecibels: {
         std::transform(spectrum.begin(), spectrum.end(), spectrum.begin(),
-                       std::bind1st(std::multiplies<double>(), sptk::kNeper));
+                       [](double x) { return x * sptk::kNeper; });
         break;
       }
       case kLogAmplitudeSpectrum: {
@@ -383,13 +423,12 @@ int main(int argc, char* argv[]) {
       }
       case kAmplitudeSpectrum: {
         std::transform(spectrum.begin(), spectrum.end(), spectrum.begin(),
-                       std::ptr_fun<double, double>(std::exp));
+                       [](double x) { return std::exp(x); });
         break;
       }
       case kPowerSpectrum: {
         std::transform(spectrum.begin(), spectrum.end(), spectrum.begin(),
-                       std::ptr_fun<double, double>(
-                           [](double x) { return std::exp(2.0 * x); }));
+                       [](double x) { return std::exp(2.0 * x); });
         break;
       }
       default: { break; }

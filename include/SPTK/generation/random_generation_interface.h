@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -51,14 +51,11 @@ namespace sptk {
 
 class RandomGenerationInterface {
  public:
-  //
   virtual ~RandomGenerationInterface() {
   }
 
-  //
   virtual void Reset() = 0;
 
-  //
   virtual bool Get(double* output) = 0;
 };
 

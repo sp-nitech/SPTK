@@ -52,33 +52,33 @@
 namespace sptk {
 
 /**
- * Transform generalized cepstral coefficients to normalized generalized
+ * Convert generalized cepstral coefficients to normalized generalized
  * cepstral coefficients.
  *
- * The input is the \f$M\f$-th order generalized cepstral coefficients:
- * \f[
+ * The input is the @f$M@f$-th order generalized cepstral coefficients:
+ * @f[
  *   \begin{array}{cccc}
  *     c_\gamma(0), & c_\gamma(1), & \ldots, & c_\gamma(M),
  *   \end{array}
- * \f]
- * and the output is the \f$M\f$-th order normalized generalized cepstral
+ * @f]
+ * and the output is the @f$M@f$-th order normalized generalized cepstral
  * coefficients:
- * \f[
+ * @f[
  *   \begin{array}{cccc}
  *     K, & c'_\gamma(1), & \ldots, & c'_\gamma(M),
  *   \end{array}
- * \f]
- * where \f$K\f$ is the gain represented as
- * \f[
+ * @f]
+ * where @f$K@f$ is the gain represented as
+ * @f[
  *   K = \left\{ \begin{array}{ll}
  *     (1 + \gamma\,c_\gamma(0))^{1/\gamma}, \quad & 0 < |\gamma| \le 1 \\
  *     \exp \, c_\gamma(0). & \gamma = 0
  *   \end{array} \right.
- * \f]
+ * @f]
  * The normalized generalized cepstral coefficients are obtained as follows:
- * \f[
+ * @f[
  *   c'_\gamma(m) = \frac{c_\gamma(m)}{1 + \gamma \, c_\gamma(0)}.
- * \f]
+ * @f]
  *
  * [1] T. Kobayashi and S. Imai, &quot;Spectral analysis using generalized
  *     cepstrum,&quot; IEEE Transactions on Acoustics, Speech, and Signal
@@ -87,8 +87,8 @@ namespace sptk {
 class GeneralizedCepstrumGainNormalization {
  public:
   /**
-   * @param[in] num_order Order of coefficients, \f$M\f$.
-   * @param[in] gamma Exponent parameter, \f$\gamma\f$.
+   * @param[in] num_order Order of coefficients, @f$M@f$.
+   * @param[in] gamma Exponent parameter, @f$\gamma@f$.
    */
   GeneralizedCepstrumGainNormalization(int num_order, double gamma);
 
@@ -110,15 +110,15 @@ class GeneralizedCepstrumGainNormalization {
   }
 
   /**
-   * @return True if this obejct is valid.
+   * @return True if this object is valid.
    */
   bool IsValid() const {
     return is_valid_;
   }
 
   /**
-   * @param[in] generalized_cepstrum \f$M\f$-th order cepstral coefficients.
-   * @param[out] normalized_generalized_cepstrum \f$M\f$-th order normalized
+   * @param[in] generalized_cepstrum @f$M@f$-th order cepstral coefficients.
+   * @param[out] normalized_generalized_cepstrum @f$M@f$-th order normalized
    *             cepstral coefficients.
    * @return True on success, false on failure.
    */
@@ -126,7 +126,7 @@ class GeneralizedCepstrumGainNormalization {
            std::vector<double>* normalized_generalized_cepstrum) const;
 
   /**
-   * @param[in,out] input_and_output \f$M\f$-th order coefficients.
+   * @param[in,out] input_and_output @f$M@f$-th order coefficients.
    * @return True on success, false on failure.
    */
   bool Run(std::vector<double>* input_and_output) const;

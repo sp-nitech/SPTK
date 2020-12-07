@@ -49,7 +49,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/converter/negative_derivative_of_phase_spectrum_to_cepstrum.h"
+#include "SPTK/conversion/negative_derivative_of_phase_spectrum_to_cepstrum.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

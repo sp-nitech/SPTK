@@ -53,38 +53,38 @@
 namespace sptk {
 
 /**
- * Transform cepstral coefficients to autocorrelation coefficients.
+ * Convert cepstral coefficients to autocorrelation coefficients.
  *
- * The input is the \f$M_1\f$-th order cepstral coefficients:
- * \f[
+ * The input is the @f$M_1@f$-th order cepstral coefficients:
+ * @f[
  *   \begin{array}{cccc}
  *     c(0), & c(1), & \ldots, & c(M_1),
  *   \end{array}
- * \f]
- * and the output is the \f$M_2\f$-th order autocorrelation coefficients:
- * \f[
+ * @f]
+ * and the output is the @f$M_2@f$-th order autocorrelation coefficients:
+ * @f[
  *   \begin{array}{cccc}
  *     r(0), & r(1), & \ldots, & r(M_2),
  *   \end{array}
- * \f]
+ * @f]
  * The definition of the cepstrum can be represented as
- * \f[
+ * @f[
  *   c(m) = \mathcal{F}^{-1} \{ \log |\mathcal{F} \{x(m)\}| \},
- * \f]
- * where \f$x(m)\f$ is a signal, \f$\mathcal{F}^{-1}\f$ and \f$\mathcal{F}\f$
+ * @f]
+ * where @f$x(m)@f$ is a signal, @f$\mathcal{F}^{-1}@f$ and @f$\mathcal{F}@f$
  * denote the DFT and the inverse DFT, respectively. From the definition, the
  * relation between the cepstrum and the autocorrelation can be derived as
  * follows:
- * \f{eqnarray}{
+ * @f{eqnarray}{
  *    c(m) &=& \mathcal{F}^{-1} \left\{
  *             \frac{1}{2} \log|X(\omega)|^2 \right\} \\
  *         &=& \mathcal{F}^{-1} \left\{
  *             \frac{1}{2} \log \mathcal{F} \{r(m)\} \right\},
- * \f}
+ * @f}
  * where the Wiener–Khinchin theorem is used. Thus
- * \f[
+ * @f[
  *    r(m) = \mathcal{F}^{-1} \{ \exp (2\mathcal{F} \{c(m)\}) \}.
- * \f]
+ * @f]
  * Note that the imaginary part is zero.
  */
 class CepstrumToAutocorrelation {
@@ -110,9 +110,9 @@ class CepstrumToAutocorrelation {
   };
 
   /**
-   * @param[in] num_input_order Order of cepstral coefficients, \f$M_1\f$.
+   * @param[in] num_input_order Order of cepstral coefficients, @f$M_1@f$.
    * @param[in] num_output_order Order of autocorrelation coefficients,
-   *            \f$M_2\f$.
+   *            @f$M_2@f$.
    * @param[in] fft_length FFT length.
    */
   CepstrumToAutocorrelation(int num_input_order, int num_output_order,
@@ -143,15 +143,15 @@ class CepstrumToAutocorrelation {
   }
 
   /**
-   * @return True if this obejct is valid.
+   * @return True if this object is valid.
    */
   bool IsValid() const {
     return is_valid_;
   }
 
   /**
-   * @param[in] cepstrum \f$M_1\f$-th order cesptral coefficients.
-   * @param[out] autocorrelation \f$M_2\f$-th order autocorrelation
+   * @param[in] cepstrum @f$M_1@f$-th order cesptral coefficients.
+   * @param[out] autocorrelation @f$M_2@f$-th order autocorrelation
    *             coefficients.
    * @param[out] buffer Buffer.
    * @return True on success, false on failure.

@@ -52,6 +52,7 @@
 
 #include "SPTK/math/statistics_accumulator.h"
 #include "SPTK/math/symmetric_matrix.h"
+#include "SPTK/utils/misc_utils.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

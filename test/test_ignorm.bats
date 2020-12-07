@@ -54,21 +54,21 @@ teardown() {
    rm -rf tmp
 }
 
-@test "ignorm: compatibility (gamma = 0)" {
+@test "ignorm: compatibility (g = 0)" {
    $sptk3/nrand -l 20 | $sptk3/ignorm -m 9 -g 0.0 > tmp/1
    $sptk3/nrand -l 20 | $sptk4/ignorm -m 9 -g 0.0 > tmp/2
    run $sptk4/aeq tmp/1 tmp/2
    [ "$status" -eq 0 ]
 }
 
-@test "ignorm: compatibility (gamma > 0)" {
+@test "ignorm: compatibility (g > 0)" {
    $sptk3/nrand -l 20 | $sptk3/ignorm -m 9 -g 0.5 > tmp/1
    $sptk3/nrand -l 20 | $sptk4/ignorm -m 9 -g 0.5 > tmp/2
    run $sptk4/aeq tmp/1 tmp/2
    [ "$status" -eq 0 ]
 }
 
-@test "ignorm: reversiblity" {
+@test "ignorm: reversibility" {
    $sptk3/nrand -l 20 > tmp/1
    $sptk4/ignorm -m 9 -g 0.5 tmp/1 | $sptk4/gnorm -m 9 -g 0.5 > tmp/2
    run $sptk4/aeq tmp/1 tmp/2
@@ -77,6 +77,6 @@ teardown() {
 
 @test "ignorm: valgrind" {
    $sptk3/nrand -l 20 > tmp/1
-   run valgrind $sptk4/ignorm -m 9 tmp/1 > /dev/null
+   run valgrind $sptk4/ignorm -m 9 tmp/1
    [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
 }

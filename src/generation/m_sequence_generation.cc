@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -64,12 +64,11 @@ void MSequenceGeneration::Reset() {
 }
 
 bool MSequenceGeneration::Get(double* output) {
-  // check output
   if (NULL == output) {
     return false;
   }
 
-  // generate M-Sequence using X**31 + X**28 + 1
+  // Generate m-sequence using X**31 + X**28 + 1.
   int x0, x28;
 
   x_ >>= 1;

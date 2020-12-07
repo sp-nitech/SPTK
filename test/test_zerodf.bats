@@ -104,6 +104,6 @@ teardown() {
 @test "zerodf: valgrind" {
    $sptk3/nrand -l 10 > tmp/1
    $sptk3/nrand -l 10 > tmp/2
-   run valgrind $sptk4/zerodf -m 1 -i 0 -p 1 tmp/1 tmp/2 > /dev/null
+   run valgrind $sptk4/zerodf -m 1 -i 0 -p 1 tmp/1 tmp/2
    [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
 }

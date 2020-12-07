@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -68,10 +69,10 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       interpolate [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -s s  : start index          (   int)[" << std::setw(5) << std::right << kDefaultStartIndex          << "][ 0 <= s <=   ]" << std::endl;  // NOLINT
-  *stream << "       -l l  : length of vector     (   int)[" << std::setw(5) << std::right << kDefaultVectorLength        << "][ 0 <  l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : length of vector     (   int)[" << std::setw(5) << std::right << kDefaultVectorLength        << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -m m  : order of vector      (   int)[" << std::setw(5) << std::right << "l-1"                       << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -p p  : interpolation period (   int)[" << std::setw(5) << std::right << kDefaultInterpolationPeriod << "][ 0 <  p <=   ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : start index          (   int)[" << std::setw(5) << std::right << kDefaultStartIndex          << "][ 0 <= s <=   ]" << std::endl;  // NOLINT
+  *stream << "       -p p  : interpolation period (   int)[" << std::setw(5) << std::right << kDefaultInterpolationPeriod << "][ 1 <= p <=   ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format        (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat        << "][ 0 <= o <= 1 ]" << std::endl;  // NOLINT
   *stream << "                 0 ( x(0), 0,    ..., x(1), 0,    ..., )" << std::endl;  // NOLINT
   *stream << "                 1 ( x(0), x(0), ..., x(1), x(1), ..., )" << std::endl;  // NOLINT
@@ -88,28 +89,82 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a interpolate [ @e option ] [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - length of vector @f$(1 \le L)@f$
+ * - @b -m @e int
+ *   - order of vector @f$(0 \le M)@f$
+ * - @b -s @e int
+ *   - start index @f$(0 \le S)@f$
+ * - @b -p @e int
+ *   - interpolation period @f$(1 \le P)@f$
+ * - @b -o @e int
+ *   - output format @f$(0 \le O \le 1)@f$
+ *     \arg @c 0 zero-padding
+ *     \arg @c 1 repetition
+ * - @b infile @e str
+ *   - double-type data sequence
+ * - @b stdout
+ *   - double-type interpolated data sequence
+ *
+ * The input of the command is a sequence of @f$L@f$-dimensional vectors:
+ * @f[
+ *   \begin{array}{cccc}
+ *     \boldsymbol{x}(0), & \boldsymbol{x}(1), & \boldsymbol{x}(2), & \ldots,
+ *   \end{array}
+ * @f]
+ * where @f$L=M+1@f$. If @f$O=0@f$, the output is a zero-padded sequence:
+ * @f[
+ *   \begin{array}{cccc}
+ *     \underbrace{\boldsymbol{0},\,\boldsymbol{0},\,\ldots,\,
+ *                 \boldsymbol{0}}_{S}, &
+ *     \underbrace{\boldsymbol{x}(0),\,\boldsymbol{0},\,\ldots,\,
+ *                 \boldsymbol{0}}_{P}, &
+ *     \underbrace{\boldsymbol{x}(1),\,\boldsymbol{0},\,\ldots,\,
+ *                 \boldsymbol{0}}_{P}, &
+ *     \ldots,
+ *  \end{array}
+ * @f]
+ * where @f$\boldsymbol{0}@f$ is the @f$L@f$-dimensional zero vector,
+ * @f$S@f$ is the number of left-padded zero vectors, and the @f$P@f$ is the
+ * interpolation factor.
+ * If @f$O=1@f$, each of the vectors is copied @f$P@f$ times:
+ * @f[
+ *   \begin{array}{cccc}
+ *     \underbrace{\boldsymbol{0},\,\boldsymbol{0},\,\ldots,\,
+ *                 \boldsymbol{0}}_{S}, &
+ *     \underbrace{\boldsymbol{x}(0),\,\boldsymbol{x}(0),\,\ldots,\,
+ *                 \boldsymbol{x}(0)}_{P}, &
+ *     \underbrace{\boldsymbol{x}(1),\,\boldsymbol{x}(1),\,\ldots,\,
+ *                 \boldsymbol{x}(1)}_{P}, &
+ *     \ldots,
+ *  \end{array}
+ * @f]
+ *
+ * The following example decimates data in @c data.d while keeping their
+ * original indices.
+ *
+ * @code{.sh}
+ *   decimate -p 5 < data.d | interpolate -p 5 > data.dec
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
-  int start_index(kDefaultStartIndex);
   int vector_length(kDefaultVectorLength);
+  int start_index(kDefaultStartIndex);
   int interpolation_period(kDefaultInterpolationPeriod);
   OutputFormats output_format(kDefaultOutputFormat);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "s:l:m:p:o:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:s:p:o:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
-      case 's': {
-        if (!sptk::ConvertStringToInteger(optarg, &start_index) ||
-            start_index < 0) {
-          std::ostringstream error_message;
-          error_message << "The argument for the -s option must be a "
-                        << "non-negative integer";
-          sptk::PrintErrorMessage("interpolate", error_message);
-          return 1;
-        }
-        break;
-      }
       case 'l': {
         if (!sptk::ConvertStringToInteger(optarg, &vector_length) ||
             vector_length <= 0) {
@@ -131,6 +186,17 @@ int main(int argc, char* argv[]) {
           return 1;
         }
         ++vector_length;
+        break;
+      }
+      case 's': {
+        if (!sptk::ConvertStringToInteger(optarg, &start_index) ||
+            start_index < 0) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -s option must be a "
+                        << "non-negative integer";
+          sptk::PrintErrorMessage("interpolate", error_message);
+          return 1;
+        }
         break;
       }
       case 'p': {
@@ -170,7 +236,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -180,7 +245,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -194,7 +258,7 @@ int main(int argc, char* argv[]) {
   const int output_length(interpolation_period * vector_length);
   std::vector<double> data(output_length);
 
-  // output zeros
+  // Output zeros.
   for (int sample_index(0); sample_index < start_index; ++sample_index) {
     if (!sptk::WriteStream(0, vector_length, data, &std::cout, NULL)) {
       std::ostringstream error_message;

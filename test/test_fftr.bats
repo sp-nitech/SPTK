@@ -64,7 +64,7 @@ teardown() {
    done
 }
 
-@test "fftr: reversiblity" {
+@test "fftr: reversibility" {
    $sptk3/nrand -l 16 > tmp/1
    $sptk4/fftr -l 16 tmp/1 | $sptk4/ifft -l 16 -o 1 > tmp/2
    run $sptk4/aeq tmp/1 tmp/2
@@ -73,6 +73,6 @@ teardown() {
 
 @test "fftr: valgrind" {
    $sptk3/nrand -l 32 > tmp/1
-   run valgrind $sptk4/fftr -l 16 tmp/1 > /dev/null
+   run valgrind $sptk4/fftr -l 16 tmp/1
    [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
 }

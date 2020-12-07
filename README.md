@@ -2,13 +2,14 @@ SPTK 4.0 (Under Construction)
 =============================
 The Speech Signal Processing Toolkit (SPTK) is a software for speech signal processing tools for UNIX environments.
 
-[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://sp-nitech-admin.github.io/sptk/latest/)
+[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://sp-nitech.github.io/sptk/latest/)
 [![](http://img.shields.io/badge/license-BSD-green.svg)](https://github.com/sp-nitech/SPTK/blob/master/LICENSE)
+[![](https://github.com/sp-nitech/SPTK/workflows/build/badge.svg)](https://github.com/sp-nitech/SPTK/actions)
 
 
 Documentation
 -------------
-See [this page](https://sp-nitech-admin.github.io/sptk/latest/) for a reference manual.
+See [this page](https://sp-nitech.github.io/sptk/latest/) for a reference manual.
 
 
 Requirements
@@ -28,29 +29,40 @@ Then the SPTK commands can be used by adding `SPTK/bin/` directory to the `PATH`
 If you would like to use a part of the SPTK library, please link the static library `SPTK/lib/libsptk.a`.
 
 
+Examples
+--------
+The SPTK provides some examples.
+Go to an example directory and execute `run.sh`, e.g.,
+```sh
+cd egs/analysis_synthesis/mgc
+./run.sh
+```
+
+
 Changes from SPTK3
 ------------------
-- Input and output types are changed to double from float
-- Ungeneralized commands are deprecated
+- **Input and output types are changed to double from float**
+- Deprecated commands:
   - `acep`
   - `c2sp`
   - `gc2gc`
   - `gcep`
   - `glsadf`
+  - `ivq`
   - `lmadf`
   - `lsp2sp`
   - `mcep`
   - `mlsadf`
+  - `uels`
   - `vq`
-- Multifunctional commands are split
+- Split commands:
   - `dtw` -> `dtw` and `dtw_merge`
   - `mglsadf` -> `mglsadf` and `imglsadf`
   - `train` -> `train` and `mseq`
   - `ulaw` -> `ulaw` and `iulaw`
   - `vstat` -> `vstat` and `median`
-- Smoothing flag in adaptive analysis is stripped
-  - `agcep`
-  - `amcep`
+- Integrated commands:
+  - `agcep` and `amcep` -> `amgcep`
 
 
 Authors

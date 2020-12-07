@@ -223,9 +223,8 @@ bool StatisticsAccumulator::Run(const std::vector<double>& data,
   }
 
   // prepare buffer
-  if (1 <= num_statistics_order_ &&
-      buffer->first_order_statistics_.size() !=
-          static_cast<std::size_t>(length)) {
+  if (1 <= num_statistics_order_ && buffer->first_order_statistics_.size() !=
+                                        static_cast<std::size_t>(length)) {
     buffer->first_order_statistics_.resize(length);
   }
   if (2 <= num_statistics_order_ &&

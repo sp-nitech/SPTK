@@ -50,7 +50,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/converter/mel_cepstrum_to_mlsa_digital_filter_coefficients.h"
+#include "SPTK/conversion/mel_cepstrum_to_mlsa_digital_filter_coefficients.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -61,7 +61,7 @@ const double kDefaultAlpha(0.35);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " mc2b - transform mel-cepstrum to MLSA digital filter coefficients" << std::endl;  // NOLINT
+  *stream << " mc2b - convert mel-cepstrum to MLSA digital filter coefficients" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       mc2b [ options ] [ infile ] > stdout" << std::endl;
@@ -82,15 +82,15 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a mc2b [ \e option ] [ \e infile ]
+ * @a mc2b [ @e option ] [ @e infile ]
  *
- * - \b -m \e int
- *   - order of coefficients \f$(0 \le M)\f$
- * - \b -a \e double
- *   - all-pass constant \f$(|\alpha|<1)\f$
- * - \b infile \e str
+ * - @b -m @e int
+ *   - order of coefficients @f$(0 \le M)@f$
+ * - @b -a @e double
+ *   - all-pass constant @f$(|\alpha|<1)@f$
+ * - @b infile @e str
  *   - double-type mel-cepstral coefficients
- * - \b stdout
+ * - @b stdout
  *   - double-type MLSA digital filter coefficients
  *
  * The below example converts mel-cepstral coefficients into MLSA digital filter
@@ -190,7 +190,7 @@ int main(int argc, char* argv[]) {
     if (!mel_cepstrum_to_mlsa_digital_filter_coefficients.Run(
             mel_cepstrum, &mlsa_digital_filter_coefficients)) {
       std::ostringstream error_message;
-      error_message << "Failed to transform mel-cepstrum to MLSA digital "
+      error_message << "Failed to convert mel-cepstrum to MLSA digital "
                        "filter coefficients";
       sptk::PrintErrorMessage("mc2b", error_message);
       return 1;

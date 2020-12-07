@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -67,15 +67,14 @@ RecursiveMaximumLikelihoodParameterGeneration::
   }
 
   int max_half_window_width(0);
-  for (std::vector<std::vector<double> >::const_iterator itr(
+  for (std::vector<std::vector<double> >::iterator itr(
            window_coefficients_.begin());
        itr != window_coefficients_.end(); ++itr) {
     const int window_width(static_cast<int>(itr->size()));
     if (0 == window_width % 2) {
-      is_valid_ = false;
-      return;
+      itr->push_back(0.0);
     }
-    const int half_window_width((window_width - 1) / 2);
+    const int half_window_width(window_width / 2);
     if (max_half_window_width < half_window_width) {
       max_half_window_width = half_window_width;
     }
@@ -86,7 +85,7 @@ RecursiveMaximumLikelihoodParameterGeneration::
     return;
   }
 
-  // past + present + future
+  // calculation_field is past + present + future.
   calculation_field_ = num_past_frame_ + 1 + max_half_window_width;
   num_remaining_frame_ = calculation_field_;
   current_frame_ = num_past_frame_;
@@ -95,12 +94,12 @@ RecursiveMaximumLikelihoodParameterGeneration::
     if (!input_source->Get(&buffer_.static_and_dynamic_parameters)) {
       const int static_and_dynamic_size(
           buffer_.static_and_dynamic_parameters.size() / 2);
-      // mean
+      // Initialize with zero mean.
       std::fill(buffer_.static_and_dynamic_parameters.begin(),
                 buffer_.static_and_dynamic_parameters.begin() +
                     static_and_dynamic_size,
                 0.0);
-      // variance
+      // Initialize with infinite variance.
       std::fill(buffer_.static_and_dynamic_parameters.begin() +
                     static_and_dynamic_size,
                 buffer_.static_and_dynamic_parameters.end(), DBL_MAX);
@@ -122,12 +121,12 @@ bool RecursiveMaximumLikelihoodParameterGeneration::Get(
   if (!input_source_->Get(&buffer_.static_and_dynamic_parameters)) {
     const int static_and_dynamic_size(
         buffer_.static_and_dynamic_parameters.size() / 2);
-    // mean
+    // Unobserbed mean is zero.
     std::fill(
         buffer_.static_and_dynamic_parameters.begin(),
         buffer_.static_and_dynamic_parameters.begin() + static_and_dynamic_size,
         0.0);
-    // variance
+    // Unobserved variance is inifinite.
     std::fill(
         buffer_.static_and_dynamic_parameters.begin() + static_and_dynamic_size,
         buffer_.static_and_dynamic_parameters.end(), DBL_MAX);
@@ -159,7 +158,7 @@ bool RecursiveMaximumLikelihoodParameterGeneration::Forward() {
   const int static_size(num_order_ + 1);
   const int dynamic_size(static_size * num_delta);
 
-  // prepare memory
+  // Prepare memories.
   {
     if (buffer_.stored_dynamic_mean_vectors.size() !=
         static_cast<std::size_t>(dynamic_size)) {
@@ -213,7 +212,7 @@ bool RecursiveMaximumLikelihoodParameterGeneration::Forward() {
     }
   }
 
-  // copy inputs
+  // Copy inputs.
   const int max_half_window_width(calculation_field_ - num_past_frame_ - 1);
   {
     const int t((current_frame_ + max_half_window_width) % calculation_field_);
@@ -249,13 +248,12 @@ bool RecursiveMaximumLikelihoodParameterGeneration::Forward() {
     const double* window_coefficients(
         &(window_coefficients_[d][half_window_width]));
 
-    // do not update state if given variance is infinite
+    // Do not update state if given variance is infinite.
     bool update(true);
     for (int m(0); m < static_size; ++m) {
       for (int j(-half_window_width); j <= half_window_width; ++j) {
-        if (DBL_MAX ==
-	    buffer_.p[m][(current_frame_ + j) % calculation_field_]
-                     [calculation_field_]) {
+        if (DBL_MAX == buffer_.p[m][(current_frame_ + j) % calculation_field_]
+                                [calculation_field_]) {
           update = false;
           break;
         }
@@ -264,7 +262,7 @@ bool RecursiveMaximumLikelihoodParameterGeneration::Forward() {
     }
     if (!update) continue;
 
-    // calculate the numerator of Kalman gain
+    // Calculate the numerator of Kalman gain.
     for (int m(0); m < static_size; ++m) {
       double* pi(&buffer_.pi[m][num_past_frame_]);
       for (int u(-num_past_frame_); u <= max_half_window_width; ++u) {
@@ -278,7 +276,7 @@ bool RecursiveMaximumLikelihoodParameterGeneration::Forward() {
       }
     }
 
-    // calculate Kalman gain
+    // Calculate Kalman gain.
     for (int m(0); m < static_size; ++m) {
       double* pi(&buffer_.pi[m][num_past_frame_]);
       double tmp(0.0);
@@ -297,7 +295,7 @@ bool RecursiveMaximumLikelihoodParameterGeneration::Forward() {
       }
     }
 
-    // update error covariance
+    // Update error covariance.
     for (int m(0); m < static_size; ++m) {
       double* pi(&buffer_.pi[m][num_past_frame_]);
       double* k(&buffer_.k[m][num_past_frame_]);
@@ -316,7 +314,7 @@ bool RecursiveMaximumLikelihoodParameterGeneration::Forward() {
       }
     }
 
-    // update state estimates
+    // Update state estimates.
     for (int m(0); m < static_size; ++m) {
       double* c(&buffer_.c[m][0]);
       double tmp(buffer_.stored_dynamic_mean_vectors[static_size * d + m]

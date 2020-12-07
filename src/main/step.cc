@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
@@ -76,6 +77,38 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a step [ @e option ]
+ *
+ * - @b -l @e int
+ *   - output length @f$(1 \le L)@f$
+ * - @b -m @e int
+ *   - output order @f$(0 \le L - 1)@f$
+ * - @b -v @e double
+ *   - step value @f$(V)@f$
+ * - @b stdout
+ *   - double-type step sequence
+ *
+ * The output of this command is
+ * @f[
+ *   \begin{array}{cccc}
+ *     V, & V, & \ldots, & V
+ *   \end{array}
+ * @f]
+ * where the output length is @f$L@f$. If @f$L@f$ is not given, an inifinite
+ * step sequence is generated.
+ *
+ * In the below example, the step response of a ditital filter is calculated and
+ * shown on the screen.
+ *
+ * @code{.sh}
+ *   step -l 256 | dfs -a 1 -0.8 | dmp +d
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int output_length(kMagicNumberForInfinity);
   double step_value(kDefaultStepValue);

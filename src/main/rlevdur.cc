@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -59,18 +60,17 @@ const int kDefaultNumOrder(25);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " rlevdur - solve an autocorrelation normal equation" << std::endl;
-  *stream << "           using reverse Levinson-Durbin recursion" << std::endl;
+  *stream << " rlevdur - solve autocorrelation normal equation by reverse Levinson-Durbin recursion" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       rlevdur [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of linear predictive coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumOrder << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of autocorrelation (   int)[" << std::setw(5) << std::right << kDefaultNumOrder << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       linear predictive coefficients                  (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       linear predictive coefficients   (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       autocorrelation sequence                        (double)" << std::endl;  // NOLINT
+  *stream << "       autocorrelation                  (double)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -79,6 +79,26 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a rlevdur [ @e option ] [ @e infile ]
+ *
+ * - @b -m @e int
+ *   - order of coefficients @f$(0 \le M)@f$
+ * - @b infile @e str
+ *   - double-type linear predictive coefficients
+ * - @b stdout
+ *   - double-type autocorrelation
+ *
+ * The below example converts LPC coefficients in @c data.lpc to CSM parameters.
+ *
+ * @code{.sh}
+ *   rlevdur -m 10 < data.lpc | acr2csm -m 10 > data.csm
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
 
@@ -109,7 +129,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -119,7 +138,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -135,30 +153,28 @@ int main(int argc, char* argv[]) {
   sptk::ReverseLevinsonDurbinRecursion::Buffer buffer;
   if (!reverse_levinson_durbin_recursion.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set the condition";
+    error_message << "Failed to initialize ReverseLevinsonDurbinRecursion";
     sptk::PrintErrorMessage("rlevdur", error_message);
     return 1;
   }
 
   const int length(num_order + 1);
-  std::vector<double> autocorrelation_sequence(length);
+  std::vector<double> autocorrelation(length);
   std::vector<double> linear_predictive_coefficients(length);
 
   while (sptk::ReadStream(false, 0, 0, length, &linear_predictive_coefficients,
                           &input_stream, NULL)) {
     if (!reverse_levinson_durbin_recursion.Run(linear_predictive_coefficients,
-                                               &autocorrelation_sequence,
-                                               &buffer)) {
+                                               &autocorrelation, &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to solve autocorrelation normal equations";
       sptk::PrintErrorMessage("rlevdur", error_message);
       return 1;
     }
 
-    if (!sptk::WriteStream(0, length, autocorrelation_sequence, &std::cout,
-                           NULL)) {
+    if (!sptk::WriteStream(0, length, autocorrelation, &std::cout, NULL)) {
       std::ostringstream error_message;
-      error_message << "Failed to write autocorrelation sequence";
+      error_message << "Failed to write autocorrelation";
       sptk::PrintErrorMessage("rlevdur", error_message);
       return 1;
     }

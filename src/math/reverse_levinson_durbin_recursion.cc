@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -52,28 +52,27 @@ ReverseLevinsonDurbinRecursion::ReverseLevinsonDurbinRecursion(int num_order)
     : num_order_(num_order), is_valid_(true) {
   if (num_order_ < 0) {
     is_valid_ = false;
+    return;
   }
 }
 
 bool ReverseLevinsonDurbinRecursion::Run(
     const std::vector<double>& linear_predictive_coefficients,
-    std::vector<double>* autocorrelation_sequence,
+    std::vector<double>* autocorrelation,
     ReverseLevinsonDurbinRecursion::Buffer* buffer) const {
-  // check inputs
+  // Check inputs.
   const int length(num_order_ + 1);
   if (!is_valid_ ||
       linear_predictive_coefficients.size() !=
           static_cast<std::size_t>(length) ||
-      NULL == autocorrelation_sequence || NULL == buffer) {
+      NULL == autocorrelation || NULL == buffer) {
     return false;
   }
 
-  // prepare memories
-  if (autocorrelation_sequence->size() != static_cast<std::size_t>(length)) {
-    autocorrelation_sequence->resize(length);
+  // Prepare memories.
+  if (autocorrelation->size() != static_cast<std::size_t>(length)) {
+    autocorrelation->resize(length);
   }
-
-  // prepare buffer
   if (buffer->u_.GetNumDimension() != length) {
     buffer->u_.Resize(length);
   }
@@ -81,51 +80,44 @@ bool ReverseLevinsonDurbinRecursion::Run(
     buffer->e_.resize(length);
   }
 
-  // get values
-  const double* input(&(linear_predictive_coefficients[0]));
-  double* output(&((*autocorrelation_sequence)[0]));
+  const double* a(&(linear_predictive_coefficients[0]));
+  double* r(&((*autocorrelation)[0]));
   double* e(&(buffer->e_[0]));
-
-  if (0 == num_order_) {
-    output[0] = input[0] * input[0];
-    return true;
-  }
 
   for (int j(0); j <= num_order_; ++j) {
     buffer->u_[j][j] = 1.0;
   }
-
   for (int j(0); j < num_order_; ++j) {
-    buffer->u_[num_order_][j] = input[num_order_ - j];
+    buffer->u_[num_order_][j] = a[num_order_ - j];
   }
-  e[num_order_] = input[0] * input[0];
+  e[num_order_] = a[0] * a[0];
 
-  for (int i(num_order_ - 1); 0 < i; --i) {
-    const double rmd(1.0 - buffer->u_[i + 1][0] * buffer->u_[i + 1][0]);
-    if (0.0 == rmd) {
-      return false;
-    }
-    const double inverse_rmd(1.0 / rmd);
+  for (int i(num_order_ - 1); 0 <= i; --i) {
+    double* u(&(buffer->u_[i + 1][0]));
+    const double t(1.0 / (1.0 - u[0] * u[0]));
     for (int j(0); j < i; ++j) {
-      buffer->u_[i][i - j - 1] =
-          (buffer->u_[i + 1][i - j] -
-           buffer->u_[i + 1][0] * buffer->u_[i + 1][j + 1]) *
-          inverse_rmd;
+      buffer->u_[i][j] = (u[j + 1] - u[0] * u[i - j]) * t;
     }
-    e[i] = e[i + 1] * inverse_rmd;
+    e[i] = e[i + 1] * t;
   }
-  e[0] = e[1] / (1.0 - buffer->u_[1][0] * buffer->u_[1][0]);
 
-  output[0] = e[0];
+  r[0] = e[0];
   for (int i(1); i <= num_order_; ++i) {
     double sum(0.0);
     for (int j(1); j < i; ++j) {
-      sum += buffer->u_[i - 1][i - j - 1] * output[i - j];
+      sum += buffer->u_[i - 1][i - j - 1] * r[i - j];
     }
-    output[i] = -sum - buffer->u_[i][0] * e[i - 1];
+    r[i] = -(sum + buffer->u_[i][0] * e[i - 1]);
   }
 
   return true;
+}
+
+bool ReverseLevinsonDurbinRecursion::Run(
+    std::vector<double>* input_and_output,
+    ReverseLevinsonDurbinRecursion::Buffer* buffer) const {
+  if (NULL == input_and_output) return false;
+  return Run(*input_and_output, input_and_output, buffer);
 }
 
 }  // namespace sptk

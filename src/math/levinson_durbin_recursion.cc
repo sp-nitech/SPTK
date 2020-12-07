@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -53,77 +53,84 @@ LevinsonDurbinRecursion::LevinsonDurbinRecursion(int num_order)
     : num_order_(num_order), is_valid_(true) {
   if (num_order_ < 0) {
     is_valid_ = false;
+    return;
   }
 }
 
 bool LevinsonDurbinRecursion::Run(
-    const std::vector<double>& autocorrelation_sequence,
+    const std::vector<double>& autocorrelation,
     std::vector<double>* linear_predictive_coefficients, bool* is_stable,
     LevinsonDurbinRecursion::Buffer* buffer) const {
-  // check inputs
+  // Check inputs.
   const int length(num_order_ + 1);
   if (!is_valid_ ||
-      autocorrelation_sequence.size() != static_cast<std::size_t>(length) ||
+      autocorrelation.size() != static_cast<std::size_t>(length) ||
       NULL == linear_predictive_coefficients || NULL == is_stable ||
       NULL == buffer) {
     return false;
   }
 
-  // prepare memories
+  // Prepare memories.
   if (linear_predictive_coefficients->size() !=
       static_cast<std::size_t>(length)) {
     linear_predictive_coefficients->resize(length);
   }
-
-  // prepare buffer
   if (buffer->c_.size() != static_cast<std::size_t>(length)) {
     buffer->c_.resize(length);
   }
 
-  // get values
-  const double* input(&(autocorrelation_sequence[0]));
-  double* output(&((*linear_predictive_coefficients)[0]));
-  double* c(&buffer->c_[0]);
-
-  // set value
   *is_stable = true;
 
-  double rmd(input[0]);
-  if (0.0 == rmd || std::isnan(rmd)) {
+  const double* r(&(autocorrelation[0]));
+  double* a(&((*linear_predictive_coefficients)[0]));
+  double* c(&buffer->c_[0]);
+
+  // Set initial condition.
+  a[0] = 0.0;
+  double e(r[0]);
+  if (0.0 == e || std::isnan(e)) {
     return false;
   }
 
-  output[0] = 0.0;
-
+  // Perform Durbin's iterative algorithm.
   for (int i(1); i < length; ++i) {
-    double mue(-input[i]);
+    double k(-r[i]);
     for (int j(1); j < i; ++j) {
-      mue -= c[j] * input[i - j];
+      k -= c[j] * r[i - j];
     }
-    mue /= rmd;
+    k /= e;
 
-    for (int j(1); j < i; ++j) {
-      output[j] = c[j] + mue * c[i - j];
-    }
-    output[i] = mue;
-
-    rmd *= 1.0 - mue * mue;
-    if (0.0 == rmd || std::isnan(rmd)) {
-      return false;
-    }
-
-    if (1.0 <= std::fabs(mue)) {
+    if (1.0 <= std::fabs(k)) {
       *is_stable = false;
     }
 
+    for (int j(1); j < i; ++j) {
+      a[j] = c[j] + k * c[i - j];
+    }
+    a[i] = k;
+
+    e *= 1.0 - k * k;
+    if (0.0 == e || std::isnan(e)) {
+      return false;
+    }
+
     for (int j(0); j <= i; ++j) {
-      c[j] = output[j];
+      c[j] = a[j];
     }
   }
 
-  output[0] = std::sqrt(rmd);
+  // Set gain.
+  a[0] = std::sqrt(e);
 
   return true;
+}
+
+bool LevinsonDurbinRecursion::Run(
+    std::vector<double>* input_and_output, bool* is_stable,
+    LevinsonDurbinRecursion::Buffer* buffer) const {
+  if (NULL == input_and_output) return false;
+  std::vector<double> input(*input_and_output);
+  return Run(input, input_and_output, is_stable, buffer);
 }
 
 }  // namespace sptk

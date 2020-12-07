@@ -50,7 +50,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/converter/cepstrum_to_minimum_phase_impulse_response.h"
+#include "SPTK/conversion/cepstrum_to_minimum_phase_impulse_response.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -83,15 +83,15 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a c2mpir [ \e option ] [ \e infile ]
+ * @a c2mpir [ @e option ] [ @e infile ]
  *
- * - \b -m \e int
- *   - order of cesptral coefficients \f$(0 \le M_1)\f$
- * - \b -M \e int
- *   - order of impulse response \f$(0 \le M_2)\f$
- * - \b infile \e str
+ * - @b -m @e int
+ *   - order of cesptral coefficients @f$(0 \le M_1)@f$
+ * - @b -M @e int
+ *   - order of impulse response @f$(0 \le M_2)@f$
+ * - @b infile @e str
  *   - double-type cepstral coefficients
- * - \b stdout
+ * - @b stdout
  *   - double-type minimum phase impulse response
  *
  * @param[in] argc Number of arguments.

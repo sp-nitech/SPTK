@@ -54,20 +54,20 @@ namespace sptk {
 /**
  * Apply all-zero digital filter for speech synthesis to signals.
  *
- * The transfer function \f$H(z)\f$ of an all-zero filter is
- * \f[
+ * The transfer function @f$H(z)@f$ of an all-zero filter is
+ * @f[
  *   H(z) = \displaystyle\sum_{m=0}^M b(m)z^{-m},
- * \f]
- * where \f$M\f$ is the order of filter.
+ * @f]
+ * where @f$M@f$ is the order of filter.
  *
- * Given the \f$M\f$-th order filter coefficients,
- * \f[
+ * Given the @f$M@f$-th order filter coefficients,
+ * @f[
  *   \begin{array}{cccc}
  *     b(0), & b(1), & \ldots, & b(M),
  *   \end{array}
- * \f]
- * an output signal is obtained by applying \f$H(z)\f$ to a input signal in time
- * domain.
+ * @f]
+ * an output signal is obtained by applying @f$H(z)@f$ to an input signal in
+ * time domain.
  */
 class AllZeroDigitalFilter {
  public:
@@ -90,7 +90,7 @@ class AllZeroDigitalFilter {
   };
 
   /**
-   * @param[in] num_filter_order Order of filter coefficients, \f$M\f$.
+   * @param[in] num_filter_order Order of filter coefficients, @f$M@f$.
    * @param[in] transposition If true, use transposed form filter.
    */
   AllZeroDigitalFilter(int num_filter_order, bool transposition);
@@ -113,14 +113,14 @@ class AllZeroDigitalFilter {
   }
 
   /**
-   * @return True if this obejct is valid.
+   * @return True if this object is valid.
    */
   bool IsValid() const {
     return is_valid_;
   }
 
   /**
-   * @param[in] filter_coefficients \f$M\f$-th order FIR filter coefficients.
+   * @param[in] filter_coefficients @f$M@f$-th order FIR filter coefficients.
    * @param[in] filter_input Input signal.
    * @param[out] filter_output Output signal.
    * @param[in,out] buffer Buffer.
@@ -130,7 +130,7 @@ class AllZeroDigitalFilter {
            double* filter_output, AllZeroDigitalFilter::Buffer* buffer) const;
 
   /**
-   * @param[in] filter_coefficients \f$M\f$-th order FIR filter coefficients.
+   * @param[in] filter_coefficients @f$M@f$-th order FIR filter coefficients.
    * @param[in,out] input_and_output Input/output signal.
    * @param[in,out] buffer Buffer.
    * @return True on success, false on failure.

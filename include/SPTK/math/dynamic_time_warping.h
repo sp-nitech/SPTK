@@ -48,7 +48,7 @@
 #include <utility>  // std::pair
 #include <vector>   // std::vector
 
-#include "SPTK/math/distance_calculator.h"
+#include "SPTK/math/distance_calculation.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
@@ -69,7 +69,7 @@ class DynamicTimeWarping {
 
   //
   DynamicTimeWarping(int num_order, LocalPathConstraints local_path_constraint,
-                     DistanceCalculator::DistanceMetrics distance_metric);
+                     DistanceCalculation::DistanceMetrics distance_metric);
 
   //
   virtual ~DynamicTimeWarping() {
@@ -86,8 +86,8 @@ class DynamicTimeWarping {
   }
 
   //
-  DistanceCalculator::DistanceMetrics GetDistanceMetric() const {
-    return distance_calculator_.GetDistanceMetric();
+  DistanceCalculation::DistanceMetrics GetDistanceMetric() const {
+    return distance_calculation_.GetDistanceMetric();
   }
 
   //
@@ -109,7 +109,7 @@ class DynamicTimeWarping {
   const LocalPathConstraints local_path_constraint_;
 
   //
-  const DistanceCalculator distance_calculator_;
+  const DistanceCalculation distance_calculation_;
 
   //
   bool is_valid_;

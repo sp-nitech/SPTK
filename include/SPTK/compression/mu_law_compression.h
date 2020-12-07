@@ -50,21 +50,21 @@
 namespace sptk {
 
 /**
- * Nonlinearly compress data based on \f$\mu\f$-law algorithm.
+ * Nonlinearly compress data based on @f$\mu@f$-law algorithm.
  *
- * Given the input data \f$x(n)\f$, the compression is performed as follows:
- * \f[
+ * Given the input data @f$x(n)@f$, the compression is performed as follows:
+ * @f[
  *   y(n) = V \, \mathrm{sgn}(x(n))
  *     \frac{\log (1 + \mu \frac{|x(n)|}{V})}{\log (1 + \mu)}
- * \f]
- * where \f$V\f$ is the absolute maximum value of the input data and \f$\mu\f$
+ * @f]
+ * where @f$V@f$ is the absolute maximum value of the input data and @f$\mu@f$
  * is the compression factor, which is typically set to 255.
  */
 class MuLawCompression {
  public:
   /**
    * @param[in] abs_max_value Absolute maximum value.
-   * @param[in] compression_factor Compression factor, \f$\mu\f$.
+   * @param[in] compression_factor Compression factor, @f$\mu@f$.
    */
   MuLawCompression(double abs_max_value, double compression_factor);
 
@@ -86,7 +86,7 @@ class MuLawCompression {
   }
 
   /**
-   * @return True if this obejct is valid.
+   * @return True if this object is valid.
    */
   bool IsValid() const {
     return is_valid_;

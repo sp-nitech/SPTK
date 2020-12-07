@@ -50,7 +50,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/converter/parcor_coefficients_to_linear_predictive_coefficients.h"
+#include "SPTK/conversion/parcor_coefficients_to_linear_predictive_coefficients.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -60,7 +60,7 @@ const int kDefaultNumOrder(25);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " par2lpc - transform PARCOR coefficients to linear predictive coefficients" << std::endl;  // NOLINT
+  *stream << " par2lpc - convert PARCOR coefficients to linear predictive coefficients" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       par2lpc [ options ] [ infile ] > stdout" << std::endl;
@@ -80,13 +80,13 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a par2lpc [ \e option ] [ \e infile ]
+ * @a par2lpc [ @e option ] [ @e infile ]
  *
- * - \b -m \e int
- *   - order of coefficients \f$(0 \le M)\f$
- * - \b infile \e str
+ * - @b -m @e int
+ *   - order of coefficients @f$(0 \le M)@f$
+ * - @b infile @e str
  *   - double-type PARCOR coefficients
- * - \b stdout
+ * - @b stdout
  *   - double-type LPC coefficients
  *
  * The below example converts PARCOR coefficients into LPC coefficients:
@@ -173,7 +173,7 @@ int main(int argc, char* argv[]) {
     if (!parcor_coefficients_to_linear_predictive_coefficients.Run(
             &coefficients, &buffer)) {
       std::ostringstream error_message;
-      error_message << "Failed to transform PARCOR coefficients to "
+      error_message << "Failed to convert PARCOR coefficients to "
                     << "linear predictive coefficients";
       sptk::PrintErrorMessage("par2lpc", error_message);
       return 1;

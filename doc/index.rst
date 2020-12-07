@@ -8,7 +8,14 @@ SPTK
    :maxdepth: 1
    :caption: Command references
 
-   cmd/*
+   main/*
+
+.. toctree::
+   :glob:
+   :maxdepth: 1
+   :caption: Utility references
+
+   utils/*
 
 
 Indices

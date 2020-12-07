@@ -52,27 +52,27 @@
 namespace sptk {
 
 /**
- * Transform mel-cepstral coefficients to MLSA digital filter coefficients.
+ * Convert mel-cepstral coefficients to MLSA digital filter coefficients.
  *
- * The input is the \f$M\f$-th order mel-cepstral coefficients:
- * \f[
+ * The input is the @f$M@f$-th order mel-cepstral coefficients:
+ * @f[
  *   \begin{array}{cccc}
  *     \tilde{c}(0), & \tilde{c}(1), & \ldots, & \tilde{c}(M),
  *   \end{array}
- * \f]
- * and the output is the \f$M\f$-th order MLSA digital filter coefficients:
- * \f[
+ * @f]
+ * and the output is the @f$M@f$-th order MLSA digital filter coefficients:
+ * @f[
  *   \begin{array}{cccc}
  *     b(0), & b(1), & \ldots, & b(M).
  *   \end{array}
- * \f]
+ * @f]
  * The MLSA digital filter coefficients can be obtained by the linear
  * transformation of the mel-cepstral coefficients:
- * \f[
+ * @f[
  *   \boldsymbol{b} = \boldsymbol{A}^{-1}\tilde{\boldsymbol{c}},
- * \f]
+ * @f]
  * where
- * \f{eqnarray}{
+ * @f{eqnarray}{
  *   \boldsymbol{A}^{-1} &=& \left[ \begin{array}{ccccc}
  *     1      & -\alpha & (-\alpha)^2 & \cdots & (-\alpha)^M  \\
  *     0      & 1       & -\alpha     & \ddots & \vdots       \\
@@ -86,15 +86,15 @@ namespace sptk {
  *   \tilde{\boldsymbol{c}} &=& \left[ \begin{array}{cccc}
  *     \tilde{c}(0) & \tilde{c}(1) & \cdots & \tilde{c}(M)
  *   \end{array} \right]^{\mathsf{T}}.
- * \f}
- * The transformation is implemented with low computational complexity in a
+ * @f}
+ * The conversion is implemented with low computational complexity in a
  * recursive manner as follows:
- * \f[
+ * @f[
  *   b(m) = \left\{ \begin{array}{ll}
  *     \tilde{c}(m), & m = M \\
  *     \tilde{c}(m) - \alpha b(m + 1). & 0 \le m < M
  *   \end{array} \right.
- * \f]
+ * @f]
  *
  * [1] K. Tokuda, T. Kobayashi, T. Chiba, and S. Imai, &quot;Spectral estimation
  *     of speech by mel-generalized cepstral analysis,&quot; Electronics and
@@ -103,8 +103,8 @@ namespace sptk {
 class MelCepstrumToMlsaDigitalFilterCoefficients {
  public:
   /**
-   * @param[in] num_order Order of coefficients, \f$M\f$.
-   * @param[in] alpha Frequency warping factor, \f$\alpha\f$.
+   * @param[in] num_order Order of coefficients, @f$M@f$.
+   * @param[in] alpha Frequency warping factor, @f$\alpha@f$.
    */
   MelCepstrumToMlsaDigitalFilterCoefficients(int num_order, double alpha);
 
@@ -126,15 +126,15 @@ class MelCepstrumToMlsaDigitalFilterCoefficients {
   }
 
   /**
-   * @return True if this obejct is valid.
+   * @return True if this object is valid.
    */
   bool IsValid() const {
     return is_valid_;
   }
 
   /**
-   * @param[in] mel_cepstrum \f$M\f$-th order mel-cepstral coefficients.
-   * @param[out] mlsa_digital_filter_coefficients \f$M\f$-th order MLSA digital
+   * @param[in] mel_cepstrum @f$M@f$-th order mel-cepstral coefficients.
+   * @param[out] mlsa_digital_filter_coefficients @f$M@f$-th order MLSA digital
    *             filter coefficients.
    * @return True on success, false on failure.
    */
@@ -142,7 +142,7 @@ class MelCepstrumToMlsaDigitalFilterCoefficients {
            std::vector<double>* mlsa_digital_filter_coefficients) const;
 
   /**
-   * @param[in,out] input_and_output \f$M\f$-th order coefficients.
+   * @param[in,out] input_and_output @f$M@f$-th order coefficients.
    * @return True on success, false on failure.
    */
   bool Run(std::vector<double>* input_and_output) const;

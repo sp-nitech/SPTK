@@ -50,7 +50,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/converter/linear_predictive_coefficients_to_parcor_coefficients.h"
+#include "SPTK/conversion/linear_predictive_coefficients_to_parcor_coefficients.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -64,12 +64,12 @@ const WarningType kDefaultWarningType(kIgnore);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " lpc2par - transform linear predictive coefficients to PARCOR coefficients" << std::endl;  // NOLINT
+  *stream << " lpc2par - convert linear predictive coefficients to PARCOR coefficients" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       lpc2par [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of linear predictive coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumOrder    << "][    0 <= m <=     ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of coefficients                   (   int)[" << std::setw(5) << std::right << kDefaultNumOrder    << "][    0 <= m <=     ]" << std::endl;  // NOLINT
   *stream << "       -g g  : gamma of generalized cepstrum           (double)[" << std::setw(5) << std::right << kDefaultGamma       << "][ -1.0 <= g <= 1.0 ]" << std::endl;  // NOLINT
   *stream << "       -c c  : gamma of generalized cepstrum = -1 / c  (   int)[" << std::setw(5) << std::right << "N/A"               << "][    1 <= c <=     ]" << std::endl;  // NOLINT
   *stream << "       -w w  : warning type of unstable index          (   int)[" << std::setw(5) << std::right << kDefaultWarningType << "][    0 <= e <= 2   ]" << std::endl;  // NOLINT
@@ -91,25 +91,25 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * \a lpc2par [ \e option ] [ \e infile ]
+ * @a lpc2par [ @e option ] [ @e infile ]
  *
- * - \b -m \e int
- *   - order of coefficients \f$(0 \le M)\f$
- * - \b -g \e double
- *   - gamma \f$(|\gamma| \le 1)\f$
- * - \b -c \e double
- *   - gamma \f$\gamma = -1 / C\f$ \f$(1 \le C)\f$
- * - \b -w \e int
+ * - @b -m @e int
+ *   - order of coefficients @f$(0 \le M)@f$
+ * - @b -g @e double
+ *   - gamma @f$(|\gamma| \le 1)@f$
+ * - @b -c @e double
+ *   - gamma @f$\gamma = -1 / C@f$ @f$(1 \le C)@f$
+ * - @b -w @e int
  *   - type of warning of unstable coefficients
- *     \arg \c 0 no warning
- *     \arg \c 1 output the index to stderr
- *     \arg \c 2 output the index to stderr and exit immediately
- * - \b infile \e str
+ *     \arg @c 0 no warning
+ *     \arg @c 1 output the index to stderr
+ *     \arg @c 2 output the index to stderr and exit immediately
+ * - @b infile @e str
  *   - double-type LPC coefficients
- * - \b stdout
+ * - @b stdout
  *   - double-type PARCOR coefficients
  *
- * The below example extract PARCOR coefficients from \c data.d
+ * The below example extracts PARCOR coefficients from @c data.d
  *
  * @code{.sh}
  *   frame < data.d | window | lpc | lpc2par > data.rc
@@ -229,7 +229,7 @@ int main(int argc, char* argv[]) {
     if (!linear_predictive_coefficients_to_parcor_coefficients.Run(
             &coefficients, &is_stable, &buffer)) {
       std::ostringstream error_message;
-      error_message << "Failed to transform linear predictive coefficients to "
+      error_message << "Failed to convert linear predictive coefficients to "
                     << "PARCOR coefficients";
       sptk::PrintErrorMessage("lpc2par", error_message);
       return 1;

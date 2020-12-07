@@ -68,7 +68,7 @@ teardown() {
    [ "$status" -eq 0 ]
 }
 
-@test "ulaw: reversiblity" {
+@test "ulaw: reversibility" {
    $sptk3/nrand -l 20 > tmp/1
    $sptk4/ulaw tmp/1 | $sptk4/iulaw > tmp/2
    run $sptk4/aeq tmp/1 tmp/2
@@ -77,6 +77,6 @@ teardown() {
 
 @test "ulaw: valgrind" {
    $sptk3/nrand -l 20 > tmp/1
-   run valgrind $sptk4/ulaw tmp/1 > /dev/null
+   run valgrind $sptk4/ulaw tmp/1
    [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
 }

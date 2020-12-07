@@ -61,7 +61,7 @@ teardown() {
    [ "$status" -eq 0 ]
 }
 
-@test "csm2acr: reversiblity" {
+@test "csm2acr: reversibility" {
    # Make fake CSM parameters.
    $sptk3/ramp -s 0.314 -l 5 -t 0.628 > tmp/1
    $sptk3/nrand -l 5 >> tmp/1
@@ -72,6 +72,6 @@ teardown() {
 
 @test "csm2acr: valgrind" {
    $sptk3/nrand -l 20 > tmp/1
-   run valgrind $sptk4/csm2acr -m 9 tmp/1 > /dev/null
+   run valgrind $sptk4/csm2acr -m 9 tmp/1
    [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
 }

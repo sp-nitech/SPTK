@@ -56,7 +56,7 @@ namespace sptk {
  * Calculate inverse DFT of real-valued input data.
  *
  * This is almost similar to RealValuedFastFourierTransform. The DFT results
- * are divided by FFT length \f$L\f$.
+ * are divided by FFT length @f$L@f$.
  */
 class RealValuedInverseFastFourierTransform {
  public:
@@ -79,13 +79,13 @@ class RealValuedInverseFastFourierTransform {
   };
 
   /**
-   * @param[in] fft_length FFT length, \f$L\f$.
+   * @param[in] fft_length FFT length, @f$L@f$.
    */
   explicit RealValuedInverseFastFourierTransform(int fft_length);
 
   /**
-   * @param[in] num_order Order of input, \f$M\f$.
-   * @param[in] fft_length FFT length, \f$L\f$.
+   * @param[in] num_order Order of input, @f$M@f$.
+   * @param[in] fft_length FFT length, @f$L@f$.
    */
   RealValuedInverseFastFourierTransform(int num_order, int fft_length);
 
@@ -107,7 +107,7 @@ class RealValuedInverseFastFourierTransform {
   }
 
   /**
-   * @return True if this obejct is valid.
+   * @return True if this object is valid.
    */
   bool IsValid() const {
     return fast_fourier_transform_.IsValid();

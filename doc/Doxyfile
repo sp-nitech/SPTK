@@ -269,7 +269,8 @@ TAB_SIZE               = 4
 # commands \{ and \} for these it is advised to use the version @{ and @} or use
 # a double escape (\\{ and \\})
 
-ALIASES                =
+ALIASES                = "rst=\verbatim embed:rst:leading-asterisk"
+ALIASES               += "endrst=\endverbatim"
 
 # Set the OPTIMIZE_OUTPUT_FOR_C tag to YES if your project consists of C sources
 # only. Doxygen will then generate output that is more tailored for C. For
@@ -848,26 +849,54 @@ INPUT                  = \
                          ../include/SPTK/analysis/adaptive_generalized_cepstral_analysis.h \
                          ../include/SPTK/analysis/adaptive_mel_cepstral_analysis.h \
                          ../include/SPTK/analysis/fast_fourier_transform_cepstral_analysis.h \
+                         ../include/SPTK/analysis/mel_filter_bank_analysis.h \
+                         ../include/SPTK/analysis/mel_frequency_cepstral_coefficients_analysis.h \
                          ../include/SPTK/analysis/pitch_extraction.h \
+                         ../include/SPTK/compression/inverse_multistage_vector_quantization.h \
+                         ../include/SPTK/compression/inverse_vector_quantization.h \
+                         ../include/SPTK/compression/linde_buzo_gray_algorithm.h \
                          ../include/SPTK/compression/mu_law_compression.h \
                          ../include/SPTK/compression/mu_law_expansion.h \
+                         ../include/SPTK/compression/multistage_vector_quantization.h \
+                         ../include/SPTK/compression/vector_quantization.h \
                          ../include/SPTK/conversion/cepstrum_to_autocorrelation.h \
                          ../include/SPTK/conversion/cepstrum_to_minimum_phase_impulse_response.h \
                          ../include/SPTK/conversion/composite_sinusoidal_modeling_to_autocorrelation.h \
+                         ../include/SPTK/conversion/filter_coefficients_to_group_delay.h \
+                         ../include/SPTK/conversion/filter_coefficients_to_phase_spectrum.h \
                          ../include/SPTK/conversion/generalized_cepstrum_gain_normalization.h \
                          ../include/SPTK/conversion/generalized_cepstrum_inverse_gain_normalization.h \
+                         ../include/SPTK/conversion/linear_predictive_coefficients_to_cepstrum.h \
                          ../include/SPTK/conversion/linear_predictive_coefficients_to_parcor_coefficients.h \
+                         ../include/SPTK/conversion/log_area_ratio_to_parcor_coefficients.h \
                          ../include/SPTK/conversion/mel_cepstrum_to_mlsa_digital_filter_coefficients.h \
+                         ../include/SPTK/conversion/mel_generalized_line_spectral_pairs_to_spectrum.h \
                          ../include/SPTK/conversion/mlsa_digital_filter_coefficients_to_mel_cepstrum.h \
                          ../include/SPTK/conversion/parcor_coefficients_to_linear_predictive_coefficients.h \
+                         ../include/SPTK/conversion/parcor_coefficients_to_log_area_ratio.h \
                          ../include/SPTK/conversion/waveform_to_autocorrelation.h \
                          ../include/SPTK/filter/all_pole_digital_filter.h \
+                         ../include/SPTK/filter/all_pole_lattice_digital_filter.h \
                          ../include/SPTK/filter/all_zero_digital_filter.h \
+                         ../include/SPTK/filter/infinite_impulse_response_digital_filter.h \
+                         ../include/SPTK/filter/inverse_pseudo_quadrature_mirror_filter_banks.h \
+                         ../include/SPTK/filter/line_spectral_pairs_digital_filter.h \
+                         ../include/SPTK/filter/pseudo_quadrature_mirror_filter_banks.h \
+                         ../include/SPTK/filter/second_order_digital_filter.h \
+                         ../include/SPTK/generation/m_sequence_generation.h \
+                         ../include/SPTK/generation/normal_distributed_random_value_generation.h \
+                         ../include/SPTK/generation/recursive_maximum_likelihood_parameter_generation.h \
+                         ../include/SPTK/math/entropy_calculation.h \
+                         ../include/SPTK/math/delta_calculation.h \
                          ../include/SPTK/math/fast_fourier_transform.h \
                          ../include/SPTK/math/frequency_transform.h \
                          ../include/SPTK/math/inverse_fast_fourier_transform.h \
+                         ../include/SPTK/math/levinson_durbin_recursion.h \
                          ../include/SPTK/math/real_valued_fast_fourier_transform.h \
                          ../include/SPTK/math/real_valued_inverse_fast_fourier_transform.h \
+                         ../include/SPTK/math/reverse_levinson_durbin_recursion.h \
+                         ../include/SPTK/utils/misc_utils.h \
+                         ../include/SPTK/window/data_windowing.h \
                          ../src/main/aeq.cc \
                          ../src/main/acorr.cc \
                          ../src/main/amgcep.cc \
@@ -875,23 +904,55 @@ INPUT                  = \
                          ../src/main/c2acr.cc \
                          ../src/main/c2mpir.cc \
                          ../src/main/csm2acr.cc \
+                         ../src/main/decimate.cc \
+                         ../src/main/delta.cc \
+                         ../src/main/df2.cc \
+                         ../src/main/dfs.cc \
+                         ../src/main/entropy.cc \
+                         ../src/main/fbank.cc \
                          ../src/main/fft.cc \
                          ../src/main/fftcep.cc \
                          ../src/main/fftr.cc \
+                         ../src/main/frame.cc \
                          ../src/main/freqt.cc \
                          ../src/main/gnorm.cc \
+                         ../src/main/grpdelay.cc \
                          ../src/main/ifft.cc \
                          ../src/main/ignorm.cc \
+                         ../src/main/impulse.cc \
+                         ../src/main/imsvq.cc \
+                         ../src/main/interpolate.cc \
+                         ../src/main/ipqmf.cc \
                          ../src/main/iulaw.cc \
+                         ../src/main/lar2par.cc \
+                         ../src/main/lbg.cc \
+                         ../src/main/levdur.cc \
+                         ../src/main/lpc.cc \
+                         ../src/main/lpc2c.cc \
                          ../src/main/lpc2par.cc \
+                         ../src/main/ltcdf.cc \
+                         ../src/main/lspdf.cc \
                          ../src/main/mc2b.cc \
+                         ../src/main/mfcc.cc \
+                         ../src/main/mglsp2sp.cc \
+                         ../src/main/mlpg.cc \
+                         ../src/main/mseq.cc \
+                         ../src/main/msvq.cc \
                          ../src/main/nan.cc \
+                         ../src/main/nrand.cc \
+                         ../src/main/par2lar.cc \
                          ../src/main/par2lpc.cc \
+                         ../src/main/phase.cc \
                          ../src/main/pitch.cc \
                          ../src/main/pitch_mark.cc \
                          ../src/main/poledf.cc \
+                         ../src/main/pqmf.cc \
+                         ../src/main/rlevdur.cc \
+                         ../src/main/step.cc \
                          ../src/main/ulaw.cc \
+                         ../src/main/window.cc \
                          ../src/main/zerodf.cc \
+                         ../src/utils/misc_utils.cc \
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -1209,7 +1270,7 @@ IGNORE_PREFIX          =
 # If the GENERATE_HTML tag is set to YES, doxygen will generate HTML output
 # The default value is: YES.
 
-GENERATE_HTML          = YES
+GENERATE_HTML          = NO
 
 # The HTML_OUTPUT tag is used to specify where the HTML docs will be put. If a
 # relative path is entered the value of OUTPUT_DIRECTORY will be put in front of

@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -44,9 +44,8 @@
 
 #include "SPTK/compression/multistage_vector_quantization.h"
 
-#include <algorithm>   // std::copy, std::transform
-#include <cstddef>     // std::size_t
-#include <functional>  // std::minus
+#include <algorithm>  // std::copy, std::transform
+#include <cstddef>    // std::size_t
 
 namespace sptk {
 
@@ -58,46 +57,49 @@ MultistageVectorQuantization::MultistageVectorQuantization(int num_order,
       is_valid_(true) {
   if (num_order_ < 0 || num_stage_ <= 0 || !vector_quantization_.IsValid()) {
     is_valid_ = false;
+    return;
   }
 }
 
 bool MultistageVectorQuantization::Run(
     const std::vector<double>& input_vector,
     const std::vector<std::vector<std::vector<double> > >& codebook_vectors,
-    std::vector<int>* codebook_index,
+    std::vector<int>* codebook_indices,
     MultistageVectorQuantization::Buffer* buffer) const {
-  if (!is_valid_ ||
-      input_vector.size() != static_cast<std::size_t>(num_order_ + 1) ||
+  // Check inputs.
+  const int length(num_order_ + 1);
+  if (!is_valid_ || input_vector.size() != static_cast<std::size_t>(length) ||
       codebook_vectors.size() != static_cast<std::size_t>(num_stage_) ||
-      NULL == codebook_index || NULL == buffer) {
+      NULL == codebook_indices || NULL == buffer) {
     return false;
   }
 
-  if (codebook_index->size() != static_cast<std::size_t>(num_stage_)) {
-    codebook_index->resize(num_stage_);
+  // Prepare memories.
+  if (codebook_indices->size() != static_cast<std::size_t>(num_stage_)) {
+    codebook_indices->resize(num_stage_);
   }
-  if (buffer->quantization_error_.size() !=
-      static_cast<std::size_t>(num_order_ + 1)) {
-    buffer->quantization_error_.resize(num_order_ + 1);
+  if (buffer->quantization_error_.size() != static_cast<std::size_t>(length)) {
+    buffer->quantization_error_.resize(length);
   }
 
-  int* stored_codebook_index(&((*codebook_index)[0]));
-
+  // Initialize quantization error.
   std::copy(input_vector.begin(), input_vector.end(),
             buffer->quantization_error_.begin());
 
-  for (int stage(0); stage < num_stage_; ++stage) {
-    int index;
+  for (int n(0); n < num_stage_; ++n) {
     if (!vector_quantization_.Run(buffer->quantization_error_,
-                                  codebook_vectors[stage], &index)) {
+                                  codebook_vectors[n],
+                                  &((*codebook_indices)[n]))) {
       return false;
     }
-    stored_codebook_index[stage] = index;
 
-    std::transform(buffer->quantization_error_.begin(),
-                   buffer->quantization_error_.end(),
-                   codebook_vectors[stage][index].begin(),
-                   buffer->quantization_error_.begin(), std::minus<double>());
+    if (n < num_stage_ - 1) {
+      std::transform(buffer->quantization_error_.begin(),
+                     buffer->quantization_error_.end(),
+                     codebook_vectors[n][(*codebook_indices)[n]].begin(),
+                     buffer->quantization_error_.begin(),
+                     [](double e, double c) { return e - c; });
+    }
   }
 
   return true;

@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -65,10 +66,10 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       decimate [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -s s  : start index        (   int)[" << std::setw(5) << std::right << kDefaultStartIndex       << "][ 0 <= s <=   ]" << std::endl;  // NOLINT
-  *stream << "       -l l  : length of vector   (   int)[" << std::setw(5) << std::right << kDefaultVectorLength     << "][ 0 <  l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : length of vector   (   int)[" << std::setw(5) << std::right << kDefaultVectorLength     << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -m m  : order of vector    (   int)[" << std::setw(5) << std::right << "l-1"                    << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -p p  : decimation period  (   int)[" << std::setw(5) << std::right << kDefaultDecimationPeriod << "][ 0 <  p <=   ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : start index        (   int)[" << std::setw(5) << std::right << kDefaultStartIndex       << "][ 0 <= s <=   ]" << std::endl;  // NOLINT
+  *stream << "       -p p  : decimation period  (   int)[" << std::setw(5) << std::right << kDefaultDecimationPeriod << "][ 1 <= p <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       data sequence              (double)[stdin]" << std::endl;
@@ -82,27 +83,58 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a decimate [ @e option ] [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - length of vector @f$(1 \le L)@f$
+ * - @b -m @e int
+ *   - order of vector @f$(0 \le M)@f$
+ * - @b -s @e int
+ *   - start index @f$(0 \le S)@f$
+ * - @b -p @e int
+ *   - decimation period @f$(1 \le P)@f$
+ * - @b infile @e str
+ *   - double-type data sequence
+ * - @b stdout
+ *   - double-type decimated data sequence
+ *
+ * The input is a sequence of @f$L@f$-dimensional vectors:
+ * @f[
+ *   \begin{array}{cccc}
+ *     \boldsymbol{x}(0), & \boldsymbol{x}(1), & \boldsymbol{x}(2), & \ldots,
+ *   \end{array}
+ * @f]
+ * where @f$L=M+1@f$. The output is the sequence resampled from the input:
+ * @f[
+ *   \begin{array}{cccc}
+ *     \boldsymbol{x}(S), & \boldsymbol{x}(S+P), & \boldsymbol{x}(S+2P), &
+ *     \ldots,
+ *   \end{array}
+ * @f]
+ * where @f$S@f$ is the start index and @f$P@f$ is the decimation factor.
+ *
+ * The following example decimates data in @c data.d while keeping their
+ * original indices.
+ *
+ * @code{.sh}
+ *   decimate -p 5 < data.d | interpolate -p 5 > data.dec
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int start_index(kDefaultStartIndex);
   int vector_length(kDefaultVectorLength);
   int decimation_period(kDefaultDecimationPeriod);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "s:l:m:p:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:s:p:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
-      case 's': {
-        if (!sptk::ConvertStringToInteger(optarg, &start_index) ||
-            start_index < 0) {
-          std::ostringstream error_message;
-          error_message << "The argument for the -s option must be a "
-                        << "non-negative integer";
-          sptk::PrintErrorMessage("decimate", error_message);
-          return 1;
-        }
-        break;
-      }
       case 'l': {
         if (!sptk::ConvertStringToInteger(optarg, &vector_length) ||
             vector_length <= 0) {
@@ -124,6 +156,17 @@ int main(int argc, char* argv[]) {
           return 1;
         }
         ++vector_length;
+        break;
+      }
+      case 's': {
+        if (!sptk::ConvertStringToInteger(optarg, &start_index) ||
+            start_index < 0) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -s option must be a "
+                        << "non-negative integer";
+          sptk::PrintErrorMessage("decimate", error_message);
+          return 1;
+        }
         break;
       }
       case 'p': {
@@ -148,7 +191,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -158,7 +200,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -171,7 +212,7 @@ int main(int argc, char* argv[]) {
 
   std::vector<double> input_data(vector_length);
 
-  // skip data
+  // Skip data.
   for (int sample_index(0); sample_index < start_index; ++sample_index) {
     if (!sptk::ReadStream(false, 0, 0, vector_length, &input_data,
                           &input_stream, NULL)) {
