@@ -957,6 +957,7 @@ INPUT                  = \
                          ../src/main/pqmf.cc \
                          ../src/main/rlevdur.cc \
                          ../src/main/step.cc \
+                         ../src/main/train.cc \
                          ../src/main/ulaw.cc \
                          ../src/main/window.cc \
                          ../src/main/zerodf.cc \

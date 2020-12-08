@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <cmath>     // std::sqrt
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cout, std::endl, etc.
@@ -89,6 +90,44 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a train [ @e option ]
+ *
+ * - @b -l @e int
+ *   - output length @f$(1 \le L)@f$
+ * - @b -m @e int
+ *   - output order @f$(0 \le L - 1)@f$
+ * - @b -p @e double
+ *   - frame period @f$(1 \le P)@f$
+ * - @b -n @e int
+ *   - normalization type @f$(0 \le N \le 2)@f$
+ *     \arg @c 0 none
+ *     \arg @c 1 power
+ *     \arg @c 2 magnitude
+ * - @b stdout
+ *   - double-type pulse sequence
+ *
+ * The output of this command is
+ * @f[
+ *   \begin{array}{cccc}
+ *     x(0), & x(1), & \ldots, & x(L-1)
+ *   \end{array}
+ * @f]
+ * where @f$x(l)@f$ is non-zero at every @f$P@f$ period.
+ * If @f$L@f$ is not given, an inifinite pulse sequence is generated.
+ *
+ * There are three kind of normalization types:
+ * @f{eqnarray}{
+ *   \sum_{l=0}^{P-1} x(l+a) &=& 1, \quad (N=0) \\
+ *   \frac{1}{P} \sum_{l=0}^{P-1} x^2(l+a) &=& 1, \quad (N=1) \\
+ *   \frac{1}{P} \sum_{l=0}^{P-1} x(l+a) &=& 1, \quad (N=2)
+ * @f}
+ * where @f$a@f$ is any index.
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int output_length(kMagicNumberForInfinity);
   double period(kDefaultPeriod);
@@ -166,10 +205,10 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  double pulse(1.0);
+  double pulse;
   switch (normalization_type) {
     case kNone: {
-      // nothing to do
+      pulse = 1.0;
       break;
     }
     case kPower: {
@@ -180,7 +219,7 @@ int main(int argc, char* argv[]) {
       pulse = period;
       break;
     }
-    default: { break; }
+    default: { return 1; }
   }
 
   const double frequency(1.0 / period);
