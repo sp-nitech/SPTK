@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -82,6 +83,22 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a ndps2c [ @e option ] [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - FFT length @f$(2 \le L)@f$
+ * - @b -m @e int
+ *   - order of cepstrum @f$(0 \le M \le L/2)@f$
+ * - @b infile @e str
+ *   - double-type NDPS
+ * - @b stdout
+ *   - double-type cepstrum
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int fft_length(kDefaultFftLength);
   int num_order(kDefaultNumOrder);
@@ -122,7 +139,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // check order
   const int half_fft_length(fft_length / 2);
   if (half_fft_length < num_order) {
     std::ostringstream error_message;
@@ -133,7 +149,6 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -143,7 +158,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -154,13 +168,13 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for transformation
   sptk::NegativeDerivativeOfPhaseSpectrumToCepstrum
       negative_derivative_of_phase_spectrum_to_cepstrum(fft_length, num_order);
   sptk::NegativeDerivativeOfPhaseSpectrumToCepstrum::Buffer buffer;
   if (!negative_derivative_of_phase_spectrum_to_cepstrum.IsValid()) {
     std::ostringstream error_message;
-    error_message << "FFT length must be a power of 2 and greater than 1";
+    error_message
+        << "Failed to initialize NegativeDerivativeOfPhaseSpectrumToCepstrum";
     sptk::PrintErrorMessage("ndps2c", error_message);
     return 1;
   }

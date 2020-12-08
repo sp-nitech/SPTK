@@ -861,6 +861,7 @@ INPUT                  = \
                          ../include/SPTK/compression/vector_quantization.h \
                          ../include/SPTK/conversion/cepstrum_to_autocorrelation.h \
                          ../include/SPTK/conversion/cepstrum_to_minimum_phase_impulse_response.h \
+                         ../include/SPTK/conversion/cepstrum_to_negative_derivative_of_phase_spectrum.h \
                          ../include/SPTK/conversion/composite_sinusoidal_modeling_to_autocorrelation.h \
                          ../include/SPTK/conversion/filter_coefficients_to_group_delay.h \
                          ../include/SPTK/conversion/filter_coefficients_to_phase_spectrum.h \
@@ -872,6 +873,7 @@ INPUT                  = \
                          ../include/SPTK/conversion/mel_cepstrum_to_mlsa_digital_filter_coefficients.h \
                          ../include/SPTK/conversion/mel_generalized_line_spectral_pairs_to_spectrum.h \
                          ../include/SPTK/conversion/mlsa_digital_filter_coefficients_to_mel_cepstrum.h \
+                         ../include/SPTK/conversion/negative_derivative_of_phase_spectrum_to_cepstrum.h \
                          ../include/SPTK/conversion/parcor_coefficients_to_linear_predictive_coefficients.h \
                          ../include/SPTK/conversion/parcor_coefficients_to_log_area_ratio.h \
                          ../include/SPTK/conversion/waveform_to_autocorrelation.h \
@@ -905,6 +907,7 @@ INPUT                  = \
                          ../src/main/b2mc.cc \
                          ../src/main/c2acr.cc \
                          ../src/main/c2mpir.cc \
+                         ../src/main/c2ndps.cc \
                          ../src/main/csm2acr.cc \
                          ../src/main/dct.cc \
                          ../src/main/decimate.cc \
@@ -943,6 +946,7 @@ INPUT                  = \
                          ../src/main/mseq.cc \
                          ../src/main/msvq.cc \
                          ../src/main/nan.cc \
+                         ../src/main/ndps2c.cc \
                          ../src/main/nrand.cc \
                          ../src/main/par2lar.cc \
                          ../src/main/par2lpc.cc \

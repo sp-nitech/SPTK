@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -86,7 +87,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       negative derivative of phase spectrum (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
   *stream << "       value of l must be a power of 2" << std::endl;
-  *stream << "       the output does not contain the information about c(0)" << std::endl;  // NOLINT
+  *stream << "       c(0) is not used in the calculation" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -95,6 +96,22 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a c2ndps [ @e option ] [ @e infile ]
+ *
+ * - @b -m @e int
+ *   - order of cepstrum @f$(0 \le M \le L/2)@f$
+ * - @b -l @e int
+ *   - FFT length @f$(2 \le L)@f$
+ * - @b infile @e str
+ *   - double-type cepstrum
+ * - @b stdout
+ *   - double-type NDPS
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   int fft_length(kDefaultFftLength);
@@ -151,7 +168,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // check order
   const int half_fft_length(fft_length / 2);
   if (half_fft_length < num_order) {
     std::ostringstream error_message;
@@ -162,7 +178,6 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -172,7 +187,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -183,13 +197,13 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for transformation
   sptk::CepstrumToNegativeDerivativeOfPhaseSpectrum
       cepstrum_to_negative_derivative_of_phase_spectrum(num_order, fft_length);
   sptk::CepstrumToNegativeDerivativeOfPhaseSpectrum::Buffer buffer;
   if (!cepstrum_to_negative_derivative_of_phase_spectrum.IsValid()) {
     std::ostringstream error_message;
-    error_message << "FFT length must be a power of 2 and greater than 1";
+    error_message
+        << "Failed to initialize CepstrumToNegativeDerivativeOfPhaseSpectrum";
     sptk::PrintErrorMessage("c2ndps", error_message);
     return 1;
   }

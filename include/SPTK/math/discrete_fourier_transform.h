@@ -70,7 +70,7 @@ namespace sptk {
  * @f]
  * They are computed as
  * @f[
- *   X(k) = \sum_{n=0}^{L-1} x(n) e^{-2\pi nk / L}.
+ *   X(k) = \sum_{n=0}^{L-1} x(n) e^{-j2\pi nk / L}.
  * @f]
  */
 class DiscreteFourierTransform {
