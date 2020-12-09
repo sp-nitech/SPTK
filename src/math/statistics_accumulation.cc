@@ -42,7 +42,7 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/math/statistics_accumulator.h"
+#include "SPTK/math/statistics_accumulation.h"
 
 #include <algorithm>   // std::copy, std::transform
 #include <cmath>       // std::sqrt
@@ -51,8 +51,8 @@
 
 namespace sptk {
 
-StatisticsAccumulator::StatisticsAccumulator(int num_order,
-                                             int num_statistics_order)
+StatisticsAccumulation::StatisticsAccumulation(int num_order,
+                                               int num_statistics_order)
     : num_order_(num_order),
       num_statistics_order_(num_statistics_order),
       is_valid_(true) {
@@ -62,8 +62,8 @@ StatisticsAccumulator::StatisticsAccumulator(int num_order,
   }
 }
 
-bool StatisticsAccumulator::GetNumData(
-    const StatisticsAccumulator::Buffer& buffer, int* num_data) const {
+bool StatisticsAccumulation::GetNumData(
+    const StatisticsAccumulation::Buffer& buffer, int* num_data) const {
   if (!is_valid_ || NULL == num_data) {
     return false;
   }
@@ -73,8 +73,9 @@ bool StatisticsAccumulator::GetNumData(
   return true;
 }
 
-bool StatisticsAccumulator::GetSum(const StatisticsAccumulator::Buffer& buffer,
-                                   std::vector<double>* sum) const {
+bool StatisticsAccumulation::GetSum(
+    const StatisticsAccumulation::Buffer& buffer,
+    std::vector<double>* sum) const {
   if (!is_valid_ || num_statistics_order_ < 1 || NULL == sum) {
     return false;
   }
@@ -89,8 +90,9 @@ bool StatisticsAccumulator::GetSum(const StatisticsAccumulator::Buffer& buffer,
   return true;
 }
 
-bool StatisticsAccumulator::GetMean(const StatisticsAccumulator::Buffer& buffer,
-                                    std::vector<double>* mean) const {
+bool StatisticsAccumulation::GetMean(
+    const StatisticsAccumulation::Buffer& buffer,
+    std::vector<double>* mean) const {
   if (!is_valid_ || num_statistics_order_ < 1 ||
       buffer.zeroth_order_statistics_ <= 0 || NULL == mean) {
     return false;
@@ -108,8 +110,8 @@ bool StatisticsAccumulator::GetMean(const StatisticsAccumulator::Buffer& buffer,
   return true;
 }
 
-bool StatisticsAccumulator::GetDiagonalCovariance(
-    const StatisticsAccumulator::Buffer& buffer,
+bool StatisticsAccumulation::GetDiagonalCovariance(
+    const StatisticsAccumulation::Buffer& buffer,
     std::vector<double>* diagonal_covariance) const {
   if (!is_valid_ || num_statistics_order_ < 2 ||
       buffer.zeroth_order_statistics_ <= 0 || NULL == diagonal_covariance) {
@@ -136,8 +138,8 @@ bool StatisticsAccumulator::GetDiagonalCovariance(
   return true;
 }
 
-bool StatisticsAccumulator::GetStandardDeviation(
-    const StatisticsAccumulator::Buffer& buffer,
+bool StatisticsAccumulation::GetStandardDeviation(
+    const StatisticsAccumulation::Buffer& buffer,
     std::vector<double>* standard_deviation) const {
   if (!is_valid_ || num_statistics_order_ < 2 || NULL == standard_deviation) {
     return false;
@@ -154,8 +156,8 @@ bool StatisticsAccumulator::GetStandardDeviation(
   return true;
 }
 
-bool StatisticsAccumulator::GetFullCovariance(
-    const StatisticsAccumulator::Buffer& buffer,
+bool StatisticsAccumulation::GetFullCovariance(
+    const StatisticsAccumulation::Buffer& buffer,
     SymmetricMatrix* full_covariance) const {
   if (!is_valid_ || num_statistics_order_ < 2 ||
       buffer.zeroth_order_statistics_ <= 0 || NULL == full_covariance) {
@@ -184,8 +186,8 @@ bool StatisticsAccumulator::GetFullCovariance(
   return true;
 }
 
-bool StatisticsAccumulator::GetCorrelation(
-    const StatisticsAccumulator::Buffer& buffer,
+bool StatisticsAccumulation::GetCorrelation(
+    const StatisticsAccumulation::Buffer& buffer,
     SymmetricMatrix* correlation) const {
   if (!is_valid_ || num_statistics_order_ < 2 || NULL == correlation) {
     return false;
@@ -209,12 +211,13 @@ bool StatisticsAccumulator::GetCorrelation(
   return true;
 }
 
-void StatisticsAccumulator::Clear(StatisticsAccumulator::Buffer* buffer) const {
+void StatisticsAccumulation::Clear(
+    StatisticsAccumulation::Buffer* buffer) const {
   if (!is_valid_ || NULL != buffer) buffer->Clear();
 }
 
-bool StatisticsAccumulator::Run(const std::vector<double>& data,
-                                StatisticsAccumulator::Buffer* buffer) const {
+bool StatisticsAccumulation::Run(const std::vector<double>& data,
+                                 StatisticsAccumulation::Buffer* buffer) const {
   // check inputs
   const int length(num_order_ + 1);
   if (!is_valid_ || data.size() != static_cast<std::size_t>(length) ||

@@ -49,7 +49,7 @@
 
 #include "SPTK/compression/vector_quantization.h"
 #include "SPTK/math/distance_calculation.h"
-#include "SPTK/math/statistics_accumulator.h"
+#include "SPTK/math/statistics_accumulation.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
@@ -213,7 +213,7 @@ class LindeBuzoGrayAlgorithm {
   const int seed_;
 
   const DistanceCalculation distance_calculation_;
-  const StatisticsAccumulator statistics_accumulator_;
+  const StatisticsAccumulation statistics_accumulation_;
   const VectorQuantization vector_quantization_;
 
   bool is_valid_;

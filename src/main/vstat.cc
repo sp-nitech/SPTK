@@ -50,7 +50,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/math/statistics_accumulator.h"
+#include "SPTK/math/statistics_accumulation.h"
 #include "SPTK/math/symmetric_matrix.h"
 #include "SPTK/utils/misc_utils.h"
 #include "SPTK/utils/sptk_utils.h"
@@ -107,15 +107,15 @@ void PrintUsage(std::ostream* stream) {
   // clang-format on
 }
 
-bool OutputStatistics(const sptk::StatisticsAccumulator& accumulator,
-                      const sptk::StatisticsAccumulator::Buffer& buffer,
+bool OutputStatistics(const sptk::StatisticsAccumulation& accumulation,
+                      const sptk::StatisticsAccumulation::Buffer& buffer,
                       int vector_length, OutputFormats output_format,
                       double confidence_level,
                       bool outputs_only_diagonal_elements) {
   if (kMeanAndCovariance == output_format || kMean == output_format ||
       kMeanAndLowerAndUpperBounds == output_format) {
     std::vector<double> mean(vector_length);
-    if (!accumulator.GetMean(buffer, &mean)) {
+    if (!accumulation.GetMean(buffer, &mean)) {
       return false;
     }
     if (!sptk::WriteStream(0, vector_length, mean, &std::cout, NULL)) {
@@ -126,7 +126,7 @@ bool OutputStatistics(const sptk::StatisticsAccumulator& accumulator,
   if (kMeanAndCovariance == output_format || kCovariance == output_format) {
     if (outputs_only_diagonal_elements) {
       std::vector<double> variance(vector_length);
-      if (!accumulator.GetDiagonalCovariance(buffer, &variance)) {
+      if (!accumulation.GetDiagonalCovariance(buffer, &variance)) {
         return false;
       }
       if (!sptk::WriteStream(0, vector_length, variance, &std::cout, NULL)) {
@@ -134,7 +134,7 @@ bool OutputStatistics(const sptk::StatisticsAccumulator& accumulator,
       }
     } else {
       sptk::SymmetricMatrix variance(vector_length);
-      if (!accumulator.GetFullCovariance(buffer, &variance)) {
+      if (!accumulation.GetFullCovariance(buffer, &variance)) {
         return false;
       }
       for (int i(0); i < vector_length; ++i) {
@@ -149,7 +149,7 @@ bool OutputStatistics(const sptk::StatisticsAccumulator& accumulator,
 
   if (kStandardDeviation == output_format) {
     std::vector<double> standard_deviation(vector_length);
-    if (!accumulator.GetStandardDeviation(buffer, &standard_deviation)) {
+    if (!accumulation.GetStandardDeviation(buffer, &standard_deviation)) {
       return false;
     }
     if (!sptk::WriteStream(0, vector_length, standard_deviation, &std::cout,
@@ -160,7 +160,7 @@ bool OutputStatistics(const sptk::StatisticsAccumulator& accumulator,
 
   if (kCorrelation == output_format) {
     sptk::SymmetricMatrix correlation(vector_length);
-    if (!accumulator.GetCorrelation(buffer, &correlation)) {
+    if (!accumulation.GetCorrelation(buffer, &correlation)) {
       return false;
     }
     for (int i(0); i < vector_length; ++i) {
@@ -174,7 +174,7 @@ bool OutputStatistics(const sptk::StatisticsAccumulator& accumulator,
 
   if (kPrecision == output_format) {
     sptk::SymmetricMatrix variance(vector_length);
-    if (!accumulator.GetFullCovariance(buffer, &variance)) {
+    if (!accumulation.GetFullCovariance(buffer, &variance)) {
       return false;
     }
 
@@ -202,7 +202,7 @@ bool OutputStatistics(const sptk::StatisticsAccumulator& accumulator,
 
   if (kMeanAndLowerAndUpperBounds == output_format) {
     int num_vector;
-    if (!accumulator.GetNumData(buffer, &num_vector)) {
+    if (!accumulation.GetNumData(buffer, &num_vector)) {
       return false;
     }
 
@@ -217,10 +217,10 @@ bool OutputStatistics(const sptk::StatisticsAccumulator& accumulator,
     }
     std::vector<double> mean(vector_length);
     std::vector<double> variance(vector_length);
-    if (!accumulator.GetMean(buffer, &mean)) {
+    if (!accumulation.GetMean(buffer, &mean)) {
       return false;
     }
-    if (!accumulator.GetDiagonalCovariance(buffer, &variance)) {
+    if (!accumulation.GetDiagonalCovariance(buffer, &variance)) {
       return false;
     }
 
@@ -353,9 +353,9 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  sptk::StatisticsAccumulator accumulator(vector_length - 1, 2);
-  sptk::StatisticsAccumulator::Buffer buffer;
-  if (!accumulator.IsValid()) {
+  sptk::StatisticsAccumulation accumulation(vector_length - 1, 2);
+  sptk::StatisticsAccumulation::Buffer buffer;
+  if (!accumulation.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for accumulation";
     sptk::PrintErrorMessage("vstat", error_message);
@@ -366,7 +366,7 @@ int main(int argc, char* argv[]) {
   for (int vector_index(1);
        sptk::ReadStream(false, 0, 0, vector_length, &data, &input_stream, NULL);
        ++vector_index) {
-    if (!accumulator.Run(data, &buffer)) {
+    if (!accumulation.Run(data, &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to accumulate statistics";
       sptk::PrintErrorMessage("vstat", error_message);
@@ -375,19 +375,19 @@ int main(int argc, char* argv[]) {
 
     if (kMagicNumberForEndOfFile != output_interval &&
         0 == vector_index % output_interval) {
-      if (!OutputStatistics(accumulator, buffer, vector_length, output_format,
+      if (!OutputStatistics(accumulation, buffer, vector_length, output_format,
                             confidence_level, outputs_only_diagonal_elements)) {
         std::ostringstream error_message;
         error_message << "Failed to write statistics";
         sptk::PrintErrorMessage("vstat", error_message);
         return 1;
       }
-      accumulator.Clear(&buffer);
+      accumulation.Clear(&buffer);
     }
   }
 
   int num_actual_vector;
-  if (!accumulator.GetNumData(buffer, &num_actual_vector)) {
+  if (!accumulation.GetNumData(buffer, &num_actual_vector)) {
     std::ostringstream error_message;
     error_message << "Failed to accumulate statistics";
     sptk::PrintErrorMessage("vstat", error_message);
@@ -395,7 +395,7 @@ int main(int argc, char* argv[]) {
   }
 
   if (kMagicNumberForEndOfFile == output_interval && 0 < num_actual_vector) {
-    if (!OutputStatistics(accumulator, buffer, vector_length, output_format,
+    if (!OutputStatistics(accumulation, buffer, vector_length, output_format,
                           confidence_level, outputs_only_diagonal_elements)) {
       std::ostringstream error_message;
       error_message << "Failed to write statistics";

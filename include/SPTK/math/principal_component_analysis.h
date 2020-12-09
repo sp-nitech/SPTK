@@ -48,7 +48,7 @@
 #include <vector>  // std::vector
 
 #include "SPTK/math/matrix.h"
-#include "SPTK/math/statistics_accumulator.h"
+#include "SPTK/math/statistics_accumulation.h"
 #include "SPTK/math/symmetric_matrix.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -64,9 +64,10 @@ class PrincipalComponentAnalysis {
     }
 
    private:
-    StatisticsAccumulator::Buffer accumulator_buffer_;
+    StatisticsAccumulation::Buffer buffer_for_accumulation;
     SymmetricMatrix a_;
-    std::vector<int> eigenvalue_order_;
+    std::vector<int> order_of_eigenvalue_;
+
     friend class PrincipalComponentAnalysis;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
@@ -102,7 +103,7 @@ class PrincipalComponentAnalysis {
   //
   bool Run(const std::vector<std::vector<double> >& input_vectors,
            std::vector<double>* mean_vector, std::vector<double>* eigenvalues,
-           Matrix* eigenvector_matrix,
+           Matrix* eigenvectors,
            PrincipalComponentAnalysis::Buffer* buffer) const;
 
  private:
@@ -116,7 +117,7 @@ class PrincipalComponentAnalysis {
   const double convergence_threshold_;
 
   //
-  const StatisticsAccumulator accumulator_;
+  const StatisticsAccumulation accumulation_;
 
   //
   bool is_valid_;

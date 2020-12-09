@@ -51,7 +51,7 @@
 #include <vector>    // std::vector
 
 #include "SPTK/compression/linde_buzo_gray_algorithm.h"
-#include "SPTK/math/statistics_accumulator.h"
+#include "SPTK/math/statistics_accumulation.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -295,11 +295,11 @@ int main(int argc, char* argv[]) {
 
   std::vector<std::vector<double> > codebook_vectors;
   if (NULL == initial_codebook_file) {
-    sptk::StatisticsAccumulator statistics_accumulator(num_order, 1);
-    sptk::StatisticsAccumulator::Buffer buffer;
+    sptk::StatisticsAccumulation statistics_accumulation(num_order, 1);
+    sptk::StatisticsAccumulation::Buffer buffer;
     for (std::vector<std::vector<double> >::iterator itr(input_vectors.begin());
          itr != input_vectors.end(); ++itr) {
-      if (!statistics_accumulator.Run(*itr, &buffer)) {
+      if (!statistics_accumulation.Run(*itr, &buffer)) {
         std::ostringstream error_message;
         error_message << "Failed to initialize codebook";
         sptk::PrintErrorMessage("lbg", error_message);
@@ -308,7 +308,7 @@ int main(int argc, char* argv[]) {
     }
 
     std::vector<double> mean(length);
-    if (!statistics_accumulator.GetMean(buffer, &mean)) {
+    if (!statistics_accumulation.GetMean(buffer, &mean)) {
       std::ostringstream error_message;
       error_message << "Failed to initialize codebook";
       sptk::PrintErrorMessage("lbg", error_message);

@@ -66,14 +66,14 @@ LindeBuzoGrayAlgorithm::LindeBuzoGrayAlgorithm(
       seed_(seed),
       distance_calculation_(
           num_order_, DistanceCalculation::DistanceMetrics::kSquaredEuclidean),
-      statistics_accumulator_(num_order_, 1),
+      statistics_accumulation_(num_order_, 1),
       vector_quantization_(num_order_),
       is_valid_(true) {
   if (num_order_ < 0 || initial_codebook_size_ <= 0 ||
       target_codebook_size_ <= initial_codebook_size_ ||
       min_num_vector_in_cluster_ <= 0 || num_iteration_ <= 0 ||
       convergence_threshold_ < 0.0 || splitting_factor_ <= 0.0 ||
-      !distance_calculation_.IsValid() || !statistics_accumulator_.IsValid() ||
+      !distance_calculation_.IsValid() || !statistics_accumulation_.IsValid() ||
       !vector_quantization_.IsValid()) {
     is_valid_ = false;
     return;
@@ -98,7 +98,7 @@ bool LindeBuzoGrayAlgorithm::Run(
   if (codebook_indices->size() != static_cast<std::size_t>(num_input_vector)) {
     codebook_indices->resize(num_input_vector);
   }
-  std::vector<StatisticsAccumulator::Buffer> buffers(target_codebook_size_);
+  std::vector<StatisticsAccumulation::Buffer> buffers(target_codebook_size_);
 
   // Prepare random value generator.
   NormalDistributedRandomValueGeneration random_value_generation(seed_);
@@ -136,7 +136,7 @@ bool LindeBuzoGrayAlgorithm::Run(
       // Initialize.
       double total_distance(0.0);
       for (int i(0); i < current_codebook_size; ++i) {
-        statistics_accumulator_.Clear(&(buffers[i]));
+        statistics_accumulation_.Clear(&(buffers[i]));
       }
 
       // Accumulate statistics (E-step).
@@ -148,7 +148,8 @@ bool LindeBuzoGrayAlgorithm::Run(
         }
         (*codebook_indices)[t] = index;
 
-        if (!statistics_accumulator_.Run(input_vectors[t], &(buffers[index]))) {
+        if (!statistics_accumulation_.Run(input_vectors[t],
+                                          &(buffers[index]))) {
           return false;
         }
 
@@ -174,7 +175,7 @@ bool LindeBuzoGrayAlgorithm::Run(
       int max_num_vector_in_cluster(0);
       for (int i(0); i < current_codebook_size; ++i) {
         int num_vector;
-        if (!statistics_accumulator_.GetNumData(buffers[i], &num_vector)) {
+        if (!statistics_accumulation_.GetNumData(buffers[i], &num_vector)) {
           return false;
         }
 
@@ -185,8 +186,8 @@ bool LindeBuzoGrayAlgorithm::Run(
 
         // Update if the cluster contains enough data.
         if (min_num_vector_in_cluster_ <= num_vector) {
-          if (!statistics_accumulator_.GetMean(buffers[i],
-                                               &((*codebook_vectors)[i]))) {
+          if (!statistics_accumulation_.GetMean(buffers[i],
+                                                &((*codebook_vectors)[i]))) {
             return false;
           }
         }
@@ -195,7 +196,7 @@ bool LindeBuzoGrayAlgorithm::Run(
       // Update the remaining centroids.
       for (int i(0); i < current_codebook_size; ++i) {
         int num_vector;
-        if (!statistics_accumulator_.GetNumData(buffers[i], &num_vector)) {
+        if (!statistics_accumulation_.GetNumData(buffers[i], &num_vector)) {
           return false;
         }
 

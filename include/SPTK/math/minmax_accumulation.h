@@ -42,8 +42,8 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_MATH_MINMAX_ACCUMULATOR_H_
-#define SPTK_MATH_MINMAX_ACCUMULATOR_H_
+#ifndef SPTK_MATH_MINMAX_ACCUMULATION_H_
+#define SPTK_MATH_MINMAX_ACCUMULATION_H_
 
 #include <list>     // std::list
 #include <utility>  // std::pair
@@ -52,7 +52,7 @@
 
 namespace sptk {
 
-class MinMaxAccumulator {
+class MinMaxAccumulation {
  public:
   class Buffer {
    public:
@@ -71,15 +71,15 @@ class MinMaxAccumulator {
     int position_;
     std::list<std::pair<int, double> > minimum_;
     std::list<std::pair<int, double> > maximum_;
-    friend class MinMaxAccumulator;
+    friend class MinMaxAccumulation;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
 
   //
-  explicit MinMaxAccumulator(int num_best);
+  explicit MinMaxAccumulation(int num_best);
 
   //
-  virtual ~MinMaxAccumulator() {
+  virtual ~MinMaxAccumulation() {
   }
 
   //
@@ -93,18 +93,18 @@ class MinMaxAccumulator {
   }
 
   //
-  bool GetMinimum(const MinMaxAccumulator::Buffer& buffer, int rank,
+  bool GetMinimum(const MinMaxAccumulation::Buffer& buffer, int rank,
                   int* position, double* value) const;
 
   //
-  bool GetMaximum(const MinMaxAccumulator::Buffer& buffer, int rank,
+  bool GetMaximum(const MinMaxAccumulation::Buffer& buffer, int rank,
                   int* position, double* value) const;
 
   //
-  void Clear(MinMaxAccumulator::Buffer* buffer) const;
+  void Clear(MinMaxAccumulation::Buffer* buffer) const;
 
   //
-  bool Run(double data, MinMaxAccumulator::Buffer* buffer) const;
+  bool Run(double data, MinMaxAccumulation::Buffer* buffer) const;
 
  private:
   //
@@ -114,9 +114,9 @@ class MinMaxAccumulator {
   bool is_valid_;
 
   //
-  DISALLOW_COPY_AND_ASSIGN(MinMaxAccumulator);
+  DISALLOW_COPY_AND_ASSIGN(MinMaxAccumulation);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_MATH_MINMAX_ACCUMULATOR_H_
+#endif  // SPTK_MATH_MINMAX_ACCUMULATION_H_

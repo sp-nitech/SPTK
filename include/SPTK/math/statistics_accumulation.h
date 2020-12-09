@@ -42,8 +42,8 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_MATH_STATISTICS_ACCUMULATOR_H_
-#define SPTK_MATH_STATISTICS_ACCUMULATOR_H_
+#ifndef SPTK_MATH_STATISTICS_ACCUMULATION_H_
+#define SPTK_MATH_STATISTICS_ACCUMULATION_H_
 
 #include <algorithm>  // std::fill
 #include <vector>     // std::vector
@@ -53,7 +53,7 @@
 
 namespace sptk {
 
-class StatisticsAccumulator {
+class StatisticsAccumulation {
  public:
   class Buffer {
    public:
@@ -73,15 +73,15 @@ class StatisticsAccumulator {
     int zeroth_order_statistics_;
     std::vector<double> first_order_statistics_;
     SymmetricMatrix second_order_statistics_;
-    friend class StatisticsAccumulator;
+    friend class StatisticsAccumulation;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
 
   //
-  StatisticsAccumulator(int num_order, int num_statistics_order);
+  StatisticsAccumulation(int num_order, int num_statistics_order);
 
   //
-  virtual ~StatisticsAccumulator() {
+  virtual ~StatisticsAccumulation() {
   }
 
   //
@@ -100,39 +100,39 @@ class StatisticsAccumulator {
   }
 
   //
-  bool GetNumData(const StatisticsAccumulator::Buffer& buffer,
+  bool GetNumData(const StatisticsAccumulation::Buffer& buffer,
                   int* num_data) const;
 
   //
-  bool GetSum(const StatisticsAccumulator::Buffer& buffer,
+  bool GetSum(const StatisticsAccumulation::Buffer& buffer,
               std::vector<double>* sum) const;
 
   //
-  bool GetMean(const StatisticsAccumulator::Buffer& buffer,
+  bool GetMean(const StatisticsAccumulation::Buffer& buffer,
                std::vector<double>* mean) const;
 
   //
-  bool GetDiagonalCovariance(const StatisticsAccumulator::Buffer& buffer,
+  bool GetDiagonalCovariance(const StatisticsAccumulation::Buffer& buffer,
                              std::vector<double>* variance) const;
 
   //
-  bool GetStandardDeviation(const StatisticsAccumulator::Buffer& buffer,
+  bool GetStandardDeviation(const StatisticsAccumulation::Buffer& buffer,
                             std::vector<double>* standard_deviation) const;
 
   //
-  bool GetFullCovariance(const StatisticsAccumulator::Buffer& buffer,
+  bool GetFullCovariance(const StatisticsAccumulation::Buffer& buffer,
                          SymmetricMatrix* full_covariance) const;
 
   //
-  bool GetCorrelation(const StatisticsAccumulator::Buffer& buffer,
+  bool GetCorrelation(const StatisticsAccumulation::Buffer& buffer,
                       SymmetricMatrix* correlation) const;
 
   //
-  void Clear(StatisticsAccumulator::Buffer* buffer) const;
+  void Clear(StatisticsAccumulation::Buffer* buffer) const;
 
   //
   bool Run(const std::vector<double>& data,
-           StatisticsAccumulator::Buffer* buffer) const;
+           StatisticsAccumulation::Buffer* buffer) const;
 
  private:
   //
@@ -145,9 +145,9 @@ class StatisticsAccumulator {
   bool is_valid_;
 
   //
-  DISALLOW_COPY_AND_ASSIGN(StatisticsAccumulator);
+  DISALLOW_COPY_AND_ASSIGN(StatisticsAccumulation);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_MATH_STATISTICS_ACCUMULATOR_H_
+#endif  // SPTK_MATH_STATISTICS_ACCUMULATION_H_

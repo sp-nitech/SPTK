@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -56,60 +56,55 @@ PrincipalComponentAnalysis::PrincipalComponentAnalysis(
     : num_order_(num_order),
       num_iteration_(num_iteration),
       convergence_threshold_(convergence_threshold),
-      accumulator_(num_order, 2),
+      accumulation_(num_order, 2),
       is_valid_(true) {
   if (num_order_ < 0 || num_iteration_ <= 0 || convergence_threshold_ < 0.0 ||
-      !accumulator_.IsValid()) {
+      !accumulation_.IsValid()) {
     is_valid_ = false;
+    return;
   }
 }
 
 bool PrincipalComponentAnalysis::Run(
     const std::vector<std::vector<double> >& input_vectors,
     std::vector<double>* mean_vector, std::vector<double>* eigenvalues,
-    Matrix* eigenvector_matrix,
-    PrincipalComponentAnalysis::Buffer* buffer) const {
+    Matrix* eigenvectors, PrincipalComponentAnalysis::Buffer* buffer) const {
+  // Check inputs.
   if (!is_valid_ || NULL == mean_vector || NULL == eigenvalues ||
-      NULL == eigenvector_matrix || NULL == buffer) {
+      NULL == eigenvectors || NULL == buffer) {
     return false;
   }
 
-  // prepare memory
+  // Prepare memories.
   const int length(num_order_ + 1);
-  if (eigenvector_matrix->GetNumRow() != length ||
-      eigenvector_matrix->GetNumColumn() != length) {
-    eigenvector_matrix->Resize(length, length);
-  }
   if (eigenvalues->size() != static_cast<std::size_t>(length)) {
     eigenvalues->resize(length);
   }
-  if (buffer->eigenvalue_order_.size() != static_cast<std::size_t>(length)) {
-    buffer->eigenvalue_order_.resize(length);
+  if (eigenvectors->GetNumRow() != length ||
+      eigenvectors->GetNumColumn() != length) {
+    eigenvectors->Resize(length, length);
+  }
+  if (buffer->order_of_eigenvalue_.size() != static_cast<std::size_t>(length)) {
+    buffer->order_of_eigenvalue_.resize(length);
   }
 
-  // calculate statistics
-  accumulator_.Clear(&buffer->accumulator_buffer_);
-  for (std::vector<double> input_vector : input_vectors) {
-    if (!accumulator_.Run(input_vector, &buffer->accumulator_buffer_)) {
+  // Calculate statistics.
+  accumulation_.Clear(&buffer->buffer_for_accumulation);
+  for (const std::vector<double>& input_vector : input_vectors) {
+    if (!accumulation_.Run(input_vector, &buffer->buffer_for_accumulation)) {
       return false;
     }
   }
-  if (!accumulator_.GetMean(buffer->accumulator_buffer_, mean_vector)) {
-    return false;
-  }
-  if (!accumulator_.GetFullCovariance(buffer->accumulator_buffer_,
-                                      &buffer->a_)) {
+  if (!accumulation_.GetMean(buffer->buffer_for_accumulation, mean_vector) ||
+      !accumulation_.GetFullCovariance(buffer->buffer_for_accumulation,
+                                       &buffer->a_)) {
     return false;
   }
 
-  // initialize with identity matrix
-  for (int i(0); i < length; ++i) {
-    for (int j(0); j < length; ++j) {
-      (*eigenvector_matrix)[i][j] = (i == j) ? 1.0 : 0.0;
-    }
-  }
+  // Initialize eigenvector matrix with identity matrix.
+  eigenvectors->FillDiagonal(1.0);
 
-  // solve a set of linear equations using Jacobi iterative method
+  // Solve a set of linear equations using Jacobi iterative method.
   for (int n(0); n < num_iteration_; ++n) {
     int p(0);
     int q(0);
@@ -136,20 +131,20 @@ bool PrincipalComponentAnalysis::Run(
 
     const double t1(std::fabs(a_pp - a_qq));
     const double t2(2.0 * a_pq);
-    // the following equation can be derived from
+    // The following equation can be derived from
     //   theta = 1/2 * atan(2 * a_pq / (a_pp - a_qq)),
-    // using the double-angle formulas and the quadratic formula
+    // using the double-angle formulas and the quadratic formula.
     const double tan_theta(t2 / (t1 + std::sqrt(t1 * t1 + t2 * t2)));
     const double cos_theta(std::sqrt(1.0 / (tan_theta * tan_theta + 1.0)));
     const double sin_theta((a_pp < a_qq) ? tan_theta * cos_theta
                                          : -tan_theta * cos_theta);
 
-    // update eigenvectors
+    // Update eigenvectors.
     for (int i(0); i < length; ++i) {
-      const double w1((*eigenvector_matrix)[p][i]);
-      const double w2((*eigenvector_matrix)[q][i]);
-      (*eigenvector_matrix)[p][i] = w1 * cos_theta - w2 * sin_theta;
-      (*eigenvector_matrix)[q][i] = w1 * sin_theta + w2 * cos_theta;
+      const double w1((*eigenvectors)[p][i]);
+      const double w2((*eigenvectors)[q][i]);
+      (*eigenvectors)[p][i] = w1 * cos_theta - w2 * sin_theta;
+      (*eigenvectors)[q][i] = w1 * sin_theta + w2 * cos_theta;
     }
 
     for (int i(0); i < length; ++i) {
@@ -167,32 +162,31 @@ bool PrincipalComponentAnalysis::Run(
     buffer->a_[p][q] = 0.0;
   }
 
-  // sort eigenvalues in descending order
-  std::iota(buffer->eigenvalue_order_.begin(), buffer->eigenvalue_order_.end(),
-            0);
+  // Sort eigenvalues in descending order.
+  std::iota(buffer->order_of_eigenvalue_.begin(),
+            buffer->order_of_eigenvalue_.end(), 0);
   std::sort(
-      buffer->eigenvalue_order_.begin(), buffer->eigenvalue_order_.end(),
+      buffer->order_of_eigenvalue_.begin(), buffer->order_of_eigenvalue_.end(),
       [&buffer](int i, int j) { return buffer->a_[j][j] < buffer->a_[i][i]; });
   for (int i(0); i < length; ++i) {
-    (*eigenvalues)[i] =
-        buffer->a_[buffer->eigenvalue_order_[i]][buffer->eigenvalue_order_[i]];
+    const int j(buffer->order_of_eigenvalue_[i]);
+    (*eigenvalues)[i] = buffer->a_[j][j];
   }
 
-  // swap eigenvectors
+  // Swap eigenvectors.
   for (int i(0); i < num_order_; ++i) {
     int index(i);
-    while (index < length) {
-      if (buffer->eigenvalue_order_[index] == i) {
-        buffer->eigenvalue_order_[index] = buffer->eigenvalue_order_[i];
+    for (; index < length; ++index) {
+      if (buffer->order_of_eigenvalue_[index] == i) {
+        buffer->order_of_eigenvalue_[index] = buffer->order_of_eigenvalue_[i];
         break;
       }
-      ++index;
     }
 
-    const int j(buffer->eigenvalue_order_[index]);
+    const int j(buffer->order_of_eigenvalue_[index]);
     if (j != i) {
       for (int k(0); k < length; ++k) {
-        std::swap((*eigenvector_matrix)[j][k], (*eigenvector_matrix)[i][k]);
+        std::swap((*eigenvectors)[j][k], (*eigenvectors)[i][k]);
       }
     }
   }

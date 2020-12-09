@@ -49,7 +49,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/math/minmax_accumulator.h"
+#include "SPTK/math/minmax_accumulation.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -107,8 +107,8 @@ void PrintUsage(std::ostream* stream) {
 }
 
 bool WriteMinMaxValues(
-    const sptk::MinMaxAccumulator& minmax_accumulator,
-    const std::vector<sptk::MinMaxAccumulator::Buffer>& buffer, int num_best,
+    const sptk::MinMaxAccumulation& minmax_accumulation,
+    const std::vector<sptk::MinMaxAccumulation::Buffer>& buffer, int num_best,
     OutputFormats output_format, std::ostream* stream_for_position) {
   const int vector_length(buffer.size());
 
@@ -117,8 +117,8 @@ bool WriteMinMaxValues(
       for (int vector_index(0); vector_index < vector_length; ++vector_index) {
         int position;
         double value;
-        if (!minmax_accumulator.GetMinimum(buffer[vector_index], rank,
-                                           &position, &value)) {
+        if (!minmax_accumulation.GetMinimum(buffer[vector_index], rank,
+                                            &position, &value)) {
           return false;
         }
         if (NULL != stream_for_position &&
@@ -137,8 +137,8 @@ bool WriteMinMaxValues(
       for (int vector_index(0); vector_index < vector_length; ++vector_index) {
         int position;
         double value;
-        if (!minmax_accumulator.GetMaximum(buffer[vector_index], rank,
-                                           &position, &value)) {
+        if (!minmax_accumulation.GetMaximum(buffer[vector_index], rank,
+                                            &position, &value)) {
           return false;
         }
         if (NULL != stream_for_position &&
@@ -292,10 +292,10 @@ int main(int argc, char* argv[]) {
                                                             : &output_stream);
 
   // prepare for finding values
-  sptk::MinMaxAccumulator minmax_accumulator(num_best);
-  std::vector<sptk::MinMaxAccumulator::Buffer> buffer(
+  sptk::MinMaxAccumulation minmax_accumulation(num_best);
+  std::vector<sptk::MinMaxAccumulation::Buffer> buffer(
       kFindValueFromVector == way_to_find_value ? 1 : num_order + 1);
-  if (!minmax_accumulator.IsValid()) {
+  if (!minmax_accumulation.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for finding values";
     sptk::PrintErrorMessage("minmax", error_message);
@@ -309,29 +309,29 @@ int main(int argc, char* argv[]) {
     while (sptk::ReadStream(false, 0, 0, vector_length, &data, &input_stream,
                             NULL)) {
       for (int vector_index(0); vector_index < vector_length; ++vector_index) {
-        if (!minmax_accumulator.Run(data[vector_index], &buffer[0])) {
+        if (!minmax_accumulation.Run(data[vector_index], &buffer[0])) {
           std::ostringstream error_message;
           error_message << "Failed to find values";
           sptk::PrintErrorMessage("minmax", error_message);
           return 1;
         }
       }
-      if (!WriteMinMaxValues(minmax_accumulator, buffer, num_best,
+      if (!WriteMinMaxValues(minmax_accumulation, buffer, num_best,
                              output_format, output_stream_pointer)) {
         std::ostringstream error_message;
         error_message << "Failed to write values";
         sptk::PrintErrorMessage("minmax", error_message);
         return 1;
       }
-      minmax_accumulator.Clear(&buffer[0]);
+      minmax_accumulation.Clear(&buffer[0]);
     }
   } else if (kFindValueFromVectorSequenceForEachDimension ==
              way_to_find_value) {
     while (sptk::ReadStream(false, 0, 0, vector_length, &data, &input_stream,
                             NULL)) {
       for (int vector_index(0); vector_index < vector_length; ++vector_index) {
-        if (!minmax_accumulator.Run(data[vector_index],
-                                    &buffer[vector_index])) {
+        if (!minmax_accumulation.Run(data[vector_index],
+                                     &buffer[vector_index])) {
           std::ostringstream error_message;
           error_message << "Failed to find values";
           sptk::PrintErrorMessage("minmax", error_message);
@@ -339,7 +339,7 @@ int main(int argc, char* argv[]) {
         }
       }
     }
-    if (!WriteMinMaxValues(minmax_accumulator, buffer, num_best, output_format,
+    if (!WriteMinMaxValues(minmax_accumulation, buffer, num_best, output_format,
                            output_stream_pointer)) {
       std::ostringstream error_message;
       error_message << "Failed to write values";

@@ -51,7 +51,7 @@
 #include <vector>    // std::vector
 
 #include "SPTK/math/distance_calculation.h"
-#include "SPTK/math/statistics_accumulator.h"
+#include "SPTK/math/statistics_accumulation.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -185,12 +185,12 @@ int main(int argc, char* argv[]) {
   }
   std::istream& stream_for_cepstrum2(ifs2.fail() ? std::cin : ifs2);
 
-  sptk::StatisticsAccumulator statistics_accumulator(0, 1);
-  sptk::StatisticsAccumulator::Buffer buffer;
+  sptk::StatisticsAccumulation statistics_accumulation(0, 1);
+  sptk::StatisticsAccumulation::Buffer buffer;
   sptk::DistanceCalculation distance_calculation(
       num_order - 1,
       sptk::DistanceCalculation::DistanceMetrics::kSquaredEuclidean);
-  if (!statistics_accumulator.IsValid() || !distance_calculation.IsValid()) {
+  if (!statistics_accumulation.IsValid() || !distance_calculation.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for calculation";
     sptk::PrintErrorMessage("cdist", error_message);
@@ -236,7 +236,8 @@ int main(int argc, char* argv[]) {
         return 1;
       }
     } else {
-      if (!statistics_accumulator.Run(std::vector<double>{distance}, &buffer)) {
+      if (!statistics_accumulation.Run(std::vector<double>{distance},
+                                       &buffer)) {
         std::ostringstream error_message;
         error_message << "Failed to accumulate statistics";
         sptk::PrintErrorMessage("cdist", error_message);
@@ -246,7 +247,7 @@ int main(int argc, char* argv[]) {
   }
 
   int num_data;
-  if (!statistics_accumulator.GetNumData(buffer, &num_data)) {
+  if (!statistics_accumulation.GetNumData(buffer, &num_data)) {
     std::ostringstream error_message;
     error_message << "Failed to accumulate statistics";
     sptk::PrintErrorMessage("cdist", error_message);
@@ -255,7 +256,7 @@ int main(int argc, char* argv[]) {
 
   if (!output_frame_by_frame && 0 < num_data) {
     std::vector<double> average_distance(1);
-    if (!statistics_accumulator.GetMean(buffer, &average_distance)) {
+    if (!statistics_accumulation.GetMean(buffer, &average_distance)) {
       std::ostringstream error_message;
       error_message << "Failed to calculate distance";
       sptk::PrintErrorMessage("cdist", error_message);
