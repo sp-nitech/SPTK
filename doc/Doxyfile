@@ -896,6 +896,7 @@ INPUT                  = \
                          ../include/SPTK/math/inverse_discrete_cosine_transform.h \
                          ../include/SPTK/math/inverse_fast_fourier_transform.h \
                          ../include/SPTK/math/levinson_durbin_recursion.h \
+                         ../include/SPTK/math/principal_component_analysis.h \
                          ../include/SPTK/math/real_valued_fast_fourier_transform.h \
                          ../include/SPTK/math/real_valued_inverse_fast_fourier_transform.h \
                          ../include/SPTK/math/reverse_levinson_durbin_recursion.h \
@@ -950,6 +951,7 @@ INPUT                  = \
                          ../src/main/nrand.cc \
                          ../src/main/par2lar.cc \
                          ../src/main/par2lpc.cc \
+                         ../src/main/pca.cc \
                          ../src/main/phase.cc \
                          ../src/main/pitch.cc \
                          ../src/main/pitch_mark.cc \
