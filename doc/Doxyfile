@@ -952,6 +952,7 @@ INPUT                  = \
                          ../src/main/par2lar.cc \
                          ../src/main/par2lpc.cc \
                          ../src/main/pca.cc \
+                         ../src/main/pcas.cc \
                          ../src/main/phase.cc \
                          ../src/main/pitch.cc \
                          ../src/main/pitch_mark.cc \

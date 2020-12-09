@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -59,7 +60,7 @@ const int kDefaultNumPrincipalComponent(2);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " pcas - compute principal component scores" << std::endl;
+  *stream << " pcas - compute principal component score" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       pcas [ options ] evfile [ infile ] > stdout" << std::endl;
@@ -71,7 +72,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  evfile:" << std::endl;
   *stream << "       mean vector and eigenvectors           (double)" << std::endl;  // NOLINT
   *stream << "  infile:" << std::endl;
-  *stream << "       data sequence                          (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       vector sequence                        (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
   *stream << "       principal component scores             (double)" << std::endl;  // NOLINT
   *stream << std::endl;
@@ -82,6 +83,51 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a pcas [ @e option ] @e evfile [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - length of vector @f$(1 \le L)@f$
+ * - @b -m @e int
+ *   - order of vector @f$(0 \le M)@f$
+ * - @b -n @e int
+ *   - number of principal components @f$(1 \le N \le L)@f$
+ * - @b evfile @e str
+ *   - double-type mean vector and eigenvectors
+ * - @b infile @e str
+ *   - double-type vector sequence
+ * - @b stdout
+ *   - double-type principal component score
+ *
+ * The input of this command is the @f$M@f$-th order vectors:
+ * @f[
+ *   \begin{array}{cccc}
+ *     \boldsymbol{x}(0), & \boldsymbol{x}(1), & \boldsymbol{x}(0), & \ldots,
+ *   \end{array}
+ * @f]
+ * the mean vector @f$\boldsymbol{m}@f$, and @f$N@f$ eigenvectors
+ * @f[
+ *   \boldsymbol{A} = \left[ \begin{array}{cccc}
+ *     \boldsymbol{e}(0) & \boldsymbol{e}(1) & \cdots & \boldsymbol{e}(N-1)
+ *   \end{array} \right].
+ * @f]
+ * The pricipal component score of @f$\boldsymbol{x}(t)@f$ is calculated as
+ * @f[
+ *   \boldsymbol{z}(t) = \boldsymbol{A}^{\mathsf{T}}
+ *     (\boldsymbol{x}(t) - \boldsymbol{m}).
+ * @f]
+ *
+ * In the below example, the principal component scores of @c data.d are
+ * calculated using the mean vector and the eigen vectors in @c eigvec.dat.
+ *
+ * @code{.sh}
+ *   pcas -l 3 -n 2 eigvec.dat < data.d > score.dat
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int vector_length(kDefaultVectorLength);
   int num_principal_component(kDefaultNumPrincipalComponent);
@@ -144,7 +190,6 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // get input file names
   const char* eigenvectors_file;
   const char* input_file;
   const int num_input_files(argc - optind);
@@ -161,7 +206,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // read mean vector and eigenvector matrix
+  // Read mean vector and eigenvector matrix.
   sptk::Matrix mean_vector(vector_length, 1);
   sptk::Matrix eigenvector_matrix(num_principal_component, vector_length);
   {
@@ -189,7 +234,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -205,7 +249,7 @@ int main(int argc, char* argv[]) {
     if (!sptk::WriteStream(eigenvector_matrix * (input_vector - mean_vector),
                            &std::cout)) {
       std::ostringstream error_message;
-      error_message << "Failed to write principal component scores";
+      error_message << "Failed to write principal component score";
       sptk::PrintErrorMessage("pcas", error_message);
       return 1;
     }
