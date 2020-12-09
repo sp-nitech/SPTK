@@ -90,7 +90,7 @@ class InverseVectorQuantization {
   /**
    * @param[in] codebook_index Codebook index.
    * @param[in] codebook_vectors @f$M@f$-th order @f$I@f$ codebook vectors.
-   *            The shape is @f$[I, M]@f$.
+   *            The shape is @f$[I, M+1]@f$.
    * @param[out] reconstructed_vector @f$M@f$-th order codebook vector.
    * @return True on success, false on failure.
    */

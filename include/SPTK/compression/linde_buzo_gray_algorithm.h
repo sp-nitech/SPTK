@@ -192,9 +192,9 @@ class LindeBuzoGrayAlgorithm {
 
   /**
    * @param[in] input_vectors @f$M@f$-th order input vectors.
-   *            The shape is @f$[T, M]@f$.
+   *            The shape is @f$[T, M+1]@f$.
    * @param[in,out] codebook_vectors @f$M@f$-th order codebook vectors.
-   *                The shape is @f$[I, M]@f$.
+   *                The shape is @f$[I, M+1]@f$.
    * @param[out] codebook_indices @f$T@f$ codebook indices.
    * @return True on success, false on failure.
    */

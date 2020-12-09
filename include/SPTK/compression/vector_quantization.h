@@ -100,7 +100,7 @@ class VectorQuantization {
   /**
    * @param[in] input_vector @f$M@f$-th order input vector.
    * @param[in] codebook_vectors @f$M@f$-th order @f$I@f$ codebook vectors.
-   *            The shape is @f$[I, M]@f$.
+   *            The shape is @f$[I, M+1]@f$.
    * @param[out] codebook_index Codebook index.
    * @return True on success, false on failure.
    */

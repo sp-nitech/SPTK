@@ -128,7 +128,7 @@ class InverseMultistageVectorQuantization {
   /**
    * @param[in] codebook_indices @f$N@f$ codebook indices.
    * @param[in] codebook_vectors @f$M@f$-th order @f$I@f$ codebook vectors.
-   *            The shape is @f$[N, I, M]@f$.
+   *            The shape is @f$[N, I, M+1]@f$.
    * @param[out] reconstructed_vector @f$M@f$-th order output vector.
    * @param[out] buffer Buffer.
    * @return True on success, false on failure.
