@@ -905,6 +905,7 @@ INPUT                  = \
                          ../src/main/aeq.cc \
                          ../src/main/acorr.cc \
                          ../src/main/amgcep.cc \
+                         ../src/main/average.cc \
                          ../src/main/b2mc.cc \
                          ../src/main/c2acr.cc \
                          ../src/main/c2mpir.cc \

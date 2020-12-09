@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -65,7 +66,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       average [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -l l  : frame length       (   int)[" << std::setw(5) << std::right << "EOF" << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -m m  : order of sequence  (   int)[" << std::setw(5) << std::right << "l-1" << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : frame length - 1   (   int)[" << std::setw(5) << std::right << "l-1" << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       data sequence              (double)[stdin]" << std::endl;
@@ -79,6 +80,42 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a average [ @e option ] [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - number of items contained in one frame @f$(1 \le L)@f$
+ * - @b -m @e int
+ *   - order of items contained in one frame @f$(0 \le L - 1)@f$
+ * - @b infile @e str
+ *   - double-type data sequence
+ * - @b stdout
+ *   - double-type average
+ *
+ * The input of this command is
+ * @f[
+ *   \begin{array}{ccc}
+ *     \underbrace{x_1(1), \; \ldots, \; x_1(L)}_L, &
+ *     \underbrace{x_2(1), \; \ldots, \; x_2(L)}_L, &
+ *     \ldots,
+ *   \end{array}
+ * @f]
+ * and the output is
+ * @f[
+ *   \begin{array}{ccc}
+ *     y_1, & y_2, & \ldots,
+ *   \end{array}
+ * @f]
+ * where
+ * @f[
+ *   y_n = \frac{1}{L} \sum_{l=0}^{L-1} x_n(l).
+ * @f]
+ * If @f$L@f$ is not given, the average of the whole input is computed.
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int frame_length(kMagicNumberForEndOfFile);
 
@@ -121,7 +158,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -131,7 +167,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -146,7 +181,7 @@ int main(int argc, char* argv[]) {
   sptk::StatisticsAccumulation::Buffer buffer;
   if (!accumulation.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for accumulation";
+    error_message << "Failed to initialize StatisticsAccumulation";
     sptk::PrintErrorMessage("average", error_message);
     return 1;
   }
@@ -167,11 +202,10 @@ int main(int argc, char* argv[]) {
       std::vector<double> average(1);
       if (!accumulation.GetMean(buffer, &average)) {
         std::ostringstream error_message;
-        error_message << "Failed to calculate average";
+        error_message << "Failed to compute average";
         sptk::PrintErrorMessage("average", error_message);
         return 1;
       }
-
       if (!sptk::WriteStream(0, 1, average, &std::cout, NULL)) {
         std::ostringstream error_message;
         error_message << "Failed to write average";
@@ -194,11 +228,10 @@ int main(int argc, char* argv[]) {
     std::vector<double> average(1);
     if (!accumulation.GetMean(buffer, &average)) {
       std::ostringstream error_message;
-      error_message << "Failed to calculate average";
+      error_message << "Failed to compute average";
       sptk::PrintErrorMessage("average", error_message);
       return 1;
     }
-
     if (!sptk::WriteStream(0, 1, average, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write average";
