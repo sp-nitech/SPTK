@@ -68,8 +68,7 @@ namespace sptk {
  *   \mathrm{Im}(X(0)), & \mathrm{Im}(X(1)), & \ldots, & \mathrm{Im}(X(L-1)),
  *   \end{array}
  * @f]
- * where @f$L@f$ is the FFT length and @f$X@f$ is the frequency representation
- * of @f$x@f$.
+ * where @f$L@f$ is the FFT length and must be a power of two.
  */
 class RealValuedFastFourierTransform {
  public:
@@ -129,8 +128,8 @@ class RealValuedFastFourierTransform {
 
   /**
    * @param[in] real_part_input @f$M@f$-th order real part of input.
-   * @param[out] real_part_output Real part of output.
-   * @param[out] imag_part_output Imaginary part of output.
+   * @param[out] real_part_output @f$L@f$-length real part of output.
+   * @param[out] imag_part_output @f$L@f$-length imaginary part of output.
    * @param[out] buffer Buffer.
    * @return True on success, false on failure.
    */
@@ -152,6 +151,7 @@ class RealValuedFastFourierTransform {
   const int num_order_;
   const int fft_length_;
   const int half_fft_length_;
+
   const FastFourierTransform fast_fourier_transform_;
 
   bool is_valid_;

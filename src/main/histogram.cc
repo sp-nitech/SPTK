@@ -53,7 +53,7 @@
 #include <vector>      // std::vector
 
 #include "SPTK/math/histogram_calculator.h"
-#include "SPTK/math/statistics_accumulator.h"
+#include "SPTK/math/statistics_accumulation.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -200,8 +200,8 @@ int main(int argc, char* argv[]) {
   std::vector<double> histogram(num_bin);
 
   if (kMagicNumberForEndOfFile == output_interval) {
-    sptk::StatisticsAccumulator statistics_accumulator(num_bin - 1, 1);
-    sptk::StatisticsAccumulator::Buffer buffer;
+    sptk::StatisticsAccumulation statistics_accumulation(num_bin - 1, 1);
+    sptk::StatisticsAccumulation::Buffer buffer;
     while (sptk::ReadStream(false, 0, 0, 1, &data, &input_stream, NULL)) {
       if (!histogram_calculator.Run(data, &histogram)) {
         std::ostringstream error_message;
@@ -209,7 +209,7 @@ int main(int argc, char* argv[]) {
         sptk::PrintErrorMessage("histogram", error_message);
         return 1;
       }
-      if (!statistics_accumulator.Run(histogram, &buffer)) {
+      if (!statistics_accumulation.Run(histogram, &buffer)) {
         std::ostringstream error_message;
         error_message << "Failed to accumulate histogram";
         sptk::PrintErrorMessage("histogram", error_message);
@@ -217,7 +217,7 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    if (!statistics_accumulator.GetSum(buffer, &histogram)) {
+    if (!statistics_accumulation.GetSum(buffer, &histogram)) {
       std::ostringstream error_message;
       error_message << "Failed to get histogram";
       sptk::PrintErrorMessage("histogram", error_message);

@@ -50,7 +50,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/math/statistics_accumulator.h"
+#include "SPTK/math/statistics_accumulation.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -94,8 +94,7 @@ int main(int argc, char* argv[]) {
   bool output_frame_by_frame(kDefaultOutputFrameByFrameFlag);
 
   const struct option long_option[] = {
-      {"magic", required_argument, NULL, kMagic},
-      {0, 0, 0, 0},
+      {"magic", required_argument, NULL, kMagic}, {0, 0, 0, 0},
   };
 
   for (;;) {
@@ -190,10 +189,10 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream2(ifs2.fail() ? std::cin : ifs2);
 
-  sptk::StatisticsAccumulator accumulator(0, 1);
-  sptk::StatisticsAccumulator::Buffer buffer_for_mean_squared_error;
-  sptk::StatisticsAccumulator::Buffer buffer_for_mean;
-  if (!accumulator.IsValid()) {
+  sptk::StatisticsAccumulation accumulation(0, 1);
+  sptk::StatisticsAccumulation::Buffer buffer_for_mean_squared_error;
+  sptk::StatisticsAccumulation::Buffer buffer_for_mean;
+  if (!accumulation.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for calculation";
     sptk::PrintErrorMessage("rmse", error_message);
@@ -211,8 +210,8 @@ int main(int argc, char* argv[]) {
       if (!use_magic_number ||
           (magic_number != data1[i] && magic_number != data2[i])) {
         const double error(data1[i] - data2[i]);
-        if (!accumulator.Run(std::vector<double>{error * error},
-                             &buffer_for_mean_squared_error)) {
+        if (!accumulation.Run(std::vector<double>{error * error},
+                              &buffer_for_mean_squared_error)) {
           std::ostringstream error_message;
           error_message << "Failed to accumulate statistics";
           sptk::PrintErrorMessage("rmse", error_message);
@@ -223,8 +222,8 @@ int main(int argc, char* argv[]) {
 
     if (kMagicNumberForEndOfFile != vector_length) {
       std::vector<double> mean_squared_error(1);
-      if (!accumulator.GetMean(buffer_for_mean_squared_error,
-                               &mean_squared_error)) {
+      if (!accumulation.GetMean(buffer_for_mean_squared_error,
+                                &mean_squared_error)) {
         std::ostringstream error_message;
         error_message << "Failed to accumulate statistics";
         sptk::PrintErrorMessage("rmse", error_message);
@@ -240,22 +239,22 @@ int main(int argc, char* argv[]) {
           return 1;
         }
       } else {
-        if (!accumulator.Run(std::vector<double>{root_mean_squared_error},
-                             &buffer_for_mean)) {
+        if (!accumulation.Run(std::vector<double>{root_mean_squared_error},
+                              &buffer_for_mean)) {
           std::ostringstream error_message;
           error_message << "Failed to accumulate statistics";
           sptk::PrintErrorMessage("rmse", error_message);
           return 1;
         }
       }
-      accumulator.Clear(&buffer_for_mean_squared_error);
+      accumulation.Clear(&buffer_for_mean_squared_error);
     }
   }
 
   if (kMagicNumberForEndOfFile == vector_length) {
     std::vector<double> mean_squared_error(1);
-    if (!accumulator.GetMean(buffer_for_mean_squared_error,
-                             &mean_squared_error)) {
+    if (!accumulation.GetMean(buffer_for_mean_squared_error,
+                              &mean_squared_error)) {
       std::ostringstream error_message;
       error_message << "Failed to accumulate statistics";
       sptk::PrintErrorMessage("rmse", error_message);
@@ -271,7 +270,7 @@ int main(int argc, char* argv[]) {
     }
   } else if (!output_frame_by_frame) {
     std::vector<double> mean(1);
-    if (!accumulator.GetMean(buffer_for_mean, &mean)) {
+    if (!accumulation.GetMean(buffer_for_mean, &mean)) {
       std::ostringstream error_message;
       error_message << "Failed to accumulate statistics";
       sptk::PrintErrorMessage("rmse", error_message);

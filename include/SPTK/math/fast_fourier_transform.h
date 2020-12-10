@@ -54,11 +54,11 @@ namespace sptk {
 /**
  * Calculate DFT of complex-valued input data.
  *
- * The input is @f$M@f$-th order complex-valued data:
+ * The inputs are @f$M@f$-th order complex-valued data:
  * @f[
  *   \begin{array}{cccc}
  *   \mathrm{Re}(x(0)), & \mathrm{Re}(x(1)), & \ldots, & \mathrm{Re}(x(M)), \\
- *   \mathrm{Im}(x(0)), & \mathrm{Im}(x(1)), & \ldots, & \mathrm{Im}(x(M)),
+ *   \mathrm{Im}(x(0)), & \mathrm{Im}(x(1)), & \ldots, & \mathrm{Im}(x(M)).
  *   \end{array}
  * @f]
  * The outputs are
@@ -68,8 +68,7 @@ namespace sptk {
  *   \mathrm{Im}(X(0)), & \mathrm{Im}(X(1)), & \ldots, & \mathrm{Im}(X(L-1)),
  *   \end{array}
  * @f]
- * where @f$L@f$ is the FFT length and @f$X@f$ is the frequency representation
- * of @f$x@f$.
+ * where @f$L@f$ is the FFT length and must be a power of two.
  */
 class FastFourierTransform {
  public:
@@ -111,8 +110,8 @@ class FastFourierTransform {
   /**
    * @param[in] real_part_input @f$M@f$-th order real part of input.
    * @param[in] imag_part_input @f$M@f$-th order imaginary part of input.
-   * @param[out] real_part_output Real part of output.
-   * @param[out] imag_part_output Imaginary part of output.
+   * @param[out] real_part_output @f$L@f$-length real part of output.
+   * @param[out] imag_part_output @f$L@f$-length imaginary part of output.
    * @return True on success, false on failure.
    */
   bool Run(const std::vector<double>& real_part_input,

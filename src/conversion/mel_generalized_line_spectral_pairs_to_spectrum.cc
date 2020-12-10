@@ -52,8 +52,9 @@ namespace {
 double Warp(double omega, double alpha) {
   if (0.0 == alpha) return omega;
 
-  return omega + 2.0 * std::atan(alpha * std::sin(omega) /
-                                 (1.0 - alpha * std::cos(omega)));
+  return omega +
+         2.0 * std::atan(alpha * std::sin(omega) /
+                         (1.0 - alpha * std::cos(omega)));
 }
 
 }  // namespace

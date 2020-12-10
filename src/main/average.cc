@@ -49,7 +49,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/math/statistics_accumulator.h"
+#include "SPTK/math/statistics_accumulation.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -142,9 +142,9 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  sptk::StatisticsAccumulator accumulator(0, 1);
-  sptk::StatisticsAccumulator::Buffer buffer;
-  if (!accumulator.IsValid()) {
+  sptk::StatisticsAccumulation accumulation(0, 1);
+  sptk::StatisticsAccumulation::Buffer buffer;
+  if (!accumulation.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for accumulation";
     sptk::PrintErrorMessage("average", error_message);
@@ -155,7 +155,7 @@ int main(int argc, char* argv[]) {
   for (int data_index(1);
        sptk::ReadStream(false, 0, 0, 1, &data, &input_stream, NULL);
        ++data_index) {
-    if (!accumulator.Run(data, &buffer)) {
+    if (!accumulation.Run(data, &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to accumulate statistics";
       sptk::PrintErrorMessage("average", error_message);
@@ -165,7 +165,7 @@ int main(int argc, char* argv[]) {
     if (kMagicNumberForEndOfFile != frame_length &&
         0 == data_index % frame_length) {
       std::vector<double> average(1);
-      if (!accumulator.GetMean(buffer, &average)) {
+      if (!accumulation.GetMean(buffer, &average)) {
         std::ostringstream error_message;
         error_message << "Failed to calculate average";
         sptk::PrintErrorMessage("average", error_message);
@@ -178,12 +178,12 @@ int main(int argc, char* argv[]) {
         sptk::PrintErrorMessage("average", error_message);
         return 1;
       }
-      accumulator.Clear(&buffer);
+      accumulation.Clear(&buffer);
     }
   }
 
   int num_data;
-  if (!accumulator.GetNumData(buffer, &num_data)) {
+  if (!accumulation.GetNumData(buffer, &num_data)) {
     std::ostringstream error_message;
     error_message << "Failed to accumulate statistics";
     sptk::PrintErrorMessage("average", error_message);
@@ -192,7 +192,7 @@ int main(int argc, char* argv[]) {
 
   if (kMagicNumberForEndOfFile == frame_length && 0 < num_data) {
     std::vector<double> average(1);
-    if (!accumulator.GetMean(buffer, &average)) {
+    if (!accumulation.GetMean(buffer, &average)) {
       std::ostringstream error_message;
       error_message << "Failed to calculate average";
       sptk::PrintErrorMessage("average", error_message);

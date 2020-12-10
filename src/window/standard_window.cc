@@ -82,10 +82,9 @@ void MakeBlackmanNuttall(bool periodic, std::vector<double>* window) {
 }
 
 void MakeFlatTop(bool periodic, std::vector<double>* window) {
-  sptk::CosineWindow maker(
-      window->size(),
-      {0.21557895, 0.41663158, 0.277263158, 0.083578947, 0.006947368},
-      periodic);
+  sptk::CosineWindow maker(window->size(), {0.21557895, 0.41663158, 0.277263158,
+                                            0.083578947, 0.006947368},
+                           periodic);
   *window = maker.Get();
 }
 

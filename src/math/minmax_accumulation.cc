@@ -42,7 +42,7 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/math/minmax_accumulator.h"
+#include "SPTK/math/minmax_accumulation.h"
 
 #include <cstddef>   // std::size_t
 #include <iterator>  // std::advance
@@ -64,16 +64,16 @@ bool CompareToSortInDescendingOrder(const std::pair<int, double>& a,
 
 namespace sptk {
 
-MinMaxAccumulator::MinMaxAccumulator(int num_best)
+MinMaxAccumulation::MinMaxAccumulation(int num_best)
     : num_best_(num_best), is_valid_(true) {
   if (num_best_ <= 0) {
     is_valid_ = false;
   }
 }
 
-bool MinMaxAccumulator::GetMinimum(const MinMaxAccumulator::Buffer& buffer,
-                                   int rank, int* position,
-                                   double* value) const {
+bool MinMaxAccumulation::GetMinimum(const MinMaxAccumulation::Buffer& buffer,
+                                    int rank, int* position,
+                                    double* value) const {
   if (rank <= 0 || buffer.minimum_.size() < static_cast<std::size_t>(rank)) {
     return false;
   }
@@ -89,9 +89,9 @@ bool MinMaxAccumulator::GetMinimum(const MinMaxAccumulator::Buffer& buffer,
   return true;
 }
 
-bool MinMaxAccumulator::GetMaximum(const MinMaxAccumulator::Buffer& buffer,
-                                   int rank, int* position,
-                                   double* value) const {
+bool MinMaxAccumulation::GetMaximum(const MinMaxAccumulation::Buffer& buffer,
+                                    int rank, int* position,
+                                    double* value) const {
   if (rank <= 0 || buffer.maximum_.size() < static_cast<std::size_t>(rank)) {
     return false;
   }
@@ -107,12 +107,12 @@ bool MinMaxAccumulator::GetMaximum(const MinMaxAccumulator::Buffer& buffer,
   return true;
 }
 
-void MinMaxAccumulator::Clear(MinMaxAccumulator::Buffer* buffer) const {
+void MinMaxAccumulation::Clear(MinMaxAccumulation::Buffer* buffer) const {
   if (NULL != buffer) buffer->Clear();
 }
 
-bool MinMaxAccumulator::Run(double data,
-                            MinMaxAccumulator::Buffer* buffer) const {
+bool MinMaxAccumulation::Run(double data,
+                             MinMaxAccumulation::Buffer* buffer) const {
   if (!is_valid_ || NULL == buffer) {
     return false;
   }

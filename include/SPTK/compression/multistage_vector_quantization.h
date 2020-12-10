@@ -135,7 +135,7 @@ class MultistageVectorQuantization {
   /**
    * @param[in] input_vector @f$M@f$-th order input vector.
    * @param[in] codebook_vectors @f$M@f$-th order @f$I@f$ codebook vectors.
-   *             The shape is @f$[N, I, M]@f$.
+   *             The shape is @f$[N, I, M+1]@f$.
    * @param[out] codebook_indices @f$N@f$ codebook indices.
    * @param[out] buffer Buffer.
    * @return True on success, false on failure.

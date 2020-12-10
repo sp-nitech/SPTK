@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -57,6 +57,7 @@ NegativeDerivativeOfPhaseSpectrumToCepstrum::
   if (num_order_ < 0 || fft_length < 2 * num_order_ ||
       !fast_fourier_transform_.IsValid()) {
     is_valid_ = false;
+    return;
   }
 }
 
@@ -64,7 +65,7 @@ bool NegativeDerivativeOfPhaseSpectrumToCepstrum::Run(
     const std::vector<double>& negative_derivative_of_phase_spectrum,
     std::vector<double>* cepstrum,
     NegativeDerivativeOfPhaseSpectrumToCepstrum::Buffer* buffer) const {
-  // check inputs
+  // Check inputs.
   const int fft_length(fast_fourier_transform_.GetFftLength());
   const int half_fft_length(fft_length / 2);
   if (!is_valid_ ||
@@ -74,43 +75,38 @@ bool NegativeDerivativeOfPhaseSpectrumToCepstrum::Run(
     return false;
   }
 
-  // prepare memories
+  // Prepare memories.
   if (cepstrum->size() != static_cast<std::size_t>(num_order_ + 1)) {
     cepstrum->resize(num_order_ + 1);
   }
-  if (buffer->fast_fourier_transform_input_.size() !=
+  if (buffer->fast_fourier_transform_real_part_.size() !=
       static_cast<std::size_t>(fft_length)) {
-    buffer->fast_fourier_transform_input_.resize(fft_length);
+    buffer->fast_fourier_transform_real_part_.resize(fft_length);
   }
 
-  // set a real part input of the fast Fourier transform
   std::copy(negative_derivative_of_phase_spectrum.begin(),
             negative_derivative_of_phase_spectrum.end(),
-            buffer->fast_fourier_transform_input_.begin());
+            buffer->fast_fourier_transform_real_part_.begin());
   std::reverse_copy(
       negative_derivative_of_phase_spectrum.begin() + 1,
       negative_derivative_of_phase_spectrum.end(),
-      buffer->fast_fourier_transform_input_.begin() + half_fft_length);
+      buffer->fast_fourier_transform_real_part_.begin() + half_fft_length);
 
-  if (!fast_fourier_transform_.Run(
-          buffer->fast_fourier_transform_input_,
-          &buffer->fast_fourier_transform_real_part_output_,
-          &buffer->fast_fourier_transform_imaginary_part_output_,
-          &buffer->fast_fourier_transform_buffer_)) {
+  if (!fast_fourier_transform_.Run(&buffer->fast_fourier_transform_real_part_,
+                                   &buffer->fast_fourier_transform_imag_part_,
+                                   &buffer->fast_fourier_transform_buffer_)) {
     return false;
   }
 
-  double* output(&((*cepstrum)[0]));
-  double* fast_fourier_transform_real_part_output(
-      &buffer->fast_fourier_transform_real_part_output_[0]);
+  double* v(&buffer->fast_fourier_transform_real_part_[0]);
+  double* c(&((*cepstrum)[0]));
 
-  output[0] = fast_fourier_transform_real_part_output[0];
-  for (int i(1); i <= num_order_; ++i) {
-    output[i] =
-        fast_fourier_transform_real_part_output[i] / (i * half_fft_length);
+  c[0] = 0.0;
+  for (int m(1); m <= num_order_; ++m) {
+    c[m] = v[m] / (m * half_fft_length);
   }
   if (half_fft_length == num_order_) {
-    output[num_order_] *= 0.5;
+    c[num_order_] *= 0.5;
   }
 
   return true;

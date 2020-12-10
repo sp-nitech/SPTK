@@ -49,7 +49,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/math/statistics_accumulator.h"
+#include "SPTK/math/statistics_accumulation.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -156,9 +156,9 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  sptk::StatisticsAccumulator accumulator(vector_length - 1, 1);
-  sptk::StatisticsAccumulator::Buffer buffer;
-  if (!accumulator.IsValid()) {
+  sptk::StatisticsAccumulation accumulation(vector_length - 1, 1);
+  sptk::StatisticsAccumulation::Buffer buffer;
+  if (!accumulation.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for accumulation";
     sptk::PrintErrorMessage("vsum", error_message);
@@ -170,7 +170,7 @@ int main(int argc, char* argv[]) {
   for (int vector_index(1);
        sptk::ReadStream(false, 0, 0, vector_length, &data, &input_stream, NULL);
        ++vector_index) {
-    if (!accumulator.Run(data, &buffer)) {
+    if (!accumulation.Run(data, &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to accumulate statistics";
       sptk::PrintErrorMessage("vsum", error_message);
@@ -179,7 +179,7 @@ int main(int argc, char* argv[]) {
 
     if (kMagicNumberForEndOfFile != output_interval &&
         0 == vector_index % output_interval) {
-      if (!accumulator.GetSum(buffer, &sum)) {
+      if (!accumulation.GetSum(buffer, &sum)) {
         std::ostringstream error_message;
         error_message << "Failed to accumulate statistics";
         sptk::PrintErrorMessage("vsum", error_message);
@@ -191,12 +191,12 @@ int main(int argc, char* argv[]) {
         sptk::PrintErrorMessage("vsum", error_message);
         return 1;
       }
-      accumulator.Clear(&buffer);
+      accumulation.Clear(&buffer);
     }
   }
 
   int num_actual_vector;
-  if (!accumulator.GetNumData(buffer, &num_actual_vector)) {
+  if (!accumulation.GetNumData(buffer, &num_actual_vector)) {
     std::ostringstream error_message;
     error_message << "Failed to accumulate statistics";
     sptk::PrintErrorMessage("vsum", error_message);
@@ -204,7 +204,7 @@ int main(int argc, char* argv[]) {
   }
 
   if (kMagicNumberForEndOfFile == output_interval && 0 < num_actual_vector) {
-    if (!accumulator.GetSum(buffer, &sum)) {
+    if (!accumulation.GetSum(buffer, &sum)) {
       std::ostringstream error_message;
       error_message << "Failed to accumulate statistics";
       sptk::PrintErrorMessage("vsum", error_message);

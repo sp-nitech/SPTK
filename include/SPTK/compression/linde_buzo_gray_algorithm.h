@@ -49,7 +49,7 @@
 
 #include "SPTK/compression/vector_quantization.h"
 #include "SPTK/math/distance_calculation.h"
-#include "SPTK/math/statistics_accumulator.h"
+#include "SPTK/math/statistics_accumulation.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
@@ -192,9 +192,9 @@ class LindeBuzoGrayAlgorithm {
 
   /**
    * @param[in] input_vectors @f$M@f$-th order input vectors.
-   *            The shape is @f$[T, M]@f$.
+   *            The shape is @f$[T, M+1]@f$.
    * @param[in,out] codebook_vectors @f$M@f$-th order codebook vectors.
-   *                The shape is @f$[I, M]@f$.
+   *                The shape is @f$[I, M+1]@f$.
    * @param[out] codebook_indices @f$T@f$ codebook indices.
    * @return True on success, false on failure.
    */
@@ -213,7 +213,7 @@ class LindeBuzoGrayAlgorithm {
   const int seed_;
 
   const DistanceCalculation distance_calculation_;
-  const StatisticsAccumulator statistics_accumulator_;
+  const StatisticsAccumulation statistics_accumulation_;
   const VectorQuantization vector_quantization_;
 
   bool is_valid_;

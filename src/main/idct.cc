@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -55,15 +56,15 @@
 namespace {
 
 enum InputFormats {
-  kInputRealAndImaginaryParts = 0,
+  kInputRealAndImagParts = 0,
   kInputRealPart,
   kNumInputFormats
 };
 
 enum OutputFormats {
-  kOutputRealAndImaginaryParts = 0,
+  kOutputRealAndImagParts = 0,
   kOutputRealPart,
-  kOutputImaginaryPart,
+  kOutputImagPart,
   kNumOutputFormats
 };
 
@@ -100,6 +101,29 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a idct [ @e option ] [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - DCT length @f$(1 \le L)@f$
+ * - @b -q @e int
+ *   - input format
+ *     \arg @c 0 real and imaginary parts
+ *     \arg @c 1 real part
+ * - @b -o @e int
+ *   - output format
+ *     \arg @c 0 real and imaginary parts
+ *     \arg @c 1 real part
+ *     \arg @c 2 imaginary part
+ * - @b infile @e str
+ *   - double-type data sequence
+ * - @b stdout
+ *   - double-type inverse DCT sequence
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int dct_length(kDefaultDctLength);
   InputFormats input_format(kDefaultInputFormat);
@@ -162,7 +186,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -172,7 +195,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -183,48 +205,43 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for discrete cosine transform
   sptk::InverseDiscreteCosineTransform inverse_dct(dct_length);
   sptk::InverseDiscreteCosineTransform::Buffer buffer;
   if (!inverse_dct.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for transformation";
+    error_message << "Failed to initialize InverseDiscreteCosineTransform";
     sptk::PrintErrorMessage("idct", error_message);
     return 1;
   }
 
-  std::vector<double> input_x(dct_length);
-  std::vector<double> input_y(dct_length);
-  std::vector<double> output_x(dct_length);
-  std::vector<double> output_y(dct_length);
+  std::vector<double> real(dct_length);
+  std::vector<double> imag(dct_length);
 
-  while (
-      sptk::ReadStream(true, 0, 0, dct_length, &input_x, &input_stream, NULL)) {
-    if (kInputRealAndImaginaryParts == input_format &&
-        !sptk::ReadStream(true, 0, 0, dct_length, &input_y, &input_stream,
-                          NULL)) {
+  while (sptk::ReadStream(true, 0, 0, dct_length, &real, &input_stream, NULL)) {
+    if (kInputRealAndImagParts == input_format &&
+        !sptk::ReadStream(true, 0, 0, dct_length, &imag, &input_stream, NULL)) {
       break;
     }
 
-    if (!inverse_dct.Run(input_x, input_y, &output_x, &output_y, &buffer)) {
+    if (!inverse_dct.Run(&real, &imag, &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to run inverse discrete cosine transform";
       sptk::PrintErrorMessage("idct", error_message);
       return 1;
     }
 
-    if ((kOutputRealAndImaginaryParts == output_format ||
+    if ((kOutputRealAndImagParts == output_format ||
          kOutputRealPart == output_format) &&
-        !sptk::WriteStream(0, dct_length, output_x, &std::cout, NULL)) {
+        !sptk::WriteStream(0, dct_length, real, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write real parts";
       sptk::PrintErrorMessage("idct", error_message);
       return 1;
     }
 
-    if ((kOutputRealAndImaginaryParts == output_format ||
-         kOutputImaginaryPart == output_format) &&
-        !sptk::WriteStream(0, dct_length, output_y, &std::cout, NULL)) {
+    if ((kOutputRealAndImagParts == output_format ||
+         kOutputImagPart == output_format) &&
+        !sptk::WriteStream(0, dct_length, imag, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write imaginary parts";
       sptk::PrintErrorMessage("idct", error_message);

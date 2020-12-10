@@ -176,10 +176,8 @@ int main(int argc, char* argv[]) {
   double lower_f0(kDefaultLowerF0);
   double upper_f0(kDefaultUpperF0);
   std::vector<double> voicing_thresholds{
-      kDefaultVoicingThresholdForRapt,
-      kDefaultVoicingThresholdForSwipe,
-      kDefaultVoicingThresholdForReaper,
-      kDefaultVoicingThresholdForWorld,
+      kDefaultVoicingThresholdForRapt, kDefaultVoicingThresholdForSwipe,
+      kDefaultVoicingThresholdForReaper, kDefaultVoicingThresholdForWorld,
   };
   OutputFormats output_format(kDefaultOutputFormat);
 

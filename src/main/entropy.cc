@@ -51,7 +51,7 @@
 #include <vector>    // std::vector
 
 #include "SPTK/math/entropy_calculation.h"
-#include "SPTK/math/statistics_accumulator.h"
+#include "SPTK/math/statistics_accumulation.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -221,10 +221,10 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  sptk::StatisticsAccumulator statistics_accumulator(0, 1);
-  sptk::StatisticsAccumulator::Buffer buffer;
+  sptk::StatisticsAccumulation statistics_accumulation(0, 1);
+  sptk::StatisticsAccumulation::Buffer buffer;
   sptk::EntropyCalculation entropy_calculation(num_element, entropy_unit);
-  if (!statistics_accumulator.IsValid() || !entropy_calculation.IsValid()) {
+  if (!statistics_accumulation.IsValid() || !entropy_calculation.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to initialize EntropyCalculation";
     sptk::PrintErrorMessage("entropy", error_message);
@@ -251,7 +251,7 @@ int main(int argc, char* argv[]) {
         return 1;
       }
     } else {
-      if (!statistics_accumulator.Run(std::vector<double>{entropy}, &buffer)) {
+      if (!statistics_accumulation.Run(std::vector<double>{entropy}, &buffer)) {
         std::ostringstream error_message;
         error_message << "Failed to accumulate statistics";
         sptk::PrintErrorMessage("entropy", error_message);
@@ -261,7 +261,7 @@ int main(int argc, char* argv[]) {
   }
 
   int num_data;
-  if (!statistics_accumulator.GetNumData(buffer, &num_data)) {
+  if (!statistics_accumulation.GetNumData(buffer, &num_data)) {
     std::ostringstream error_message;
     error_message << "Failed to accumulate statistics";
     sptk::PrintErrorMessage("entropy", error_message);
@@ -270,7 +270,7 @@ int main(int argc, char* argv[]) {
 
   if (!output_frame_by_frame && 0 < num_data) {
     std::vector<double> average_entropy(1);
-    if (!statistics_accumulator.GetMean(buffer, &average_entropy)) {
+    if (!statistics_accumulation.GetMean(buffer, &average_entropy)) {
       std::ostringstream error_message;
       error_message << "Failed to calculate entropy";
       sptk::PrintErrorMessage("entropy", error_message);

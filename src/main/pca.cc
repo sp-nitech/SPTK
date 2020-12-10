@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,15 +42,15 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>    // getopt_long
-#include <algorithm>   // std::transform
-#include <fstream>     // std::ifstream, std::ofstream
-#include <functional>  // std::bind1st, std::multiplies
-#include <iomanip>     // std::setw
-#include <iostream>    // std::cerr, std::cin, std::cout, std::endl, etc.
-#include <numeric>     // std::accumulate
-#include <sstream>     // std::ostringstream
-#include <vector>      // std::vector
+#include <getopt.h>  // getopt_long
+
+#include <algorithm>  // std::transform
+#include <fstream>    // std::ifstream, std::ofstream
+#include <iomanip>    // std::setw
+#include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <numeric>    // std::accumulate
+#include <sstream>    // std::ostringstream
+#include <vector>     // std::vector
 
 #include "SPTK/math/principal_component_analysis.h"
 #include "SPTK/utils/sptk_utils.h"
@@ -79,7 +79,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "               eigenvalues and proportions" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       data sequence                          (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       vector sequence                        (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
   *stream << "       mean vector and eigenvectors           (double)" << std::endl;  // NOLINT
   *stream << std::endl;
@@ -90,6 +90,41 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a pca [ @e option ] [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - length of vector @f$(1 \le L)@f$
+ * - @b -m @e int
+ *   - order of vector @f$(0 \le M)@f$
+ * - @b -n @e int
+ *   - number of principal components @f$(1 \le N \le L)@f$
+ * - @b -i @e int
+ *   - number of iterations @f$(1 \le I)@f$
+ * - @b -d @e double
+ *   - convergence threshold @f$(0 \le \epsilon)@f$
+ * - @b -v @e str
+ *   - double-type eigenvalues and proportions
+ * - @b infile @e str
+ *   - double-type vector sequence
+ * - @b stdout
+ *   - double-type mean vector and eigenvectors
+ *
+ * In the below example, principal component analysis is applied to the
+ * three-dimensional training vectors contained in @c data.d.
+ * The eigenvectors and the eigenvalues are written to @c eigvec.dat and
+ * @c eigval.dat, repectively.
+ *
+ * @code{.sh}
+ *   pca -l 3 -n 2 -v eigval.dat < data.d > eigvec.dat
+ * @endcode
+ *
+ * The eigenvalues are sorted in descending order.
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int vector_length(kDefaultVectorLength);
   int num_principal_component(kDefaultNumPrincipalComponent);
@@ -181,7 +216,6 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -191,7 +225,7 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
+  // Open stream for reading inputs.
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -202,7 +236,7 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // open stream to output eigenvalues
+  // Open stream for writing eigenvalues.
   std::ofstream ofs;
   if (NULL != eigenvalues_file) {
     ofs.open(eigenvalues_file, std::ios::out | std::ios::binary);
@@ -215,18 +249,17 @@ int main(int argc, char* argv[]) {
   }
   std::ostream& output_stream(ofs);
 
-  // prepare for principal component analysis
   sptk::PrincipalComponentAnalysis principal_component_analysis(
       vector_length - 1, num_iteration, convergence_threshold);
   sptk::PrincipalComponentAnalysis::Buffer buffer;
   if (!principal_component_analysis.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for principal component analysis";
+    error_message << "Failed to initialize PrincipalComponentAnalysis";
     sptk::PrintErrorMessage("pca", error_message);
     return 1;
   }
 
-  // read input data
+  // Read input data.
   std::vector<std::vector<double> > input_vectors;
   {
     std::vector<double> tmp(vector_length);
@@ -244,7 +277,7 @@ int main(int argc, char* argv[]) {
                                         &eigenvalues, &eigenvector_matrix,
                                         &buffer)) {
     std::ostringstream error_message;
-    error_message << "Failed to apply principal component analysis";
+    error_message << "Failed to perform principal component analysis";
     sptk::PrintErrorMessage("pca", error_message);
     return 1;
   }
@@ -280,13 +313,12 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    const double sum(
-        std::accumulate(eigenvalues.begin(), eigenvalues.end(), 0.0));
+    const double norm(
+        1.0 / std::accumulate(eigenvalues.begin(), eigenvalues.end(), 0.0));
     std::vector<double> proportions(num_principal_component);
     std::transform(eigenvalues.begin(),
                    eigenvalues.begin() + num_principal_component,
-                   proportions.begin(),
-                   std::bind1st(std::multiplies<double>(), 1.0 / sum));
+                   proportions.begin(), [norm](double l) { return l * norm; });
     if (!sptk::WriteStream(0, num_principal_component, proportions,
                            &output_stream, NULL)) {
       std::ostringstream error_message;
