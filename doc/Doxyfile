@@ -867,6 +867,7 @@ INPUT                  = \
                          ../include/SPTK/conversion/filter_coefficients_to_phase_spectrum.h \
                          ../include/SPTK/conversion/generalized_cepstrum_gain_normalization.h \
                          ../include/SPTK/conversion/generalized_cepstrum_inverse_gain_normalization.h \
+                         ../include/SPTK/conversion/line_spectral_pairs_to_linear_predictive_coefficients.h \
                          ../include/SPTK/conversion/linear_predictive_coefficients_to_cepstrum.h \
                          ../include/SPTK/conversion/linear_predictive_coefficients_to_line_spectral_pairs.h \
                          ../include/SPTK/conversion/linear_predictive_coefficients_to_parcor_coefficients.h \
@@ -942,6 +943,7 @@ INPUT                  = \
                          ../src/main/lpc2lsp.cc \
                          ../src/main/lpc2par.cc \
                          ../src/main/ltcdf.cc \
+                         ../src/main/lsp2lpc.cc \
                          ../src/main/lspdf.cc \
                          ../src/main/mc2b.cc \
                          ../src/main/mfcc.cc \

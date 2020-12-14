@@ -60,8 +60,8 @@ namespace sptk {
  * @f]
  * where
  * @f{eqnarray}{
- *   P(z) = (1-z^{-1})\prod_{m=2,4,\ldots}^M (1-2\cos\omega(m)z^{-1}+z^{-2}), \\
- *   Q(z) = (1+z^{-1})\prod_{m=1,3,\ldots}^M (1-2\cos\omega(m)z^{-1}+z^{-2}).
+ *   P(z)&=&(1-z^{-1})\prod_{m=2,4,\ldots}^M (1-2\cos\omega(m)z^{-1}+z^{-2}), \\
+ *   Q(z)&=&(1+z^{-1})\prod_{m=1,3,\ldots}^M (1-2\cos\omega(m)z^{-1}+z^{-2}).
  * @f}
  *
  * Given the @f$M@f$-th order filter coefficients,

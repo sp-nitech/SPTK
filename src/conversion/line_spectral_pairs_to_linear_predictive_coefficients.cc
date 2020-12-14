@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -60,6 +60,7 @@ LineSpectralPairsToLinearPredictiveCoefficients::
       is_valid_(true) {
   if (num_order_ < 0) {
     is_valid_ = false;
+    return;
   }
 }
 
@@ -67,24 +68,18 @@ bool LineSpectralPairsToLinearPredictiveCoefficients::Run(
     const std::vector<double>& line_spectral_pairs,
     std::vector<double>* linear_predictive_coefficients,
     LineSpectralPairsToLinearPredictiveCoefficients::Buffer* buffer) const {
-  // check inputs
+  // Check inputs.
   if (!is_valid_ ||
       line_spectral_pairs.size() != static_cast<std::size_t>(num_order_ + 1) ||
       NULL == linear_predictive_coefficients || NULL == buffer) {
     return false;
   }
 
-  // prepare memory
+  // Prepare memories.
   if (linear_predictive_coefficients->size() !=
       static_cast<std::size_t>(num_order_ + 1)) {
     linear_predictive_coefficients->resize(num_order_ + 1);
   }
-
-  // the first element of vector represents a gain
-  (*linear_predictive_coefficients)[0] = line_spectral_pairs[0];
-  if (0 == num_order_) return true;
-
-  // prepare buffer
   if (buffer->p_.size() !=
       static_cast<std::size_t>(num_asymmetric_polynomial_order_)) {
     buffer->p_.resize(num_asymmetric_polynomial_order_);
@@ -118,8 +113,12 @@ bool LineSpectralPairsToLinearPredictiveCoefficients::Run(
     buffer->b2_.resize(num_symmetric_polynomial_order_);
   }
 
-  const double* input(&(line_spectral_pairs[0]));
-  double* output(&((*linear_predictive_coefficients)[0]));
+  // Copy gain.
+  (*linear_predictive_coefficients)[0] = line_spectral_pairs[0];
+  if (0 == num_order_) return true;
+
+  const double* w(&(line_spectral_pairs[0]));
+  double* a(&((*linear_predictive_coefficients)[0]));
   double* p(&buffer->p_[0]);
   double* q(&buffer->q_[0]);
   double* a0(&buffer->a0_[0]);
@@ -132,12 +131,12 @@ bool LineSpectralPairsToLinearPredictiveCoefficients::Run(
   double c1(0.0);
   double c2(0.0);
 
-  // calculate line spectral pairs filter parameters
+  // Calculate line spectral pairs digital filter parameters.
   for (int i(0), j(2); i < num_asymmetric_polynomial_order_; ++i, j += 2) {
-    p[i] = -2.0 * std::cos(input[j]);
+    p[i] = -2.0 * std::cos(w[j]);
   }
   for (int i(0), j(1); i < num_symmetric_polynomial_order_; ++i, j += 2) {
-    q[i] = -2.0 * std::cos(input[j]);
+    q[i] = -2.0 * std::cos(w[j]);
   }
 
   std::fill_n(a1, num_asymmetric_polynomial_order_, 0.0);
@@ -145,17 +144,17 @@ bool LineSpectralPairsToLinearPredictiveCoefficients::Run(
   std::fill_n(b1, num_symmetric_polynomial_order_, 0.0);
   std::fill_n(b2, num_symmetric_polynomial_order_, 0.0);
 
-  // calculate impulse response of analysis filter
-  const bool is_odd(num_order_ % 2 == 1);
-  for (int j(0); j <= num_order_; ++j) {
-    if (is_odd) {
+  // Calculate impulse response of analysis filter.
+  const bool is_even(sptk::IsEven(num_order_));
+  for (int m(0); m <= num_order_; ++m) {
+    if (is_even) {
+      a0[0] = c0 - c1;
+      b0[0] = c0 + c1;
+      c1 = c0;
+    } else {
       a0[0] = c0 - c2;
       b0[0] = c0;
       c2 = c1;
-      c1 = c0;
-    } else {
-      a0[0] = c0 - c1;
-      b0[0] = c0 + c1;
       c1 = c0;
     }
 
@@ -170,15 +169,22 @@ bool LineSpectralPairsToLinearPredictiveCoefficients::Run(
       b1[i] = b0[i];
     }
 
-    if (0 == j) {
+    if (0 == m) {
       c0 = 0.0;
     } else {
-      output[j] = 0.5 * (a0[num_asymmetric_polynomial_order_] +
-                         b0[num_symmetric_polynomial_order_]);
+      a[m] = 0.5 * (a0[num_asymmetric_polynomial_order_] +
+                    b0[num_symmetric_polynomial_order_]);
     }
   }
 
   return true;
+}
+
+bool LineSpectralPairsToLinearPredictiveCoefficients::Run(
+    std::vector<double>* input_and_output,
+    LineSpectralPairsToLinearPredictiveCoefficients::Buffer* buffer) const {
+  if (NULL == input_and_output) return false;
+  return Run(*input_and_output, input_and_output, buffer);
 }
 
 }  // namespace sptk
