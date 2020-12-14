@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -67,10 +67,9 @@ double CalculateChebyshevPolynomial(const std::vector<double>& coefficients,
 namespace sptk {
 
 LinearPredictiveCoefficientsToLineSpectralPairs::
-    LinearPredictiveCoefficientsToLineSpectralPairs(int num_order,
-                                                    int num_split,
-                                                    int num_iteration,
-                                                    double epsilon)
+    LinearPredictiveCoefficientsToLineSpectralPairs(
+        int num_order, int num_split, int num_iteration,
+        double convergence_threshold)
     : num_order_(num_order),
       num_symmetric_polynomial_order_(
           static_cast<int>(std::ceil(num_order_ * 0.5))),
@@ -78,11 +77,12 @@ LinearPredictiveCoefficientsToLineSpectralPairs::
           static_cast<int>(std::floor(num_order_ * 0.5))),
       num_split_(num_split),
       num_iteration_(num_iteration),
-      epsilon_(epsilon),
+      convergence_threshold_(convergence_threshold),
       is_valid_(true) {
   if (num_order_ < 0 || num_split_ <= 0 || num_iteration_ <= 0 ||
-      epsilon_ < 0.0) {
+      convergence_threshold_ < 0.0) {
     is_valid_ = false;
+    return;
   }
 }
 
@@ -90,7 +90,7 @@ bool LinearPredictiveCoefficientsToLineSpectralPairs::Run(
     const std::vector<double>& linear_predictive_coefficients,
     std::vector<double>* line_spectral_pairs,
     LinearPredictiveCoefficientsToLineSpectralPairs::Buffer* buffer) const {
-  // check inputs
+  // Check inputs.
   if (!is_valid_ ||
       linear_predictive_coefficients.size() !=
           static_cast<std::size_t>(num_order_ + 1) ||
@@ -98,15 +98,10 @@ bool LinearPredictiveCoefficientsToLineSpectralPairs::Run(
     return false;
   }
 
-  // prepare memory
+  // Prepare memories.
   if (line_spectral_pairs->size() != static_cast<std::size_t>(num_order_ + 1)) {
     line_spectral_pairs->resize(num_order_ + 1);
   }
-
-  (*line_spectral_pairs)[0] = linear_predictive_coefficients[0];
-  if (0 == num_order_) return true;
-
-  // prepare buffer
   if (buffer->c1_.size() !=
       static_cast<std::size_t>(num_symmetric_polynomial_order_ + 1)) {
     buffer->c1_.resize(num_symmetric_polynomial_order_ + 1);
@@ -116,37 +111,45 @@ bool LinearPredictiveCoefficientsToLineSpectralPairs::Run(
     buffer->c2_.resize(num_asymmetric_polynomial_order_ + 1);
   }
 
-  // calculate symmetric and antisymmetric polynomials
-  const double* p1(&(linear_predictive_coefficients[0]) + 1);
-  const double* p2(&(linear_predictive_coefficients[0]) + num_order_);
+  // Copy gain.
+  (*line_spectral_pairs)[0] = linear_predictive_coefficients[0];
+  if (0 == num_order_) return true;
+
+  // Calculate symmetric and antisymmetric polynomials.
   double* c1(&buffer->c1_[0]);
   double* c2(&buffer->c2_[0]);
-  c1[num_symmetric_polynomial_order_] = 1.0;
-  c2[num_asymmetric_polynomial_order_] = 1.0;
-  if (num_order_ % 2 == 0) {
-    for (int i(num_symmetric_polynomial_order_ - 1); 0 <= i; --i, ++p1, --p2) {
-      c1[i] = *p1 + *p2 - c1[i + 1];
-      c2[i] = *p1 - *p2 + c2[i + 1];
+  {
+    c1[num_symmetric_polynomial_order_] = 1.0;
+    c2[num_asymmetric_polynomial_order_] = 1.0;
+    const double* p1(&(linear_predictive_coefficients[0]) + 1);
+    const double* p2(&(linear_predictive_coefficients[0]) + num_order_);
+    if (num_order_ % 2 == 0) {
+      for (int i(num_symmetric_polynomial_order_ - 1); 0 <= i;
+           --i, ++p1, --p2) {
+        c1[i] = *p1 + *p2 - c1[i + 1];
+        c2[i] = *p1 - *p2 + c2[i + 1];
+      }
+    } else {
+      for (int i(num_asymmetric_polynomial_order_ - 1); 0 <= i;
+           --i, ++p1, --p2) {
+        c1[i + 1] = *p1 + *p2;
+        c2[i] = (i == num_asymmetric_polynomial_order_ - 1)
+                    ? *p1 - *p2
+                    : *p1 - *p2 + c2[i + 2];
+      }
+      c1[0] = *p1 + *p2;
     }
-  } else {
-    for (int i(num_asymmetric_polynomial_order_ - 1); 0 <= i; --i, ++p1, --p2) {
-      c1[i + 1] = *p1 + *p2;
-      c2[i] = (i == num_asymmetric_polynomial_order_ - 1)
-                  ? *p1 - *p2
-                  : *p1 - *p2 + c2[i + 2];
-    }
-    c1[0] = *p1 + *p2;
+    c1[0] *= 0.5;
+    c2[0] *= 0.5;
   }
-  c1[0] *= 0.5;
-  c2[0] *= 0.5;
 
-  // set initial condition
-  int order(0);
   std::vector<double>* c(&buffer->c1_);
+  int order(0);
   double x_prev(1.0);
   double y_prev(CalculateChebyshevPolynomial(*c, x_prev));
+  double* w(&((*line_spectral_pairs)[0]));
 
-  // search roots of polynomials
+  // Search roots of polynomials.
   const double delta(1.0 / num_split_);
   const double x_max(1.0 - delta);
   const double x_min(-1.0 - delta);
@@ -160,8 +163,8 @@ bool LinearPredictiveCoefficientsToLineSpectralPairs::Run(
       double y_upper(y_prev);
 
       for (int n(0); n < num_iteration_; ++n) {
-        double x_mid((x_lower + x_upper) * 0.5);
-        double y_mid(CalculateChebyshevPolynomial(*c, x_mid));
+        const double x_mid((x_lower + x_upper) * 0.5);
+        const double y_mid(CalculateChebyshevPolynomial(*c, x_mid));
 
         if (y_mid * y_upper <= 0.0) {
           x_lower = x_mid;
@@ -171,16 +174,17 @@ bool LinearPredictiveCoefficientsToLineSpectralPairs::Run(
           y_upper = y_mid;
         }
 
-        if (std::fabs(y_mid) <= epsilon_) break;
+        if (std::fabs(y_mid) <= convergence_threshold_) {
+          break;
+        }
       }
 
       const double x_interpolated((y_lower * x_upper - y_upper * x_lower) /
                                   (y_lower - y_upper));
-      (*line_spectral_pairs)[++order] =
-          std::acos(x_interpolated) / sptk::kTwoPi;
+      w[++order] = std::acos(x_interpolated) / sptk::kTwoPi;
       if (num_order_ == order) return true;
 
-      // update variables
+      // Update variables.
       c = (c == &buffer->c1_) ? &buffer->c2_ : &buffer->c1_;
       x = x_interpolated;
       y = CalculateChebyshevPolynomial(*c, x);
@@ -191,6 +195,13 @@ bool LinearPredictiveCoefficientsToLineSpectralPairs::Run(
   }
 
   return false;
+}
+
+bool LinearPredictiveCoefficientsToLineSpectralPairs::Run(
+    std::vector<double>* input_and_output,
+    LinearPredictiveCoefficientsToLineSpectralPairs::Buffer* buffer) const {
+  if (NULL == input_and_output) return false;
+  return Run(*input_and_output, input_and_output, buffer);
 }
 
 }  // namespace sptk

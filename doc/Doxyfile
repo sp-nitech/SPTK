@@ -868,6 +868,7 @@ INPUT                  = \
                          ../include/SPTK/conversion/generalized_cepstrum_gain_normalization.h \
                          ../include/SPTK/conversion/generalized_cepstrum_inverse_gain_normalization.h \
                          ../include/SPTK/conversion/linear_predictive_coefficients_to_cepstrum.h \
+                         ../include/SPTK/conversion/linear_predictive_coefficients_to_line_spectral_pairs.h \
                          ../include/SPTK/conversion/linear_predictive_coefficients_to_parcor_coefficients.h \
                          ../include/SPTK/conversion/log_area_ratio_to_parcor_coefficients.h \
                          ../include/SPTK/conversion/mel_cepstrum_to_mlsa_digital_filter_coefficients.h \
@@ -938,6 +939,7 @@ INPUT                  = \
                          ../src/main/levdur.cc \
                          ../src/main/lpc.cc \
                          ../src/main/lpc2c.cc \
+                         ../src/main/lpc2lsp.cc \
                          ../src/main/lpc2par.cc \
                          ../src/main/ltcdf.cc \
                          ../src/main/lspdf.cc \

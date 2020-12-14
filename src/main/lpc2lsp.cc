@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,15 +42,15 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>    // getopt_long
-#include <algorithm>   // std::transform
-#include <cmath>       // std::log
-#include <fstream>     // std::ifstream
-#include <functional>  // std::bind1st, std::multiplies
-#include <iomanip>     // std::setw
-#include <iostream>    // std::cerr, std::cin, std::cout, std::endl, etc.
-#include <sstream>     // std::ostringstream
-#include <vector>      // std::vector
+#include <getopt.h>  // getopt_long
+
+#include <algorithm>  // std::transform
+#include <cmath>      // std::log
+#include <fstream>    // std::ifstream
+#include <iomanip>    // std::setw
+#include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>    // std::ostringstream
+#include <vector>     // std::vector
 
 #include "SPTK/conversion/linear_predictive_coefficients_to_line_spectral_pairs.h"
 #include "SPTK/utils/sptk_utils.h"
@@ -65,8 +65,8 @@ enum OutputGainType {
 };
 
 enum OutputFormats {
-  kNormalizedFrequencyInRadians = 0,
-  kNormalizedFrequencyInCycles,
+  kFrequencyInRadians = 0,
+  kFrequencyInCycles,
   kFrequecnyInkHz,
   kFrequecnyInHz,
   kNumOutputFormats
@@ -75,7 +75,7 @@ enum OutputFormats {
 const int kDefaultNumOrder(25);
 const double kDefaultSamplingFrequency(10.0);
 const OutputGainType kDefaultOutputGainType(kLinearGain);
-const OutputFormats kDefaultOutputFormat(kNormalizedFrequencyInRadians);
+const OutputFormats kDefaultOutputFormat(kFrequencyInRadians);
 const int kDefaultNumSplit(256);
 const int kDefaultNumIteration(4);
 const double kDefaultConvergenceThreshold(1e-6);
@@ -95,14 +95,14 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 1 (log gain)" << std::endl;
   *stream << "                 2 (without gain)" << std::endl;
   *stream << "       -o o  : output format                           (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat         << "][   0 <= o <= 3 ]" << std::endl;  // NOLINT
-  *stream << "                 0 (normalized frequency [0...pi])" << std::endl;
-  *stream << "                 1 (normalized frequency [0...1/2])" << std::endl;
+  *stream << "                 0 (frequency [rad])" << std::endl;
+  *stream << "                 1 (frequency [pi rad])" << std::endl;
   *stream << "                 2 (frequency [kHz])" << std::endl;
   *stream << "                 3 (frequency [Hz])" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "     (level 2)" << std::endl;
-  *stream << "       -n n  : number of splits of unit circle         (   int)[" << std::setw(5) << std::right << kDefaultNumSplit             << "][   0 <  n <=   ]" << std::endl;  // NOLINT
-  *stream << "       -i i  : maximum number of iterations            (   int)[" << std::setw(5) << std::right << kDefaultNumIteration         << "][   0 <  i <=   ]" << std::endl;  // NOLINT
+  *stream << "       -n n  : number of splits of unit circle         (   int)[" << std::setw(5) << std::right << kDefaultNumSplit             << "][   1 <= n <=   ]" << std::endl;  // NOLINT
+  *stream << "       -i i  : maximum number of iterations            (   int)[" << std::setw(5) << std::right << kDefaultNumIteration         << "][   1 <= i <=   ]" << std::endl;  // NOLINT
   *stream << "       -d d  : convergence threshold                   (double)[" << std::setw(5) << std::right << kDefaultConvergenceThreshold << "][ 0.0 <= d <=   ]" << std::endl;  // NOLINT
   *stream << "  infile:" << std::endl;
   *stream << "       linear predictive coefficients                  (double)[stdin]" << std::endl;  // NOLINT
@@ -116,6 +116,45 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a lpc2lsp [ @e option ] [ @e infile ]
+ *
+ * - @b -m @e int
+ *   - order of coefficients @f$(0 \le M)@f$
+ * - @b -s @e double
+ *   - sampling rate @f$(0 < F_s)@f$
+ * - @b -k @e int
+ *   - output gain type
+ *     \arg @c 0 linear gain
+ *     \arg @c 1 log gain
+ *     \arg @c 2 without gain
+ * - @b -o @e int
+ *   - output format
+ *     \arg @c 0 frequency in rad
+ *     \arg @c 1 frequency in @f$\pi@f$ rad
+ *     \arg @c 2 frequency in kHz
+ *     \arg @c 3 frequency in Hz
+ * - @b -n @e int
+ *   - number of splits of unit circle @f$(1 \le S)@f$
+ * - @b -i @e int
+ *   - maximum number of iterations @f$(1 \le N)@f$
+ * - @b -d @e double
+ *   - convergence threshold @f$(0 \le \epsilon)@f$
+ * - @b infile @e str
+ *   - double-type LPC coefficients
+ * - @b stdout
+ *   - double-type LSP coefficients
+ *
+ * The below example extracts 10-th order LSP coefficients from @c data.d.
+ *
+ * @code{.sh}
+ *   frame < data.d | window | lpc -m 10 | lpc2lsp -m 10 > data.lsp
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   double sampling_frequency(kDefaultSamplingFrequency);
@@ -227,7 +266,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -237,7 +275,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -248,14 +285,14 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare to transform
   sptk::LinearPredictiveCoefficientsToLineSpectralPairs
       linear_predictive_coefficients_to_line_spectral_pairs(
           num_order, num_split, num_iteration, convergence_threshold);
   sptk::LinearPredictiveCoefficientsToLineSpectralPairs::Buffer buffer;
   if (!linear_predictive_coefficients_to_line_spectral_pairs.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for transformation";
+    error_message << "Failed to initialize "
+                     "LinearPredictiveCoefficientsToLineSpectralPairs";
     sptk::PrintErrorMessage("lpc2lsp", error_message);
     return 1;
   }
@@ -263,13 +300,12 @@ int main(int argc, char* argv[]) {
   const int length(num_order + 1);
   const int write_size(kWithoutGain == output_gain_type ? num_order : length);
   const int begin(kWithoutGain == output_gain_type ? 1 : 0);
-  std::vector<double> linear_predictive_coefficients(length);
-  std::vector<double> line_spectral_pairs(length);
+  std::vector<double> coefficients(length);
 
-  while (sptk::ReadStream(false, 0, 0, length, &linear_predictive_coefficients,
-                          &input_stream, NULL)) {
+  while (sptk::ReadStream(false, 0, 0, length, &coefficients, &input_stream,
+                          NULL)) {
     if (!linear_predictive_coefficients_to_line_spectral_pairs.Run(
-            linear_predictive_coefficients, &line_spectral_pairs, &buffer)) {
+            &coefficients, &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to convert linear predictive coefficients to "
                        "line spectral pairs";
@@ -278,30 +314,29 @@ int main(int argc, char* argv[]) {
     }
 
     switch (output_format) {
-      case kNormalizedFrequencyInRadians: {
-        std::transform(line_spectral_pairs.begin() + 1,
-                       line_spectral_pairs.end(),
-                       line_spectral_pairs.begin() + 1,
-                       std::bind1st(std::multiplies<double>(), sptk::kTwoPi));
+      case kFrequencyInRadians: {
+        std::transform(coefficients.begin() + 1, coefficients.end(),
+                       coefficients.begin() + 1,
+                       [](double w) { return w * sptk::kTwoPi; });
         break;
       }
-      case kNormalizedFrequencyInCycles: {
+      case kFrequencyInCycles: {
         // nothing to do
         break;
       }
       case kFrequecnyInkHz: {
         std::transform(
-            line_spectral_pairs.begin() + 1, line_spectral_pairs.end(),
-            line_spectral_pairs.begin() + 1,
-            std::bind1st(std::multiplies<double>(), sampling_frequency));
+            coefficients.begin() + 1, coefficients.end(),
+            coefficients.begin() + 1,
+            [sampling_frequency](double w) { return w * sampling_frequency; });
         break;
       }
       case kFrequecnyInHz: {
-        std::transform(line_spectral_pairs.begin() + 1,
-                       line_spectral_pairs.end(),
-                       line_spectral_pairs.begin() + 1,
-                       std::bind1st(std::multiplies<double>(),
-                                    1000.0 * sampling_frequency));
+        std::transform(coefficients.begin() + 1, coefficients.end(),
+                       coefficients.begin() + 1,
+                       [sampling_frequency](double w) {
+                         return w * 1000.0 * sampling_frequency;
+                       });
         break;
       }
       default: { break; }
@@ -313,7 +348,7 @@ int main(int argc, char* argv[]) {
         break;
       }
       case kLogGain: {
-        line_spectral_pairs[0] = std::log(line_spectral_pairs[0]);
+        coefficients[0] = std::log(coefficients[0]);
         break;
       }
       case kWithoutGain: {
@@ -323,8 +358,7 @@ int main(int argc, char* argv[]) {
       default: { break; }
     }
 
-    if (!sptk::WriteStream(begin, write_size, line_spectral_pairs, &std::cout,
-                           NULL)) {
+    if (!sptk::WriteStream(begin, write_size, coefficients, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write line spectral pairs";
       sptk::PrintErrorMessage("lpc2lsp", error_message);

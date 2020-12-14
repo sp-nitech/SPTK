@@ -108,6 +108,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b -i @e int
  *   - interpolation period @f$(0 \le I \le P/2)@f$
  * - @b -k @e int
+ *   - input gain type
  *     \arg @c 0 linear gain
  *     \arg @c 1 log gain
  *     \arg @c 2 unity gain
