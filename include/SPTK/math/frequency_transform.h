@@ -63,7 +63,7 @@ namespace sptk {
  * and the output is the @f$M_2@f$-th order frequency-warped sequence:
  * @f[
  *   \begin{array}{cccc}
- *     c_{\alpha_2}(0), & c_{\alpha_2}(1), & \ldots, & c_{\alpha_2}(M_2),
+ *     c_{\alpha_2}(0), & c_{\alpha_2}(1), & \ldots, & c_{\alpha_2}(M_2).
  *   \end{array}
  * @f]
  * The output sequence can be obtained by using the following recursion formula:
