@@ -963,6 +963,7 @@ INPUT                  = \
                          ../src/main/pitch_mark.cc \
                          ../src/main/poledf.cc \
                          ../src/main/pqmf.cc \
+                         ../src/main/ramp.cc \
                          ../src/main/rlevdur.cc \
                          ../src/main/step.cc \
                          ../src/main/train.cc \
