@@ -112,7 +112,7 @@ void PrintUsage(std::ostream* stream) {
  * @f[
  *   \epsilon(l) \sim \mathcal{N}(\mu, \sigma^2).
  * @f]
- * If the output length @f$L@f$ is not given, an inifinite random value sequence
+ * If the output length @f$L@f$ is not given, an infinite random value sequence
  * is generated.
  *
  * In the below example, normal distributed random values of length 100 are

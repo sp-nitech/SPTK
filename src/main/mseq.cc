@@ -92,8 +92,8 @@ void PrintUsage(std::ostream* stream) {
  *     1, & -1, & 1, & \ldots, & 1
  *   \end{array}
  * @f]
- * where the output length is @f$L@f$. If @f$L@f$ is not given, an inifinite
- * m-sequence is generated.
+ * where the output length is @f$L@f$.
+ * If @f$L@f$ is not given, an infinite m-sequence is generated.
  *
  * @param[in] argc Number of arguments.
  * @param[in] argv Argument vector.

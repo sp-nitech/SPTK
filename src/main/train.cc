@@ -114,7 +114,7 @@ void PrintUsage(std::ostream* stream) {
  *   \end{array}
  * @f]
  * where @f$x(l)@f$ is non-zero at every @f$P@f$ period.
- * If @f$L@f$ is not given, an inifinite pulse sequence is generated.
+ * If @f$L@f$ is not given, an infinite pulse sequence is generated.
  *
  * There are three kind of normalization types:
  * @f{eqnarray}{

@@ -95,8 +95,8 @@ void PrintUsage(std::ostream* stream) {
  *     V, & V, & \ldots, & V
  *   \end{array}
  * @f]
- * where the output length is @f$L@f$. If @f$L@f$ is not given, an inifinite
- * step sequence is generated.
+ * where the output length is @f$L@f$.
+ * If @f$L@f$ is not given, an infinite step sequence is generated.
  *
  * In the below example, the step response of a ditital filter is calculated and
  * shown on the screen.
