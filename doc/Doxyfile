@@ -965,6 +965,7 @@ INPUT                  = \
                          ../src/main/pqmf.cc \
                          ../src/main/ramp.cc \
                          ../src/main/rlevdur.cc \
+                         ../src/main/sin.cc \
                          ../src/main/step.cc \
                          ../src/main/train.cc \
                          ../src/main/ulaw.cc \

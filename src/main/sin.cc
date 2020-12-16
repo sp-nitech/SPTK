@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <cmath>     // std::cos, std::sin
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cout, std::endl, etc.
@@ -81,6 +82,38 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a sin [ @e option ]
+ *
+ * - @b -l @e int
+ *   - output length @f$(1 \le L)@f$
+ * - @b -m @e int
+ *   - output order @f$(0 \le L - 1)@f$
+ * - @b -p @e double
+ *   - period @f$(0 < P)@f$
+ * - @b -a @e double
+ *   - amplitude @f$(A)@f$
+ * - @b -C @e bool
+ *   - generate cosine wave
+ * - @b stdout
+ *   - double-type sinusoidal sequence
+ *
+ * The output of this command is
+ * @f[
+ *   \begin{array}{cccc}
+ *     x(0), & x(1), & \ldots, & x(L-1),
+ *   \end{array}
+ * @f]
+ * where
+ * @f[
+ *   x(l) = A \sin \left( \frac{2\pi l}{P} \right).
+ * @f]
+ * If @f$L@f$ is not given, an infinite sinusoidal sequence is generated.
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int output_length(kMagicNumberForInfinity);
   double period(kDefaultPeriod);
@@ -156,12 +189,11 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  const double frequency(1.0 / period);
+  const double omega(sptk::kTwoPi / period);
   for (int i(0); kMagicNumberForInfinity == output_length || i < output_length;
        ++i) {
-    const double output(
-        cosine_wave ? amplitude * std::cos(sptk::kTwoPi * frequency * i)
-                    : amplitude * std::sin(sptk::kTwoPi * frequency * i));
+    const double output(cosine_wave ? amplitude * std::cos(omega * i)
+                                    : amplitude * std::sin(omega * i));
     if (!sptk::WriteStream(output, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write sinusoidal sequence";
