@@ -946,6 +946,7 @@ INPUT                  = \
                          ../src/main/lsp2lpc.cc \
                          ../src/main/lspdf.cc \
                          ../src/main/mc2b.cc \
+                         ../src/main/median.cc \
                          ../src/main/mfcc.cc \
                          ../src/main/mglsp2sp.cc \
                          ../src/main/mlpg.cc \

@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>   // getopt_long
+
 #include <algorithm>  // std::sort
 #include <fstream>    // std::ifstream
 #include <iomanip>    // std::setw
@@ -105,6 +106,62 @@ bool OutputMedian(const std::vector<std::vector<double> >& input_vectors) {
 
 }  // namespace
 
+/**
+ * @a median [ @e option ] [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - length of vector @f$(1 \le L)@f$
+ * - @b -m @e int
+ *   - order of vector @f$(0 \le L - 1)@f$
+ * - @b -t @e int
+ *   - output interval @f$(1 \le T)@f$
+ * - @b infile @e str
+ *   - double-type vectors
+ * - @b stdout
+ *   - double-type median
+ *
+ * The input of this command is
+ * @f[
+ *   \begin{array}{ccc}
+ *     \underbrace{x_1(1), \; \ldots, \; x_1(L)}_L, &
+ *     \underbrace{x_2(1), \; \ldots, \; x_2(L)}_L, &
+ *     \ldots,
+ *   \end{array}
+ * @f]
+ * and the output is
+ * @f[
+ *   \begin{array}{ccc}
+ *     \underbrace{m_{0}(1), \; \ldots, \; m_{0}(L)}_L, &
+ *     \underbrace{m_{T}(1), \; \ldots, \; m_{T}(L)}_L, &
+ *     \ldots,
+ *   \end{array}
+ * @f]
+ * where @f$m_t(l)@f$ is the median value of
+ * @f$\left\{ x_{t+\tau}(l) \right\}_{\tau=1}^T@f$.
+ * If @f$T@f$ is not given, the median of the whole input is computed.
+ *
+ * @code{.sh}
+ *   # The number of input is even:
+ *   echo 0 1 2 3 4 5 | x2x +ad | median | x2x +da
+ *   # 2.5
+ * @endcode
+ *
+ * @code{.sh}
+ *   # The number of input is odd:
+ *   echo 0 1 2 3 4 5 | x2x +ad | median | x2x +da
+ *   # 3
+ * @endcode
+ *
+ * @code{.sh}
+ *   echo 0 1 2 3 4 5 | x2x +ad | median -t 3 | x2x +da
+ *   # 1
+ *   # 4
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int vector_length(kDefaultVectorLength);
   int output_interval(kMagicNumberForEndOfFile);
@@ -159,7 +216,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -169,7 +225,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -184,6 +239,7 @@ int main(int argc, char* argv[]) {
   if (kMagicNumberForEndOfFile != output_interval) {
     input_vectors.reserve(output_interval);
   }
+
   std::vector<double> data(vector_length);
   for (int index(1);
        sptk::ReadStream(false, 0, 0, vector_length, &data, &input_stream, NULL);
