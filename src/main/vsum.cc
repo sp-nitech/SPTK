@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -81,6 +82,60 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a vsum [ @e option ] [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - length of vector @f$(1 \le L)@f$
+ * - @b -m @e int
+ *   - order of vector @f$(0 \le L - 1)@f$
+ * - @b -t @e int
+ *   - output interval @f$(1 \le T)@f$
+ * - @b infile @e str
+ *   - double-type vectors
+ * - @b stdout
+ *   - double-type summation
+ *
+ * The input of this command is
+ * @f[
+ *   \begin{array}{ccc}
+ *     \underbrace{x_1(1), \; \ldots, \; x_1(L)}_L, &
+ *     \underbrace{x_2(1), \; \ldots, \; x_2(L)}_L, &
+ *     \ldots,
+ *   \end{array}
+ * @f]
+ * and the output is
+ * @f[
+ *   \begin{array}{ccc}
+ *     \underbrace{s_{0}(1), \; \ldots, \; s_{0}(L)}_L, &
+ *     \underbrace{s_{T}(1), \; \ldots, \; s_{T}(L)}_L, &
+ *     \ldots,
+ *   \end{array}
+ * @f]
+ * where
+ * @f[
+ *   s_t(l) = \sum_{\tau=1}^{T} x_{t+\tau}(l).
+ * @f]
+ * If @f$T@f$ is not given, the summation of the whole input is computed.
+ *
+ * @code{.sh}
+ *   echo 0 1 2 3 4 5 6 7 8 9 | x2x +ad | vsum -l 2 | x2x +da
+ *   # 20
+ *   # 25
+ * @endcode
+ *
+ * @code{.sh}
+ *   echo 0 1 2 3 4 5 6 7 | x2x +ad | vsum -l 2 -t 2 | x2x +da
+ *   # 2
+ *   # 4
+ *   # 10
+ *   # 12
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int vector_length(kDefaultVectorLength);
   int output_interval(kMagicNumberForEndOfFile);
@@ -135,7 +190,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -145,7 +199,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -160,7 +213,7 @@ int main(int argc, char* argv[]) {
   sptk::StatisticsAccumulation::Buffer buffer;
   if (!accumulation.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for accumulation";
+    error_message << "Failed to initialize StatisticsAccumulation";
     sptk::PrintErrorMessage("vsum", error_message);
     return 1;
   }
@@ -195,24 +248,24 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  int num_actual_vector;
-  if (!accumulation.GetNumData(buffer, &num_actual_vector)) {
+  int num_data;
+  if (!accumulation.GetNumData(buffer, &num_data)) {
     std::ostringstream error_message;
     error_message << "Failed to accumulate statistics";
     sptk::PrintErrorMessage("vsum", error_message);
     return 1;
   }
 
-  if (kMagicNumberForEndOfFile == output_interval && 0 < num_actual_vector) {
+  if (kMagicNumberForEndOfFile == output_interval && 0 < num_data) {
     if (!accumulation.GetSum(buffer, &sum)) {
       std::ostringstream error_message;
-      error_message << "Failed to accumulate statistics";
+      error_message << "Failed to compute summation";
       sptk::PrintErrorMessage("vsum", error_message);
       return 1;
     }
     if (!sptk::WriteStream(0, vector_length, sum, &std::cout, NULL)) {
       std::ostringstream error_message;
-      error_message << "Failed to write statistics";
+      error_message << "Failed to write summation";
       sptk::PrintErrorMessage("vsum", error_message);
       return 1;
     }

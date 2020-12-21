@@ -103,14 +103,25 @@ void PrintUsage(std::ostream* stream) {
  * and the output is
  * @f[
  *   \begin{array}{ccc}
- *     y_1, & y_2, & \ldots,
+ *     a_1, & a_2, & \ldots,
  *   \end{array}
  * @f]
  * where
  * @f[
- *   y_n = \frac{1}{L} \sum_{l=0}^{L-1} x_n(l).
+ *   a_n = \frac{1}{L} \sum_{l=1}^{L} x_n(l).
  * @f]
  * If @f$L@f$ is not given, the average of the whole input is computed.
+ *
+ * @code{.sh}
+ *   echo 0 1 2 3 4 5 6 7 8 9 | x2x +ad | average | x2x +da
+ *   # 4.5
+ * @endcode
+ *
+ * @code{.sh}
+ *   echo 0 1 2 3 4 5 6 7 8 9 | x2x +ad | average -l 5 | x2x +da
+ *   # 2
+ *   # 7
+ * @endcode
  *
  * @param[in] argc Number of arguments.
  * @param[in] argv Argument vector.

@@ -969,6 +969,7 @@ INPUT                  = \
                          ../src/main/step.cc \
                          ../src/main/train.cc \
                          ../src/main/ulaw.cc \
+                         ../src/main/vsum.cc \
                          ../src/main/window.cc \
                          ../src/main/zerodf.cc \
                          ../src/utils/misc_utils.cc \
