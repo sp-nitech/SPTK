@@ -1,0 +1,35 @@
+name: build
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'doc/**'
+      - '**.md'
+  pull_request:
+    branches:
+      - '**'
+    paths-ignore:
+      - 'doc/**'
+      - '**.md'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: install packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install csh clang-format valgrind
+    - name: setup
+      run: cd tools; make bats.done cpplint.done sptk.done
+    - name: make
+      run: make
+    - name: make format
+      run: make format
+    - name: make test
+      run: make test
