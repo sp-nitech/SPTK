@@ -5,4 +5,4 @@ ramp
 
 .. doxygenfile:: ramp.cc
 
-.. seealso:: :ref:`step`
+.. seealso:: :ref:`impulse`  :ref:`step`  :ref:`train`  :ref:`sin`

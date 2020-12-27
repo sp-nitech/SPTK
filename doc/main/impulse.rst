@@ -5,4 +5,4 @@ impulse
 
 .. doxygenfile:: impulse.cc
 
-.. seealso:: :ref:`step`
+.. seealso:: :ref:`step`  :ref:`train`  :ref:`ramp`  :ref:`sin`

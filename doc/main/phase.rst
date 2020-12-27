@@ -5,7 +5,7 @@ phase
 
 .. doxygenfile:: phase.cc
 
-.. seealso:: :ref:`grpdelay`
+.. seealso:: :ref:`grpdelay`  :ref:`fft`  :ref:`fftr`
 
 .. doxygenclass:: sptk::FilterCoefficientsToPhaseSpectrum
    :members:

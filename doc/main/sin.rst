@@ -5,4 +5,4 @@ sin
 
 .. doxygenfile:: sin.cc
 
-.. seealso:: :ref:`step`
+.. seealso:: :ref:`impulse`  :ref:`step`  :ref:`ramp`  :ref:`train`

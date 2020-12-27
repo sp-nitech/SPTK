@@ -1,3 +1,5 @@
+.. _entropy:
+
 entropy
 =======
 
