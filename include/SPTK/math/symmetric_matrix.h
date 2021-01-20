@@ -47,8 +47,6 @@
 
 #include <vector>  // std::vector
 
-#include "SPTK/utils/sptk_utils.h"
-
 namespace sptk {
 
 class SymmetricMatrix {
@@ -67,7 +65,8 @@ class SymmetricMatrix {
     const SymmetricMatrix& symmetric_matrix_;
     const int row_;
     friend class SymmetricMatrix;
-    DISALLOW_COPY_AND_ASSIGN(Row);
+    Row(const Row&);
+    void operator=(const Row&);
   };
 
   //
@@ -109,6 +108,9 @@ class SymmetricMatrix {
 
   //
   void Fill(double value);
+
+  //
+  bool GetDiagonal(std::vector<double>* diagonal_elements) const;
 
   //
   bool CholeskyDecomposition(SymmetricMatrix* lower_triangular_matrix,

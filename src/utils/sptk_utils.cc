@@ -79,7 +79,6 @@ bool ReadStream(T* data_to_read, std::istream* input_stream) {
   return (type_byte == input_stream->gcount()) ? !input_stream->fail() : false;
 }
 
-template <>
 bool ReadStream(sptk::Matrix* matrix_to_read, std::istream* input_stream) {
   if (NULL == matrix_to_read || 0 == matrix_to_read->GetNumRow() ||
       0 == matrix_to_read->GetNumColumn() || NULL == input_stream ||
@@ -96,6 +95,27 @@ bool ReadStream(sptk::Matrix* matrix_to_read, std::istream* input_stream) {
 
   return (num_read_bytes == input_stream->gcount()) ? !input_stream->fail()
                                                     : false;
+}
+
+bool ReadStream(sptk::SymmetricMatrix* matrix_to_read,
+                std::istream* input_stream) {
+  if (NULL == matrix_to_read) {
+    return false;
+  }
+
+  const int dim(matrix_to_read->GetNumDimension());
+  sptk::Matrix matrix(dim, dim);
+  if (!sptk::ReadStream(&matrix, input_stream)) {
+    return false;
+  }
+
+  for (int i(0); i < dim; ++i) {
+    for (int j(0); j <= i; ++j) {
+      (*matrix_to_read)[i][j] = matrix[i][j];
+    }
+  }
+
+  return true;
 }
 
 template <typename T>
@@ -173,6 +193,24 @@ bool WriteStream(const sptk::Matrix& matrix_to_write,
                            matrix_to_write.GetNumColumn());
 
   return !output_stream->fail();
+}
+
+bool WriteStream(const sptk::SymmetricMatrix& matrix_to_write,
+                 std::ostream* output_stream) {
+  const int dim(matrix_to_write.GetNumDimension());
+  if (0 == dim) {
+    return false;
+  }
+
+  for (int i(0); i < dim; ++i) {
+    for (int j(0); j < dim; ++j) {
+      if (!WriteStream(matrix_to_write[i][j], output_stream)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
 }
 
 template <typename T>

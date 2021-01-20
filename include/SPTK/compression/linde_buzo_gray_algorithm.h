@@ -55,10 +55,12 @@
 namespace sptk {
 
 /**
+ * Design codebook.
+ *
  * The input is the @f$M@f$-th order input vectors:
  * @f[
  *   \begin{array}{cccc}
- *     \boldsymbol{x}(0), & \boldsymbol{x}(1), & \ldots, & \boldsymbol{x}(T-1),
+ *     \boldsymbol{x}_0, & \boldsymbol{x}_1, & \ldots, & \boldsymbol{x}_{T-1},
  *   \end{array}
  * @f]
  * where @f$T@f$ is the number of vectors.

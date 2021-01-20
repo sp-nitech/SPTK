@@ -142,6 +142,20 @@ void SymmetricMatrix::Fill(double value) {
   std::fill(data_.begin(), data_.end(), value);
 }
 
+bool SymmetricMatrix::GetDiagonal(
+    std::vector<double>* diagonal_elements) const {
+  if (NULL == diagonal_elements) {
+    return false;
+  }
+  if (diagonal_elements->size() != static_cast<std::size_t>(num_dimension_)) {
+    diagonal_elements->resize(num_dimension_);
+  }
+  for (int i(0); i < num_dimension_; ++i) {
+    (*diagonal_elements)[i] = index_[i][i];
+  }
+  return true;
+}
+
 bool SymmetricMatrix::CholeskyDecomposition(
     SymmetricMatrix* lower_triangular_matrix,
     std::vector<double>* diagonal_elements) const {

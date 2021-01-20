@@ -51,6 +51,7 @@
 #include <vector>    // std::vector
 
 #include "SPTK/math/matrix.h"
+#include "SPTK/math/symmetric_matrix.h"
 
 #ifndef DISALLOW_COPY_AND_ASSIGN
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
@@ -70,8 +71,9 @@ static const double kLogZero(-1.0e+10);
 
 template <typename T>
 bool ReadStream(T* data_to_read, std::istream* input_stream);
-template <>
 bool ReadStream(sptk::Matrix* matrix_to_read, std::istream* input_stream);
+bool ReadStream(sptk::SymmetricMatrix* matrix_to_read,
+                std::istream* input_stream);
 template <typename T>
 bool ReadStream(bool zero_padding, int stream_skip, int read_point,
                 int read_size, std::vector<T>* sequence_to_read,
@@ -79,6 +81,8 @@ bool ReadStream(bool zero_padding, int stream_skip, int read_point,
 template <typename T>
 bool WriteStream(T data_to_write, std::ostream* output_stream);
 bool WriteStream(const sptk::Matrix& matrix_to_write,
+                 std::ostream* output_stream);
+bool WriteStream(const sptk::SymmetricMatrix& matrix_to_write,
                  std::ostream* output_stream);
 template <typename T>
 bool WriteStream(int write_point, int write_size,
