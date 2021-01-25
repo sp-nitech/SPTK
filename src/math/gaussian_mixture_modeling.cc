@@ -293,7 +293,8 @@ bool GaussianMixtureModeling::Run(
         (*weights)[k] = buffer0[k] * z;
       }
     } else {
-      const double z(num_data + std::accumulate(xi_.begin(), xi_.end(), 0.0));
+      const double z(1.0 /
+                     (num_data + std::accumulate(xi_.begin(), xi_.end(), 0.0)));
       for (int k(0); k < num_mixture_; ++k) {
         (*weights)[k] = (buffer0[k] + xi_[k]) * z;
       }
@@ -385,34 +386,40 @@ bool GaussianMixtureModeling::CalculateLogProbability(
     std::vector<double>* components_of_log_probability, double* log_probability,
     GaussianMixtureModeling::Buffer* buffer) {
   // Check inputs.
+  const int length(num_order + 1);
   if (num_mixture < 0 ||
-      input_vector.size() != static_cast<std::size_t>(num_order + 1) ||
-      NULL == components_of_log_probability || NULL == log_probability ||
-      NULL == buffer) {
+      input_vector.size() != static_cast<std::size_t>(length) ||
+      NULL == log_probability || NULL == buffer) {
     return false;
   }
 
   // Check size of GMM.
   if (check_size &&
-      !CheckGmm(num_mixture, num_order + 1, weights, mean_vectors,
+      !CheckGmm(num_mixture, length, weights, mean_vectors,
                 covariance_matrices)) {
     return false;
   }
 
   // Prepare memories.
-  if (components_of_log_probability->size() !=
-      static_cast<std::size_t>(num_mixture)) {
+  if (components_of_log_probability &&
+      components_of_log_probability->size() !=
+          static_cast<std::size_t>(num_mixture)) {
     components_of_log_probability->resize(num_mixture);
+  }
+  if (buffer->d_.size() != static_cast<std::size_t>(length)) {
+    buffer->d_.resize(length);
+  }
+  if (buffer->gconsts_.size() != static_cast<std::size_t>(num_mixture)) {
+    buffer->gconsts_.resize(num_mixture);
+  }
+  if (buffer->precisions_.size() != static_cast<std::size_t>(num_mixture)) {
+    buffer->precisions_.resize(num_mixture);
   }
 
   if (!buffer->precomputed_) {
-    if (buffer->gconsts_.size() != static_cast<std::size_t>(num_mixture)) {
-      buffer->gconsts_.resize(num_mixture);
-    }
-
     // Precompute constant of log likelihood without multiplying -0.5.
     for (int k(0); k < num_mixture; ++k) {
-      double gconst((num_order + 1) * std::log(sptk::kTwoPi));
+      double gconst(length * std::log(sptk::kTwoPi));
       double log_determinant(0.0);
       if (is_diagonal) {
         for (int l(0); l <= num_order; ++l) {
@@ -436,9 +443,6 @@ bool GaussianMixtureModeling::CalculateLogProbability(
 
     // Precompute inverse of covariance matrix.
     if (!is_diagonal) {
-      if (buffer->precisions_.size() != static_cast<std::size_t>(num_mixture)) {
-        buffer->precisions_.resize(num_mixture);
-      }
       for (int k(0); k < num_mixture; ++k) {
         if (!covariance_matrices[k].Invert(&(buffer->precisions_[k]))) {
           return false;
@@ -462,21 +466,24 @@ bool GaussianMixtureModeling::CalculateLogProbability(
         sum += diff * diff / covariance_matrices[k][l][l];
       }
     } else {
-      std::vector<double> diffs(num_order + 1);
+      double* d(&(buffer->d_[0]));
       for (int l(0); l <= num_order; ++l) {
-        diffs[l] = x[l] - mu[l];
+        d[l] = x[l] - mu[l];
       }
       for (int l(0); l <= num_order; ++l) {
         double tmp(0.0);
         for (int m(0); m <= num_order; ++m) {
-          tmp += diffs[m] * buffer->precisions_[k][l][m];
+          tmp += d[m] * buffer->precisions_[k][l][m];
         }
-        sum += tmp * diffs[l];
+        sum += tmp * d[l];
       }
     }
 
-    (*components_of_log_probability)[k] = std::log(weights[k]) - 0.5 * sum;
-    total = AddInLogSpace(total, (*components_of_log_probability)[k]);
+    const double p(std::log(weights[k]) - 0.5 * sum);
+    if (components_of_log_probability) {
+      (*components_of_log_probability)[k] = p;
+    }
+    total = AddInLogSpace(total, p);
   }
 
   *log_probability = total;

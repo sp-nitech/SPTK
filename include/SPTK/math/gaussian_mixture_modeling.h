@@ -163,6 +163,7 @@ class GaussianMixtureModeling {
     }
 
    private:
+    std::vector<double> d_;
     std::vector<double> gconsts_;
     std::vector<sptk::SymmetricMatrix> precisions_;
     bool precomputed_;
@@ -292,6 +293,20 @@ class GaussianMixtureModeling {
            std::vector<std::vector<double> >* mean_vectors,
            std::vector<sptk::SymmetricMatrix>* covariance_matrices) const;
 
+  /**
+   * Calculate log-probablity of data.
+   *
+   * @param[in] num_mixture Number of mixture components.
+   * @param[in] num_order Order of input vector.
+   * @param[in] input_vectors @f$M@f$-th order input vector.
+   * @param[in] weights @f$K@f$ mixture weights.
+   * @param[in] mean_vectors @f$K@f$ mean vectors.
+   * @param[in] covariance_matrices @f$K@f$ covariance matrices.
+   * @param[out] components_of_log_probability Components of log-probability.
+   * @param[out] log_probability Log-probability of input vector.
+   * @param[out] buffer Buffer.
+   * @return True on success, false on failure.
+   */
   static bool CalculateLogProbability(
       int num_mixture, int num_order, bool is_diagonal, bool check_size,
       const std::vector<double>& input_vector,
