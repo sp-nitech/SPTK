@@ -203,7 +203,7 @@ int main(int argc, char* argv[]) {
     }
     if (!sptk::WriteStream(data, &std::cout)) {
       std::ostringstream error_message;
-      error_message << "Failed to write data";
+      error_message << "Failed to write clipped data";
       sptk::PrintErrorMessage("clip", error_message);
       return 1;
     }
