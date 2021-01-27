@@ -298,7 +298,9 @@ class GaussianMixtureModeling {
    *
    * @param[in] num_order Order of input vector.
    * @param[in] num_mixture Number of mixture components.
-   * @param[in] input_vectors @f$M@f$-th order input vector.
+   * @param[in] is_diagonal If true, diagonal covariance is assumed.
+   * @param[in] check_size If true, check sanity of input GMM parameters.
+   * @param[in] input_vector @f$M@f$-th order input vector.
    * @param[in] weights @f$K@f$ mixture weights.
    * @param[in] mean_vectors @f$K@f$ mean vectors.
    * @param[in] covariance_matrices @f$K@f$ covariance matrices.
