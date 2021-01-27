@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -79,9 +80,55 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a transpose [ @e option ] [ @e infile ]
+ *
+ * - @b -r @e int
+ *   - number of rows @f$(1 \le M)@f$
+ * - @b -c @e int
+ *   - number of columns @f$(1 \le N)@f$
+ * - @b infile @e str
+ *   - double-type data sequence
+ * - @b stdout
+ *   - double-type transposed data sequence
+ *
+ * The input of this command is
+ * @f[
+ *   \begin{array}{ccc}
+ *     x(0,0) & x(0,1) & \cdots & x(0,N-1) \\
+ *     x(1,0) & x(1,1) & \cdots & x(1,N-1) \\
+ *     \vdots & \vdots &        & \vdots   \\
+ *     x(M-1,0) & x(M-1,1) & \cdots & x(M-1,N-1)
+ *   \end{array}
+ * @f]
+ * and the output is
+ * @f[
+ *   \begin{array}{ccc}
+ *     x(0,0) & x(1,0) & \cdots & x(M-1,0) \\
+ *     x(0,1) & x(1,1) & \cdots & x(M-1,1) \\
+ *     \vdots & \vdots &        & \vdots   \\
+ *     x(0,N-1) & x(1,N-1) & \cdots & x(M-1,N-1)
+ *   \end{array}
+ * @f]
+ * where @f$M@f$ is the number of rows and @f$N@f$ is the number of columns.
+ * Note that @f$x(m,n) \, \forall m \ge M@f$ are discarded.
+ *
+ * @code{.sh}
+ *   # 0 1 2
+ *   # 3 4 5
+ *   ramp -l 10 | transpose -r 2 -c 3 | x2x +da
+ *   # 0 3
+ *   # 1 4
+ *   # 2 5
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
-  int num_row(0);
-  int num_column(0);
+  int num_row(kDefaultNumRow);
+  int num_column(kDefaultNumColumn);
 
   for (;;) {
     const int option_char(getopt_long(argc, argv, "r:c:h", NULL, NULL));
@@ -120,7 +167,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // Get input file name.
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -130,7 +176,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // Open input stream.
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -146,7 +191,7 @@ int main(int argc, char* argv[]) {
   while (sptk::ReadStream(&matrix, &input_stream)) {
     if (!matrix.Transpose(&transposed_matrix)) {
       std::ostringstream error_message;
-      error_message << "Failed to transpose";
+      error_message << "Failed to transpose data";
       sptk::PrintErrorMessage("transpose", error_message);
       return 1;
     }

@@ -973,6 +973,7 @@ INPUT                  = \
                          ../src/main/sin.cc \
                          ../src/main/step.cc \
                          ../src/main/train.cc \
+                         ../src/main/transpose.cc \
                          ../src/main/ulaw.cc \
                          ../src/main/vsum.cc \
                          ../src/main/window.cc \
