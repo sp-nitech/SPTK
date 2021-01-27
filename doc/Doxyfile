@@ -968,6 +968,7 @@ INPUT                  = \
                          ../src/main/poledf.cc \
                          ../src/main/pqmf.cc \
                          ../src/main/ramp.cc \
+                         ../src/main/reverse.cc \
                          ../src/main/rlevdur.cc \
                          ../src/main/sin.cc \
                          ../src/main/step.cc \

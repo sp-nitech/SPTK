@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,7 +42,8 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>   // getopt_long
+#include <getopt.h>  // getopt_long
+
 #include <algorithm>  // std::reverse
 #include <fstream>    // std::ifstream
 #include <iomanip>    // std::setw
@@ -77,6 +78,51 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a reverse [ @e option ] [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - block length @f$(1 \le L)@f$
+ * - @b -m @e int
+ *   - block order @f$(0 \le L - 1)@f$
+ * - @b infile @e str
+ *   - double-type data sequence
+ * - @b stdout
+ *   - double-type reversed data sequence
+ *
+ * The input of this command is
+ * @f[
+ *   \begin{array}{ccc}
+ *     \underbrace{x_1(1), \; \ldots, \; x_1(L)}_L, &
+ *     \underbrace{x_2(1), \; \ldots, \; x_2(L)}_L, &
+ *     \ldots,
+ *   \end{array}
+ * @f]
+ * and the output is
+ * @f[
+ *   \begin{array}{ccc}
+ *     \underbrace{x_1(L), \; \ldots, \; x_1(1)}_L, &
+ *     \underbrace{x_2(L), \; \ldots, \; x_2(1)}_L, &
+ *     \ldots,
+ *   \end{array}
+ * @f]
+ * where @f$L@f$ is the block length. If @f$L@f$ is not given, @f$L@f$ is
+ * assumed to be the length of entire sequence.
+ *
+ * @code{.sh}
+ *   ramp -l 9 | reverse | x2x +da
+ *   # 8, 7, 6, 5, 4, 3, 2, 1, 0
+ * @endcode
+ *
+ * @code{.sh}
+ *   ramp -l 9 | reverse -l 3 | x2x +da
+ *   # 2, 1, 0, 5, 4, 3, 8, 7, 6
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int block_length(0);
 
@@ -119,7 +165,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // Get input file name.
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -129,7 +174,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // Open input stream.
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -141,6 +185,7 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
   if (0 == block_length) {
+    // Reverse whole sequence.
     std::vector<double> data;
     double tmp;
     while (sptk::ReadStream(&tmp, &input_stream)) {
@@ -156,6 +201,7 @@ int main(int argc, char* argv[]) {
       }
     }
   } else {
+    // Reverse partial sequence.
     std::vector<double> data(block_length);
     while (sptk::ReadStream(false, 0, 0, block_length, &data, &input_stream,
                             NULL)) {
