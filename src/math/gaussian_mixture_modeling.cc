@@ -255,7 +255,7 @@ bool GaussianMixtureModeling::Run(
     for (int t(0); t < num_data; ++t) {
       // Compute log-likelihood of data.
       double denominator;
-      if (!CalculateLogProbability(num_mixture_, num_order_, is_diagonal_,
+      if (!CalculateLogProbability(num_order_, num_mixture_, is_diagonal_,
                                    false, input_vectors[t], *weights,
                                    *mean_vectors, *covariance_matrices,
                                    &numerators, &denominator, &buffer)) {

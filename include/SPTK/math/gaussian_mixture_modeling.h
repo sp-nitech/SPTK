@@ -296,8 +296,8 @@ class GaussianMixtureModeling {
   /**
    * Calculate log-probablity of data.
    *
-   * @param[in] num_mixture Number of mixture components.
    * @param[in] num_order Order of input vector.
+   * @param[in] num_mixture Number of mixture components.
    * @param[in] input_vectors @f$M@f$-th order input vector.
    * @param[in] weights @f$K@f$ mixture weights.
    * @param[in] mean_vectors @f$K@f$ mean vectors.
@@ -308,7 +308,7 @@ class GaussianMixtureModeling {
    * @return True on success, false on failure.
    */
   static bool CalculateLogProbability(
-      int num_mixture, int num_order, bool is_diagonal, bool check_size,
+      int num_order, int num_mixture, bool is_diagonal, bool check_size,
       const std::vector<double>& input_vector,
       const std::vector<double>& weights,
       const std::vector<std::vector<double> >& mean_vectors,
