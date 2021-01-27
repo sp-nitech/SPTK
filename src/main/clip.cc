@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <cfloat>    // DBL_MAX
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
@@ -80,6 +81,37 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a clip [ @e option ] [ @e infile ]
+ *
+ * - @b -l @e double
+ *   - lower bound @f$(L)@f$
+ * - @b -u @e double
+ *   - upper bound @f$(U)@f$
+ * - @b infile @e str
+ *   - double-type data sequence
+ * - @b stdout
+ *   - double-type clipped data sequence
+ *
+ * The output of this command is
+ * @f[
+ *   f(x) = \left\{ \begin{array}{ll}
+ *     L & (x \le L) \\
+ *     x & (L < x < U) \\
+ *     U & (U \le x)
+ *   \end{array} \right.
+ * @f]
+ * where @f$x@f$ is the input.
+ *
+ * @code{.sh}
+ *   ramp -l 8 | clip -u 4 | x2x +da
+ *   # 0, 1, 2, 3, 4, 4, 4, 4
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   double lower_bound(kDefaultLowerBound);
   double upper_bound(kDefaultUpperBound);
@@ -125,7 +157,6 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -135,7 +166,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -167,7 +197,7 @@ int main(int argc, char* argv[]) {
     bool is_magic_number;
     if (!scalar_operation.Run(&data, &is_magic_number)) {
       std::ostringstream error_message;
-      error_message << "Failed to clip";
+      error_message << "Failed to clip data";
       sptk::PrintErrorMessage("clip", error_message);
       return 1;
     }
