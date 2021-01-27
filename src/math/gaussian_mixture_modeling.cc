@@ -379,7 +379,7 @@ bool GaussianMixtureModeling::Run(
 }
 
 bool GaussianMixtureModeling::CalculateLogProbability(
-    int num_mixture, int num_order, bool is_diagonal, bool check_size,
+    int num_order, int num_mixture, bool is_diagonal, bool check_size,
     const std::vector<double>& input_vector, const std::vector<double>& weights,
     const std::vector<std::vector<double> >& mean_vectors,
     const std::vector<sptk::SymmetricMatrix>& covariance_matrices,
