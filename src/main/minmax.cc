@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream, std::ofstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -71,7 +72,7 @@ const int kDefaultNumOrder(0);
 const int kDefaultNumBest(1);
 const OutputFormats kDefaultOutputFormat(kMinimumAndMaximum);
 const WaysToFindValue kDefaultWayToFindValue(
-    kFindValueFromVectorSequenceForEachDimension);
+    kFindValueFromVector);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -88,7 +89,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 0 (minimum and maximum)" << std::endl;
   *stream << "                 1 (minimum)" << std::endl;
   *stream << "                 2 (maximum)" << std::endl;
-  *stream << "       -f f  : way to find value           (   int)[" << std::setw(5) << std::right << kDefaultWayToFindValue << "][ 0 <= f <= 1 ]" << std::endl;  // NOLINT
+  *stream << "       -w w  : way to find value           (   int)[" << std::setw(5) << std::right << kDefaultWayToFindValue << "][ 0 <= f <= 1 ]" << std::endl;  // NOLINT
   *stream << "                 0 (find value from a vector)" << std::endl;
   *stream << "                 1 (find value from vector sequence for each dimension)" << std::endl;  // NOLINT
   *stream << "       -p p  : output filename of int type (string)[" << std::setw(5) << std::right << "N/A"                  << "]" << std::endl;  // NOLINT
@@ -99,7 +100,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  stdout:" << std::endl;
   *stream << "       minimum and maximum values          (double)" << std::endl;
   *stream << "  notice:" << std::endl;
-  *stream << "       if f = 0, l must be greater than max(1, b - 1)" << std::endl;  // NOLINT
+  *stream << "       if w = 0, l must be greater than max(1, b - 1)" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -157,6 +158,45 @@ bool WriteMinMaxValues(
 
 }  // namespace
 
+/**
+ * @a minmax [ @e option ] [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - length of vector @f$(1 \le M + 1)@f$
+ * - @b -m @e int
+ *   - order of vector @f$(0 \le M)@f$
+ * - @b -b @e int
+ *   - find @f$N@f$-best values @f$(1 \le N)@f$
+ * - @b -o @e int
+ *   - output format
+ *     \arg @c 0 minimum and maximum
+ *     \arg @c 1 minimum
+ *     \arg @c 2 maximum
+ * - @b -w @e int
+ *   - way to find value
+ *     \arg @c 0 find value from a vector
+ *     \arg @c 1 find value from vector sequence for each dimension
+ * - @b -p @e str
+ *   - int-type positions
+ * - @b infile @e str
+ *   - double-type data sequence
+ * - @b stdout
+ *   - double-type minimum and maximum values
+ *
+ * @code{.sh}
+ *   ramp -l 10 | minmax -l 5 -o 1 -w 0 | x2x +da
+ *   # 0, 5
+ * @endcode
+ *
+ * @code{.sh}
+ *   ramp -l 10 | minmax -l 5 -o 1 -w 1 | x2x +da
+ *   # 0, 1, 2, 3, 4
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   int num_best(kDefaultNumBest);
@@ -165,7 +205,7 @@ int main(int argc, char* argv[]) {
   const char* position_file(NULL);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:m:b:o:f:p:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:b:o:w:p:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -217,14 +257,14 @@ int main(int argc, char* argv[]) {
         output_format = static_cast<OutputFormats>(tmp);
         break;
       }
-      case 'f': {
+      case 'w': {
         const int min(0);
         const int max(static_cast<int>(kNumWaysToFindValue) - 1);
         int tmp;
         if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
             !sptk::IsInRange(tmp, min, max)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -f option must be an integer "
+          error_message << "The argument for the -w option must be an integer "
                         << "in the range of " << min << " to " << max;
           sptk::PrintErrorMessage("minmax", error_message);
           return 1;
@@ -255,7 +295,6 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -265,7 +304,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open input stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -276,7 +314,6 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // open output stream
   std::ofstream ofs;
   if (NULL != position_file) {
     ofs.open(position_file, std::ios::out | std::ios::binary);
@@ -291,13 +328,12 @@ int main(int argc, char* argv[]) {
   std::ostream* output_stream_pointer(NULL == position_file ? NULL
                                                             : &output_stream);
 
-  // prepare for finding values
   sptk::MinMaxAccumulation minmax_accumulation(num_best);
   std::vector<sptk::MinMaxAccumulation::Buffer> buffer(
       kFindValueFromVector == way_to_find_value ? 1 : num_order + 1);
   if (!minmax_accumulation.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for finding values";
+    error_message << "Failed to initialize MinMaxAccumulation";
     sptk::PrintErrorMessage("minmax", error_message);
     return 1;
   }

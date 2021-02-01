@@ -899,6 +899,7 @@ INPUT                  = \
                          ../include/SPTK/math/inverse_discrete_cosine_transform.h \
                          ../include/SPTK/math/inverse_fast_fourier_transform.h \
                          ../include/SPTK/math/levinson_durbin_recursion.h \
+                         ../include/SPTK/math/minmax_accumulation.h \
                          ../include/SPTK/math/principal_component_analysis.h \
                          ../include/SPTK/math/real_valued_fast_fourier_transform.h \
                          ../include/SPTK/math/real_valued_inverse_fast_fourier_transform.h \
@@ -952,6 +953,7 @@ INPUT                  = \
                          ../src/main/median.cc \
                          ../src/main/mfcc.cc \
                          ../src/main/mglsp2sp.cc \
+                         ../src/main/minmax.cc \
                          ../src/main/mlpg.cc \
                          ../src/main/mseq.cc \
                          ../src/main/msvq.cc \

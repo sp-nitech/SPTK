@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -68,6 +68,7 @@ MinMaxAccumulation::MinMaxAccumulation(int num_best)
     : num_best_(num_best), is_valid_(true) {
   if (num_best_ <= 0) {
     is_valid_ = false;
+    return;
   }
 }
 

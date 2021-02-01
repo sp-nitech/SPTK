@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -52,12 +52,19 @@
 
 namespace sptk {
 
+/**
+ * Compute minimum and maximum given data sequence.
+ */
 class MinMaxAccumulation {
  public:
+  /**
+   * Buffer for MinMaxAccumulation.
+   */
   class Buffer {
    public:
     Buffer() : position_(0) {
     }
+
     virtual ~Buffer() {
     }
 
@@ -71,49 +78,78 @@ class MinMaxAccumulation {
     int position_;
     std::list<std::pair<int, double> > minimum_;
     std::list<std::pair<int, double> > maximum_;
+
     friend class MinMaxAccumulation;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
 
-  //
+  /**
+   * @param[in] num_best Number of minimum/maximum numbers.
+   */
   explicit MinMaxAccumulation(int num_best);
 
-  //
   virtual ~MinMaxAccumulation() {
   }
 
-  //
+  /**
+   * @return Number of minimum/maximum numbers.
+   */
   int GetNumBest() const {
     return num_best_;
   }
 
-  //
+  /**
+   * @return True if this object is valid.
+   */
   bool IsValid() const {
     return is_valid_;
   }
 
-  //
+  /**
+   * Get @f$n@f$-th minimum value and its position.
+   *
+   * @param[in] buffer Buffer.
+   * @param[in] rank Rank @f$n@f$.
+   * @param[out] position Position of minimum value.
+   * @param[out] value Minimum value.
+   * @return True on success, false on failure.
+   */
   bool GetMinimum(const MinMaxAccumulation::Buffer& buffer, int rank,
                   int* position, double* value) const;
 
-  //
+  /**
+   * Get @f$n@f$-th maximum value and its position.
+   *
+   * @param[in] buffer Buffer.
+   * @param[in] rank Rank @f$n@f$.
+   * @param[out] position Position of maximum value.
+   * @param[out] value Maximum value.
+   * @return True on success, false on failure.
+   */
   bool GetMaximum(const MinMaxAccumulation::Buffer& buffer, int rank,
                   int* position, double* value) const;
 
-  //
+  /**
+   * Clear buffer.
+   *
+   * @param[out] buffer Buffer.
+   */
   void Clear(MinMaxAccumulation::Buffer* buffer) const;
 
-  //
+  /**
+   * Accumulate minimum and maximum.
+   *
+   * @param[in] data Input data.
+   * @param[in,out] buffer Buffer.
+   * @return True on success, false on failure.
+   */
   bool Run(double data, MinMaxAccumulation::Buffer* buffer) const;
 
  private:
-  //
   const int num_best_;
 
-  //
   bool is_valid_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(MinMaxAccumulation);
 };
 
