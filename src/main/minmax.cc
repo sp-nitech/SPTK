@@ -71,8 +71,7 @@ enum WaysToFindValue {
 const int kDefaultNumOrder(0);
 const int kDefaultNumBest(1);
 const OutputFormats kDefaultOutputFormat(kMinimumAndMaximum);
-const WaysToFindValue kDefaultWayToFindValue(
-    kFindValueFromVector);
+const WaysToFindValue kDefaultWayToFindValue(kFindValueFromVector);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
