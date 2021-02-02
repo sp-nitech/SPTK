@@ -911,6 +911,7 @@ INPUT                  = \
                          ../src/main/amgcep.cc \
                          ../src/main/average.cc \
                          ../src/main/b2mc.cc \
+                         ../src/main/bcut.cc \
                          ../src/main/c2acr.cc \
                          ../src/main/c2mpir.cc \
                          ../src/main/c2ndps.cc \

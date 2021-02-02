@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <cstdint>   // int8_t, int16_t, int32_t, int64_t, etc.
 #include <cstring>   // std::strncmp
 #include <fstream>   // std::ifstream
@@ -86,9 +87,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 "; sptk::PrintDataType("e", stream);                                   *stream << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       data sequence                      [stdin]" << std::endl;
+  *stream << "       data sequence              (  type)[stdin]" << std::endl;
   *stream << "  stdout:" << std::endl;
-  *stream << "       cut data sequence" << std::endl;
+  *stream << "       cut data sequence          (  type)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -99,6 +100,7 @@ class BinaryCutInterface {
  public:
   virtual ~BinaryCutInterface() {
   }
+
   virtual bool Run(std::istream* input_stream) const = 0;
 };
 
@@ -117,7 +119,7 @@ class BinaryCut : public BinaryCutInterface {
   virtual bool Run(std::istream* input_stream) const {
     std::vector<T> data(block_length_);
 
-    // Skip data
+    // Skip data.
     for (int block_index(0); block_index < start_number_; ++block_index) {
       if (!sptk::ReadStream(false, 0, 0, block_length_, &data, input_stream,
                             NULL)) {
@@ -125,6 +127,7 @@ class BinaryCut : public BinaryCutInterface {
       }
     }
 
+    // Write data.
     for (int block_index(start_number_);
          ((kMagicNumberForEndOfFile == end_number_ ||
            block_index <= end_number_) &&
@@ -214,6 +217,63 @@ class BinaryCutWrapper {
 
 }  // namespace
 
+/**
+ * @a bcut [ @e option ] [ @e infile ]
+ *
+ * - @b -s @e int
+ *   - start number @f$(0 \le S)@f$
+ * - @b -e @e int
+ *   - end number @f$(S \le E)@f$
+ * - @b -l @e int
+ *   - block length @f$(1 \le L)@f$
+ * - @b -m @e int
+ *   - block order @f$(0 \le L-1)@f$
+ * - @b +type @e char
+ *   - data type
+ *     \arg @c c char (1byte)
+ *     \arg @c C unsigned char (1byte)
+ *     \arg @c s short (2byte)
+ *     \arg @c S unsigned short (2byte)
+ *     \arg @c h int (3byte)
+ *     \arg @c H unsigned int (3byte)
+ *     \arg @c i int (4byte)
+ *     \arg @c I unsigned int (4byte)
+ *     \arg @c l long (8byte)
+ *     \arg @c L unsigned long (8byte)
+ *     \arg @c f float (4byte)
+ *     \arg @c d double (8byte)
+ *     \arg @c e long double (16byte)
+ * - @b infile @e str
+ *   - data sequence
+ * - @b stdout
+ *   - cut data sequence
+ *
+ * The input of this command is
+ * @f[
+ *   \begin{array}{ccc}
+ *     \underbrace{x(0), \; \ldots, \; x(L - 1)}_{x_0}, &
+ *     \underbrace{x(L), \; \ldots, \; x(2L - 1)}_{x_1}, &
+ *     \ldots,
+ *   \end{array}
+ * @f]
+ * and the output is
+ * @f[
+ *   \begin{array}{cccc}
+ *     x_S, & x_{S+1}, & \ldots, & x_E,
+ *   \end{array}
+ * @f]
+ * where @f$L@f$ is the block length.
+ *
+ * @code{.sh}
+ *   ramp -l 7 | bcut +d -s 3 -e 5 | x2x +da
+ *   # 3, 4, 5
+ * @endcode
+ *
+ * @code{.sh}
+ *   ramp -l 7 | bcut +d -l 2 -s 1 -e 1 | x2x +da
+ *   # 2, 3
+ * @endcode
+ */
 int main(int argc, char* argv[]) {
   int start_number(kDefaultStartNumber);
   int end_number(kDefaultEndNumber);
