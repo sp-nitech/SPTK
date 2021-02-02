@@ -974,6 +974,7 @@ INPUT                  = \
                          ../src/main/rlevdur.cc \
                          ../src/main/sin.cc \
                          ../src/main/step.cc \
+                         ../src/main/swab.cc \
                          ../src/main/train.cc \
                          ../src/main/transpose.cc \
                          ../src/main/ulaw.cc \
