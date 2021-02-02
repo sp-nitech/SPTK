@@ -93,16 +93,16 @@ void PrintUsage(std::ostream* stream) {
  * The input of this command is
  * @f[
  *   \begin{array}{ccc}
- *     \underbrace{x_1(1), \; \ldots, \; x_1(L)}_L, &
- *     \underbrace{x_2(1), \; \ldots, \; x_2(L)}_L, &
+ *     \underbrace{x_0(0), \; \ldots, \; x_0(L-1)}_L, &
+ *     \underbrace{x_1(0), \; \ldots, \; x_1(L-1)}_L, &
  *     \ldots,
  *   \end{array}
  * @f]
  * and the output is
  * @f[
  *   \begin{array}{ccc}
- *     \underbrace{x_1(L), \; \ldots, \; x_1(1)}_L, &
- *     \underbrace{x_2(L), \; \ldots, \; x_2(1)}_L, &
+ *     \underbrace{x_0(L-1), \; \ldots, \; x_0(0)}_L, &
+ *     \underbrace{x_1(L-1), \; \ldots, \; x_1(0)}_L, &
  *     \ldots,
  *   \end{array}
  * @f]

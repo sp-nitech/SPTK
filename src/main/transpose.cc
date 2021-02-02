@@ -94,7 +94,7 @@ void PrintUsage(std::ostream* stream) {
  *
  * The input of this command is
  * @f[
- *   \begin{array}{ccc}
+ *   \begin{array}{cccc}
  *     x(0,0) & x(0,1) & \cdots & x(0,N-1) \\
  *     x(1,0) & x(1,1) & \cdots & x(1,N-1) \\
  *     \vdots & \vdots &        & \vdots   \\
@@ -103,7 +103,7 @@ void PrintUsage(std::ostream* stream) {
  * @f]
  * and the output is
  * @f[
- *   \begin{array}{ccc}
+ *   \begin{array}{cccc}
  *     x(0,0) & x(1,0) & \cdots & x(M-1,0) \\
  *     x(0,1) & x(1,1) & \cdots & x(M-1,1) \\
  *     \vdots & \vdots &        & \vdots   \\

@@ -95,30 +95,30 @@ void PrintUsage(std::ostream* stream) {
  * The input of this command is
  * @f[
  *   \begin{array}{ccc}
- *     \underbrace{x_1(1), \; \ldots, \; x_1(L)}_L, &
- *     \underbrace{x_2(1), \; \ldots, \; x_2(L)}_L, &
+ *     \underbrace{x_0(0), \; \ldots, \; x_0(L-1)}_L, &
+ *     \underbrace{x_1(0), \; \ldots, \; x_1(L-1)}_L, &
  *     \ldots,
  *   \end{array}
  * @f]
  * and the output is
  * @f[
  *   \begin{array}{ccc}
- *     a_1, & a_2, & \ldots,
+ *     a_0, & a_1, & \ldots,
  *   \end{array}
  * @f]
  * where
  * @f[
- *   a_n = \frac{1}{L} \sum_{l=1}^{L} x_n(l).
+ *   a_n = \frac{1}{L} \sum_{l=0}^{L-1} x_n(l).
  * @f]
  * If @f$L@f$ is not given, the average of the whole input is computed.
  *
  * @code{.sh}
- *   echo 0 1 2 3 4 5 6 7 8 9 | x2x +ad | average | x2x +da
+ *   ramp -l 10 | average | x2x +da
  *   # 4.5
  * @endcode
  *
  * @code{.sh}
- *   echo 0 1 2 3 4 5 6 7 8 9 | x2x +ad | average -l 5 | x2x +da
+ *   ramp -l 10 | average -l 5 | x2x +da
  *   # 2
  *   # 7
  * @endcode
