@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,7 +42,8 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>   // getopt_long
+#include <getopt.h>  // getopt_long
+
 #include <algorithm>  // std::max
 #include <cstdint>    // int8_t, int16_t, int32_t, int64_t, etc.
 #include <cstring>    // std::strncmp
@@ -93,9 +94,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 "; sptk::PrintDataType("e", stream); sptk::PrintDataType("a", stream); *stream << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       data sequence                             [stdin]" << std::endl;  // NOLINT
+  *stream << "       data sequence                     (  type)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       copied data sequence" << std::endl;
+  *stream << "       copied data sequence              (  type)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -106,6 +107,7 @@ class BlockCopyInterface {
  public:
   virtual ~BlockCopyInterface() {
   }
+
   virtual bool Run(std::istream* input_stream) const = 0;
 };
 
@@ -142,7 +144,7 @@ class BlockCopy : public BlockCopyInterface {
       T* inputs(&(input_data[0]));
       bool halt(false);
       while (!halt) {
-        // read data
+        // Read data.
         for (int i(0); i < input_block_length_; ++i) {
           std::string word;
           *input_stream >> word;
@@ -160,7 +162,7 @@ class BlockCopy : public BlockCopyInterface {
         }
         if (halt) break;
 
-        // write data
+        // Write data.
         for (int i(0); i < left_pad_length; ++i) {
           std::cout << pads[i] << " ";
         }
@@ -295,6 +297,66 @@ class BlockCopyWrapper {
 
 }  // namespace
 
+/**
+ * @a bcp [ @e option ] [ @e infile ]
+ *
+ * - @b -s @e int
+ *   - start number (input) @f$(0 \le s \le e)@f$
+ * - @b -e @e int
+ *   - end number (input) @f$(s \le e < l)@f$
+ * - @b -l @e int
+ *   - block length (input) @f$(1 \le l)@f$
+ * - @b -m @e int
+ *   - block order (input) @f$(0 \le n)@f$
+ * - @b -S @e int
+ *   - start number (output) @f$(0 \le S < L)@f$
+ * - @b -L @e int
+ *   - block length (output) @f$(1 \le L)@f$
+ * - @b -M @e int
+ *   - block order (output) @f$(0 \le N)@f$
+ * - @b -f @e double
+ *   - pad value @f$(f)@f$
+ * - @b +type @e char
+ *   - data type
+ *     \arg @c c char (1byte)
+ *     \arg @c C unsigned char (1byte)
+ *     \arg @c s short (2byte)
+ *     \arg @c S unsigned short (2byte)
+ *     \arg @c h int (3byte)
+ *     \arg @c H unsigned int (3byte)
+ *     \arg @c i int (4byte)
+ *     \arg @c I unsigned int (4byte)
+ *     \arg @c l long (8byte)
+ *     \arg @c L unsigned long (8byte)
+ *     \arg @c f float (4byte)
+ *     \arg @c d double (8byte)
+ *     \arg @c e long double (16byte)
+ *     \arg @c a ascii
+ * - @b infile @e str
+ *   - input data sequence
+ * - @b stdout
+ *   - copied data sequence
+ *
+ * This command copies data blocks in a frame-by-frame manner.
+ * The below figure shows the overview of the command.
+ *
+ * @image html bcp_1.png
+ *
+ * The following example extracts multiples of three from a ramp sequence.
+ *
+ * @code{.sh}
+ *   ramp -s 1 -l 9 | bcp +d -s 2 -l 3 | x2x +da
+ *   # 3, 6, 9
+ *   ramp -s 1 -l 9 | bcp +d -s 2 -l 3 -L 2 | x2x +da
+ *   # 3, 0, 6, 0, 9, 0
+ *   ramp -s 1 -l 9 | bcp +d -s 2 -l 3 -L 2 -S 1 | x2x +da
+ *   # 0, 3, 0, 6, 0, 9
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int input_start_number(kDefaultInputStartNumber);
   int input_end_number(kDefaultInputBlockLength - 1);
@@ -449,7 +511,6 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // get input file
   const char* input_file(NULL);
   for (int i(argc - optind); 1 <= i; --i) {
     const char* arg(argv[argc - i]);
@@ -466,7 +527,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
