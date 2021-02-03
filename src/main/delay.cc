@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -81,6 +82,61 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a delay [ @e option ] [ @e infile ]
+ *
+ * - @b -s @e int
+ *   - start index @f$(S)@f$
+ * - @b -k @e double
+ *   - keep sequence length
+ * - @b infile @e str
+ *   - double-type data sequence
+ * - @b stdout
+ *   - double-type delayed data sequence
+ *
+ * The input of this command is
+ * @f[
+ *   \begin{array}{cccc}
+ *     x(0), & x(1), & \ldots, & x(T-1)
+ *   \end{array}
+ * @f]
+ * and the output is
+ * @f[
+ *   \begin{array}{cccc}
+ *     \underbrace{0, \; \ldots, \; 0}_S, & x(0), & \ldots, & x(T-1).
+ *   \end{array}
+ * @f]
+ * If @c -k option is specified, the output is
+ * @f[
+ *   \begin{array}{cccc}
+ *     \underbrace{0, \; \ldots, \; 0}_S, & x(0), & \ldots, & x(T-S-1).
+ *   \end{array}
+ * @f]
+ * If @f$S@f$ is negative, the output is
+ * @f[
+ *   \begin{array}{cccc}
+ *     x(-S), & x(-S+1), & \ldots, & x(T-1).
+ *   \end{array}
+ * @f]
+ *
+ * See the following examples.
+ *
+ * @code{.sh}
+ *   # data: 1, 2, 3
+ *   ramp -s 1 -l 3 | delay -s 2 | x2x +da
+ *   # 0, 0, 1, 2, 3
+ *   ramp -s 1 -l 3 | delay -s 2 -k | x2x +da
+ *   # 0, 0, 1
+ *   ramp -s 1 -l 3 | delay -s -2 | x2x +da
+ *   # 3
+ *   ramp -s 1 -l 3 | delay -s -2 -k | x2x +da
+ *   # 3, 0, 0
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int start_index(kDefaultStartIndex);
   bool keep_sequence_length_flag(kDefaultKeepSequenceLengthFlag);
@@ -114,7 +170,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -124,7 +179,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -136,6 +190,7 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
   if (start_index <= 0) {
+    // Advance.
     double data;
     int num_zeros(-start_index);
     for (int i(0); i < -start_index; ++i) {
@@ -165,6 +220,7 @@ int main(int argc, char* argv[]) {
       }
     }
   } else {
+    // Delay.
     double data;
     std::queue<double> stored_data;
     for (int i(0); i < start_index; ++i) {

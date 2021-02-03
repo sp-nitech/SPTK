@@ -920,6 +920,7 @@ INPUT                  = \
                          ../src/main/csm2acr.cc \
                          ../src/main/dct.cc \
                          ../src/main/decimate.cc \
+                         ../src/main/delay.cc \
                          ../src/main/delta.cc \
                          ../src/main/df2.cc \
                          ../src/main/dfs.cc \
