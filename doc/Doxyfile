@@ -952,6 +952,7 @@ INPUT                  = \
                          ../src/main/lspdf.cc \
                          ../src/main/mc2b.cc \
                          ../src/main/median.cc \
+                         ../src/main/merge.cc \
                          ../src/main/mfcc.cc \
                          ../src/main/mglsp2sp.cc \
                          ../src/main/minmax.cc \

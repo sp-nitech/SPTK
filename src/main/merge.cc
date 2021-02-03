@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <cstdint>   // int8_t, int16_t, int32_t, int64_t, etc.
 #include <cstring>   // std::strncmp
 #include <fstream>   // std::ifstream
@@ -73,9 +74,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       merge [ options ] file1 [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -s s  : insert point                (   int)[" << std::setw(5) << std::right << kDefaultInsertPoint             << "][ 0 <= s <= l ]" << std::endl;  // NOLINT
-  *stream << "       -l l  : frame length of input data  (   int)[" << std::setw(5) << std::right << kDefaultFrameLengthOfInputData  << "][ 0 <  l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : frame length of input data  (   int)[" << std::setw(5) << std::right << kDefaultFrameLengthOfInputData  << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -m m  : order of input data         (   int)[" << std::setw(5) << std::right << "l-1"                           << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -L L  : frame length of insert data (   int)[" << std::setw(5) << std::right << kDefaultFrameLengthOfInsertData << "][ 0 <  L <=   ]" << std::endl;  // NOLINT
+  *stream << "       -L L  : frame length of insert data (   int)[" << std::setw(5) << std::right << kDefaultFrameLengthOfInsertData << "][ 1 <= L <=   ]" << std::endl;  // NOLINT
   *stream << "       -M M  : order of insert data        (   int)[" << std::setw(5) << std::right << "L-1"                           << "][ 0 <= M <=   ]" << std::endl;  // NOLINT
   *stream << "       -w    : overwrite mode              (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultOverwriteMode) << "]" << std::endl;  // NOLINT
   *stream << "       +type : data type                           [" << std::setw(5) << std::right << kDefaultDataType                << "]" << std::endl;  // NOLINT
@@ -88,11 +89,11 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 "; sptk::PrintDataType("e", stream);                                   *stream << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  file1:" << std::endl;
-  *stream << "       insert data sequence" << std::endl;
+  *stream << "       insert data sequence                (  type)" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       input data sequence                         [stdin]" << std::endl;  // NOLINT
+  *stream << "       input data sequence                 (  type)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       merged data sequence" << std::endl;
+  *stream << "       merged data sequence                (  type)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -103,8 +104,9 @@ class VectorMergeInterface {
  public:
   virtual ~VectorMergeInterface() {
   }
-  virtual bool Run(std::istream* input_stream,
-                   std::istream* insert_stream) const = 0;
+
+  virtual bool Run(std::istream* input_stream, std::istream* insert_stream,
+                   bool* all_merged) const = 0;
 };
 
 template <typename T>
@@ -124,8 +126,8 @@ class VectorMerge : public VectorMergeInterface {
   ~VectorMerge() {
   }
 
-  virtual bool Run(std::istream* input_stream,
-                   std::istream* insert_stream) const {
+  virtual bool Run(std::istream* input_stream, std::istream* insert_stream,
+                   bool* all_merged) const {
     std::vector<T> merged_vector(merged_length_);
     for (;;) {
       if (0 < insert_point_) {
@@ -151,8 +153,11 @@ class VectorMerge : public VectorMergeInterface {
       }
     }
 
-    return (input_stream->peek() == std::istream::traits_type::eof() &&
-            insert_stream->peek() == std::istream::traits_type::eof());
+    if (all_merged) {
+      *all_merged = (input_stream->peek() == std::istream::traits_type::eof() &&
+                     insert_stream->peek() == std::istream::traits_type::eof());
+    }
+    return true;
   }
 
  private:
@@ -221,8 +226,9 @@ class VectorMergeWrapper {
     return NULL != merge_;
   }
 
-  bool Run(std::istream* input_stream, std::istream* insert_stream) const {
-    return IsValid() && merge_->Run(input_stream, insert_stream);
+  bool Run(std::istream* input_stream, std::istream* insert_stream,
+           bool* all_merged) const {
+    return IsValid() && merge_->Run(input_stream, insert_stream, all_merged);
   }
 
  private:
@@ -233,6 +239,70 @@ class VectorMergeWrapper {
 
 }  // namespace
 
+/**
+ * @a merge [ @e option ] [ @e infile ]
+ *
+ * - @b -s @e int
+ *   - insert point @f$(0 \le S \le L_1)@f$
+ * - @b -l @e int
+ *   - frame length of input data @f$(1 \le L_1)@f$
+ * - @b -m @e int
+ *   - order of input data @f$(0 \le L_1 - 1)@f$
+ * - @b -L @e int
+ *   - frame length of output data @f$(1 \le L_2)@f$
+ * - @b -M @e int
+ *   - order of output data @f$(0 \le L_2 - 1)@f$
+ * - @b -w @e bool
+ *   - overwrite mode
+ * - @b +type @e char
+ *   - data type
+ *     \arg @c c char (1byte)
+ *     \arg @c C unsigned char (1byte)
+ *     \arg @c s short (2byte)
+ *     \arg @c S unsigned short (2byte)
+ *     \arg @c h int (3byte)
+ *     \arg @c H unsigned int (3byte)
+ *     \arg @c i int (4byte)
+ *     \arg @c I unsigned int (4byte)
+ *     \arg @c l long (8byte)
+ *     \arg @c L unsigned long (8byte)
+ *     \arg @c f float (4byte)
+ *     \arg @c d double (8byte)
+ *     \arg @c e long double (16byte)
+ * - @b file1 @e str
+ *   - insert data sequence
+ * - @b infile @e str
+ *   - input data sequence
+ * - @b stdout
+ *   - merged data sequence
+ *
+ * This command merges two data sequence in a frame-by-frame manner.
+ * The below figure shows the overview of the command.
+ *
+ * @image html merge_1.png
+ *
+ * Insert mode example:
+ *
+ * @code{.sh}
+ *   echo 1 1 2 2 3 3 | x2x +as > input.s
+ *   echo 4 5 6 7 | x2x +as > insert.s
+ *   merge -s 2 -l 2 -L 1 +s insert.s < input.s | x2x +sa
+ *   # 1, 1, 4, 2, 2, 5, 3, 3, 6
+ * @endcode
+ *
+ * Overwrite mode example:
+ *
+ * @code{.sh}
+ *   echo 1 1 2 2 3 3 | x2x +as > input.s
+ *   echo 4 5 6 7 | x2x +as > insert.s
+ *   merge -w -s 0 -l 2 -L 1 +s insert.s < input.s | x2x +sa
+ *   # 4, 1, 5, 2, 6, 3
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int insert_point(kDefaultInsertPoint);
   int input_length(kDefaultFrameLengthOfInputData);
@@ -331,7 +401,6 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // get input files
   const char* insert_file(NULL);
   const char* input_file(NULL);
   for (int i(argc - optind); 1 <= i; --i) {
@@ -357,7 +426,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // open stream for reading insert data
+  // Open stream for reading insert data.
   std::ifstream ifs1;
   ifs1.open(insert_file, std::ios::in | std::ios::binary);
   if (ifs1.fail()) {
@@ -368,7 +437,7 @@ int main(int argc, char* argv[]) {
   }
   std::istream& insert_stream(ifs1);
 
-  // open stream for reading input data
+  // Open stream for reading input data.
   std::ifstream ifs2;
   ifs2.open(input_file, std::ios::in | std::ios::binary);
   if (ifs2.fail() && NULL != input_file) {
@@ -389,7 +458,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  if (!merge.Run(&input_stream, &insert_stream)) {
+  if (!merge.Run(&input_stream, &insert_stream, NULL)) {
     std::ostringstream error_message;
     error_message << "Failed to merge";
     sptk::PrintErrorMessage("merge", error_message);
