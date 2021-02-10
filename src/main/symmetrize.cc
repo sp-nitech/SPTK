@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
     switch (option_char) {
       case 'l': {
         if (!sptk::ConvertStringToInteger(optarg, &fft_length) ||
-            fft_length < 2 || !IsEven(fft_length)) {
+            fft_length < 2 || !sptk::IsEven(fft_length)) {
           std::ostringstream error_message;
           error_message << "The argument for the -l option must be a positive "
                         << "even integer";
