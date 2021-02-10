@@ -926,6 +926,7 @@ INPUT                  = \
                          ../src/main/df2.cc \
                          ../src/main/dfs.cc \
                          ../src/main/entropy.cc \
+                         ../src/main/extract.cc \
                          ../src/main/fbank.cc \
                          ../src/main/fft.cc \
                          ../src/main/fftcep.cc \

@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -82,6 +83,51 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a extract [ @e option ] idxfile [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - length of vector @f$(1 \le M + 1)@f$
+ * - @b -m @e int
+ *   - order of vector @f$(0 \le M)@f$
+ * - @b -i @e int
+ *   - codebook index @f$(0 \le j)@f$
+ * - @b infile @e str
+ *   - double-type data sequence
+ * - @b stdout
+ *   - double-type extracted data sequence
+ *
+ * The command takes two input sequence:
+ * @f[
+ *   \begin{array}{cccc}
+ *     \boldsymbol{x}(0), & \boldsymbol{x}(1), & \boldsymbol{x}(2), & \ldots,
+ *   \end{array}
+ * @f]
+ * and
+ * @f[
+ *   \begin{array}{cccc}
+ *     i(0), & i(1), & i(2), & \ldots,
+ *   \end{array}
+ * @f]
+ * where @f$\boldsymbol{x}(t)@f$ is an @f$(M+1)@f$-dimensional vector.
+ * If @f$i(t)@f$ is the same as the given codebook index @f$j@f$,
+ * this command outputs @f$\boldsymbol{x}(t)@f$. An example of the output is
+ * @f[
+ *   \begin{array}{cccc}
+ *     \boldsymbol{x}(1), & \boldsymbol{x}(4), & \boldsymbol{x}(5), & \ldots
+ *   \end{array}
+ * @f]
+ *
+ * The below example extracts 10th order vectors indexed as 0 from @c data.d.
+ *
+ * @code{.sh}
+ *   extract -l 10 -i 0 data.idx < data.d > data.ext
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int vector_length(kDefaultVectorLength);
   int codebook_index(kDefaultCodebookIndex);
@@ -153,7 +199,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // Open stream for reading a index sequence.
+  // Open stream for reading index sequence.
   std::ifstream ifs1;
   ifs1.open(index_file, std::ios::in | std::ios::binary);
   if (ifs1.fail()) {
@@ -164,7 +210,7 @@ int main(int argc, char* argv[]) {
   }
   std::istream& stream_for_index(ifs1);
 
-  // Open stream for reading a input sequence.
+  // Open stream for reading input sequence.
   std::ifstream ifs2;
   ifs2.open(input_file, std::ios::in | std::ios::binary);
   if (ifs2.fail() && NULL != input_file) {
@@ -176,17 +222,19 @@ int main(int argc, char* argv[]) {
   std::istream& stream_for_input(ifs2.fail() ? std::cin : ifs2);
 
   int index;
-  std::vector<double> input_vector;
+  std::vector<double> input_vector(vector_length);
 
   while (sptk::ReadStream(&index, &stream_for_index) &&
          sptk::ReadStream(false, 0, 0, vector_length, &input_vector,
                           &stream_for_input, NULL)) {
-    if (index == codebook_index &&
-        !sptk::WriteStream(0, vector_length, input_vector, &std::cout, NULL)) {
-      std::ostringstream error_message;
-      error_message << "Failed to write extracted vector";
-      sptk::PrintErrorMessage("extract", error_message);
-      return 1;
+    if (index == codebook_index) {
+      if (!sptk::WriteStream(0, vector_length, input_vector, &std::cout,
+                             NULL)) {
+        std::ostringstream error_message;
+        error_message << "Failed to write extracted vector";
+        sptk::PrintErrorMessage("extract", error_message);
+        return 1;
+      }
     }
   }
 
