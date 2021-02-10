@@ -904,6 +904,7 @@ INPUT                  = \
                          ../include/SPTK/math/real_valued_fast_fourier_transform.h \
                          ../include/SPTK/math/real_valued_inverse_fast_fourier_transform.h \
                          ../include/SPTK/math/reverse_levinson_durbin_recursion.h \
+                         ../include/SPTK/utils/data_symmetrizing.h \
                          ../include/SPTK/utils/misc_utils.h \
                          ../include/SPTK/window/data_windowing.h \
                          ../src/main/aeq.cc \
@@ -979,6 +980,7 @@ INPUT                  = \
                          ../src/main/sin.cc \
                          ../src/main/step.cc \
                          ../src/main/swab.cc \
+                         ../src/main/symmetrize.cc \
                          ../src/main/train.cc \
                          ../src/main/transpose.cc \
                          ../src/main/ulaw.cc \

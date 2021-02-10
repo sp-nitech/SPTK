@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -84,23 +84,24 @@ DataSymmetrizing::DataSymmetrizing(int fft_length,
       input_length_(CalculateDataLength(fft_length_, input_format_)),
       output_length_(CalculateDataLength(fft_length_, output_format_)),
       is_valid_(true) {
-  if (fft_length_ < 2 || 1 == fft_length_ % 2 || 0 == input_length_ ||
+  if (fft_length_ < 2 || !IsEven(fft_length_) || 0 == input_length_ ||
       0 == output_length_) {
     is_valid_ = false;
+    return;
   }
 }
 
 bool DataSymmetrizing::Run(
     const std::vector<double>& data_sequence,
     std::vector<double>* symmetrized_data_sequence) const {
-  // check inputs
+  // Check inputs.
   if (!is_valid_ ||
       data_sequence.size() != static_cast<std::size_t>(input_length_) ||
       NULL == symmetrized_data_sequence) {
     return false;
   }
 
-  // prepare memory
+  // Prepare memories.
   if (symmetrized_data_sequence->size() !=
       static_cast<std::size_t>(output_length_)) {
     symmetrized_data_sequence->resize(output_length_);

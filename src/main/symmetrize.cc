@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -94,6 +95,35 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a symmetrize [ @e option ] [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - FFT length @f$(2 \le L)@f$
+ * - @b -q @e int
+ *   - input format
+ * - @b -o @e int
+ *   - output format
+ * - @b infile @e str
+ *   - double-type data sequence
+ * - @b stdout
+ *   - double-type symmetrized data sequence
+ *
+ * @code{.sh}
+ *   ramp -l 3 | x2x +da
+ *   # 0, 1, 2
+ *   ramp -l 3 | symmetrize -l 4 -q 0 -o 1 | x2x +da
+ *   # 0, 1, 2, 1 (used for shaping fourier transform input)
+ *   ramp -l 3 | symmetrize -l 4 -q 0 -o 2 | x2x +da
+ *   # 1, 1, 0, 1, 1 (used for shaping frequency response)
+ *   ramp -l 4 | symmetrize -l 6 -q 0 -o 3 | x2x +da
+ *   # 2, 1, 0, 1, 2 (used for shaping frequency response)
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int fft_length(kDefaultFftLength);
   sptk::DataSymmetrizing::InputOutputFormats input_format(kDefaultInputFormat);
@@ -107,7 +137,7 @@ int main(int argc, char* argv[]) {
     switch (option_char) {
       case 'l': {
         if (!sptk::ConvertStringToInteger(optarg, &fft_length) ||
-            fft_length < 2 || 1 == fft_length % 2) {
+            fft_length < 2 || !IsEven(fft_length)) {
           std::ostringstream error_message;
           error_message << "The argument for the -l option must be a positive "
                         << "even integer";
@@ -165,7 +195,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -175,7 +204,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -190,7 +218,7 @@ int main(int argc, char* argv[]) {
                                            output_format);
   if (!data_symmetrizing.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for symmetrizing";
+    error_message << "Failed to initialize DataSymmetrizing";
     sptk::PrintErrorMessage("symmetrize", error_message);
     return 1;
   }
