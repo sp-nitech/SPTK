@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,13 +43,14 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/math/zero_crossing.h"
+#include "SPTK/analysis/zero_crossing_analysis.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -79,7 +80,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  infile:" << std::endl;
   *stream << "       data sequence              (double)[stdin]" << std::endl;
   *stream << "  stdout:" << std::endl;
-  *stream << "       zero-crossing rate         (double)" << std::endl;
+  *stream << "       zero-crossing              (double)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -88,6 +89,29 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a zcross [ @e option ] [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - frame length @f$(1 \le L)@f$
+ * - @b -o @e int
+ *   - output format
+ *     \arg @c 0 number of zero-crossings
+ *     \arg @c 1 zero-crossing rate
+ * - @b infile @e str
+ *   - double-type data sequence
+ * - @b stdout
+ *   - double-type zero-crossing
+ *
+ * @code{.sh}
+ *   nrand -s 0 -l 30 | zcross -l 10 | x2x +da
+ *   # 3, 2, 5
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int frame_length(kDefaultFrameLength);
   OutputFormats output_format(kDefaultOutputFormat);
@@ -134,7 +158,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -144,7 +167,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -155,12 +177,11 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for frequency transform
-  sptk::ZeroCrossing zero_crossing(frame_length);
-  sptk::ZeroCrossing::Buffer buffer;
-  if (!zero_crossing.IsValid()) {
+  sptk::ZeroCrossingAnalysis zero_crossing_analysis(frame_length);
+  sptk::ZeroCrossingAnalysis::Buffer buffer;
+  if (!zero_crossing_analysis.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for zero-crossing detection";
+    error_message << "Failed to initialize ZeroCrossingAnalysis";
     sptk::PrintErrorMessage("zcross", error_message);
     return 1;
   }
@@ -170,7 +191,7 @@ int main(int argc, char* argv[]) {
   while (sptk::ReadStream(false, 0, 0, frame_length, &input_data, &input_stream,
                           NULL)) {
     int num_zero_crossing;
-    if (!zero_crossing.Run(input_data, &num_zero_crossing, &buffer)) {
+    if (!zero_crossing_analysis.Run(input_data, &num_zero_crossing, &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to detect zero-crossing";
       sptk::PrintErrorMessage("zcross", error_message);
@@ -192,7 +213,7 @@ int main(int argc, char* argv[]) {
 
     if (!sptk::WriteStream(output, &std::cout)) {
       std::ostringstream error_message;
-      error_message << "Failed to write zero-crossing rate";
+      error_message << "Failed to write zero-crossing";
       sptk::PrintErrorMessage("zcross", error_message);
       return 1;
     }

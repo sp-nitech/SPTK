@@ -852,6 +852,7 @@ INPUT                  = \
                          ../include/SPTK/analysis/mel_filter_bank_analysis.h \
                          ../include/SPTK/analysis/mel_frequency_cepstral_coefficients_analysis.h \
                          ../include/SPTK/analysis/pitch_extraction.h \
+                         ../include/SPTK/analysis/zero_crossing_analysis.h \
                          ../include/SPTK/compression/inverse_multistage_vector_quantization.h \
                          ../include/SPTK/compression/inverse_vector_quantization.h \
                          ../include/SPTK/compression/linde_buzo_gray_algorithm.h \
@@ -987,6 +988,7 @@ INPUT                  = \
                          ../src/main/ulaw.cc \
                          ../src/main/vsum.cc \
                          ../src/main/window.cc \
+                         ../src/main/zcross.cc \
                          ../src/main/zerodf.cc \
                          ../src/utils/misc_utils.cc \
 

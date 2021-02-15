@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,7 +42,7 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/math/zero_crossing.h"
+#include "SPTK/analysis/zero_crossing_analysis.h"
 
 #include <cstddef>  // std::size_t
 
@@ -57,30 +57,31 @@ bool IsCrossed(double left_sample, double right_sample) {
 
 namespace sptk {
 
-ZeroCrossing::ZeroCrossing(int frame_length)
+ZeroCrossingAnalysis::ZeroCrossingAnalysis(int frame_length)
     : frame_length_(frame_length), is_valid_(true) {
   if (frame_length <= 0) {
     is_valid_ = false;
+    return;
   }
 }
 
-bool ZeroCrossing::Run(const std::vector<double>& signals,
-                       int* num_zero_crossing,
-                       ZeroCrossing::Buffer* buffer) const {
-  // check inputs
+bool ZeroCrossingAnalysis::Run(const std::vector<double>& signals,
+                               int* num_zero_crossing,
+                               ZeroCrossingAnalysis::Buffer* buffer) const {
+  // Check inputs.
   if (!is_valid_ || signals.size() != static_cast<std::size_t>(frame_length_) ||
       NULL == num_zero_crossing || NULL == buffer) {
     return false;
   }
 
   const double* x(&(signals[0]));
-  int count(0);
 
   if (buffer->is_first_frame_) {
     buffer->latest_signal_ = x[0];
     buffer->is_first_frame_ = false;
   }
 
+  int count(0);
   if (IsCrossed(buffer->latest_signal_, x[0])) {
     ++count;
   }
