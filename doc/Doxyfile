@@ -935,6 +935,7 @@ INPUT                  = \
                          ../src/main/frame.cc \
                          ../src/main/freqt.cc \
                          ../src/main/gmm.cc \
+                         ../src/main/gmmp.cc \
                          ../src/main/gnorm.cc \
                          ../src/main/grpdelay.cc \
                          ../src/main/idct.cc \

@@ -5,7 +5,7 @@ gmm
 
 .. doxygenfile:: gmm.cc
 
-.. seealso:: :ref:`lbg`
+.. seealso:: :ref:`lbg`  :ref:`gmmp`
 
 .. doxygenclass:: sptk::GaussianMixtureModeling
    :members:
