@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -65,67 +65,66 @@ DurandKernerMethod::DurandKernerMethod(int num_order, int num_iteration,
   sine_table_.resize(num_order_);
   const double phi(sptk::kPi / (2 * num_order_));
   const double unit_angle(sptk::kTwoPi / num_order_);
-  for (int i(0); i < num_order_; ++i) {
-    const double angle(unit_angle * i + phi);
-    cosine_table_[i] = std::cos(angle);
-    sine_table_[i] = std::sin(angle);
+  for (int m(0); m < num_order_; ++m) {
+    const double angle(unit_angle * m + phi);
+    cosine_table_[m] = std::cos(angle);
+    sine_table_[m] = std::sin(angle);
   }
 }
 
 bool DurandKernerMethod::Run(const std::vector<double>& coefficients,
                              std::vector<std::complex<double> >* roots,
                              bool* is_converged) const {
-  // check inputs
+  // Check inputs.
   if (!is_valid_ ||
       coefficients.size() != static_cast<std::size_t>(num_order_) ||
       NULL == roots || NULL == is_converged) {
     return false;
   }
 
-  // prepare memories
+  // Prepare memories.
   if (roots->size() != static_cast<std::size_t>(num_order_)) {
     roots->resize(num_order_);
   }
 
-  // get values
   const double* a(&(coefficients[0]));
   std::complex<double>* x(&((*roots)[0]));
 
-  // set value
   *is_converged = false;
 
-  // set initial roots using Aberth's approach
+  // Set initial roots using the Aberth's approach.
   {
     double radius(0.0);
-    for (int i(1); i < num_order_; ++i) {
-      const double r(2.0 * std::pow(std::fabs(a[i]), 1.0 / (i + 1)));
+    for (int m(1); m < num_order_; ++m) {
+      const double r(2.0 * std::pow(std::fabs(a[m]), 1.0 / (m + 1)));
       if (radius < r) {
         radius = r;
       }
     }
 
     const double center(-a[0] / num_order_);
-    for (int i(0); i < num_order_; ++i) {
-      x[i].real(center + radius * cosine_table_[i]);
-      x[i].imag(center + radius * sine_table_[i]);
+    for (int m(0); m < num_order_; ++m) {
+      x[m].real(center + radius * cosine_table_[m]);
+      x[m].imag(center + radius * sine_table_[m]);
     }
   }
 
-  // find roots using Durand-Kerner method
+  // Find roots using the Durand-Kerner method.
   for (int n(0); n < num_iteration_; ++n) {
     bool halt(true);
-    for (int i(0); i < num_order_; ++i) {
+
+    for (int m(0); m < num_order_; ++m) {
       std::complex<double> numerator(1.0);
       std::complex<double> denominator(1.0);
-      for (int j(0); j < num_order_; ++j) {
-        numerator = numerator * x[i] + std::complex<double>(a[j]);
-        if (i != j) denominator = denominator * (x[i] - x[j]);
+      for (int l(0); l < num_order_; ++l) {
+        numerator = numerator * x[m] + std::complex<double>(a[l]);
+        if (m != l) denominator = denominator * (x[m] - x[l]);
       }
       if (0.0 == denominator.real() && 0.0 == denominator.imag()) {
-        x[i] = 0.0;
+        x[m] = 0.0;
       } else {
         const std::complex<double> delta(numerator / denominator);
-        x[i] -= delta;
+        x[m] -= delta;
         if (halt && convergence_threshold_ < std::abs(delta)) {
           halt = false;
         }

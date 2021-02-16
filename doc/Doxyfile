@@ -894,6 +894,7 @@ INPUT                  = \
                          ../include/SPTK/math/discrete_cosine_transform.h \
                          ../include/SPTK/math/entropy_calculation.h \
                          ../include/SPTK/math/delta_calculation.h \
+                         ../include/SPTK/math/durand_kerner_method.h \
                          ../include/SPTK/math/fast_fourier_transform.h \
                          ../include/SPTK/math/frequency_transform.h \
                          ../include/SPTK/math/gaussian_mixture_modeling.h \
@@ -980,6 +981,7 @@ INPUT                  = \
                          ../src/main/ramp.cc \
                          ../src/main/reverse.cc \
                          ../src/main/rlevdur.cc \
+                         ../src/main/root_pol.cc \
                          ../src/main/sin.cc \
                          ../src/main/step.cc \
                          ../src/main/swab.cc \

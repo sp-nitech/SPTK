@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,15 +42,15 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>    // getopt_long
-#include <algorithm>   // std::copy, std::reverse, std::transform
-#include <complex>     // std::abs, std::arg, std::complex
-#include <fstream>     // std::ifstream
-#include <functional>  // std::bind1st, std::multiplies
-#include <iomanip>     // std::setw
-#include <iostream>    // std::cerr, std::cin, std::cout, std::endl, etc.
-#include <sstream>     // std::ostringstream
-#include <vector>      // std::vector
+#include <getopt.h>  // getopt_long
+
+#include <algorithm>  // std::copy, std::reverse, std::transform
+#include <complex>    // std::abs, std::arg, std::complex
+#include <fstream>    // std::ifstream
+#include <iomanip>    // std::setw
+#include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>    // std::ostringstream
+#include <vector>     // std::vector
 
 #include "SPTK/math/durand_kerner_method.h"
 #include "SPTK/utils/sptk_utils.h"
@@ -58,7 +58,6 @@
 namespace {
 
 enum InputFormats { kForwardOrder = 0, kReverseOrder, kNumInputFormats };
-
 enum OutputFormats { kRectangular = 0, kPolar, kNumOutputFormats };
 
 const int kDefaultNumOrder(32);
@@ -97,6 +96,44 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a root_pol [ @e option ] [ @e infile ]
+ *
+ * - @b -m @e int
+ *   - order of polynomial @f$(1 \le M)@f$
+ * - @b -i @e int
+ *   - maximum number of iterations
+ * - @b -d @e double
+ *   - convergence threshold
+ * - @b -q @e int
+ *   - input format
+ *     \arg @c 0 forward order
+ *     \arg @c 1 reverse order
+ * - @b -o @e int
+ *   - output format
+ *     \arg @c 0 rectangular form
+ *     \arg @c 1 polar form
+ * - @b infile @e str
+ *   - double-type coefficients of polynomial
+ * - @b stdout
+ *   - double-type roots of polynomial
+ *
+ * If @c -o is 0, real and imaginary parts of roots are written.
+ *
+ * @code{.sh}
+ *   echo 3 4 5 | roots -m 2 -o 0 | x2x +da -c 2
+ *   # -0.666667 1.10554
+ *   # -0.666667 -1.10554
+ * @endcode
+ *
+ * If @c -o is 1, radius and angle of roots are written.
+ *
+ * @code{.sh}
+ *   echo 3 4 5 | roots -m 2 -o 1 | x2x +da -c 2
+ *   # 1.29099 2.11344
+ *   # 1.29099 -2.11344
+ * @endcode
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   int num_iteration(kDefaultNumIteration);
@@ -183,7 +220,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -193,7 +229,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -208,7 +243,7 @@ int main(int argc, char* argv[]) {
                                                 convergence_threshold);
   if (!durand_kerner_method.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for finding roots";
+    error_message << "Failed to initialize DurandKernerMethod";
     sptk::PrintErrorMessage("root_pol", error_message);
     return 1;
   }
@@ -240,10 +275,10 @@ int main(int argc, char* argv[]) {
       std::copy(coefficients.begin() + 1, coefficients.end(),
                 normalized_coefficients.begin());
     } else {
-      std::transform(
-          coefficients.begin() + 1, coefficients.end(),
-          normalized_coefficients.begin(),
-          std::bind1st(std::multiplies<double>(), 1.0 / coefficients[0]));
+      const double z(1.0 / coefficients[0]);
+      std::transform(coefficients.begin() + 1, coefficients.end(),
+                     normalized_coefficients.begin(),
+                     [z](double x) { return x * z; });
     }
 
     bool is_converged;
@@ -257,21 +292,21 @@ int main(int argc, char* argv[]) {
 
     if (!is_converged) {
       std::ostringstream error_message;
-      error_message << "No convergence";
+      error_message << "Could not reach convergence";
       sptk::PrintErrorMessage("root_pol", error_message);
       return 1;
     }
 
     switch (output_format) {
       case kRectangular: {
-        for (int i(0); i < num_order; ++i) {
-          if (!sptk::WriteStream(roots[i].real(), &std::cout)) {
+        for (int m(0); m < num_order; ++m) {
+          if (!sptk::WriteStream(roots[m].real(), &std::cout)) {
             std::ostringstream error_message;
             error_message << "Failed to write real part";
             sptk::PrintErrorMessage("root_pol", error_message);
             return 1;
           }
-          if (!sptk::WriteStream(roots[i].imag(), &std::cout)) {
+          if (!sptk::WriteStream(roots[m].imag(), &std::cout)) {
             std::ostringstream error_message;
             error_message << "Failed to write imaginary part";
             sptk::PrintErrorMessage("root_pol", error_message);
@@ -281,14 +316,14 @@ int main(int argc, char* argv[]) {
         break;
       }
       case kPolar: {
-        for (int i(0); i < num_order; ++i) {
-          if (!sptk::WriteStream(std::abs(roots[i]), &std::cout)) {
+        for (int m(0); m < num_order; ++m) {
+          if (!sptk::WriteStream(std::abs(roots[m]), &std::cout)) {
             std::ostringstream error_message;
             error_message << "Failed to write radius";
             sptk::PrintErrorMessage("root_pol", error_message);
             return 1;
           }
-          if (!sptk::WriteStream(std::arg(roots[i]), &std::cout)) {
+          if (!sptk::WriteStream(std::arg(roots[m]), &std::cout)) {
             std::ostringstream error_message;
             error_message << "Failed to write angle";
             sptk::PrintErrorMessage("root_pol", error_message);
