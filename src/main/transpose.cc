@@ -116,7 +116,7 @@ void PrintUsage(std::ostream* stream) {
  * @code{.sh}
  *   # 0 1 2
  *   # 3 4 5
- *   ramp -l 10 | transpose -r 2 -c 3 | x2x +da
+ *   ramp -l 10 | transpose -r 2 -c 3 | x2x +da -c 2
  *   # 0 3
  *   # 1 4
  *   # 2 5
