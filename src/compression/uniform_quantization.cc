@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -57,6 +57,7 @@ UniformQuantization::UniformQuantization(double absolute_maximum_value,
       is_valid_(true) {
   if (absolute_maximum_value_ <= 0.0 || num_bit_ <= 0) {
     is_valid_ = false;
+    return;
   }
 
   switch (quantization_type_) {
@@ -78,6 +79,7 @@ UniformQuantization::UniformQuantization(double absolute_maximum_value,
 }
 
 bool UniformQuantization::Run(double input, int* output) const {
+  // Check inputs.
   if (!is_valid_ || NULL == output) {
     return false;
   }
@@ -96,6 +98,7 @@ bool UniformQuantization::Run(double input, int* output) const {
     default: { return false; }
   }
 
+  // Clip index.
   if (index < 0) {
     index = 0;
   } else if (quantization_levels_ <= index) {

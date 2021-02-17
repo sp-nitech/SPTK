@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -57,6 +57,7 @@ InverseUniformQuantization::InverseUniformQuantization(
       is_valid_(true) {
   if (absolute_maximum_value_ <= 0.0 || num_bit_ <= 0) {
     is_valid_ = false;
+    return;
   }
 
   switch (quantization_type_) {
@@ -78,6 +79,7 @@ InverseUniformQuantization::InverseUniformQuantization(
 }
 
 bool InverseUniformQuantization::Run(int input, double* output) const {
+  // Check inputs.
   if (!is_valid_ || NULL == output) {
     return false;
   }
@@ -95,6 +97,7 @@ bool InverseUniformQuantization::Run(int input, double* output) const {
     default: { return false; }
   }
 
+  // Clip value.
   if (value < -absolute_maximum_value_) {
     value = -absolute_maximum_value_;
   } else if (absolute_maximum_value_ < value) {

@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -50,65 +50,78 @@
 
 namespace sptk {
 
+/**
+ * Perform inverse uniform quantization.
+ *
+ * The input is an index and the output is the corresponding value.
+ * There are two types of quantization, i.e., mid-rise and mid-tread.
+ */
 class InverseUniformQuantization {
  public:
-  //
+  /**
+   * @param[in] absolute_maximum_value Absolute maximum value.
+   * @param[in] num_bit Number of quantization bits.
+   * @param[in] quantization_type Quantization type.
+   */
   InverseUniformQuantization(
       double absolute_maximum_value, int num_bit,
       UniformQuantization::QuantizationType quantization_type);
 
-  //
   virtual ~InverseUniformQuantization() {
   }
 
-  //
+  /**
+   * @return Absolute maximum value.
+   */
   double GetAbsoluteMaximumValue() const {
     return absolute_maximum_value_;
   }
 
-  //
+  /**
+   * @return Number of quantization bits.
+   */
   int GetNumBit() const {
     return num_bit_;
   }
 
-  //
+  /**
+   * @return Quantization type.
+   */
   UniformQuantization::QuantizationType GetQuantizationType() const {
     return quantization_type_;
   }
 
-  //
+  /**
+   * @return True if this object is valid.
+   */
   bool IsValid() const {
     return is_valid_;
   }
 
-  //
+  /**
+   * @return Quantization levels.
+   */
   int GetQuantizationLevels() const {
     return quantization_levels_;
   }
 
-  //
+  /**
+   * @param[in] input Input index.
+   * @param[out] output Output value.
+   * @return True on success, false on failure.
+   */
   bool Run(int input, double* output) const;
 
  private:
-  //
   const double absolute_maximum_value_;
-
-  //
   const int num_bit_;
-
-  //
   const UniformQuantization::QuantizationType quantization_type_;
 
-  //
   bool is_valid_;
 
-  //
   int quantization_levels_;
-
-  //
   double step_size_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(InverseUniformQuantization);
 };
 

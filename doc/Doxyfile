@@ -854,11 +854,13 @@ INPUT                  = \
                          ../include/SPTK/analysis/pitch_extraction.h \
                          ../include/SPTK/analysis/zero_crossing_analysis.h \
                          ../include/SPTK/compression/inverse_multistage_vector_quantization.h \
+                         ../include/SPTK/compression/inverse_uniform_quantization.h \
                          ../include/SPTK/compression/inverse_vector_quantization.h \
                          ../include/SPTK/compression/linde_buzo_gray_algorithm.h \
                          ../include/SPTK/compression/mu_law_compression.h \
                          ../include/SPTK/compression/mu_law_expansion.h \
                          ../include/SPTK/compression/multistage_vector_quantization.h \
+                         ../include/SPTK/compression/uniform_quantization.h \
                          ../include/SPTK/compression/vector_quantization.h \
                          ../include/SPTK/conversion/all_pole_to_all_zero_digital_filter_coefficients.h \
                          ../include/SPTK/conversion/cepstrum_to_autocorrelation.h \
@@ -926,6 +928,7 @@ INPUT                  = \
                          ../src/main/decimate.cc \
                          ../src/main/delay.cc \
                          ../src/main/delta.cc \
+                         ../src/main/dequantize.cc \
                          ../src/main/df2.cc \
                          ../src/main/dfs.cc \
                          ../src/main/entropy.cc \
@@ -980,6 +983,7 @@ INPUT                  = \
                          ../src/main/pitch_mark.cc \
                          ../src/main/poledf.cc \
                          ../src/main/pqmf.cc \
+                         ../src/main/quantize.cc \
                          ../src/main/ramp.cc \
                          ../src/main/reverse.cc \
                          ../src/main/rlevdur.cc \

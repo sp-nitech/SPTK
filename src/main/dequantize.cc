@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -79,9 +80,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 1 (integer)"  << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       input sequence                    (   int)[stdin]" << std::endl;  // NOLINT
+  *stream << "       quantized data sequence           (   int)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       dequantized sequence              (double)" << std::endl;
+  *stream << "       data sequence                     (double)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -90,6 +91,39 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a dequantize [ @e option ] [ @e infile ]
+ *
+ * - @b -v @e double
+ *   - absolute maximum value @f$(0 < V)@f$
+ * - @b -b @e int
+ *   - number of bits @f$(1 \le B)@f$
+ * - @b -t @e int
+ *   - quantization type
+ *     \arg @c 0 mid-rise
+ *     \arg @c 1 mid-tread
+ * - @b -q @e int
+ *   - input format
+ *     \arg @c 0 non-negative integer
+ *     \arg @c 1 integer
+ * - @b infile @e str
+ *   - int-type quantized data sequence
+ * - @b stdout
+ *   - double-type data sequence
+ *
+ * @code{.sh}
+ *    echo -2 -1 0 1 2 | x2x +ad | quantize -b 2 -v 2 -t 0 | \
+ *      dequantize -b 2 -v 2 -t 0 | x2x +da
+ *    # -1.5, -0.5, 0.5, 1.5, 1.5
+ *    echo -2 -1 0 1 2 | x2x +ad | quantize -b 2 -v 2 -t 1 | \
+ *      dequantize -b 2 -v 2 -t 1 | x2x +da
+ *    # -1.33333, -1.33333, 0, 1.33333, 1.33333
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   double absolute_maximum_value(kDefaultAbsoluteMaximumValue);
   int num_bit(kDefaultNumBit);
@@ -168,7 +202,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -178,7 +211,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -189,27 +221,27 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for dequantization
   sptk::InverseUniformQuantization inverse_uniform_quantization(
       absolute_maximum_value, num_bit, quantization_type);
   if (!inverse_uniform_quantization.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for dequantization";
+    error_message << "Failed to initialize InverseUniformQuantization";
     sptk::PrintErrorMessage("dequantize", error_message);
     return 1;
   }
 
+  const int bias(inverse_uniform_quantization.GetQuantizationLevels() / 2);
   int input;
   double output;
 
   while (sptk::ReadStream(&input, &input_stream)) {
     if (kInteger == input_format) {
-      input += inverse_uniform_quantization.GetQuantizationLevels() / 2;
+      input += bias;
     }
 
     if (!inverse_uniform_quantization.Run(input, &output)) {
       std::ostringstream error_message;
-      error_message << "Failed to dequantize";
+      error_message << "Failed to dequantize input";
       sptk::PrintErrorMessage("dequantize", error_message);
       return 1;
     }
