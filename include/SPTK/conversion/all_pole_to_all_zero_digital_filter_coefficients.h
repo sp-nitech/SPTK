@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,8 +42,8 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_CONVERSION_FILTER_COEFFICIENT_NORMALIZATION_H_
-#define SPTK_CONVERSION_FILTER_COEFFICIENT_NORMALIZATION_H_
+#ifndef SPTK_CONVERSION_ALL_POLE_TO_ALL_ZERO_DIGITAL_FILTER_COEFFICIENTS_H_
+#define SPTK_CONVERSION_ALL_POLE_TO_ALL_ZERO_DIGITAL_FILTER_COEFFICIENTS_H_
 
 #include <vector>  // std::vector
 
@@ -51,40 +51,82 @@
 
 namespace sptk {
 
-class FilterCoefficientNormalization {
+/**
+ * Convert all-pole to all-zero digital filter coefficents vice versa.
+ *
+ * The input is the @f$M@f$-th order filter coefficients:
+ * @f[
+ *   \begin{array}{cccc}
+ *     K, & a(1), & \ldots, & a(M),
+ *   \end{array}
+ * @f]
+ * and the output is
+ * @f[
+ *   \begin{array}{cccc}
+ *     b(0), & b(1), & \ldots, & b(M),
+ *   \end{array}
+ * @f]
+ * where
+ * @f[
+ *   b(m) = \left\{ \begin{array}{ll}
+ *     1/K, & m = 0 \\
+ *     a(m)/K. & 1 \le m \le M
+ *   \end{array} \right.
+ * @f]
+ *
+ * The transfer function of an all-pole digital filter is
+ * @f[
+ *   H(z) = \frac{K}{1 + \displaystyle\sum_{m=1}^M a(m) z^{-m}}.
+ * @f]
+ * The inverse filter can be written as
+ * @f{eqnarray}{
+ *   \frac{1}{H(z)} &=& \frac{1 + \displaystyle\sum_{m=1}^M a(m) z^{-m}}{K} \\
+ *                  &=& \frac{1}{K} + \sum_{m=1}^M \frac{a(m)}{K} z^{-m} \\
+ *                  &=& \sum_{m=0}^M b(m) z^{-m}.
+ * @f}
+ * The conversion is symmetric.
+ */
+class AllPoleToAllZeroDigitalFilterCoefficients {
  public:
-  //
-  explicit FilterCoefficientNormalization(int num_order);
+  /**
+   * @param[in] num_order Order of coefficients, @f$M@f$.
+   */
+  explicit AllPoleToAllZeroDigitalFilterCoefficients(int num_order);
 
-  //
-  virtual ~FilterCoefficientNormalization() {
+  virtual ~AllPoleToAllZeroDigitalFilterCoefficients() {
   }
 
-  //
+  /**
+   * @return Order of coefficients.
+   */
   int GetNumOrder() const {
     return num_order_;
   }
 
-  //
+  /**
+   * @return True if this object is valid.
+   */
   bool IsValid() const {
     return is_valid_;
   }
 
-  //
-  bool Run(const std::vector<double>& filter_coefficients,
-           std::vector<double>* normalized_filter_coefficients) const;
+  /**
+   * @param[in] input_filter_coefficients @f$M@f$-th order filter coefficients.
+   * @param[out] output_filter_coefficients Converted @f$M@f$-th order filter
+   *             coefficients.
+   * @return True on success, false on failure.
+   */
+  bool Run(const std::vector<double>& input_filter_coefficients,
+           std::vector<double>* output_filter_coefficients) const;
 
  private:
-  //
   const int num_order_;
 
-  //
   bool is_valid_;
 
-  //
-  DISALLOW_COPY_AND_ASSIGN(FilterCoefficientNormalization);
+  DISALLOW_COPY_AND_ASSIGN(AllPoleToAllZeroDigitalFilterCoefficients);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_CONVERSION_FILTER_COEFFICIENT_NORMALIZATION_H_
+#endif  // SPTK_CONVERSION_ALL_POLE_TO_ALL_ZERO_DIGITAL_FILTER_COEFFICIENTS_H_

@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,44 +42,45 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/conversion/filter_coefficient_normalization.h"
+#include "SPTK/conversion/all_pole_to_all_zero_digital_filter_coefficients.h"
 
-#include <algorithm>   // std::transform
-#include <cstddef>     // std::size_t
-#include <functional>  // std::bind1st, std::multiplies
+#include <algorithm>  // std::transform
+#include <cstddef>    // std::size_t
 
 namespace sptk {
 
-FilterCoefficientNormalization::FilterCoefficientNormalization(int num_order)
+AllPoleToAllZeroDigitalFilterCoefficients::
+    AllPoleToAllZeroDigitalFilterCoefficients(int num_order)
     : num_order_(num_order), is_valid_(true) {
   if (num_order_ < 0) {
     is_valid_ = false;
+    return;
   }
 }
 
-bool FilterCoefficientNormalization::Run(
-    const std::vector<double>& filter_coefficients,
-    std::vector<double>* normalized_filter_coefficients) const {
-  // check inputs
+bool AllPoleToAllZeroDigitalFilterCoefficients::Run(
+    const std::vector<double>& input_filter_coefficients,
+    std::vector<double>* output_filter_coefficients) const {
+  // Check inputs.
+  const int length(num_order_ + 1);
   if (!is_valid_ ||
-      filter_coefficients.size() != static_cast<std::size_t>(num_order_ + 1) ||
-      0.0 == filter_coefficients[0] || NULL == normalized_filter_coefficients) {
+      input_filter_coefficients.size() != static_cast<std::size_t>(length) ||
+      0.0 == input_filter_coefficients[0] ||
+      NULL == output_filter_coefficients) {
     return false;
   }
 
-  // prepare memory
-  if (normalized_filter_coefficients->size() !=
-      static_cast<std::size_t>(num_order_ + 1)) {
-    normalized_filter_coefficients->resize(num_order_ + 1);
+  // Prepare memories.
+  if (output_filter_coefficients->size() != static_cast<std::size_t>(length)) {
+    output_filter_coefficients->resize(length);
   }
 
-  // normarize
-  (*normalized_filter_coefficients)[0] = 1.0 / filter_coefficients[0];
-
-  std::transform(filter_coefficients.begin() + 1, filter_coefficients.end(),
-                 normalized_filter_coefficients->begin() + 1,
-                 std::bind1st(std::multiplies<double>(),
-                              (*normalized_filter_coefficients)[0]));
+  // Perform conversion.
+  const double z(1.0 / input_filter_coefficients[0]);
+  (*output_filter_coefficients)[0] = z;
+  std::transform(
+      input_filter_coefficients.begin() + 1, input_filter_coefficients.end(),
+      output_filter_coefficients->begin() + 1, [z](double x) { return x * z; });
 
   return true;
 }
