@@ -160,19 +160,17 @@ int main(int argc, char* argv[]) {
 
   const int length(num_order + 1);
   std::vector<double> filter_coefficients(length);
-  std::vector<double> converted_filter_coefficients(length);
 
   while (sptk::ReadStream(false, 0, 0, length, &filter_coefficients,
                           &input_stream, NULL)) {
-    if (!conversion.Run(filter_coefficients, &converted_filter_coefficients)) {
+    if (!conversion.Run(&filter_coefficients)) {
       std::ostringstream error_message;
       error_message << "Failed to convert filter coefficients";
       sptk::PrintErrorMessage("norm0", error_message);
       return 1;
     }
 
-    if (!sptk::WriteStream(0, length, converted_filter_coefficients, &std::cout,
-                           NULL)) {
+    if (!sptk::WriteStream(0, length, filter_coefficients, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write converted filter coefficients";
       sptk::PrintErrorMessage("norm0", error_message);

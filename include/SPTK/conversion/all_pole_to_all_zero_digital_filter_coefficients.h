@@ -119,6 +119,12 @@ class AllPoleToAllZeroDigitalFilterCoefficients {
   bool Run(const std::vector<double>& input_filter_coefficients,
            std::vector<double>* output_filter_coefficients) const;
 
+  /**
+   * @param[in,out] input_and_output @f$M@f$-th order filter coefficients.
+   * @return True on success, false on failure.
+   */
+  bool Run(std::vector<double>* input_and_output) const;
+
  private:
   const int num_order_;
 

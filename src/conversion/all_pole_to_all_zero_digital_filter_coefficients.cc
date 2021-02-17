@@ -85,4 +85,11 @@ bool AllPoleToAllZeroDigitalFilterCoefficients::Run(
   return true;
 }
 
+bool AllPoleToAllZeroDigitalFilterCoefficients::Run(
+    std::vector<double>* input_and_output) const {
+  if (NULL == input_and_output) return false;
+  std::vector<double> input(*input_and_output);
+  return Run(input, input_and_output);
+}
+
 }  // namespace sptk
