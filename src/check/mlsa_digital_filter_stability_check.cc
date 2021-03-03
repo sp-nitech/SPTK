@@ -42,7 +42,7 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/utils/mlsa_digital_filter_stability_check.h"
+#include "SPTK/check/mlsa_digital_filter_stability_check.h"
 
 #include <algorithm>  // std::copy, std::fill
 #include <cmath>      // std::pow, std::sqrt

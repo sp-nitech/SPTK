@@ -49,7 +49,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/utils/linear_predictive_coefficients_stability_check.h"
+#include "SPTK/check/linear_predictive_coefficients_stability_check.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

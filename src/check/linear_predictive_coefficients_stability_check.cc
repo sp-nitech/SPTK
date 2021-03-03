@@ -42,87 +42,84 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_UTILS_LINEAR_PREDICTIVE_COEFFICIENTS_STABILITY_CHECK_H_
-#define SPTK_UTILS_LINEAR_PREDICTIVE_COEFFICIENTS_STABILITY_CHECK_H_
+#include "SPTK/check/linear_predictive_coefficients_stability_check.h"
 
-#include <vector>  // std::vector
+#include <cmath>    // std::fabs
+#include <cstddef>  // std::size_t
 
-#include "SPTK/conversion/linear_predictive_coefficients_to_parcor_coefficients.h"
-#include "SPTK/conversion/parcor_coefficients_to_linear_predictive_coefficients.h"
-#include "SPTK/utils/sptk_utils.h"
+namespace {
+
+const double kMinimumMargin(1e-16);
+
+}  // namespace
 
 namespace sptk {
 
-class LinearPredictiveCoefficientsStabilityCheck {
- public:
-  //
-  class Buffer {
-   public:
-    Buffer() {
+LinearPredictiveCoefficientsStabilityCheck::
+    LinearPredictiveCoefficientsStabilityCheck(int num_order, double margin)
+    : num_order_(num_order),
+      margin_(margin),
+      linear_predictive_coefficients_to_parcor_coefficients_(num_order_, 1.0),
+      parcor_coefficients_to_linear_predictive_coefficients_(num_order_),
+      is_valid_(true) {
+  if (num_order_ < 0 || margin_ < kMinimumMargin || 1.0 <= margin_ ||
+      !linear_predictive_coefficients_to_parcor_coefficients_.IsValid() ||
+      !parcor_coefficients_to_linear_predictive_coefficients_.IsValid()) {
+    is_valid_ = false;
+  }
+}
+
+bool LinearPredictiveCoefficientsStabilityCheck::Run(
+    const std::vector<double>& linear_predictive_coefficients,
+    std::vector<double>* modified_linear_predictive_coefficients,
+    bool* is_stable,
+    LinearPredictiveCoefficientsStabilityCheck::Buffer* buffer) const {
+  if (!is_valid_ ||
+      linear_predictive_coefficients.size() !=
+          static_cast<std::size_t>(num_order_ + 1) ||
+      NULL == is_stable || NULL == buffer) {
+    return false;
+  }
+
+  if (NULL != modified_linear_predictive_coefficients &&
+      modified_linear_predictive_coefficients->size() !=
+          static_cast<std::size_t>(num_order_ + 1)) {
+    modified_linear_predictive_coefficients->resize(num_order_ + 1);
+  }
+
+  *is_stable = true;
+  if (0 == num_order_) {
+    if (NULL != modified_linear_predictive_coefficients) {
+      (*modified_linear_predictive_coefficients)[0] =
+          linear_predictive_coefficients[0];
     }
-    virtual ~Buffer() {
+    return true;
+  }
+
+  if (!linear_predictive_coefficients_to_parcor_coefficients_.Run(
+          linear_predictive_coefficients, &buffer->parcor_coefficients_,
+          is_stable, &buffer->conversion_buffer_)) {
+    return false;
+  }
+
+  if (NULL != modified_linear_predictive_coefficients) {
+    double* parcor_coefficients(&buffer->parcor_coefficients_[0]);
+    const double bound(1.0 - margin_);
+    for (int i(1); i <= num_order_; ++i) {
+      if (bound < std::fabs(parcor_coefficients[i])) {
+        parcor_coefficients[i] =
+            (0.0 < parcor_coefficients[i]) ? bound : -bound;
+      }
     }
-
-   private:
-    LinearPredictiveCoefficientsToParcorCoefficients::Buffer conversion_buffer_;
-    ParcorCoefficientsToLinearPredictiveCoefficients::Buffer
-        reconversion_buffer_;
-    std::vector<double> parcor_coefficients_;
-    friend class LinearPredictiveCoefficientsStabilityCheck;
-    DISALLOW_COPY_AND_ASSIGN(Buffer);
-  };
-
-  //
-  LinearPredictiveCoefficientsStabilityCheck(int num_order, double margin);
-
-  //
-  virtual ~LinearPredictiveCoefficientsStabilityCheck() {
+    if (!parcor_coefficients_to_linear_predictive_coefficients_.Run(
+            buffer->parcor_coefficients_,
+            modified_linear_predictive_coefficients,
+            &buffer->reconversion_buffer_)) {
+      return false;
+    }
   }
 
-  //
-  int GetNumOrder() const {
-    return num_order_;
-  }
-
-  //
-  double GetMargin() const {
-    return margin_;
-  }
-
-  //
-  bool IsValid() const {
-    return is_valid_;
-  }
-
-  // Check stability of linear predictive coefficients,
-  // The 2nd argument of this function is allowed to be NULL.
-  bool Run(const std::vector<double>& linear_predictive_coefficients,
-           std::vector<double>* modified_linear_predictive_coefficients,
-           bool* is_stable,
-           LinearPredictiveCoefficientsStabilityCheck::Buffer* buffer) const;
-
- private:
-  //
-  const int num_order_;
-
-  //
-  const double margin_;
-
-  //
-  const LinearPredictiveCoefficientsToParcorCoefficients
-      linear_predictive_coefficients_to_parcor_coefficients_;
-
-  //
-  const ParcorCoefficientsToLinearPredictiveCoefficients
-      parcor_coefficients_to_linear_predictive_coefficients_;
-
-  //
-  bool is_valid_;
-
-  //
-  DISALLOW_COPY_AND_ASSIGN(LinearPredictiveCoefficientsStabilityCheck);
-};
+  return true;
+}
 
 }  // namespace sptk
-
-#endif  // SPTK_UTILS_LINEAR_PREDICTIVE_COEFFICIENTS_STABILITY_CHECK_H_

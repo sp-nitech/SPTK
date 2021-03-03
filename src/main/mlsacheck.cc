@@ -49,7 +49,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/utils/mlsa_digital_filter_stability_check.h"
+#include "SPTK/check/mlsa_digital_filter_stability_check.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

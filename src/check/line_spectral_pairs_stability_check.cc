@@ -42,59 +42,99 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_UTILS_LINE_SPECTRAL_PAIRS_STABILITY_CHECK_H_
-#define SPTK_UTILS_LINE_SPECTRAL_PAIRS_STABILITY_CHECK_H_
+#include "SPTK/check/line_spectral_pairs_stability_check.h"
 
-#include <vector>  // std::vector
+#include <algorithm>  // std::copy
+#include <cstddef>    // std::size_t
 
-#include "SPTK/utils/sptk_utils.h"
+namespace {
+
+const int kNumIteration(100);
+
+}  // namespace
 
 namespace sptk {
 
-class LineSpectralPairsStabilityCheck {
- public:
-  //
-  LineSpectralPairsStabilityCheck(int num_order, double minimum_distance);
+LineSpectralPairsStabilityCheck::LineSpectralPairsStabilityCheck(
+    int num_order, double minimum_distance)
+    : num_order_(num_order),
+      minimum_distance_(minimum_distance),
+      is_valid_(true) {
+  if (num_order_ < 0 || minimum_distance_ < 0.0 ||
+      sptk::kPi / (num_order_ + 1) < minimum_distance_) {
+    is_valid_ = false;
+  }
+}
 
-  //
-  virtual ~LineSpectralPairsStabilityCheck() {
+bool LineSpectralPairsStabilityCheck::Run(
+    const std::vector<double>& line_spectral_pairs,
+    std::vector<double>* modified_line_spectral_pairs, bool* is_stable) const {
+  if (!is_valid_ ||
+      line_spectral_pairs.size() != static_cast<std::size_t>(num_order_ + 1) ||
+      NULL == is_stable) {
+    return false;
   }
 
-  //
-  int GetNumOrder() const {
-    return num_order_;
+  // prepare memory
+  if (NULL != modified_line_spectral_pairs &&
+      modified_line_spectral_pairs->size() !=
+          static_cast<std::size_t>(num_order_ + 1)) {
+    modified_line_spectral_pairs->resize(num_order_ + 1);
   }
 
-  //
-  double GetMinimumDistance() const {
-    return minimum_distance_;
+  *is_stable = true;
+  if (0 == num_order_) {
+    if (NULL != modified_line_spectral_pairs) {
+      (*modified_line_spectral_pairs)[0] = line_spectral_pairs[0];
+    }
+    return true;
   }
 
-  //
-  bool IsValid() const {
-    return is_valid_;
+  // check stability
+  const double* input(&(line_spectral_pairs[1]));
+  for (int i(1); i < num_order_; ++i) {
+    if (input[i] <= input[i - 1]) {
+      *is_stable = false;
+      break;
+    }
+  }
+  if (input[0] <= 0.0 || sptk::kPi <= input[num_order_ - 1]) {
+    *is_stable = false;
   }
 
-  // Check stability of line spectral pairs.
-  // The 2nd argument of this function is allowed to be NULL.
-  bool Run(const std::vector<double>& line_spectral_pairs,
-           std::vector<double>* modified_line_spectral_pairs,
-           bool* is_stable) const;
+  // modify line spectral pairs
+  if (NULL != modified_line_spectral_pairs) {
+    std::copy(line_spectral_pairs.begin(), line_spectral_pairs.end(),
+              modified_line_spectral_pairs->begin());
+    if (!*is_stable || 0.0 < minimum_distance_) {
+      const double lower_bound(minimum_distance_);
+      const double upper_bound(sptk::kPi - minimum_distance_);
+      double* output(&((*modified_line_spectral_pairs)[1]));
+      bool halt(false);
+      for (int j(0); j < kNumIteration && !halt; ++j) {
+        halt = true;
+        for (int i(1); i < num_order_; ++i) {
+          const double distance(output[i] - output[i - 1]);
+          if (distance < minimum_distance_) {
+            const double step_size(0.5 * (minimum_distance_ - distance));
+            output[i - 1] -= step_size;
+            output[i] += step_size;
+            halt = false;
+          }
+        }
+        if (output[0] < lower_bound) {
+          output[0] = lower_bound;
+          halt = false;
+        }
+        if (upper_bound < output[num_order_ - 1]) {
+          output[num_order_ - 1] = upper_bound;
+          halt = false;
+        }
+      }
+    }
+  }
 
- private:
-  //
-  const int num_order_;
-
-  //
-  const double minimum_distance_;
-
-  //
-  bool is_valid_;
-
-  //
-  DISALLOW_COPY_AND_ASSIGN(LineSpectralPairsStabilityCheck);
-};
+  return true;
+}
 
 }  // namespace sptk
-
-#endif  // SPTK_UTILS_LINE_SPECTRAL_PAIRS_STABILITY_CHECK_H_

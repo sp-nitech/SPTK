@@ -42,22 +42,19 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_UTILS_MLSA_DIGITAL_FILTER_STABILITY_CHECK_H_
-#define SPTK_UTILS_MLSA_DIGITAL_FILTER_STABILITY_CHECK_H_
+#ifndef SPTK_CHECK_LINEAR_PREDICTIVE_COEFFICIENTS_STABILITY_CHECK_H_
+#define SPTK_CHECK_LINEAR_PREDICTIVE_COEFFICIENTS_STABILITY_CHECK_H_
 
 #include <vector>  // std::vector
 
-#include "SPTK/math/inverse_fast_fourier_transform.h"
-#include "SPTK/math/real_valued_fast_fourier_transform.h"
+#include "SPTK/conversion/linear_predictive_coefficients_to_parcor_coefficients.h"
+#include "SPTK/conversion/parcor_coefficients_to_linear_predictive_coefficients.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
-class MlsaDigitalFilterStabilityCheck {
+class LinearPredictiveCoefficientsStabilityCheck {
  public:
-  //
-  enum ModificationType { kClipping = 0, kScaling, kNumModificationTypes };
-
   //
   class Buffer {
    public:
@@ -67,23 +64,20 @@ class MlsaDigitalFilterStabilityCheck {
     }
 
    private:
-    std::vector<double> amplitude_;
-    std::vector<double> fourier_transform_real_part_input_;
-    std::vector<double> fourier_transform_imaginary_part_input_;
-    std::vector<double> fourier_transform_real_part_output_;
-    std::vector<double> fourier_transform_imaginary_part_output_;
-    RealValuedFastFourierTransform::Buffer fourier_transform_buffer_;
-    friend class MlsaDigitalFilterStabilityCheck;
+    LinearPredictiveCoefficientsToParcorCoefficients::Buffer conversion_buffer_;
+    ParcorCoefficientsToLinearPredictiveCoefficients::Buffer
+        reconversion_buffer_;
+    std::vector<double> parcor_coefficients_;
+    friend class LinearPredictiveCoefficientsStabilityCheck;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
 
   //
-  MlsaDigitalFilterStabilityCheck(int num_order, double alpha, double threshold,
-                                  bool fast_mode, int fft_length,
-                                  ModificationType modification_type);
+  LinearPredictiveCoefficientsStabilityCheck(int num_order, double margin);
 
   //
-  virtual ~MlsaDigitalFilterStabilityCheck();
+  virtual ~LinearPredictiveCoefficientsStabilityCheck() {
+  }
 
   //
   int GetNumOrder() const {
@@ -91,28 +85,8 @@ class MlsaDigitalFilterStabilityCheck {
   }
 
   //
-  double GetAlpha() const {
-    return alpha_;
-  }
-
-  //
-  double GetThreshold() const {
-    return threshold_;
-  }
-
-  //
-  bool GetFastModeFlag() const {
-    return fast_mode_;
-  }
-
-  //
-  int GetFftLength() const {
-    return fourier_transform_ ? fourier_transform_->GetFftLength() : 0;
-  }
-
-  //
-  ModificationType GetModificationType() const {
-    return modification_type_;
+  double GetMargin() const {
+    return margin_;
   }
 
   //
@@ -120,42 +94,35 @@ class MlsaDigitalFilterStabilityCheck {
     return is_valid_;
   }
 
-  // Check stability of MLSA digital filter.
-  // The 2nd and 4th arguments of this function are allowed to be NULL.
-  bool Run(const std::vector<double>& mel_cepstrum,
-           std::vector<double>* modified_mel_cepstrum, bool* is_stable,
-           double* maximum_amplitude_of_basic_filter,
-           MlsaDigitalFilterStabilityCheck::Buffer* buffer) const;
+  // Check stability of linear predictive coefficients,
+  // The 2nd argument of this function is allowed to be NULL.
+  bool Run(const std::vector<double>& linear_predictive_coefficients,
+           std::vector<double>* modified_linear_predictive_coefficients,
+           bool* is_stable,
+           LinearPredictiveCoefficientsStabilityCheck::Buffer* buffer) const;
 
  private:
   //
   const int num_order_;
 
   //
-  const double alpha_;
+  const double margin_;
 
   //
-  const double threshold_;
+  const LinearPredictiveCoefficientsToParcorCoefficients
+      linear_predictive_coefficients_to_parcor_coefficients_;
 
   //
-  const bool fast_mode_;
-
-  //
-  const ModificationType modification_type_;
-
-  //
-  RealValuedFastFourierTransform* fourier_transform_;
-
-  //
-  InverseFastFourierTransform* inverse_fourier_transform_;
+  const ParcorCoefficientsToLinearPredictiveCoefficients
+      parcor_coefficients_to_linear_predictive_coefficients_;
 
   //
   bool is_valid_;
 
   //
-  DISALLOW_COPY_AND_ASSIGN(MlsaDigitalFilterStabilityCheck);
+  DISALLOW_COPY_AND_ASSIGN(LinearPredictiveCoefficientsStabilityCheck);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_UTILS_MLSA_DIGITAL_FILTER_STABILITY_CHECK_H_
+#endif  // SPTK_CHECK_LINEAR_PREDICTIVE_COEFFICIENTS_STABILITY_CHECK_H_

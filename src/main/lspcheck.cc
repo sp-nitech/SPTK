@@ -52,7 +52,7 @@
 #include <sstream>     // std::ostringstream
 #include <vector>      // std::vector
 
-#include "SPTK/utils/line_spectral_pairs_stability_check.h"
+#include "SPTK/check/line_spectral_pairs_stability_check.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
