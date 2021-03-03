@@ -92,7 +92,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 1 (log gain)" << std::endl;
   *stream << "                 2 (without gain)" << std::endl;
   *stream << "       -q q  : input format                 (   int)[" << std::setw(5) << std::right << kDefaultInputFormat       << "][   0 <= q <= 3 ]" << std::endl;  // NOLINT
-  *stream << "                 0 (frequency [pi])" << std::endl;
+  *stream << "                 0 (frequency [rad])" << std::endl;
   *stream << "                 1 (frequency [pi rad])" << std::endl;
   *stream << "                 2 (frequency [kHz])" << std::endl;
   *stream << "                 3 (frequency [Hz])" << std::endl;
