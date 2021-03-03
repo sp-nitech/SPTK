@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,15 +42,15 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>    // getopt_long
-#include <algorithm>   // std::copy, std::transform
-#include <cmath>       // std::log
-#include <fstream>     // std::ifstream
-#include <functional>  // std::bind1st, std::multiplies
-#include <iomanip>     // std::setw
-#include <iostream>    // std::cerr, std::cin, std::cout, std::endl, etc.
-#include <sstream>     // std::ostringstream
-#include <vector>      // std::vector
+#include <getopt.h>  // getopt_long
+
+#include <algorithm>  // std::transform
+#include <cmath>      // std::log
+#include <fstream>    // std::ifstream
+#include <iomanip>    // std::setw
+#include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>    // std::ostringstream
+#include <vector>     // std::vector
 
 #include "SPTK/check/line_spectral_pairs_stability_check.h"
 #include "SPTK/utils/sptk_utils.h"
@@ -60,8 +60,8 @@ namespace {
 enum GainType { kLinearGain = 0, kLogGain, kWithoutGain, kNumGainTypes };
 
 enum InputOutputFormats {
-  kNormalizedFrequencyInRadians = 0,
-  kNormalizedFrequencyInCycles,
+  kFrequencyInRadians = 0,
+  kFrequencyInCycles,
   kFrequencyInkHz,
   kFrequencyInHz,
   kNumInputOutputFormats
@@ -72,7 +72,7 @@ enum WarningType { kIgnore = 0, kWarn, kExit, kNumWarningTypes };
 const int kDefaultNumOrder(25);
 const double kDefaultSamplingFrequency(10.0);
 const GainType kDefaultGainType(kLinearGain);
-const InputOutputFormats kDefaultInputFormat(kNormalizedFrequencyInRadians);
+const InputOutputFormats kDefaultInputFormat(kFrequencyInRadians);
 const WarningType kDefaultWarningType(kWarn);
 const double kDefaultDistanceRate(0.0);
 const double kDefaultMinimumGain(1e-10);
@@ -93,13 +93,13 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 1 (log gain)" << std::endl;
   *stream << "                 2 (without gain)" << std::endl;
   *stream << "       -q q  : input format                          (   int)[" << std::setw(5) << std::right << kDefaultInputFormat       << "][   0 <= q <= 3   ]" << std::endl;  // NOLINT
-  *stream << "                 0 (normalized frequency [0...pi])" << std::endl;
-  *stream << "                 1 (normalized frequency [0...1/2])" << std::endl;
+  *stream << "                 0 (frequency [rad])" << std::endl;
+  *stream << "                 1 (frequency [cyc])" << std::endl;
   *stream << "                 2 (frequency [kHz])" << std::endl;
   *stream << "                 3 (frequency [Hz])" << std::endl;
   *stream << "       -o o  : output format                         (   int)[" << std::setw(5) << std::right << "q"                       << "][   0 <= o <= 3   ]" << std::endl;  // NOLINT
-  *stream << "                 0 (normalized frequency [0...pi])" << std::endl;
-  *stream << "                 1 (normalized frequency [0...1/2])" << std::endl;
+  *stream << "                 0 (frequency [rad])" << std::endl;
+  *stream << "                 1 (frequency [cyc])" << std::endl;
   *stream << "                 2 (frequency [kHz])" << std::endl;
   *stream << "                 3 (frequency [Hz])" << std::endl;
   *stream << "       -e e  : warning type of unstable index        (   int)[" << std::setw(5) << std::right << kDefaultWarningType       << "][   0 <= e <= 2   ]" << std::endl;  // NOLINT
@@ -124,8 +124,78 @@ void PrintUsage(std::ostream* stream) {
   // clang-format on
 }
 
+double GetScale(InputOutputFormats format, double sampling_frequency) {
+  switch (format) {
+    case kFrequencyInRadians: {
+      return 1.0;
+    }
+    case kFrequencyInCycles: {
+      return sptk::kTwoPi;
+    }
+    case kFrequencyInkHz: {
+      return sptk::kTwoPi / sampling_frequency;
+    }
+    case kFrequencyInHz: {
+      return sptk::kTwoPi * 0.001 / sampling_frequency;
+    }
+    default: { return 1.0; }
+  }
+}
+
 }  // namespace
 
+/**
+ * @a lsp2check [ @e option ] [ @e infile ]
+ *
+ * - @b -m @e int
+ *   - order of line spectral pairs @f$(0 \le M)@f$
+ * - @b -s @e double
+ *   - sampling rate @f$(0 < F_s)@f$
+ * - @b -k @e int
+ *   - input gain type
+ *     \arg @c 0 linear gain
+ *     \arg @c 1 log gain
+ *     \arg @c 2 without gain
+ * - @b -q @e int
+ *   - input format
+ *     \arg @c 0 frequency in rad
+ *     \arg @c 1 frequency in cyc
+ *     \arg @c 2 frequency in kHz
+ *     \arg @c 3 frequency in Hz
+ * - @b -o @e int
+ *   - output format
+ *     \arg @c 0 frequency in rad
+ *     \arg @c 1 frequency in cyc
+ *     \arg @c 2 frequency in kHz
+ *     \arg @c 3 frequency in Hz
+ * - @b -e @e int
+ *   - warning type
+ *     \arg @c 0 no warning
+ *     \arg @c 1 output index
+ *     \arg @c 2 output index and exit immediately
+ * - @b -r @e double
+ *   - rate of distance between adjacent LSPs @f$(0 \le R \le 1)@f$
+ * - @b -g @e double
+ *   - minimum gain on linear scale @f$(0 < G)@f$
+ * - @b -x @e bool
+ *   - perform modification
+ * - @b infile @e str
+ *   - double-type LSP coefficients
+ * - @b stdout
+ *   - double-type modified LSP coefficients
+ *
+ * In the following example, 9-th order LSP coefficients in @c data.lpc are
+ * modified so that the distance between two adjacent LSPs is greater than
+ * @f$0.01\pi/(M+1)@f$.
+ *
+ * @code{.sh}
+ *   lspcheck -m 9 -r 0.01 -x < data.lpc > data2.lsp
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   double sampling_frequency(kDefaultSamplingFrequency);
@@ -274,7 +344,6 @@ int main(int argc, char* argv[]) {
     minimum_gain = std::log(minimum_gain);
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -284,7 +353,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -295,13 +363,12 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for stability check
   const double minimum_distance(distance_rate * sptk::kPi / (num_order + 1));
   sptk::LineSpectralPairsStabilityCheck line_spectral_pairs_stability_check(
       num_order, minimum_distance);
   if (!line_spectral_pairs_stability_check.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for stability check";
+    error_message << "Failed to initialize LineSpectralPairsStabilityCheck";
     sptk::PrintErrorMessage("lspcheck", error_message);
     return 1;
   }
@@ -309,48 +376,25 @@ int main(int argc, char* argv[]) {
   const int length(num_order + 1);
   const int read_write_size(kWithoutGain == gain_type ? num_order : length);
   const int read_write_point(kWithoutGain == gain_type ? 1 : 0);
-  std::vector<double> input_line_spectral_pairs(length);
-  std::vector<double> output_line_spectral_pairs(length);
+  std::vector<double> line_spectral_pairs(length);
+  const double input_scale(GetScale(input_format, sampling_frequency));
+  const double output_scale(1.0 / GetScale(output_format, sampling_frequency));
 
   for (int frame_index(0);
        sptk::ReadStream(false, 0, read_write_point, read_write_size,
-                        &input_line_spectral_pairs, &input_stream, NULL);
+                        &line_spectral_pairs, &input_stream, NULL);
        ++frame_index) {
-    switch (input_format) {
-      case kNormalizedFrequencyInRadians: {
-        // nothing to do
-        break;
-      }
-      case kNormalizedFrequencyInCycles: {
-        std::transform(input_line_spectral_pairs.begin() + 1,
-                       input_line_spectral_pairs.end(),
-                       input_line_spectral_pairs.begin() + 1,
-                       std::bind1st(std::multiplies<double>(), sptk::kTwoPi));
-        break;
-      }
-      case kFrequencyInkHz: {
-        std::transform(input_line_spectral_pairs.begin() + 1,
-                       input_line_spectral_pairs.end(),
-                       input_line_spectral_pairs.begin() + 1,
-                       std::bind1st(std::multiplies<double>(),
-                                    sptk::kTwoPi / sampling_frequency));
-        break;
-      }
-      case kFrequencyInHz: {
-        std::transform(input_line_spectral_pairs.begin() + 1,
-                       input_line_spectral_pairs.end(),
-                       input_line_spectral_pairs.begin() + 1,
-                       std::bind1st(std::multiplies<double>(),
-                                    sptk::kTwoPi * 0.001 / sampling_frequency));
-        break;
-      }
-      default: { break; }
+    // Convert unit to radians.
+    if (1.0 != input_scale) {
+      std::transform(line_spectral_pairs.begin() + 1, line_spectral_pairs.end(),
+                     line_spectral_pairs.begin() + 1,
+                     [input_scale](double w) { return w * input_scale; });
     }
 
+    // Check lines.
     bool is_stable(false);
     if (modification_flag) {
-      if (!line_spectral_pairs_stability_check.Run(input_line_spectral_pairs,
-                                                   &output_line_spectral_pairs,
+      if (!line_spectral_pairs_stability_check.Run(&line_spectral_pairs,
                                                    &is_stable)) {
         std::ostringstream error_message;
         error_message << "Failed to check stability of line spectral pairs";
@@ -358,18 +402,14 @@ int main(int argc, char* argv[]) {
         return 1;
       }
     } else {
-      if (!line_spectral_pairs_stability_check.Run(input_line_spectral_pairs,
-                                                   NULL, &is_stable)) {
+      if (!line_spectral_pairs_stability_check.Run(line_spectral_pairs, NULL,
+                                                   &is_stable)) {
         std::ostringstream error_message;
         error_message << "Failed to check stability of line spectral pairs";
         sptk::PrintErrorMessage("lspcheck", error_message);
         return 1;
       }
-      std::copy(input_line_spectral_pairs.begin(),
-                input_line_spectral_pairs.end(),
-                output_line_spectral_pairs.begin());
     }
-
     if (!is_stable && kIgnore != warning_type) {
       std::ostringstream error_message;
       error_message << frame_index << "th frame is unstable";
@@ -377,10 +417,10 @@ int main(int argc, char* argv[]) {
       if (kExit == warning_type) return 1;
     }
 
-    if (kWithoutGain != gain_type &&
-        output_line_spectral_pairs[0] < minimum_gain) {
+    // Check gain.
+    if (kWithoutGain != gain_type && line_spectral_pairs[0] < minimum_gain) {
       if (modification_flag) {
-        output_line_spectral_pairs[0] = minimum_gain;
+        line_spectral_pairs[0] = minimum_gain;
       }
       if (kIgnore != warning_type) {
         std::ostringstream error_message;
@@ -390,41 +430,15 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    switch (output_format) {
-      case kNormalizedFrequencyInRadians: {
-        // nothing to do
-        break;
-      }
-      case kNormalizedFrequencyInCycles: {
-        std::transform(
-            output_line_spectral_pairs.begin() + 1,
-            output_line_spectral_pairs.end(),
-            output_line_spectral_pairs.begin() + 1,
-            std::bind1st(std::multiplies<double>(), 1.0 / sptk::kTwoPi));
-        break;
-      }
-      case kFrequencyInkHz: {
-        std::transform(output_line_spectral_pairs.begin() + 1,
-                       output_line_spectral_pairs.end(),
-                       output_line_spectral_pairs.begin() + 1,
-                       std::bind1st(std::multiplies<double>(),
-                                    sampling_frequency / sptk::kTwoPi));
-        break;
-      }
-      case kFrequencyInHz: {
-        std::transform(
-            output_line_spectral_pairs.begin() + 1,
-            output_line_spectral_pairs.end(),
-            output_line_spectral_pairs.begin() + 1,
-            std::bind1st(std::multiplies<double>(),
-                         1000.0 * sampling_frequency / sptk::kTwoPi));
-        break;
-      }
-      default: { break; }
+    // Convert unit from radians.
+    if (1.0 != output_scale) {
+      std::transform(line_spectral_pairs.begin() + 1, line_spectral_pairs.end(),
+                     line_spectral_pairs.begin() + 1,
+                     [output_scale](double w) { return w * output_scale; });
     }
 
     if (!sptk::WriteStream(read_write_point, read_write_size,
-                           output_line_spectral_pairs, &std::cout, NULL)) {
+                           line_spectral_pairs, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write line spectral pairs";
       sptk::PrintErrorMessage("lspcheck", error_message);
