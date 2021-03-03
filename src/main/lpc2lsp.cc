@@ -96,7 +96,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 2 (without gain)" << std::endl;
   *stream << "       -o o  : output format                           (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat         << "][   0 <= o <= 3 ]" << std::endl;  // NOLINT
   *stream << "                 0 (frequency [rad])" << std::endl;
-  *stream << "                 1 (frequency [pi rad])" << std::endl;
+  *stream << "                 1 (frequency [cyc])" << std::endl;
   *stream << "                 2 (frequency [kHz])" << std::endl;
   *stream << "                 3 (frequency [Hz])" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
@@ -131,7 +131,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b -o @e int
  *   - output format
  *     \arg @c 0 frequency in rad
- *     \arg @c 1 frequency in @f$\pi@f$ rad
+ *     \arg @c 1 frequency in cyc
  *     \arg @c 2 frequency in kHz
  *     \arg @c 3 frequency in Hz
  * - @b -n @e int
