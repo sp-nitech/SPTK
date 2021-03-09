@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -90,6 +91,29 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a lpccheck [ @e option ] [ @e infile ]
+ *
+ * - @b -m @e int
+ *   - order of linear predictive coefficients @f$(0 \le M)@f$
+ * - @b -e @e int
+ *   - warning type
+ *     \arg @c 0 no warning
+ *     \arg @c 1 output index
+ *     \arg @c 2 output index and exit immediately
+ * - @b -r @e double
+ *   - margin @f$(0 < \delta < 1)@f$
+ * - @b -x @e bool
+ *   - perform modification
+ * - @b infile @e str
+ *   - double-type LPC coefficients
+ * - @b stdout
+ *   - double-type modified LPC coefficients
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   WarningType warning_type(kDefaultWarningType);
@@ -132,7 +156,7 @@ int main(int argc, char* argv[]) {
             1.0 <= margin) {
           std::ostringstream error_message;
           error_message
-              << "The argument for the -r option must be in [0.0, 1.0]";
+              << "The argument for the -r option must be in (0.0, 1.0)";
           sptk::PrintErrorMessage("lpccheck", error_message);
           return 1;
         }
@@ -153,7 +177,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_rest_args(argc - optind);
   if (1 < num_rest_args) {
     std::ostringstream error_message;
@@ -163,7 +186,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_rest_args ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -174,39 +196,43 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for stability check
   sptk::LinearPredictiveCoefficientsStabilityCheck
       linear_predictive_coefficients_stability_check(num_order, margin);
   sptk::LinearPredictiveCoefficientsStabilityCheck::Buffer buffer;
   if (!linear_predictive_coefficients_stability_check.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for stability check";
+    error_message
+        << "Failed to initialize LinearPredictiveCoefficientsStabilityCheck";
     sptk::PrintErrorMessage("lpccheck", error_message);
     return 1;
   }
 
   const int length(num_order + 1);
-  std::vector<double> input_linear_predictive_coefficients(length);
-  std::vector<double> output_linear_predictive_coefficients(length);
-  std::vector<double>* output_ptr(
-      modification_flag ? &output_linear_predictive_coefficients : NULL);
-  std::vector<double>* write_ptr(modification_flag
-                                     ? &output_linear_predictive_coefficients
-                                     : &input_linear_predictive_coefficients);
+  std::vector<double> linear_predictive_coefficients(length);
 
-  for (int frame_index(0); sptk::ReadStream(
-           false, 0, 0, length, &input_linear_predictive_coefficients,
-           &input_stream, NULL);
+  for (int frame_index(0);
+       sptk::ReadStream(false, 0, 0, length, &linear_predictive_coefficients,
+                        &input_stream, NULL);
        ++frame_index) {
     bool is_stable(false);
-    if (!linear_predictive_coefficients_stability_check.Run(
-            input_linear_predictive_coefficients, output_ptr, &is_stable,
-            &buffer)) {
-      std::ostringstream error_message;
-      error_message
-          << "Failed to check stability of linear predictive coefficients";
-      sptk::PrintErrorMessage("lpccheck", error_message);
-      return 1;
+    if (modification_flag) {
+      if (!linear_predictive_coefficients_stability_check.Run(
+              &linear_predictive_coefficients, &is_stable, &buffer)) {
+        std::ostringstream error_message;
+        error_message
+            << "Failed to check stability of linear predictive coefficients";
+        sptk::PrintErrorMessage("lpccheck", error_message);
+        return 1;
+      } else {
+        if (!linear_predictive_coefficients_stability_check.Run(
+                linear_predictive_coefficients, NULL, &is_stable, &buffer)) {
+          std::ostringstream error_message;
+          error_message
+              << "Failed to check stability of linear predictive coefficients";
+          sptk::PrintErrorMessage("lpccheck", error_message);
+          return 1;
+        }
+      }
     }
 
     if (!is_stable && kIgnore != warning_type) {
@@ -216,7 +242,8 @@ int main(int argc, char* argv[]) {
       if (kExit == warning_type) return 1;
     }
 
-    if (!sptk::WriteStream(0, length, *write_ptr, &std::cout, NULL)) {
+    if (!sptk::WriteStream(0, length, linear_predictive_coefficients,
+                           &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write linear predictive coefficients";
       sptk::PrintErrorMessage("lpccheck", error_message);

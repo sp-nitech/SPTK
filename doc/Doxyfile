@@ -854,6 +854,7 @@ INPUT                  = \
                          ../include/SPTK/analysis/pitch_extraction.h \
                          ../include/SPTK/analysis/zero_crossing_analysis.h \
                          ../include/SPTK/check/line_spectral_pairs_stability_check.h \
+                         ../include/SPTK/check/linear_predictive_coefficients_stability_check.h \
                          ../include/SPTK/compression/inverse_multistage_vector_quantization.h \
                          ../include/SPTK/compression/inverse_uniform_quantization.h \
                          ../include/SPTK/compression/inverse_vector_quantization.h \
@@ -959,6 +960,7 @@ INPUT                  = \
                          ../src/main/lpc2c.cc \
                          ../src/main/lpc2lsp.cc \
                          ../src/main/lpc2par.cc \
+                         ../src/main/lpccheck.cc \
                          ../src/main/ltcdf.cc \
                          ../src/main/lsp2lpc.cc \
                          ../src/main/lspcheck.cc \

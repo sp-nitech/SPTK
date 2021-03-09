@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -66,6 +66,7 @@ LinearPredictiveCoefficientsStabilityCheck::
       !linear_predictive_coefficients_to_parcor_coefficients_.IsValid() ||
       !parcor_coefficients_to_linear_predictive_coefficients_.IsValid()) {
     is_valid_ = false;
+    return;
   }
 }
 
@@ -74,6 +75,7 @@ bool LinearPredictiveCoefficientsStabilityCheck::Run(
     std::vector<double>* modified_linear_predictive_coefficients,
     bool* is_stable,
     LinearPredictiveCoefficientsStabilityCheck::Buffer* buffer) const {
+  // Check inputs.
   if (!is_valid_ ||
       linear_predictive_coefficients.size() !=
           static_cast<std::size_t>(num_order_ + 1) ||
@@ -81,12 +83,14 @@ bool LinearPredictiveCoefficientsStabilityCheck::Run(
     return false;
   }
 
+  // Prepare memories.
   if (NULL != modified_linear_predictive_coefficients &&
       modified_linear_predictive_coefficients->size() !=
           static_cast<std::size_t>(num_order_ + 1)) {
     modified_linear_predictive_coefficients->resize(num_order_ + 1);
   }
 
+  // Handle a special case.
   *is_stable = true;
   if (0 == num_order_) {
     if (NULL != modified_linear_predictive_coefficients) {
@@ -96,19 +100,21 @@ bool LinearPredictiveCoefficientsStabilityCheck::Run(
     return true;
   }
 
+  // Check stability.
   if (!linear_predictive_coefficients_to_parcor_coefficients_.Run(
           linear_predictive_coefficients, &buffer->parcor_coefficients_,
           is_stable, &buffer->conversion_buffer_)) {
     return false;
   }
 
+  // Perform modification.
   if (NULL != modified_linear_predictive_coefficients) {
     double* parcor_coefficients(&buffer->parcor_coefficients_[0]);
     const double bound(1.0 - margin_);
-    for (int i(1); i <= num_order_; ++i) {
-      if (bound < std::fabs(parcor_coefficients[i])) {
-        parcor_coefficients[i] =
-            (0.0 < parcor_coefficients[i]) ? bound : -bound;
+    for (int m(1); m <= num_order_; ++m) {
+      if (bound < std::fabs(parcor_coefficients[m])) {
+        parcor_coefficients[m] =
+            (0.0 < parcor_coefficients[m]) ? bound : -bound;
       }
     }
     if (!parcor_coefficients_to_linear_predictive_coefficients_.Run(
@@ -120,6 +126,13 @@ bool LinearPredictiveCoefficientsStabilityCheck::Run(
   }
 
   return true;
+}
+
+bool LinearPredictiveCoefficientsStabilityCheck::Run(
+    std::vector<double>* input_and_output, bool* is_stable,
+    LinearPredictiveCoefficientsStabilityCheck::Buffer* buffer) const {
+  if (NULL == input_and_output) return false;
+  return Run(*input_and_output, input_and_output, is_stable, buffer);
 }
 
 }  // namespace sptk
