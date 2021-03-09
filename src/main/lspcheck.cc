@@ -145,7 +145,7 @@ double GetScale(InputOutputFormats format, double sampling_frequency) {
 }  // namespace
 
 /**
- * @a lsp2check [ @e option ] [ @e infile ]
+ * @a lspcheck [ @e option ] [ @e infile ]
  *
  * - @b -m @e int
  *   - order of line spectral pairs @f$(0 \le M)@f$
