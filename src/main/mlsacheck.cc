@@ -95,7 +95,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                    and exit immediately)" << std::endl;
   *stream << "       -R R  : threshold value                   (double)[" << std::setw(5) << std::right << "N/A"                      << "][  0.0 <  R <=     ]" << std::endl;  // NOLINT
   *stream << "       -r    : stability condition               (   int)[" << std::setw(5) << std::right << kDefaultStabilityCondition << "][    0 <= r <= 1   ]" << std::endl;  // NOLINT
-  *stream << "                 0 (keeping maximum log approximation error)" << std::endl;
+  *stream << "                 0 (keeping maximum log approximation error)" << std::endl;  // NOLINT
   *stream << "                 1 (keeping filter stability)" << std::endl;
   *stream << "       -t    : modification type                 (   int)[" << std::setw(5) << std::right << kDefaultModificationType   << "][    0 <= t <= 1   ]" << std::endl;  // NOLINT
   *stream << "                 0 (clipping)" << std::endl;
