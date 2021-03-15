@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -56,17 +57,24 @@ namespace {
 
 enum WarningType { kIgnore = 0, kWarn, kExit, kNumWarningTypes };
 
+enum StabilityCondition {
+  kKeepingLogApproximationError,
+  kKeepingFilterStability,
+  kNumConditions,
+};
+
 const int kDefaultNumFilterOrder(25);
 const int kDefaultFftLength(256);
 const double kDefaultAlpha(0.35);
 const int kDefaultNumPadeOrder(4);
 const WarningType kDefaultWarningType(kWarn);
-const bool kDefaultKeepMaximumLogApproximationErrorFlag(true);
-const bool kDefaultFastModeFlag(false);
-const bool kDefaultModificationFlag(false);
+const StabilityCondition kDefaultStabilityCondition(
+    kKeepingLogApproximationError);
 const sptk::MlsaDigitalFilterStabilityCheck::ModificationType
     kDefaultModificationType(
         sptk::MlsaDigitalFilterStabilityCheck::ModificationType::kClipping);
+const bool kDefaultFastModeFlag(false);
+const bool kDefaultModificationFlag(false);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -76,23 +84,24 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       mlsacheck [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of filter coefficients      (   int)[" << std::setw(5) << std::right << kDefaultNumFilterOrder   << "][    0 <= m <=     ]" << std::endl;  // NOLINT
-  *stream << "       -l l  : FFT length                        (   int)[" << std::setw(5) << std::right << kDefaultFftLength        << "][    m <  l <=     ]" << std::endl;  // NOLINT
-  *stream << "       -a a  : all-pass constant                 (double)[" << std::setw(5) << std::right << kDefaultAlpha            << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
-  *stream << "       -P P  : order of Pade approximation       (   int)[" << std::setw(5) << std::right << kDefaultNumPadeOrder     << "][    4 <= P <= 7   ]" << std::endl;  // NOLINT
-  *stream << "       -e e  : warning type of unstable index    (   int)[" << std::setw(5) << std::right << kDefaultWarningType      << "][    0 <= e <= 2   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of filter coefficients      (   int)[" << std::setw(5) << std::right << kDefaultNumFilterOrder     << "][    0 <= m <=     ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length                        (   int)[" << std::setw(5) << std::right << kDefaultFftLength          << "][    m <  l <=     ]" << std::endl;  // NOLINT
+  *stream << "       -a a  : all-pass constant                 (double)[" << std::setw(5) << std::right << kDefaultAlpha              << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -P P  : order of Pade approximation       (   int)[" << std::setw(5) << std::right << kDefaultNumPadeOrder       << "][    4 <= P <= 7   ]" << std::endl;  // NOLINT
+  *stream << "       -e e  : warning type of unstable index    (   int)[" << std::setw(5) << std::right << kDefaultWarningType        << "][    0 <= e <= 2   ]" << std::endl;  // NOLINT
   *stream << "                 0 (no warning)" << std::endl;
   *stream << "                 1 (output the index to stderr)" << std::endl;
   *stream << "                 2 (output the index to stderr" << std::endl;
   *stream << "                    and exit immediately)" << std::endl;
-  *stream << "       -r r  : threshold value                   (double)[" << std::setw(5) << std::right << "N/A"                    << "][  0.0 <  r <=     ]" << std::endl;  // NOLINT
-  *stream << "       -k    : keep filter stability rather than (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(!kDefaultKeepMaximumLogApproximationErrorFlag) << "]" << std::endl;  // NOLINT
-  *stream << "               maximum log approximation error" << std::endl;
-  *stream << "       -f    : fast mode                         (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultFastModeFlag)                          << "]" << std::endl;  // NOLINT
-  *stream << "       -x    : perform modification              (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultModificationFlag)                      << "]" << std::endl;  // NOLINT
-  *stream << "       -t    : modification type                 (   int)[" << std::setw(5) << std::right << kDefaultModificationType << "][    0 <= t <= 1   ]" << std::endl;  // NOLINT
+  *stream << "       -R R  : threshold value                   (double)[" << std::setw(5) << std::right << "N/A"                      << "][  0.0 <  R <=     ]" << std::endl;  // NOLINT
+  *stream << "       -r    : stability condition               (   int)[" << std::setw(5) << std::right << kDefaultStabilityCondition << "][    0 <= r <= 1   ]" << std::endl;  // NOLINT
+  *stream << "                 0 (keeping maximum log approximation error)" << std::endl;
+  *stream << "                 1 (keeping filter stability)" << std::endl;
+  *stream << "       -t    : modification type                 (   int)[" << std::setw(5) << std::right << kDefaultModificationType   << "][    0 <= t <= 1   ]" << std::endl;  // NOLINT
   *stream << "                 0 (clipping)" << std::endl;
   *stream << "                 1 (scaling)" << std::endl;
+  *stream << "       -f    : fast mode                         (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultFastModeFlag)                          << "]" << std::endl;  // NOLINT
+  *stream << "       -x    : perform modification              (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultModificationFlag)                      << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       mel-cepstrum                              (double)[stdin]" << std::endl;  // NOLINT
@@ -100,7 +109,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       modified mel-cepstrum                     (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
   *stream << "       value of l must be a power of 2" << std::endl;
-  *stream << "       if -r option is not specified, an appropriate threshold value is used according to -k and -P options" << std::endl;  // NOLINT
+  *stream << "       if -R option is not specified, an appropriate threshold is determined by -r and -P options" << std::endl;  // NOLINT
   *stream << "       -t option is valid only if -f option is not specified" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
@@ -110,6 +119,69 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a mlsacheck [ @e option ] [ @e infile ]
+ *
+ * - @b -m @e int
+ *   - order of mel-cepstrum @f$(0 \le M)@f$
+ * - @b -l @e int
+ *   - FFT length @f$(M < L)@f$
+ * - @b -a @e double
+ *   - all-pass constant @f$(|\alpha| < 1)@f$
+ * - @b -P @e int
+ *   - order of Pade approximation @f$(4 \le P \le 7)@f$
+ * - @b -e @e int
+ *   - warning type
+ *     \arg @c 0 no warning
+ *     \arg @c 1 output index
+ *     \arg @c 2 output index and exit immediately
+ * - @b -R @e double
+ *   - threshold value @f$(0 < R)@f$
+ * - @b -r @e int
+ *   - stability condition
+ *     \arg @c 0 keep maximum log approximation error
+ *     \arg @c 1 keep filter stability
+ * - @b -t @e int
+ *   - modification type
+ *     \arg @c 0 clipping
+ *     \arg @c 1 scaling
+ * - @b -f @e bool
+ *   - fast mode
+ * - @b -x @e bool
+ *   - perform modification
+ * - @b infile @e str
+ *   - double-type mel-cepstrum
+ * - @b stdout
+ *   - double-type modified mel-cepstrum
+ *
+ * If @c -R option is not specified, the threshold value is automatically
+ * determined according to the below table.
+ *
+ * @rst
+ * +---+---------+---------+------------+
+ * | P | R (r=0) | R (r=1) | E_max [dB] |
+ * +===+=========+=========+============+
+ * | 4 | 4.5     |  6.20   | 0.24       |
+ * +---+---------+---------+------------+
+ * | 5 | 6.0     |  7.65   | 0.27       |
+ * +---+---------+---------+------------+
+ * | 6 | 7.4     |  9.13   | 0.25       |
+ * +---+---------+---------+------------+
+ * | 7 | 8.9     | 10.60   | 0.26       |
+ * +---+---------+---------+------------+
+ * @endrst
+ *
+ * In the following example, the stability of MLSA filter of 49-th order
+ * mel-cepstral coefficients read from @c data.mcep are checked and modified:
+ *
+ * @code{.sh}
+ *   mlsacheck -m 49 -a 0.55 -P 5 -l 4096 -r 1 -x data.mcep > data2.mcep
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_filter_order(kDefaultNumFilterOrder);
   int fft_length(kDefaultFftLength);
@@ -117,16 +189,15 @@ int main(int argc, char* argv[]) {
   int num_pade_order(kDefaultNumPadeOrder);
   WarningType warning_type(kDefaultWarningType);
   double threshold(0.0);
-  bool keep_maximum_log_approximation_error_flag(
-      kDefaultKeepMaximumLogApproximationErrorFlag);
-  bool fast_mode_flag(kDefaultFastModeFlag);
-  bool modification_flag(kDefaultModificationFlag);
+  StabilityCondition stability_condition(kDefaultStabilityCondition);
   sptk::MlsaDigitalFilterStabilityCheck::ModificationType modification_type(
       kDefaultModificationType);
+  bool fast_mode_flag(kDefaultFastModeFlag);
+  bool modification_flag(kDefaultModificationFlag);
 
   for (;;) {
     const int option_char(
-        getopt_long(argc, argv, "m:l:a:P:e:r:kfxt:h", NULL, NULL));
+        getopt_long(argc, argv, "m:l:a:P:e:R:r:t:fxh", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -189,7 +260,7 @@ int main(int argc, char* argv[]) {
         warning_type = static_cast<WarningType>(tmp);
         break;
       }
-      case 'r': {
+      case 'R': {
         if (!sptk::ConvertStringToDouble(optarg, &threshold) ||
             threshold <= 0.0) {
           std::ostringstream error_message;
@@ -200,8 +271,19 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      case 'k': {
-        keep_maximum_log_approximation_error_flag = false;
+      case 'r': {
+        const int min(0);
+        const int max(static_cast<int>(StabilityCondition::kNumConditions) - 1);
+        int tmp;
+        if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
+            !sptk::IsInRange(tmp, min, max)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -r option must be an integer "
+                        << "in the range of " << min << " to " << max;
+          sptk::PrintErrorMessage("mlsacheck", error_message);
+          return 1;
+        }
+        stability_condition = static_cast<StabilityCondition>(tmp);
         break;
       }
       case 'f': {
@@ -251,18 +333,18 @@ int main(int argc, char* argv[]) {
   }
 
   if (0.0 == threshold) {
+    const bool is_strict(kKeepingLogApproximationError == stability_condition);
     if (4 == num_pade_order) {
-      threshold = keep_maximum_log_approximation_error_flag ? 4.5 : 6.20;
+      threshold = is_strict ? 4.5 : 6.20;
     } else if (5 == num_pade_order) {
-      threshold = keep_maximum_log_approximation_error_flag ? 6.0 : 7.65;
+      threshold = is_strict ? 6.0 : 7.65;
     } else if (6 == num_pade_order) {
-      threshold = keep_maximum_log_approximation_error_flag ? 7.4 : 9.13;
+      threshold = is_strict ? 7.4 : 9.13;
     } else if (7 == num_pade_order) {
-      threshold = keep_maximum_log_approximation_error_flag ? 8.9 : 10.6;
+      threshold = is_strict ? 8.9 : 10.6;
     }
   }
 
-  // get input file
   const int num_rest_args(argc - optind);
   if (1 < num_rest_args) {
     std::ostringstream error_message;
@@ -272,7 +354,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_rest_args ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -283,38 +364,52 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for stability check
-  sptk::MlsaDigitalFilterStabilityCheck mlsa_digital_filter_stability_check(
-      num_filter_order, alpha, threshold, fast_mode_flag, fft_length,
-      modification_type);
+  sptk::MlsaDigitalFilterStabilityCheck* mlsa_digital_filter_stability_check;
+  if (fast_mode_flag) {
+    mlsa_digital_filter_stability_check =
+        new sptk::MlsaDigitalFilterStabilityCheck(num_filter_order, alpha,
+                                                  threshold);
+  } else {
+    mlsa_digital_filter_stability_check =
+        new sptk::MlsaDigitalFilterStabilityCheck(
+            num_filter_order, alpha, threshold, fft_length, modification_type);
+  }
   sptk::MlsaDigitalFilterStabilityCheck::Buffer buffer;
-  if (!mlsa_digital_filter_stability_check.IsValid()) {
+  if (!mlsa_digital_filter_stability_check->IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for stability check";
+    error_message << "Failed to initialize MlsaDigitalFilterStabilityCheck";
     sptk::PrintErrorMessage("mlsacheck", error_message);
+    delete mlsa_digital_filter_stability_check;
     return 1;
   }
 
+  int result(0);
   const int length(num_filter_order + 1);
-  std::vector<double> input_mel_cepstrum(length);
-  std::vector<double> output_mel_cepstrum(length);
-  std::vector<double>* output_ptr(modification_flag ? &output_mel_cepstrum
-                                                    : NULL);
-  std::vector<double>* write_ptr(modification_flag ? &output_mel_cepstrum
-                                                   : &input_mel_cepstrum);
+  std::vector<double> mel_cepstrum(length);
 
-  for (int frame_index(0); sptk::ReadStream(
-           false, 0, 0, length, &input_mel_cepstrum, &input_stream, NULL);
+  for (int frame_index(0); sptk::ReadStream(false, 0, 0, length, &mel_cepstrum,
+                                            &input_stream, NULL);
        ++frame_index) {
     bool is_stable(false);
     double maximum_amplitude(0.0);
-    if (!mlsa_digital_filter_stability_check.Run(input_mel_cepstrum, output_ptr,
-                                                 &is_stable, &maximum_amplitude,
-                                                 &buffer)) {
-      std::ostringstream error_message;
-      error_message << "Failed to check stability of MLSA digital filter";
-      sptk::PrintErrorMessage("mlsacheck", error_message);
-      return 1;
+    if (modification_flag) {
+      if (!mlsa_digital_filter_stability_check->Run(
+              &mel_cepstrum, &is_stable, &maximum_amplitude, &buffer)) {
+        std::ostringstream error_message;
+        error_message << "Failed to check stability of MLSA digital filter";
+        sptk::PrintErrorMessage("mlsacheck", error_message);
+        result = 1;
+        break;
+      }
+    } else {
+      if (!mlsa_digital_filter_stability_check->Run(
+              mel_cepstrum, NULL, &is_stable, &maximum_amplitude, &buffer)) {
+        std::ostringstream error_message;
+        error_message << "Failed to check stability of MLSA digital filter";
+        sptk::PrintErrorMessage("mlsacheck", error_message);
+        result = 1;
+        break;
+      }
     }
 
     if (!is_stable && kIgnore != warning_type) {
@@ -323,16 +418,21 @@ int main(int argc, char* argv[]) {
                     << "maximum = " << maximum_amplitude << ", "
                     << "threshold = " << threshold << ")";
       sptk::PrintErrorMessage("mlsacheck", error_message);
-      if (kExit == warning_type) return 1;
+      if (kExit == warning_type) {
+        result = 1;
+        break;
+      }
     }
 
-    if (!sptk::WriteStream(0, length, *write_ptr, &std::cout, NULL)) {
+    if (!sptk::WriteStream(0, length, mel_cepstrum, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write mel-cepstrum";
       sptk::PrintErrorMessage("mlsacheck", error_message);
-      return 1;
+      result = 1;
+      break;
     }
   }
 
-  return 0;
+  delete mlsa_digital_filter_stability_check;
+  return result;
 }

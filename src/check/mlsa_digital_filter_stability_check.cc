@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -44,7 +44,7 @@
 
 #include "SPTK/check/mlsa_digital_filter_stability_check.h"
 
-#include <algorithm>  // std::copy, std::fill
+#include <algorithm>  // std::copy, std::fill, std::max_element, std::transform
 #include <cmath>      // std::pow, std::sqrt
 #include <cstddef>    // std::size_t
 #include <numeric>    // std::accumulate
@@ -52,28 +52,41 @@
 namespace sptk {
 
 MlsaDigitalFilterStabilityCheck::MlsaDigitalFilterStabilityCheck(
-    int num_order, double alpha, double threshold, bool fast_mode,
-    int fft_length, ModificationType modification_type)
+    int num_order, double alpha, double threshold)
     : num_order_(num_order),
       alpha_(alpha),
       threshold_(threshold),
-      fast_mode_(fast_mode),
-      modification_type_(modification_type),
-      fourier_transform_(
-          fast_mode ? NULL : new RealValuedFastFourierTransform(fft_length)),
-      inverse_fourier_transform_(
-          fast_mode ? NULL : new InverseFastFourierTransform(fft_length)),
+      fast_mode_(true),
+      fft_length_(0),
+      modification_type_(kScaling),
+      fourier_transform_(NULL),
+      inverse_fourier_transform_(NULL),
       is_valid_(true) {
   if (num_order_ < 0 || !sptk::IsValidAlpha(alpha) || threshold_ <= 0.0) {
     is_valid_ = false;
     return;
   }
+}
 
-  if (!fast_mode && (fft_length <= num_order_ ||
-                     kNumModificationTypes == modification_type_ ||
-                     !fourier_transform_->IsValid() ||
-                     !inverse_fourier_transform_->IsValid())) {
+MlsaDigitalFilterStabilityCheck::MlsaDigitalFilterStabilityCheck(
+    int num_order, double alpha, double threshold, int fft_length,
+    ModificationType modification_type)
+    : num_order_(num_order),
+      alpha_(alpha),
+      threshold_(threshold),
+      fast_mode_(false),
+      fft_length_(fft_length),
+      modification_type_(modification_type),
+      fourier_transform_(new RealValuedFastFourierTransform(fft_length_)),
+      inverse_fourier_transform_(new InverseFastFourierTransform(fft_length_)),
+      is_valid_(true) {
+  if (num_order_ < 0 || !sptk::IsValidAlpha(alpha) || threshold_ <= 0.0 ||
+      fft_length_ <= num_order_ ||
+      kNumModificationTypes == modification_type_ ||
+      !fourier_transform_->IsValid() ||
+      !inverse_fourier_transform_->IsValid()) {
     is_valid_ = false;
+    return;
   }
 }
 
@@ -87,18 +100,30 @@ bool MlsaDigitalFilterStabilityCheck::Run(
     std::vector<double>* modified_mel_cepstrum, bool* is_stable,
     double* maximum_amplitude_of_basic_filter,
     MlsaDigitalFilterStabilityCheck::Buffer* buffer) const {
+  // Check inputs.
   if (!is_valid_ ||
       mel_cepstrum.size() != static_cast<std::size_t>(num_order_ + 1) ||
       NULL == is_stable || NULL == buffer) {
     return false;
   }
 
+  // Prepare memories.
   if (NULL != modified_mel_cepstrum &&
       modified_mel_cepstrum->size() !=
           static_cast<std::size_t>(num_order_ + 1)) {
     modified_mel_cepstrum->resize(num_order_ + 1);
   }
+  if (!fast_mode_) {
+    if (buffer->amplitude_.size() != static_cast<std::size_t>(fft_length_)) {
+      buffer->amplitude_.resize(fft_length_);
+    }
+    if (buffer->fourier_transform_real_part_.size() !=
+        static_cast<std::size_t>(fft_length_)) {
+      buffer->fourier_transform_real_part_.resize(fft_length_);
+    }
+  }
 
+  // Handle a special case.
   *is_stable = true;
   if (0 == num_order_) {
     if (NULL != modified_mel_cepstrum) {
@@ -110,120 +135,113 @@ bool MlsaDigitalFilterStabilityCheck::Run(
     return true;
   }
 
-  const int fft_length(GetFftLength());
-  if (!fast_mode_) {
-    if (buffer->amplitude_.size() != static_cast<std::size_t>(fft_length)) {
-      buffer->amplitude_.resize(fft_length);
-    }
-    if (buffer->fourier_transform_real_part_input_.size() !=
-        static_cast<std::size_t>(fft_length)) {
-      buffer->fourier_transform_real_part_input_.resize(fft_length);
-    }
-  }
-
   double gain(0.0);
   {
     const double* input(&(mel_cepstrum[0]));
-    for (int i(0); i <= num_order_; ++i) {
-      gain += input[i] * std::pow(-alpha_, i);
+    for (int m(0); m <= num_order_; ++m) {
+      gain += input[m] * std::pow(-alpha_, m);
     }
   }
 
   double maximum_amplitude(0.0);
   if (fast_mode_) {
-    // usually, amplitude spectrum of human speech at zero frequency takes
-    // maximum value
+    // Usually, amplitude spectrum of human speech at zero frequency takes
+    // maximum value.
     maximum_amplitude =
         std::accumulate(mel_cepstrum.begin(), mel_cepstrum.end(), -gain);
   } else {
     std::copy(mel_cepstrum.begin(), mel_cepstrum.end(),
-              buffer->fourier_transform_real_part_input_.begin());
-    std::fill(
-        buffer->fourier_transform_real_part_input_.begin() + num_order_ + 1,
-        buffer->fourier_transform_real_part_input_.end(), 0.0);
+              buffer->fourier_transform_real_part_.begin());
+    std::fill(buffer->fourier_transform_real_part_.begin() + num_order_ + 1,
+              buffer->fourier_transform_real_part_.end(), 0.0);
 
-    // this line removes gain and is equivalent to the following procedure:
+    // This line removes gain and is equivalent to the following procedure:
     // (1) apply mc2b, (2) substitute b[0] for 0, (3) apply b2mc.
-    buffer->fourier_transform_real_part_input_[0] -= gain;
+    buffer->fourier_transform_real_part_[0] -= gain;
 
-    if (!fourier_transform_->Run(
-            buffer->fourier_transform_real_part_input_,
-            &buffer->fourier_transform_real_part_output_,
-            &buffer->fourier_transform_imaginary_part_output_,
-            &buffer->fourier_transform_buffer_)) {
+    if (!fourier_transform_->Run(&buffer->fourier_transform_real_part_,
+                                 &buffer->fourier_transform_imag_part_,
+                                 &buffer->fourier_transform_buffer_)) {
       return false;
     }
 
-    double* amplitude(&(buffer->amplitude_[0]));
-    double* x(&(buffer->fourier_transform_real_part_output_[0]));
-    double* y(&(buffer->fourier_transform_imaginary_part_output_[0]));
-    for (int i(0); i < fft_length; ++i) {
-      amplitude[i] = std::sqrt(x[i] * x[i] + y[i] * y[i]);
-      if (maximum_amplitude < amplitude[i]) {
-        maximum_amplitude = amplitude[i];
-      }
-    }
+    std::transform(buffer->fourier_transform_real_part_.begin(),
+                   buffer->fourier_transform_real_part_.end(),
+                   buffer->fourier_transform_imag_part_.begin(),
+                   buffer->amplitude_.begin(),
+                   [](double x, double y) { return std::sqrt(x * x + y * y); });
+    std::vector<double>::iterator itr(
+        std::max_element(buffer->amplitude_.begin(), buffer->amplitude_.end()));
+    maximum_amplitude = *itr;
   }
   if (threshold_ < maximum_amplitude) {
     *is_stable = false;
   }
-
   if (NULL != maximum_amplitude_of_basic_filter) {
     *maximum_amplitude_of_basic_filter = maximum_amplitude;
   }
 
+  // Perform modification.
   if (NULL != modified_mel_cepstrum) {
     if (*is_stable) {
       std::copy(mel_cepstrum.begin(), mel_cepstrum.end(),
                 modified_mel_cepstrum->begin());
     } else {
       if (fast_mode_) {
-        std::copy(mel_cepstrum.begin(), mel_cepstrum.end(),
-                  modified_mel_cepstrum->begin());
-        double* output(&((*modified_mel_cepstrum)[0]));
-        output[0] -= gain;
-        for (int i(0); i <= num_order_; ++i) {
-          output[i] *= threshold_ / maximum_amplitude;
+        if (kScaling == modification_type_) {
+          std::copy(mel_cepstrum.begin(), mel_cepstrum.end(),
+                    modified_mel_cepstrum->begin());
+          double* output(&((*modified_mel_cepstrum)[0]));
+          output[0] -= gain;
+          for (int m(0); m <= num_order_; ++m) {
+            output[m] *= threshold_ / maximum_amplitude;
+          }
+          output[0] += gain;
         }
-        output[0] += gain;
       } else {
         if (kClipping == modification_type_) {
           const double* amplitude(&(buffer->amplitude_[0]));
-          double* x(&(buffer->fourier_transform_real_part_output_[0]));
-          double* y(&(buffer->fourier_transform_imaginary_part_output_[0]));
-          for (int i(0); i < fft_length; ++i) {
+          double* x(&(buffer->fourier_transform_real_part_[0]));
+          double* y(&(buffer->fourier_transform_imag_part_[0]));
+          for (int i(0); i < fft_length_; ++i) {
             if (threshold_ < amplitude[i]) {
               x[i] *= threshold_ / amplitude[i];
               y[i] *= threshold_ / amplitude[i];
             }
           }
         } else if (kScaling == modification_type_) {
-          double* x(&(buffer->fourier_transform_real_part_output_[0]));
-          double* y(&(buffer->fourier_transform_imaginary_part_output_[0]));
-          for (int i(0); i < fft_length; ++i) {
+          double* x(&(buffer->fourier_transform_real_part_[0]));
+          double* y(&(buffer->fourier_transform_imag_part_[0]));
+          for (int i(0); i < fft_length_; ++i) {
             x[i] *= threshold_ / maximum_amplitude;
             y[i] *= threshold_ / maximum_amplitude;
           }
         }
 
         if (!inverse_fourier_transform_->Run(
-                buffer->fourier_transform_real_part_output_,
-                buffer->fourier_transform_imaginary_part_output_,
-                &buffer->fourier_transform_real_part_input_,
-                &buffer->fourier_transform_imaginary_part_input_)) {
+                &buffer->fourier_transform_real_part_,
+                &buffer->fourier_transform_imag_part_)) {
           return false;
         }
 
-        buffer->fourier_transform_real_part_input_[0] += gain;
-        std::copy(
-            buffer->fourier_transform_real_part_input_.begin(),
-            buffer->fourier_transform_real_part_input_.begin() + num_order_ + 1,
-            modified_mel_cepstrum->begin());
+        buffer->fourier_transform_real_part_[0] += gain;
+        std::copy(buffer->fourier_transform_real_part_.begin(),
+                  buffer->fourier_transform_real_part_.begin() + num_order_ + 1,
+                  modified_mel_cepstrum->begin());
       }
     }
   }
 
   return true;
+}
+
+bool MlsaDigitalFilterStabilityCheck::Run(
+    std::vector<double>* input_and_output, bool* is_stable,
+    double* maximum_amplitude_of_basic_filter,
+    MlsaDigitalFilterStabilityCheck::Buffer* buffer) const {
+  if (NULL == input_and_output) return false;
+  return Run(*input_and_output, input_and_output, is_stable,
+             maximum_amplitude_of_basic_filter, buffer);
 }
 
 }  // namespace sptk

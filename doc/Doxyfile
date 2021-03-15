@@ -855,6 +855,7 @@ INPUT                  = \
                          ../include/SPTK/analysis/zero_crossing_analysis.h \
                          ../include/SPTK/check/line_spectral_pairs_stability_check.h \
                          ../include/SPTK/check/linear_predictive_coefficients_stability_check.h \
+                         ../include/SPTK/check/mlsa_digital_filter_stability_check.h \
                          ../include/SPTK/compression/inverse_multistage_vector_quantization.h \
                          ../include/SPTK/compression/inverse_uniform_quantization.h \
                          ../include/SPTK/compression/inverse_vector_quantization.h \
@@ -972,6 +973,7 @@ INPUT                  = \
                          ../src/main/mglsp2sp.cc \
                          ../src/main/minmax.cc \
                          ../src/main/mlpg.cc \
+                         ../src/main/mlsacheck.cc \
                          ../src/main/mseq.cc \
                          ../src/main/msvq.cc \
                          ../src/main/nan.cc \
