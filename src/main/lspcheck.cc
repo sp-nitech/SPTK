@@ -184,12 +184,12 @@ double GetScale(InputOutputFormats format, double sampling_frequency) {
  * - @b stdout
  *   - double-type modified LSP coefficients
  *
- * In the following example, 9-th order LSP coefficients in @c data.lpc are
+ * In the following example, 9-th order LSP coefficients in @c data.lsp are
  * modified so that the distance between two adjacent LSPs is greater than
  * @f$0.01\pi/(M+1)@f$.
  *
  * @code{.sh}
- *   lspcheck -m 9 -r 0.01 -x < data.lpc > data2.lsp
+ *   lspcheck -m 9 -r 0.01 -x < data.lsp > data2.lsp
  * @endcode
  *
  * @param[in] argc Number of arguments.
