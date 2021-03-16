@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <cstring>   // std::strncmp
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
@@ -81,9 +82,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 "; sptk::PrintDataType("e", stream);                                   *stream << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       data sequence                      [stdin]" << std::endl;
+  *stream << "       data sequence              (  type)[stdin]" << std::endl;
   *stream << "  stdout:" << std::endl;
-  *stream << "       dumped data sequence" << std::endl;
+  *stream << "       dumped data sequence       (string)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -94,6 +95,7 @@ class DataDumpInterface {
  public:
   virtual ~DataDumpInterface() {
   }
+
   virtual bool Run(std::istream* input_stream) const = 0;
 };
 
@@ -115,17 +117,20 @@ class DataDump : public DataDumpInterface {
     T data;
     for (int index(minimum_index_); sptk::ReadStream(&data, input_stream);
          ++index) {
+      // Format data.
       if (!sptk::SnPrintf(data, print_format_, sizeof(buffer), buffer)) {
         return false;
       }
-      std::cout << index << '\t' << buffer << std::endl;
 
+      // Dump data. Note that std::endl makes the execution speed slow.
+      std::cout << index << '\t' << buffer << '\n';
+
+      // Initialize index.
       if (maximum_index_ != kMagicNumberForEndOfFile &&
           maximum_index_ == index) {
         index = minimum_index_ - 1;
       }
     }
-
     return true;
   }
 
@@ -219,6 +224,68 @@ class DataDumpWrapper {
 
 }  // namespace
 
+/**
+ * @a dmp [ @e option ] [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - block length @f$(1 \le L)@f$
+ * - @b -m @e int
+ *   - block order @f$(0 \le L-1)@f$
+ * - @b +type @e char
+ *   - data type
+ *     \arg @c c char (1byte)
+ *     \arg @c C unsigned char (1byte)
+ *     \arg @c s short (2byte)
+ *     \arg @c S unsigned short (2byte)
+ *     \arg @c h int (3byte)
+ *     \arg @c H unsigned int (3byte)
+ *     \arg @c i int (4byte)
+ *     \arg @c I unsigned int (4byte)
+ *     \arg @c l long (8byte)
+ *     \arg @c L unsigned long (8byte)
+ *     \arg @c f float (4byte)
+ *     \arg @c d double (8byte)
+ *     \arg @c e long double (16byte)
+ * - @b -f @e str
+ *   - print format
+ * - @b infile @e str
+ *   - data sequence
+ * - @b stdout
+ *   - dumped data sequence
+ *
+ * This command converts data from @c infile (or standard input) to a human
+ * readable form (one sample per line, with line numbers), and sends the result
+ * to standard output.
+ *
+ * @code{.sh}
+ *   # 1, 2, 3, 4
+ *   ramp -s 1 -l 4 | dmp
+ *   # 0       1
+ *   # 1       2
+ *   # 2       3
+ *   # 3       4
+ * @endcode
+ *
+ * @code{.sh}
+ *   ramp -s 1 -l 4 | dmp -l 2
+ *   # 1       1
+ *   # 2       2
+ *   # 1       3
+ *   # 2       4
+ * @endcode
+ *
+ * @code{.sh}
+ *   ramp -s 1 -l 4 | dmp -m 2 -f %.1f
+ *   # 0       1.0
+ *   # 1       2.0
+ *   # 0       3.0
+ *   # 1       4.0
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int minimum_index(0);
   int maximum_index(kMagicNumberForEndOfFile);
@@ -276,7 +343,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const char* input_file(NULL);
   for (int i(argc - optind); 1 <= i; --i) {
     const char* arg(argv[argc - i]);
@@ -293,7 +359,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
