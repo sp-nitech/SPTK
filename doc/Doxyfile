@@ -938,6 +938,7 @@ INPUT                  = \
                          ../src/main/entropy.cc \
                          ../src/main/extract.cc \
                          ../src/main/fbank.cc \
+                         ../src/main/fd.cc \
                          ../src/main/fft.cc \
                          ../src/main/fftcep.cc \
                          ../src/main/fftr.cc \

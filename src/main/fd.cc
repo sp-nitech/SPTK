@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <cctype>    // std::isprint
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setfill, std::setw
@@ -95,6 +96,41 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a fd [ @e option ] [ @e infile ]
+ *
+ * - @b -s @e int
+ *   - start index length @f$(0 \le S)@f$
+ * - @b -c @e int
+ *   - number of columns @f$(1 \le N)@f$
+ * - @b -o @e address format
+ *   - data type
+ *     \arg @c 0 none
+ *     \arg @c 1 hexadecimal
+ *     \arg @c 2 decimal
+ *     \arg @c 3 octal
+ * - @b infile @e str
+ *   - data sequence
+ * - @b stdout
+ *   - dumped data sequence
+ *
+ * This command converts data from @c infile (or standard input) to a human
+ * readable multi-column form, and sends the result to standard output.
+ *
+ * The below example displays the speech data in @c sample.wav with the
+ * corresponding addresses.
+ *
+ * @code{.sh}
+ * fd -o 1 sample.wav
+ * # 000000  52 49 46 46 5e 9d 05 00 57 41 56 45 66 6d 74 20 |RIFF^...WAVEfmt |
+ * # 000010  10 00 00 00 01 00 01 00 22 56 00 00 44 ac 00 00 |........"V..D...|
+ * # 000020  02 00 10 00 64 61 74 61 3a 9d 05 00 05 00 03 00 |....data:.......|
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int start_index(kDefaultStartIndex);
   int num_column(kDefaultNumColumn);
@@ -153,7 +189,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -163,7 +198,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -179,7 +213,7 @@ int main(int argc, char* argv[]) {
 
   for (int index(start_index); sptk::ReadStream(&data, &input_stream);
        ++index) {
-    // output address
+    // Output address.
     if (0 == (index - start_index) % num_column) {
       switch (address_format) {
         case kNone: {
@@ -205,25 +239,25 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    // stack human-readable characters
+    // Stack human-readable characters.
     if (std::isprint(data)) {
       stored_characters << data;
     } else {
       stored_characters << ".";
     }
 
-    // output data
+    // Output data.
     std::cout << std::setfill('0') << std::setw(2) << std::hex
               << static_cast<int>(data) << " ";
 
-    // output new line
+    // Output new line.
     if (num_column - 1 == (index - start_index) % num_column) {
-      std::cout << "|" << stored_characters.str() << "|" << std::endl;
-      stored_characters.str("");  // clear
+      std::cout << "|" << stored_characters.str() << "|\n";
+      stored_characters.str("");  // Clear.
     }
   }
 
-  // flush
+  // Flush.
   const std::string residual_characters(stored_characters.str());
   if (!residual_characters.empty()) {
     const std::string space(3 * (num_column - residual_characters.size()), ' ');
