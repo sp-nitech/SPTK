@@ -23,7 +23,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: install packages
       run: |
-        sudo apt-get update --allow-releaseinfo-change
+        sudo apt-get update
         sudo apt-get install csh clang-format valgrind
     - name: setup
       run: cd tools; make bats.done cpplint.done sptk.done
