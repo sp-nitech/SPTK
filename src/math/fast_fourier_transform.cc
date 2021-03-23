@@ -76,14 +76,14 @@ FastFourierTransform::FastFourierTransform(int num_order, int fft_length)
 
 bool FastFourierTransform::Run(
     const std::vector<double>& real_part_input,
-    const std::vector<double>& imaginary_part_input,
+    const std::vector<double>& imag_part_input,
     std::vector<double>* real_part_output,
-    std::vector<double>* imaginary_part_output) const {
+    std::vector<double>* imag_part_output) const {
   // Check inputs.
   if (!is_valid_ ||
       real_part_input.size() != static_cast<std::size_t>(num_order_ + 1) ||
-      imaginary_part_input.size() != static_cast<std::size_t>(num_order_ + 1) ||
-      NULL == real_part_output || NULL == imaginary_part_output) {
+      imag_part_input.size() != static_cast<std::size_t>(num_order_ + 1) ||
+      NULL == real_part_output || NULL == imag_part_output) {
     return false;
   }
 
@@ -91,8 +91,8 @@ bool FastFourierTransform::Run(
   if (real_part_output->size() != static_cast<std::size_t>(fft_length_)) {
     real_part_output->resize(fft_length_);
   }
-  if (imaginary_part_output->size() != static_cast<std::size_t>(fft_length_)) {
-    imaginary_part_output->resize(fft_length_);
+  if (imag_part_output->size() != static_cast<std::size_t>(fft_length_)) {
+    imag_part_output->resize(fft_length_);
   }
 
   // Copy inputs and fill zero.
@@ -100,13 +100,13 @@ bool FastFourierTransform::Run(
             real_part_output->begin());
   std::fill(real_part_output->begin() + real_part_input.size(),
             real_part_output->end(), 0.0);
-  std::copy(imaginary_part_input.begin(), imaginary_part_input.end(),
-            imaginary_part_output->begin());
-  std::fill(imaginary_part_output->begin() + imaginary_part_input.size(),
-            imaginary_part_output->end(), 0.0);
+  std::copy(imag_part_input.begin(), imag_part_input.end(),
+            imag_part_output->begin());
+  std::fill(imag_part_output->begin() + imag_part_input.size(),
+            imag_part_output->end(), 0.0);
 
   double* x(&((*real_part_output)[0]));
-  double* y(&((*imaginary_part_output)[0]));
+  double* y(&((*imag_part_output)[0]));
 
   {
     int lix(fft_length_);

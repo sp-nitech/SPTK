@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <cmath>     // std::sqrt
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
@@ -56,9 +57,9 @@
 namespace {
 
 enum OutputFormats {
-  kOutputRealAndImaginaryParts = 0,
+  kOutputRealAndImagParts = 0,
   kOutputRealPart,
-  kOutputImaginaryPart,
+  kOutputImagPart,
   kOutputAmplitude,
   kOutputPower,
   kNumOutputFormats
@@ -66,14 +67,14 @@ enum OutputFormats {
 
 enum OutputStyles {
   kStandard = 0,
-  kTranspose,
-  kTransposeWithBoundary,
+  kTransposed,
+  kTransposedWithBoundary,
   kQuadrantWithBoundary,
   kNumOutputStyles
 };
 
 const int kDefaultFftLength(64);
-const OutputFormats kDefaultOutputFormat(kOutputRealAndImaginaryParts);
+const OutputFormats kDefaultOutputFormat(kOutputRealAndImagParts);
 const OutputStyles kDefaultOutputStyle(kStandard);
 
 void PrintUsage(std::ostream* stream) {
@@ -84,9 +85,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       fft2 [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : FFT length                     (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 0 <  l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -m m  : number of rows                 (   int)[" << std::setw(5) << std::right << "l"                  << "][ 0 <  m <= l ]" << std::endl;  // NOLINT
-  *stream << "       -n n  : number of columns              (   int)[" << std::setw(5) << std::right << "l"                  << "][ 0 <  n <= l ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length                     (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -r r  : number of rows                 (   int)[" << std::setw(5) << std::right << "l"                  << "][ 1 <= r <= l ]" << std::endl;  // NOLINT
+  *stream << "       -c c  : number of columns              (   int)[" << std::setw(5) << std::right << "l"                  << "][ 1 <= c <= l ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format                  (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 4 ]" << std::endl;  // NOLINT
   *stream << "                 0 (real and imaginary parts)" << std::endl;
   *stream << "                 1 (real part)" << std::endl;
@@ -95,12 +96,12 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 4 (power)" << std::endl;
   *stream << "       -p p  : output style                   (   int)[" << std::setw(5) << std::right << kDefaultOutputStyle  << "][ 0 <= p <= 3 ]" << std::endl;  // NOLINT
   *stream << "                 0 (standard)" << std::endl;
-  *stream << "                 1 (transpose)" << std::endl;
-  *stream << "                 2 (transpose with boundary)" << std::endl;
+  *stream << "                 1 (transposed)" << std::endl;
+  *stream << "                 2 (transposed with boundary)" << std::endl;
   *stream << "                 3 (quadrant with boundary)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       data sequence                          (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       2D data sequence                       (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
   *stream << "       2D FFT sequence                        (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
@@ -113,6 +114,45 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a fft2 [ @e option ] [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - FFT length @f$(1 \le L)@f$
+ * - @b -r @e int
+ *   - number of rows @f$(1 \le M \le L)@f$
+ * - @b -c @e int
+ *   - number of columns @f$(1 \le N \le L)@f$
+ * - @b -o @e int
+ *   - output format
+ *     \arg @c 0 real and imaginary parts
+ *     \arg @c 1 real part
+ *     \arg @c 2 imaginary part
+ *     \arg @c 3 amplitude spectrum
+ *     \arg @c 4 power spectrum
+ * - @b -p @e int
+ *   - output style
+ *     \arg @c 0 standard
+ *     \arg @c 1 transposed
+ *     \arg @c 2 transposed with boundary
+ *     \arg @c 3 quadrand with boundary
+ * - @b infile @e str
+ *   - double-type 2D data sequence
+ * - @b stdout
+ *   - double-type 2D FFT sequence
+ *
+ * The input and output are arranged as follows.
+ *
+ * @image html fft2_1.png
+ *
+ * The output are reshaped by @c -p option.
+ *
+ * @image html fft2_2.png
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int fft_length(kDefaultFftLength);
   int num_row(kDefaultFftLength);
@@ -122,7 +162,7 @@ int main(int argc, char* argv[]) {
   OutputStyles output_style(kDefaultOutputStyle);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:m:n:o:p:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:r:c:o:p:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -135,23 +175,23 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      case 'm': {
+      case 'r': {
         if (!sptk::ConvertStringToInteger(optarg, &num_row) || num_row <= 0) {
           std::ostringstream error_message;
           error_message
-              << "The argument for the -m option must be a positive integer";
+              << "The argument for the -r option must be a positive integer";
           sptk::PrintErrorMessage("fft2", error_message);
           return 1;
         }
         is_num_row_or_num_column_specified = true;
         break;
       }
-      case 'n': {
+      case 'c': {
         if (!sptk::ConvertStringToInteger(optarg, &num_column) ||
             num_column <= 0) {
           std::ostringstream error_message;
           error_message
-              << "The argument for the -n option must be a positive integer";
+              << "The argument for the -c option must be a positive integer";
           sptk::PrintErrorMessage("fft2", error_message);
           return 1;
         }
@@ -199,7 +239,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // check arguments
   if (!is_num_row_or_num_column_specified) {
     num_row = fft_length;
     num_column = fft_length;
@@ -211,7 +250,6 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -221,7 +259,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -232,7 +269,6 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for 2D fast Fourier transform
   sptk::TwoDimensionalFastFourierTransform fast_fourier_transform(
       num_row, num_column, fft_length);
   sptk::TwoDimensionalFastFourierTransform::Buffer buffer;
@@ -244,14 +280,17 @@ int main(int argc, char* argv[]) {
   }
 
   const int half_fft_length(fft_length / 2);
-  int output_length(0);
-  if (kStandard == output_style || kTranspose == output_style) {
+  int output_length;
+  if (kStandard == output_style || kTransposed == output_style) {
     output_length = fft_length;
-  } else if (kTransposeWithBoundary == output_style) {
+  } else if (kTransposedWithBoundary == output_style) {
     output_length = fft_length + 1;
   } else if (kQuadrantWithBoundary == output_style) {
     output_length = half_fft_length + 1;
+  } else {
+    return 1;
   }
+
   sptk::Matrix input_x(num_row, num_column);
   sptk::Matrix input_y(num_row, num_column);
   sptk::Matrix tmp_x(fft_length, fft_length);
@@ -276,8 +315,8 @@ int main(int argc, char* argv[]) {
           output_y[i][j] = tmp_y[i][j];
         }
       }
-    } else if (kTranspose == output_style ||
-               kTransposeWithBoundary == output_style) {
+    } else if (kTransposed == output_style ||
+               kTransposedWithBoundary == output_style) {
       for (int i(0); i < half_fft_length; ++i) {
         for (int j(0); j < half_fft_length; ++j) {
           output_x[i][j] = tmp_x[i + half_fft_length][j + half_fft_length];
@@ -303,7 +342,7 @@ int main(int argc, char* argv[]) {
         }
       }
 
-      if (kTransposeWithBoundary == output_style) {
+      if (kTransposedWithBoundary == output_style) {
         const int boundary(output_length - 1);
         for (int i(0); i < fft_length; ++i) {
           output_x[i][boundary] = output_x[i][0];
@@ -332,7 +371,7 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    if ((kOutputRealAndImaginaryParts == output_format ||
+    if ((kOutputRealAndImagParts == output_format ||
          kOutputRealPart == output_format ||
          kOutputAmplitude == output_format || kOutputPower == output_format) &&
         !sptk::WriteStream(output_x, &std::cout)) {
@@ -342,8 +381,8 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    if ((kOutputRealAndImaginaryParts == output_format ||
-         kOutputImaginaryPart == output_format) &&
+    if ((kOutputRealAndImagParts == output_format ||
+         kOutputImagPart == output_format) &&
         !sptk::WriteStream(output_y, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write imaginary parts";

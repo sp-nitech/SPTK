@@ -77,8 +77,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       fftr [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of sequence              (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= m <  l ]" << std::endl;  // NOLINT
   *stream << "       -l l  : FFT length                     (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][ 2 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of sequence              (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= m <  l ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format                  (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 4 ]" << std::endl;  // NOLINT
   *stream << "                 0 (real and imaginary parts)" << std::endl;
   *stream << "                 1 (real part)" << std::endl;
@@ -104,10 +104,10 @@ void PrintUsage(std::ostream* stream) {
 /**
  * @a fftr [ @e option ] [ @e infile ]
  *
- * - @b -m @e int
- *   - order of sequence @f$(0 \le M < L)@f$
  * - @b -l @e int
  *   - FFT length @f$(2 \le L)@f$
+ * - @b -m @e int
+ *   - order of sequence @f$(0 \le M < L)@f$
  * - @b -o @e int
  *   - output format
  *     \arg @c 0 real and imaginary parts
@@ -140,10 +140,19 @@ int main(int argc, char* argv[]) {
   bool output_half_part_flag(kDefaultOutputHalfPartFlag);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "m:l:o:Hh", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:o:Hh", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
+      case 'l': {
+        if (!sptk::ConvertStringToInteger(optarg, &fft_length)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -l option must be an integer";
+          sptk::PrintErrorMessage("fftr", error_message);
+          return 1;
+        }
+        break;
+      }
       case 'm': {
         if (!sptk::ConvertStringToInteger(optarg, &num_order) ||
             num_order < 0) {
@@ -154,15 +163,6 @@ int main(int argc, char* argv[]) {
           return 1;
         }
         is_num_order_specified = true;
-        break;
-      }
-      case 'l': {
-        if (!sptk::ConvertStringToInteger(optarg, &fft_length)) {
-          std::ostringstream error_message;
-          error_message << "The argument for the -l option must be an integer";
-          sptk::PrintErrorMessage("fftr", error_message);
-          return 1;
-        }
         break;
       }
       case 'o': {
