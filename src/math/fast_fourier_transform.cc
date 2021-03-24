@@ -74,11 +74,10 @@ FastFourierTransform::FastFourierTransform(int num_order, int fft_length)
   sine_table_[fft_length_ / 2] = 0.0;
 }
 
-bool FastFourierTransform::Run(
-    const std::vector<double>& real_part_input,
-    const std::vector<double>& imag_part_input,
-    std::vector<double>* real_part_output,
-    std::vector<double>* imag_part_output) const {
+bool FastFourierTransform::Run(const std::vector<double>& real_part_input,
+                               const std::vector<double>& imag_part_input,
+                               std::vector<double>* real_part_output,
+                               std::vector<double>* imag_part_output) const {
   // Check inputs.
   if (!is_valid_ ||
       real_part_input.size() != static_cast<std::size_t>(num_order_ + 1) ||

@@ -97,8 +97,8 @@ class TwoDimensionalFastFourierTransform {
   };
 
   /**
-   * @param[in] num_row Number of rows.
-   * @param[in] num_column Number of columns.
+   * @param[in] num_row Number of rows, @f$M@f$.
+   * @param[in] num_column Number of columns, @f$N@f$.
    * @param[in] fft_length FFT length, @f$L@f$.
    */
   TwoDimensionalFastFourierTransform(int num_row, int num_column,
@@ -144,8 +144,8 @@ class TwoDimensionalFastFourierTransform {
    * @return True on success, false on failure.
    */
   bool Run(const sptk::Matrix& real_part_input,
-           const sptk::Matrix& imag_part_input,
-           sptk::Matrix* real_part_output, sptk::Matrix* imag_part_output,
+           const sptk::Matrix& imag_part_input, sptk::Matrix* real_part_output,
+           sptk::Matrix* imag_part_output,
            TwoDimensionalFastFourierTransform::Buffer* buffer) const;
 
   /**

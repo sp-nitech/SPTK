@@ -64,18 +64,15 @@ TwoDimensionalFastFourierTransform::TwoDimensionalFastFourierTransform(
 }
 
 bool TwoDimensionalFastFourierTransform::Run(
-    const sptk::Matrix& real_part_input,
-    const sptk::Matrix& imag_part_input,
-    sptk::Matrix* real_part_output,
-    sptk::Matrix* imag_part_output,
+    const sptk::Matrix& real_part_input, const sptk::Matrix& imag_part_input,
+    sptk::Matrix* real_part_output, sptk::Matrix* imag_part_output,
     TwoDimensionalFastFourierTransform::Buffer* buffer) const {
   // Check inputs.
   if (!is_valid_ || real_part_input.GetNumRow() != num_row_ ||
       real_part_input.GetNumColumn() != num_column_ ||
       imag_part_input.GetNumRow() != num_row_ ||
       imag_part_input.GetNumColumn() != num_column_ ||
-      NULL == real_part_output || NULL == imag_part_output ||
-      NULL == buffer) {
+      NULL == real_part_output || NULL == imag_part_output || NULL == buffer) {
     return false;
   }
 
@@ -123,10 +120,10 @@ bool TwoDimensionalFastFourierTransform::Run(
       x[j] = real_part_input[j][i];
       y[j] = imag_part_input[j][i];
     }
-    if (!fast_fourier_transform_.Run(
-            buffer->real_part_input_, buffer->imag_part_input_,
-            &buffer->first_real_part_outputs_[i],
-            &buffer->first_imag_part_outputs_[i])) {
+    if (!fast_fourier_transform_.Run(buffer->real_part_input_,
+                                     buffer->imag_part_input_,
+                                     &buffer->first_real_part_outputs_[i],
+                                     &buffer->first_imag_part_outputs_[i])) {
       return false;
     }
   }
@@ -141,10 +138,10 @@ bool TwoDimensionalFastFourierTransform::Run(
       x[j] = buffer->first_real_part_outputs_[j][i];
       y[j] = buffer->first_imag_part_outputs_[j][i];
     }
-    if (!fast_fourier_transform_.Run(
-            buffer->real_part_input_, buffer->imag_part_input_,
-            &buffer->second_real_part_outputs_[i],
-            &buffer->second_imag_part_outputs_[i])) {
+    if (!fast_fourier_transform_.Run(buffer->real_part_input_,
+                                     buffer->imag_part_input_,
+                                     &buffer->second_real_part_outputs_[i],
+                                     &buffer->second_imag_part_outputs_[i])) {
       return false;
     }
   }
@@ -163,8 +160,7 @@ bool TwoDimensionalFastFourierTransform::Run(
 }
 
 bool TwoDimensionalFastFourierTransform::Run(
-    sptk::Matrix* real_part,
-    sptk::Matrix* imag_part,
+    sptk::Matrix* real_part, sptk::Matrix* imag_part,
     TwoDimensionalFastFourierTransform::Buffer* buffer) const {
   if (NULL == real_part || NULL == imag_part) return false;
   return Run(*real_part, *imag_part, real_part, imag_part, buffer);
