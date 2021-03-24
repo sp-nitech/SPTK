@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -53,77 +53,119 @@
 
 namespace sptk {
 
+/**
+ * Calculate 2D inverse DFT of complex-valued input data.
+ *
+ * The inputs are two @f$M \times N@f$ matrices that represent real and
+ * imaginary parts:
+ * @f[
+ *   \begin{array}{cc}
+ *     \mathrm{Re}(\boldsymbol{X}), & \mathrm{Im}(\boldsymbol{X}).
+ *   \end{array}
+ * @f]
+ * The outputs are two @f$L \times L @f$ matrices:
+ * @f[
+ *   \begin{array}{cccc}
+ *     \mathrm{Re}(\boldsymbol{x}), & \mathrm{Im}(\boldsymbol{x}),
+ *   \end{array}
+ * @f]
+ * where @f$L@f$ is the FFT length and must be a power of two.
+ */
 class TwoDimensionalInverseFastFourierTransform {
  public:
+  /**
+   * Buffer for TwoDimensionalInverseFastFourierTransform class.
+   */
   class Buffer {
    public:
     Buffer() {
     }
+
     virtual ~Buffer() {
     }
 
    private:
     std::vector<double> real_part_input_;
-    std::vector<double> imaginary_part_input_;
+    std::vector<double> imag_part_input_;
     std::vector<std::vector<double> > first_real_part_outputs_;
-    std::vector<std::vector<double> > first_imaginary_part_outputs_;
+    std::vector<std::vector<double> > first_imag_part_outputs_;
     std::vector<std::vector<double> > second_real_part_outputs_;
-    std::vector<std::vector<double> > second_imaginary_part_outputs_;
+    std::vector<std::vector<double> > second_imag_part_outputs_;
+
     friend class TwoDimensionalInverseFastFourierTransform;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
 
-  //
+  /**
+   * @param[in] num_row Number of rows, @f$M@f$.
+   * @param[in] num_column Number of columns @f$N@f$.
+   * @param[in] fft_length FFT length, @f$L@f$.
+   */
   TwoDimensionalInverseFastFourierTransform(int num_row, int num_column,
                                             int fft_length);
 
-  //
   virtual ~TwoDimensionalInverseFastFourierTransform() {
   }
 
-  //
+  /**
+   * @return Number of rows of input.
+   */
   int GetNumRow() const {
     return num_row_;
   }
 
-  //
+  /**
+   * @return Number of columns of input.
+   */
   int GetNumColumn() const {
     return num_column_;
   }
 
-  //
+  /**
+   * @return FFT length.
+   */
   int GetFftLength() const {
     return fft_length_;
   }
 
-  //
+  /**
+   * @return True if this object is valid.
+   */
   bool IsValid() const {
     return is_valid_;
   }
 
-  //
+  /**
+   * @param[in] real_part_input Real part of input.
+   * @param[in] imag_part_input Imaginary part of input.
+   * @param[out] real_part_output Real part of output.
+   * @param[out] imag_part_output Imaginary part of output.
+   * @param[out] buffer Buffer.
+   * @return True on success, false on failure.
+   */
   bool Run(const sptk::Matrix& real_part_input,
-           const sptk::Matrix& imaginary_part_input,
-           sptk::Matrix* real_part_output, sptk::Matrix* imaginary_part_output,
+           const sptk::Matrix& imag_part_input, sptk::Matrix* real_part_output,
+           sptk::Matrix* imag_part_output,
+           TwoDimensionalInverseFastFourierTransform::Buffer* buffer) const;
+
+  /**
+   * @param[in,out] real_part Real part.
+   * @param[in,out] imag_part Imaginary part.
+   * @param[out] buffer Buffer.
+   * @return True on success, false on failure.
+   */
+  bool Run(sptk::Matrix* real_part, sptk::Matrix* imag_part,
            TwoDimensionalInverseFastFourierTransform::Buffer* buffer) const;
 
  private:
-  //
   const int num_row_;
-
-  //
   const int num_column_;
-
-  //
   const int fft_length_;
 
-  //
   const InverseFastFourierTransform inverse_fast_fourier_transform_;
 
-  //
   bool is_valid_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(TwoDimensionalInverseFastFourierTransform);
 };
 

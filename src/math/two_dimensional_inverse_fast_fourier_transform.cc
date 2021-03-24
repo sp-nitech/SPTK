@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -60,105 +60,111 @@ TwoDimensionalInverseFastFourierTransform::
   if (num_row_ <= 0 || fft_length_ < num_row_ || num_column_ <= 0 ||
       fft_length < num_column_ || !inverse_fast_fourier_transform_.IsValid()) {
     is_valid_ = false;
+    return;
   }
 }
 
 bool TwoDimensionalInverseFastFourierTransform::Run(
-    const sptk::Matrix& real_part_input,
-    const sptk::Matrix& imaginary_part_input, sptk::Matrix* real_part_output,
-    sptk::Matrix* imaginary_part_output,
+    const sptk::Matrix& real_part_input, const sptk::Matrix& imag_part_input,
+    sptk::Matrix* real_part_output, sptk::Matrix* imag_part_output,
     TwoDimensionalInverseFastFourierTransform::Buffer* buffer) const {
-  // check inputs
+  // Check inputs.
   if (!is_valid_ || real_part_input.GetNumRow() != num_row_ ||
       real_part_input.GetNumColumn() != num_column_ ||
-      imaginary_part_input.GetNumRow() != num_row_ ||
-      imaginary_part_input.GetNumColumn() != num_column_ ||
-      NULL == real_part_output || NULL == imaginary_part_output ||
-      NULL == buffer) {
+      imag_part_input.GetNumRow() != num_row_ ||
+      imag_part_input.GetNumColumn() != num_column_ ||
+      NULL == real_part_output || NULL == imag_part_output || NULL == buffer) {
     return false;
   }
 
-  // prepare memories
-  if (buffer->real_part_input_.size() !=
-      static_cast<std::size_t>(fft_length_)) {
-    buffer->real_part_input_.resize(fft_length_);
-  }
-  if (buffer->imaginary_part_input_.size() !=
-      static_cast<std::size_t>(fft_length_)) {
-    buffer->imaginary_part_input_.resize(fft_length_);
-  }
-  if (buffer->first_real_part_outputs_.size() !=
-      static_cast<std::size_t>(fft_length_)) {
-    buffer->first_real_part_outputs_.resize(fft_length_);
-  }
-  if (buffer->first_imaginary_part_outputs_.size() !=
-      static_cast<std::size_t>(fft_length_)) {
-    buffer->first_imaginary_part_outputs_.resize(fft_length_);
-  }
-  if (buffer->second_real_part_outputs_.size() !=
-      static_cast<std::size_t>(fft_length_)) {
-    buffer->second_real_part_outputs_.resize(fft_length_);
-  }
-  if (buffer->second_imaginary_part_outputs_.size() !=
-      static_cast<std::size_t>(fft_length_)) {
-    buffer->second_imaginary_part_outputs_.resize(fft_length_);
-  }
-  if (real_part_output->GetNumRow() != fft_length_ ||
-      real_part_output->GetNumColumn() != fft_length_) {
-    real_part_output->Resize(fft_length_, fft_length_);
-  }
-  if (imaginary_part_output->GetNumRow() != fft_length_ ||
-      imaginary_part_output->GetNumColumn() != fft_length_) {
-    imaginary_part_output->Resize(fft_length_, fft_length_);
+  // Prepare memories.
+  {
+    const std::size_t size(static_cast<std::size_t>(fft_length_));
+    if (buffer->real_part_input_.size() != size) {
+      buffer->real_part_input_.resize(size);
+    }
+    if (buffer->imag_part_input_.size() != size) {
+      buffer->imag_part_input_.resize(size);
+    }
+    if (buffer->first_real_part_outputs_.size() != size) {
+      buffer->first_real_part_outputs_.resize(size);
+    }
+    if (buffer->first_imag_part_outputs_.size() != size) {
+      buffer->first_imag_part_outputs_.resize(size);
+    }
+    if (buffer->second_real_part_outputs_.size() != size) {
+      buffer->second_real_part_outputs_.resize(size);
+    }
+    if (buffer->second_imag_part_outputs_.size() != size) {
+      buffer->second_imag_part_outputs_.resize(size);
+    }
+    if (real_part_output->GetNumRow() != fft_length_ ||
+        real_part_output->GetNumColumn() != fft_length_) {
+      real_part_output->Resize(fft_length_, fft_length_);
+    }
+    if (imag_part_output->GetNumRow() != fft_length_ ||
+        imag_part_output->GetNumColumn() != fft_length_) {
+      imag_part_output->Resize(fft_length_, fft_length_);
+    }
   }
 
   double* x(&buffer->real_part_input_[0]);
-  double* y(&buffer->imaginary_part_input_[0]);
+  double* y(&buffer->imag_part_input_[0]);
 
+  // First stage.
   std::fill(buffer->real_part_input_.begin() + num_row_,
             buffer->real_part_input_.end(), 0.0);
-  std::fill(buffer->imaginary_part_input_.begin() + num_row_,
-            buffer->imaginary_part_input_.end(), 0.0);
+  std::fill(buffer->imag_part_input_.begin() + num_row_,
+            buffer->imag_part_input_.end(), 0.0);
   for (int i(0); i < num_column_; ++i) {
     for (int j(0); j < num_row_; ++j) {
       x[j] = real_part_input[j][i];
-      y[j] = imaginary_part_input[j][i];
+      y[j] = imag_part_input[j][i];
     }
     if (!inverse_fast_fourier_transform_.Run(
-            buffer->real_part_input_, buffer->imaginary_part_input_,
+            buffer->real_part_input_, buffer->imag_part_input_,
             &buffer->first_real_part_outputs_[i],
-            &buffer->first_imaginary_part_outputs_[i])) {
+            &buffer->first_imag_part_outputs_[i])) {
       return false;
     }
   }
 
+  // Second stage.
   std::fill(buffer->real_part_input_.begin() + num_column_,
             buffer->real_part_input_.end(), 0.0);
-  std::fill(buffer->imaginary_part_input_.begin() + num_column_,
-            buffer->imaginary_part_input_.end(), 0.0);
+  std::fill(buffer->imag_part_input_.begin() + num_column_,
+            buffer->imag_part_input_.end(), 0.0);
   for (int i(0); i < fft_length_; ++i) {
     for (int j(0); j < num_column_; ++j) {
       x[j] = buffer->first_real_part_outputs_[j][i];
-      y[j] = buffer->first_imaginary_part_outputs_[j][i];
+      y[j] = buffer->first_imag_part_outputs_[j][i];
     }
     if (!inverse_fast_fourier_transform_.Run(
-            buffer->real_part_input_, buffer->imaginary_part_input_,
+            buffer->real_part_input_, buffer->imag_part_input_,
             &buffer->second_real_part_outputs_[i],
-            &buffer->second_imaginary_part_outputs_[i])) {
+            &buffer->second_imag_part_outputs_[i])) {
       return false;
     }
   }
 
+  // Save results.
   for (int i(0); i < fft_length_; ++i) {
     std::copy(buffer->second_real_part_outputs_[i].begin(),
               buffer->second_real_part_outputs_[i].end(),
               (*real_part_output)[i]);
-    std::copy(buffer->second_imaginary_part_outputs_[i].begin(),
-              buffer->second_imaginary_part_outputs_[i].end(),
-              (*imaginary_part_output)[i]);
+    std::copy(buffer->second_imag_part_outputs_[i].begin(),
+              buffer->second_imag_part_outputs_[i].end(),
+              (*imag_part_output)[i]);
   }
 
   return true;
+}
+
+bool TwoDimensionalInverseFastFourierTransform::Run(
+    sptk::Matrix* real_part, sptk::Matrix* imag_part,
+    TwoDimensionalInverseFastFourierTransform::Buffer* buffer) const {
+  if (NULL == real_part || NULL == imag_part) return false;
+  return Run(*real_part, *imag_part, real_part, imag_part, buffer);
 }
 
 }  // namespace sptk

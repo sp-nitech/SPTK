@@ -913,6 +913,7 @@ INPUT                  = \
                          ../include/SPTK/math/real_valued_inverse_fast_fourier_transform.h \
                          ../include/SPTK/math/reverse_levinson_durbin_recursion.h \
                          ../include/SPTK/math/two_dimensional_fast_fourier_transform.h \
+                         ../include/SPTK/math/two_dimensional_inverse_fast_fourier_transform.h \
                          ../include/SPTK/utils/data_symmetrizing.h \
                          ../include/SPTK/utils/misc_utils.h \
                          ../include/SPTK/window/data_windowing.h \
@@ -952,6 +953,7 @@ INPUT                  = \
                          ../src/main/grpdelay.cc \
                          ../src/main/idct.cc \
                          ../src/main/ifft.cc \
+                         ../src/main/ifft2.cc \
                          ../src/main/ignorm.cc \
                          ../src/main/impulse.cc \
                          ../src/main/imsvq.cc \
