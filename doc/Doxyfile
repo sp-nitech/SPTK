@@ -914,6 +914,7 @@ INPUT                  = \
                          ../include/SPTK/math/reverse_levinson_durbin_recursion.h \
                          ../include/SPTK/math/two_dimensional_fast_fourier_transform.h \
                          ../include/SPTK/math/two_dimensional_inverse_fast_fourier_transform.h \
+                         ../include/SPTK/math/two_dimensional_real_valued_fast_fourier_transform.h \
                          ../include/SPTK/utils/data_symmetrizing.h \
                          ../include/SPTK/utils/misc_utils.h \
                          ../include/SPTK/window/data_windowing.h \
@@ -945,6 +946,7 @@ INPUT                  = \
                          ../src/main/fft2.cc \
                          ../src/main/fftcep.cc \
                          ../src/main/fftr.cc \
+                         ../src/main/fftr2.cc \
                          ../src/main/frame.cc \
                          ../src/main/freqt.cc \
                          ../src/main/gmm.cc \
