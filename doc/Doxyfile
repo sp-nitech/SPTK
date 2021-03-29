@@ -915,6 +915,7 @@ INPUT                  = \
                          ../include/SPTK/math/two_dimensional_fast_fourier_transform.h \
                          ../include/SPTK/math/two_dimensional_inverse_fast_fourier_transform.h \
                          ../include/SPTK/math/two_dimensional_real_valued_fast_fourier_transform.h \
+                         ../include/SPTK/math/vandermonde_system_solver.h \
                          ../include/SPTK/utils/data_symmetrizing.h \
                          ../include/SPTK/utils/misc_utils.h \
                          ../include/SPTK/window/data_windowing.h \

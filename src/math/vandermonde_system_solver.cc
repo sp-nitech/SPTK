@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -53,6 +53,7 @@ VandermondeSystemSolver::VandermondeSystemSolver(int num_order)
     : num_order_(num_order), is_valid_(true) {
   if (num_order_ < 0) {
     is_valid_ = false;
+    return;
   }
 }
 
@@ -61,7 +62,7 @@ bool VandermondeSystemSolver::Run(
     const std::vector<double>& constant_vector,
     std::vector<double>* solution_vector,
     VandermondeSystemSolver::Buffer* buffer) const {
-  // check inputs
+  // Check inputs.
   const int length(num_order_ + 1);
   if (!is_valid_ ||
       coefficient_vector.size() != static_cast<std::size_t>(length) ||
@@ -70,21 +71,18 @@ bool VandermondeSystemSolver::Run(
     return false;
   }
 
-  // prepare memories
+  // Prepare memories.
   if (solution_vector->size() != static_cast<std::size_t>(length)) {
     solution_vector->resize(length);
   }
-
-  // prepare buffer
   if (buffer->d_.size() != static_cast<std::size_t>(length)) {
     buffer->d_.resize(length);
   }
 
-  // get values
-  const double* a(&coefficient_vector[0]);
-  const double* b(&constant_vector[0]);
+  const double* a(&(coefficient_vector[0]));
+  const double* b(&(constant_vector[0]));
   double* x(&((*solution_vector)[0]));
-  double* d(&buffer->d_[0]);
+  double* d(&(buffer->d_[0]));
 
   std::fill(buffer->d_.begin(), buffer->d_.end(), 0.0);
   for (int i(0); i < length; ++i) {
@@ -103,7 +101,6 @@ bool VandermondeSystemSolver::Run(
       numerator = numerator + b[num_order_ - j - 1] * tmp;
       denominator = denominator * a[i] + tmp;
     }
-
     if (0.0 == denominator) {
       return false;
     }
