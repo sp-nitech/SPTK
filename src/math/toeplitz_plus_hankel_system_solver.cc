@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -64,29 +64,17 @@ ToeplitzPlusHankelSystemSolver::ToeplitzPlusHankelSystemSolver(
       is_valid_(true) {
   if (num_order_ < 0) {
     is_valid_ = false;
+    return;
   }
 }
 
-// This function solves the Toeplitz-plus-Hankel system given the coefficient
-// vector of the Toeplitz matrix {t_ij}
-//   [ t(1, n), t(1, n-1), ..., t(1, 1), t(2, 1), ..., t(n, 1) ],
-// the coefficient vector of the Hankel matrix {h_ij}
-//   [ h(1, 1), h(1, 2), ..., h(1, n), h(2, n), ..., h(n, n) ],
-// and the constant vector
-//   [ b(1), b(2), ..., b(n) ].
-// The implementation and the name of variables are based on the paper written
-// by Merchant and Parks.
-//
-// G. Merchant and T. Parks, ``Efficient solution of a Toeplitz-plus-Hankel
-// coefficient matrix system of equations,'' IEEE Transactions on Acoustics,
-// Speech, and Signal Processing, vol. 30, no. 1, pp. 40--44, 1982.
 bool ToeplitzPlusHankelSystemSolver::Run(
     const std::vector<double>& toeplitz_coefficient_vector,
     const std::vector<double>& hankel_coefficient_vector,
     const std::vector<double>& constant_vector,
     std::vector<double>* solution_vector,
     ToeplitzPlusHankelSystemSolver::Buffer* buffer) const {
-  // check inputs
+  // Check inputs.
   const int length(num_order_ + 1);
   if (!is_valid_ ||
       toeplitz_coefficient_vector.size() !=
@@ -98,7 +86,7 @@ bool ToeplitzPlusHankelSystemSolver::Run(
     return false;
   }
 
-  // prepare memories
+  // Prepare memories.
   if (solution_vector->size() != static_cast<std::size_t>(length)) {
     solution_vector->resize(length);
   }
@@ -120,7 +108,7 @@ bool ToeplitzPlusHankelSystemSolver::Run(
 
   // Step 0)
   {
-    // Set R
+    // Set R.
     const double* t(&(toeplitz_coefficient_vector[0]));
     const double* h(&(hankel_coefficient_vector[0]));
     for (int i(0); i < length; ++i) {
@@ -145,23 +133,23 @@ bool ToeplitzPlusHankelSystemSolver::Run(
 
   // Step 1)
   {
-    // Set X_0
+    // Set X_0.
     buffer->x_[0].FillDiagonal(1.0);
 
-    // Set p_0
+    // Set p_0.
     PutBar(0, constant_vector, &buffer->bar_);
     if (!buffer->r_[0].Invert(&buffer->inv_) ||
         !sptk::Matrix2D::Multiply(buffer->inv_, buffer->bar_, &buffer->p_[0])) {
       return false;
     }
 
-    // Set V_x
+    // Set V_x.
     buffer->vx_ = buffer->r_[0];
   }
 
   // Step 2)
   for (int i(1); i < length; ++i) {
-    // a) Calculate E_x
+    // a) Calculate E_x.
     buffer->ex_.Fill(0.0);
     for (int j(0); j < i; ++j) {
       if (!sptk::Matrix2D::Multiply(buffer->r_[i - j], buffer->x_[j],
@@ -171,7 +159,7 @@ bool ToeplitzPlusHankelSystemSolver::Run(
       }
     }
 
-    // b) Calculate \bar{e}_p
+    // b) Calculate \bar{e}_p.
     buffer->ep_[0] = 0.0;
     buffer->ep_[1] = 0.0;
     for (int j(0); j < i; ++j) {
@@ -183,14 +171,14 @@ bool ToeplitzPlusHankelSystemSolver::Run(
       buffer->ep_[1] += buffer->tmp_vector_[1];
     }
 
-    // c) Calculate B_x
+    // c) Calculate B_x.
     if (!buffer->vx_.CrossTranspose(&buffer->tau_) ||
         !buffer->tau_.Invert(&buffer->inv_) ||
         !sptk::Matrix2D::Multiply(buffer->inv_, buffer->ex_, &buffer->bx_)) {
       return false;
     }
 
-    // d) Update X
+    // d) Update X.
     for (int j(1); j < i; ++j) {
       if (!buffer->prev_x_[i - j].CrossTranspose(&buffer->tau_) ||
           !sptk::Matrix2D::Multiply(buffer->tau_, buffer->bx_,
@@ -204,7 +192,7 @@ bool ToeplitzPlusHankelSystemSolver::Run(
       buffer->prev_x_[j] = buffer->x_[j];
     }
 
-    // d) Update V_x
+    // d) Update V_x.
     if (!buffer->ex_.CrossTranspose(&buffer->tau_) ||
         !sptk::Matrix2D::Multiply(buffer->tau_, buffer->bx_,
                                   &buffer->tmp_matrix_) ||
@@ -212,7 +200,7 @@ bool ToeplitzPlusHankelSystemSolver::Run(
       return false;
     }
 
-    // e) Calculate \bar{g}
+    // e) Calculate \bar{g}.
     if (!buffer->vx_.CrossTranspose(&buffer->tau_) ||
         !buffer->tau_.Invert(&buffer->inv_)) {
       return false;
@@ -225,7 +213,7 @@ bool ToeplitzPlusHankelSystemSolver::Run(
       return false;
     }
 
-    // f) Update \bar{p}
+    // f) Update \bar{p}.
     for (int j(0); j < i; ++j) {
       if (!buffer->x_[i - j].CrossTranspose(&buffer->tau_) ||
           !sptk::Matrix2D::Multiply(buffer->tau_, buffer->g_,
