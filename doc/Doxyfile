@@ -1003,6 +1003,7 @@ INPUT                  = \
                          ../src/main/ramp.cc \
                          ../src/main/reverse.cc \
                          ../src/main/rlevdur.cc \
+                         ../src/main/rmse.cc \
                          ../src/main/root_pol.cc \
                          ../src/main/sin.cc \
                          ../src/main/step.cc \

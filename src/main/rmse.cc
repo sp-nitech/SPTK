@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,7 +42,8 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>  // getopt_long_only
+#include <getopt.h>  // getopt_long
+
 #include <cmath>     // std::sqrt
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
@@ -68,17 +69,17 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       rmse [ options ] file1 [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l         : length of vector      (   int)[" << std::setw(5) << std::right << "EOF" << "][ 1 <=   l   <=   ]" << std::endl;  // NOLINT
-  *stream << "       -m m         : order of vector       (   int)[" << std::setw(5) << std::right << "l-1" << "][ 0 <=   m   <=   ]" << std::endl;  // NOLINT
-  *stream << "       -magic magic : remove magic number   (double)[" << std::setw(5) << std::right << "N/A" << "][   <= magic <=   ]" << std::endl;  // NOLINT
-  *stream << "       -f           : output frame by frame (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultOutputFrameByFrameFlag) << "]" << std::endl;  // NOLINT
-  *stream << "       -h           : print this message" << std::endl;
+  *stream << "       -l l     : length of vector      (   int)[" << std::setw(5) << std::right << "EOF" << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m     : order of vector       (   int)[" << std::setw(5) << std::right << "l-1" << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -M magic : remove magic number   (double)[" << std::setw(5) << std::right << "N/A" << "]" << std::endl;  // NOLINT
+  *stream << "       -f       : output frame by frame (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultOutputFrameByFrameFlag) << "]" << std::endl;  // NOLINT
+  *stream << "       -h       : print this message" << std::endl;
   *stream << "  file1:" << std::endl;
-  *stream << "       data sequence                        (double)" << std::endl;  // NOLINT
+  *stream << "       data sequence                    (double)" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       data sequence                        (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       data sequence                    (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       root mean squared error              (double)" << std::endl;  // NOLINT
+  *stream << "       root mean squared error          (double)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -87,19 +88,71 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a rmse [ @e option ] @e file1 [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - length of vector @f$(1 \le L)@f$
+ * - @b -m @e int
+ *   - order of vector @f$(0 \le L - 1)@f$
+ * - @b -M @e double
+ *   - remove magic number
+ * - @b -f @e bool
+ *   - output RMSE frame-by-frame
+ * - @b file1 @e str
+ *   - double-type data sequence
+ * - @b infile @e str
+ *   - double-type data sequence
+ * - @b stdout
+ *   - double-type RMSE
+ *
+ * The inputs of this command are
+ * @f[
+ *   \begin{array}{ccc}
+ *     \underbrace{x_0(0), \; \ldots, \; x_0(L-1)}_L, &
+ *     \underbrace{x_1(0), \; \ldots, \; x_1(L-1)}_L, &
+ *     \ldots,
+ *   \end{array}
+ * @f]
+ * and
+ * @f[
+ *   \begin{array}{ccc}
+ *     \underbrace{y_0(0), \; \ldots, \; y_0(L-1)}_L, &
+ *     \underbrace{y_1(0), \; \ldots, \; y_1(L-1)}_L, &
+ *     \ldots,
+ *   \end{array}
+ * @f]
+ * and the output is the sequence of RMSE:
+ * @f[
+ *   \begin{array}{ccc}
+ *     e_0, & e_1, & \ldots,
+ *   \end{array}
+ * @f]
+ * where
+ * @f[
+ *   e_n = \sqrt{\frac{1}{L} \sum_{l=0}^{L-1} (x_n(l) - y_n(l))^2}.
+ * @f]
+ * If @c -f option is not specified, the average of RMSEs is calculated.
+ *
+ * @code{.sh}
+ *   echo 1 2 3 | x2x +ad > data.1
+ *   echo 0 4 3 | x2x +ad > data.2
+ *   rmse data.1 data.2 -l 1 -f | x2x +da
+ *   # 1 2 0
+ *   rmse data.1 data.2 -l 1 | x2x +da
+ *   # 1
+ *   rmse data.1 data.2 | x2x +da
+ *   # 1.29099
+ * @endcode
+ */
 int main(int argc, char* argv[]) {
   int vector_length(kMagicNumberForEndOfFile);
   double magic_number(0.0);
   bool use_magic_number(kDefaultUseMagicNumber);
   bool output_frame_by_frame(kDefaultOutputFrameByFrameFlag);
 
-  const struct option long_option[] = {
-      {"magic", required_argument, NULL, kMagic}, {0, 0, 0, 0},
-  };
-
   for (;;) {
-    const int option_char(
-        getopt_long_only(argc, argv, "l:m:fh", long_option, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:M:fh", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -126,10 +179,10 @@ int main(int argc, char* argv[]) {
         ++vector_length;
         break;
       }
-      case kMagic: {
+      case 'M': {
         if (!sptk::ConvertStringToDouble(optarg, &magic_number)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -magic option must be numeric";
+          error_message << "The argument for the -M option must be numeric";
           sptk::PrintErrorMessage("rmse", error_message);
           return 1;
         }
@@ -151,7 +204,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const char* input_file1(NULL);
   const char* input_file2(NULL);
   const int num_input_files(argc - optind);
@@ -168,7 +220,6 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // open stream
   std::ifstream ifs1;
   ifs1.open(input_file1, std::ios::in | std::ios::binary);
   if (ifs1.fail()) {
@@ -194,7 +245,7 @@ int main(int argc, char* argv[]) {
   sptk::StatisticsAccumulation::Buffer buffer_for_mean;
   if (!accumulation.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for calculation";
+    error_message << "Failed to initialize StatisticsAccumulation";
     sptk::PrintErrorMessage("rmse", error_message);
     return 1;
   }
@@ -225,7 +276,7 @@ int main(int argc, char* argv[]) {
       if (!accumulation.GetMean(buffer_for_mean_squared_error,
                                 &mean_squared_error)) {
         std::ostringstream error_message;
-        error_message << "Failed to accumulate statistics";
+        error_message << "Failed to get mean squared error";
         sptk::PrintErrorMessage("rmse", error_message);
         return 1;
       }
@@ -256,7 +307,7 @@ int main(int argc, char* argv[]) {
     if (!accumulation.GetMean(buffer_for_mean_squared_error,
                               &mean_squared_error)) {
       std::ostringstream error_message;
-      error_message << "Failed to accumulate statistics";
+      error_message << "Failed to get mean squared error";
       sptk::PrintErrorMessage("rmse", error_message);
       return 1;
     }
@@ -272,7 +323,7 @@ int main(int argc, char* argv[]) {
     std::vector<double> mean(1);
     if (!accumulation.GetMean(buffer_for_mean, &mean)) {
       std::ostringstream error_message;
-      error_message << "Failed to accumulate statistics";
+      error_message << "Failed to get root mean squared error";
       sptk::PrintErrorMessage("rmse", error_message);
       return 1;
     }
