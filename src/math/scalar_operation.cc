@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -56,6 +56,10 @@ class OperationInterface {
   virtual bool Run(double* number) const = 0;
 };
 
+/**
+ * This class is inherited by the operation class that does not handle magic
+ * number.
+ */
 class OperationPerformer : public sptk::ScalarOperation::ModuleInterface {
  public:
   explicit OperationPerformer(OperationInterface* operation)
@@ -501,7 +505,7 @@ class MagicNumberRemover : public sptk::ScalarOperation::ModuleInterface {
   }
 
   virtual bool Run(double* number, bool* is_magic_number) const {
-    if (true == *is_magic_number) {
+    if (*is_magic_number) {
       return false;
     }
     if (magic_number_ == *number) {

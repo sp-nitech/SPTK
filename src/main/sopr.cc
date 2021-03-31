@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long_only
+
 #include <fstream>   // std::ifstream
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
@@ -141,7 +142,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "           lnX      :        ln(X)  [ 0.0 <  X <=   ]" << std::endl;  // NOLINT
   *stream << "           expX     :       exp(X)  [     <= X <=   ]" << std::endl;  // NOLINT
   *stream << "" << std::endl;
-  *stream << "        they are case-insensitive" << std::endl;
+  *stream << "       they are case-insensitive" << std::endl;
   *stream << "" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       data sequence                       (double)[stdin]" << std::endl;  // NOLINT
@@ -157,6 +158,96 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a sopr [ @e option ] [ @e infile ]
+ *
+ * - @b -a @e double
+ *   - addition
+ * - @b -s @e double
+ *   - subtraction
+ * - @b -m @e double
+doc/main/window.rst *   - multiplication
+ * - @b -d @e double
+ *   - division
+ * - @b -r @e int
+ *   - modulo
+ * - @b -p @e double
+ *   - power
+ * - @b -l @e double
+ *   - lower bounding
+ * - @b -u @e double
+ *   - upper bounding
+ * - @b -ABS
+ *   - absolute
+ * - @b -INV
+ *   - inverse
+ * - @b -SQR
+ *   - square
+ * - @b -SQRT
+ *   - square root
+ * - @b -LN
+ *   - natural logarithm
+ * - @b -LOG2
+ *   - base 2 logarithm
+ * - @b -LOG10
+ *   - base 10 logarithm
+ * - @b -LOGX @e double
+ *   - base @f$X@f$ logarithm
+ * - @b -EXP
+ *   - exponential
+ * - @b -POW2
+ *   - power of 2
+ * - @b -POW10
+ *   - power of 10
+ * - @b -POWX @e double
+ *   - power of @f$X@f$
+ * - @b -FLOOR
+ *   - flooring
+ * - @b -CEIL
+ *   - ceiling
+ * - @b -ROUND
+ *   - roudning
+ * - @b -ROUNDUP
+ *   - roudning up
+ * - @b -ROUNDDOWN
+ *   - roudning down
+ * - @b -UNIT
+ *   - unit step
+ * - @b -RAMP
+ *   - rectifier
+ * - @b -SIGN
+ *   - sign
+ * - @b -SIN
+ *   - sine
+ * - @b -COS
+ *   - cosine
+ * - @b -TAN
+ *   - tangent
+ * - @b -ATAN
+ *   - arctangent
+ * - @b -TANH
+ *   - hyperbolic tangent
+ * - @b -ATANH
+ *   - hyperbolic arctangent
+ * - @b -magic @e double
+ *   - remove magic number
+ * - @b -MAGIC @e double
+ *   - replace magic number
+ * - @b infile @e str
+ *   - double-type data sequence
+ * - @b stdout
+ *   - double-type data sequence after operations
+ *
+ * @code{.sh}
+ *   # 0, 1, 2, 3
+ *   ramp -l 4 | sopr -m 2 -a 1 | x2x +da
+ *   # 1, 3, 5, 7
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   sptk::ScalarOperation scalar_operation;
 
@@ -626,7 +717,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -636,7 +726,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -648,8 +737,9 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
   double number;
+  bool is_magic_number;
+
   while (sptk::ReadStream(&number, &input_stream)) {
-    bool is_magic_number;
     if (!scalar_operation.Run(&number, &is_magic_number)) {
       std::ostringstream error_message;
       error_message << "Failed to perform scalar operation";

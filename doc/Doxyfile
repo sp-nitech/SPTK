@@ -913,6 +913,7 @@ INPUT                  = \
                          ../include/SPTK/math/real_valued_fast_fourier_transform.h \
                          ../include/SPTK/math/real_valued_inverse_fast_fourier_transform.h \
                          ../include/SPTK/math/reverse_levinson_durbin_recursion.h \
+                         ../include/SPTK/math/scalar_operation.h \
                          ../include/SPTK/math/toeplitz_plus_hankel_system_solver.h \
                          ../include/SPTK/math/two_dimensional_fast_fourier_transform.h \
                          ../include/SPTK/math/two_dimensional_inverse_fast_fourier_transform.h \
@@ -1008,6 +1009,7 @@ INPUT                  = \
                          ../src/main/rmse.cc \
                          ../src/main/root_pol.cc \
                          ../src/main/sin.cc \
+                         ../src/main/sopr.cc \
                          ../src/main/step.cc \
                          ../src/main/swab.cc \
                          ../src/main/symmetrize.cc \
