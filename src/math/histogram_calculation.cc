@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,77 +42,55 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#ifndef SPTK_MATH_HISTOGRAM_CALCULATOR_H_
-#define SPTK_MATH_HISTOGRAM_CALCULATOR_H_
+#include "SPTK/math/histogram_calculation.h"
 
-#include <vector>  // std::vector
-
-#include "SPTK/utils/sptk_utils.h"
+#include <algorithm>  // std::fill
+#include <cmath>      // std::floor
+#include <cstddef>    // std::size_t
 
 namespace sptk {
 
-class HistogramCalculator {
- public:
-  //
-  HistogramCalculator(int length, int num_bin, double lower_bound,
-                      double upper_bound);
+HistogramCalculation::HistogramCalculation(int num_bin, double lower_bound,
+                                           double upper_bound)
+    : num_bin_(num_bin),
+      lower_bound_(lower_bound),
+      upper_bound_(upper_bound),
+      bin_width_((upper_bound_ - lower_bound_) / num_bin_),
+      is_valid_(true) {
+  if (num_bin_ <= 0 || upper_bound_ <= lower_bound_) {
+    is_valid_ = false;
+    return;
+  }
+}
 
-  //
-  virtual ~HistogramCalculator() {
+bool HistogramCalculation::Run(const std::vector<double>& data,
+                               std::vector<double>* histogram) const {
+  // Check inputs.
+  if (!is_valid_ || data.empty() || NULL == histogram) {
+    return false;
   }
 
-  //
-  int GetLength() const {
-    return length_;
+  // Prepare memories.
+  if (histogram->size() != static_cast<std::size_t>(num_bin_)) {
+    histogram->resize(num_bin_);
   }
 
-  //
-  int GetNumBin() const {
-    return num_bin_;
+  std::fill(histogram->begin(), histogram->end(), 0.0);
+
+  const int length(static_cast<int>(data.size()));
+  const double* input(&(data[0]));
+  double* output(&((*histogram)[0]));
+  for (int i(0); i < length; ++i) {
+    if (lower_bound_ <= input[i] && input[i] < upper_bound_) {
+      const int bin_index(
+          static_cast<int>(std::floor((input[i] - lower_bound_) / bin_width_)));
+      ++output[bin_index];
+    } else if (upper_bound_ == input[i]) {
+      ++output[num_bin_ - 1];
+    }
   }
 
-  //
-  double GetLowerBound() const {
-    return lower_bound_;
-  }
-
-  //
-  double GetUpperBound() const {
-    return upper_bound_;
-  }
-
-  //
-  bool IsValid() const {
-    return is_valid_;
-  }
-
-  //
-  bool Run(const std::vector<double>& data,
-           std::vector<double>* histogram) const;
-
- private:
-  //
-  const int length_;
-
-  //
-  const int num_bin_;
-
-  //
-  const double lower_bound_;
-
-  //
-  const double upper_bound_;
-
-  //
-  const double bin_width_;
-
-  //
-  bool is_valid_;
-
-  //
-  DISALLOW_COPY_AND_ASSIGN(HistogramCalculator);
-};
+  return true;
+}
 
 }  // namespace sptk
-
-#endif  // SPTK_MATH_HISTOGRAM_CALCULATOR_H_

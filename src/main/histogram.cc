@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,17 +42,17 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>    // getopt_long
-#include <algorithm>   // std::transform
-#include <fstream>     // std::ifstream
-#include <functional>  // std::bind1st, std::multiplies
-#include <iomanip>     // std::setw
-#include <iostream>    // std::cerr, std::cin, std::cout, std::endl, etc.
-#include <numeric>     // std::accumulate
-#include <sstream>     // std::ostringstream
-#include <vector>      // std::vector
+#include <getopt.h>  // getopt_long
 
-#include "SPTK/math/histogram_calculator.h"
+#include <algorithm>  // std::transform
+#include <fstream>    // std::ifstream
+#include <iomanip>    // std::setw
+#include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <numeric>    // std::accumulate
+#include <sstream>    // std::ostringstream
+#include <vector>     // std::vector
+
+#include "SPTK/math/histogram_calculation.h"
 #include "SPTK/math/statistics_accumulation.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -90,6 +90,34 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a histogram [ @e option ] [ @e infile ]
+ *
+ * - @b -t @e int
+ *   - output interval @f$(1 \le T)@f$
+ * - @b -b @e int
+ *   - number of bins @f$(1 \le N)@f$
+ * - @b -l @e double
+ *   - lower bound @f$(y_L < y_U)@f$
+ * - @b -u @e double
+ *   - upper bound @f$(y_L < y_U)@f$
+ * - @b -n @e bool
+ *   - perform normalization
+ * - @b infile @e str
+ *   - double-type data sequence
+ * - @b stdout
+ *   - double-type histogram
+ *
+ * @code{.sh}
+ *   # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+ *   ramp -l 10 | histogram -b 4 -l 0 -u 9 | x2x +da
+ *   # 3, 2, 2, 3
+ *   ramp -l 10 | histogram -b 4 -l 0 -u 9 -n | x2x +da
+ *   # 0.3, 0.2, 0.2, 0.3
+ *   ramp -l 10 | histogram -b 4 -l 0 -u 9 -t 5 | x2x +da
+ *   # 3, 2, 0, 0, 0, 0, 2, 3
+ * @endcode
+ */
 int main(int argc, char* argv[]) {
   int output_interval(kMagicNumberForEndOfFile);
   int num_bin(kDefaultNumBin);
@@ -163,7 +191,6 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -173,7 +200,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -184,26 +210,23 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for calculating histogram
-  const int data_length(
-      kMagicNumberForEndOfFile == output_interval ? 1 : output_interval);
-  sptk::HistogramCalculator histogram_calculator(data_length, num_bin,
-                                                 lower_bound, upper_bound);
-  if (!histogram_calculator.IsValid()) {
+  sptk::HistogramCalculation histogram_calculation(num_bin, lower_bound,
+                                                   upper_bound);
+  if (!histogram_calculation.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for calculating histogram";
+    error_message << "Failed to initialize HistogramCalculation";
     sptk::PrintErrorMessage("histogram", error_message);
     return 1;
   }
 
-  std::vector<double> data(data_length);
   std::vector<double> histogram(num_bin);
 
   if (kMagicNumberForEndOfFile == output_interval) {
+    std::vector<double> data(1);
     sptk::StatisticsAccumulation statistics_accumulation(num_bin - 1, 1);
     sptk::StatisticsAccumulation::Buffer buffer;
     while (sptk::ReadStream(false, 0, 0, 1, &data, &input_stream, NULL)) {
-      if (!histogram_calculator.Run(data, &histogram)) {
+      if (!histogram_calculation.Run(data, &histogram)) {
         std::ostringstream error_message;
         error_message << "Failed to calculate histogram";
         sptk::PrintErrorMessage("histogram", error_message);
@@ -229,12 +252,13 @@ int main(int argc, char* argv[]) {
           std::accumulate(histogram.begin(), histogram.end(), 0.0));
       if (0.0 == sum) {
         std::ostringstream error_message;
-        error_message << "Cannot calculate normalized histogram";
+        error_message << "Failed to calculate normalized histogram";
         sptk::PrintErrorMessage("histogram", error_message);
         return 1;
       }
+      const double z(1.0 / sum);
       std::transform(histogram.begin(), histogram.end(), histogram.begin(),
-                     std::bind1st(std::multiplies<double>(), 1.0 / sum));
+                     [z](double x) { return x * z; });
     }
 
     if (!sptk::WriteStream(0, num_bin, histogram, &std::cout, NULL)) {
@@ -244,10 +268,11 @@ int main(int argc, char* argv[]) {
       return 1;
     }
   } else {
-    for (int frame_index(0);
-         sptk::ReadStream(false, 0, 0, data_length, &data, &input_stream, NULL);
+    std::vector<double> data(output_interval);
+    for (int frame_index(0); sptk::ReadStream(false, 0, 0, output_interval,
+                                              &data, &input_stream, NULL);
          ++frame_index) {
-      if (!histogram_calculator.Run(data, &histogram)) {
+      if (!histogram_calculation.Run(data, &histogram)) {
         std::ostringstream error_message;
         error_message << "Failed to calculate histogram";
         sptk::PrintErrorMessage("histogram", error_message);
@@ -259,13 +284,14 @@ int main(int argc, char* argv[]) {
             std::accumulate(histogram.begin(), histogram.end(), 0.0));
         if (0.0 == sum) {
           std::ostringstream error_message;
-          error_message << "Cannot calculate normalized histogram at "
+          error_message << "Failed to calculate normalized histogram at "
                         << frame_index << "th frame";
           sptk::PrintErrorMessage("histogram", error_message);
           return 1;
         }
+        const double z(1.0 / sum);
         std::transform(histogram.begin(), histogram.end(), histogram.begin(),
-                       std::bind1st(std::multiplies<double>(), 1.0 / sum));
+                       [z](double x) { return x * z; });
       }
 
       if (!sptk::WriteStream(0, num_bin, histogram, &std::cout, NULL)) {

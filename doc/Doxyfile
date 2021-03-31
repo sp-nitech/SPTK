@@ -904,6 +904,7 @@ INPUT                  = \
                          ../include/SPTK/math/fast_fourier_transform.h \
                          ../include/SPTK/math/frequency_transform.h \
                          ../include/SPTK/math/gaussian_mixture_modeling.h \
+                         ../include/SPTK/math/histogram_calculation.h \
                          ../include/SPTK/math/inverse_discrete_cosine_transform.h \
                          ../include/SPTK/math/inverse_fast_fourier_transform.h \
                          ../include/SPTK/math/levinson_durbin_recursion.h \
@@ -955,6 +956,7 @@ INPUT                  = \
                          ../src/main/gmmp.cc \
                          ../src/main/gnorm.cc \
                          ../src/main/grpdelay.cc \
+                         ../src/main/histogram.cc \
                          ../src/main/idct.cc \
                          ../src/main/ifft.cc \
                          ../src/main/ifft2.cc \
