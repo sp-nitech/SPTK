@@ -47,6 +47,7 @@
 #include <algorithm>  // std::fill, std::transform
 #include <cfloat>     // DBL_MAX
 #include <cmath>      // std::exp, std::log
+#include <cstddef>    // std::size_t
 #include <iomanip>    // std::setw
 #include <iostream>   // std::cerr, std::endl
 #include <numeric>    // std::accumulate, std::partial_sum

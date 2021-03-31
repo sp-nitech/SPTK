@@ -44,7 +44,7 @@
 
 #include "SPTK/window/chebyshev_window.h"
 
-#include <cmath>  // std::abs, std::acos, std::acosh, std::cos, std::cosh, etc.
+#include <cmath>  // std::abs, std::acos, std::acosh, std::cos, std::cosh, std::pow
 
 namespace {
 
