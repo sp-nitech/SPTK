@@ -4,3 +4,5 @@ train
 =====
 
 .. doxygenfile:: train.cc
+
+.. seealso:: :ref:`excite`

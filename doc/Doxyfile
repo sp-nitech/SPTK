@@ -894,6 +894,7 @@ INPUT                  = \
                          ../include/SPTK/filter/line_spectral_pairs_digital_filter.h \
                          ../include/SPTK/filter/pseudo_quadrature_mirror_filter_banks.h \
                          ../include/SPTK/filter/second_order_digital_filter.h \
+                         ../include/SPTK/generation/excitation_generation.h \
                          ../include/SPTK/generation/m_sequence_generation.h \
                          ../include/SPTK/generation/normal_distributed_random_value_generation.h \
                          ../include/SPTK/generation/recursive_maximum_likelihood_parameter_generation.h \
@@ -943,6 +944,7 @@ INPUT                  = \
                          ../src/main/dfs.cc \
                          ../src/main/dmp.cc \
                          ../src/main/entropy.cc \
+                         ../src/main/excite.cc \
                          ../src/main/extract.cc \
                          ../src/main/fbank.cc \
                          ../src/main/fd.cc \

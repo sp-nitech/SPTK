@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -59,6 +59,7 @@ ExcitationGeneration::ExcitationGeneration(
   if (NULL == input_source_ || NULL == random_generation_ ||
       !input_source_->IsValid()) {
     is_valid_ = false;
+    return;
   }
 }
 

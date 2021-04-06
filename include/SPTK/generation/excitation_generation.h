@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -51,38 +51,52 @@
 
 namespace sptk {
 
+/**
+ * Generate exication sequence.
+ *
+ * The input is a sequence of pitch value which can be either a continuous value
+ * of a magic number. The output is the excitation signal given the input
+ * sequence.
+ */
 class ExcitationGeneration {
  public:
-  //
+  /**
+   * @param[in] input_source Input source.
+   * @param[in] random_generation Random value generator.
+   */
   ExcitationGeneration(InputSourceInterpolationWithMagicNumber* input_source,
                        RandomGenerationInterface* random_generation);
 
-  //
   virtual ~ExcitationGeneration() {
   }
 
-  //
+  /**
+   * @return True if this object is valid.
+   */
   bool IsValid() const {
     return is_valid_;
   }
 
-  //
+  /**
+   * Get excitation signal.
+   *
+   * @param[out] excitation Excitation (optional).
+   * @param[out] pulse Pulse (optional).
+   * @param[out] noise Noise (optional).
+   * @param[out] pitch Pitch (optional).
+   * @return True on success, false on failure.
+   */
   bool Get(double* excitation, double* pulse, double* noise, double* pitch);
 
  private:
-  //
   InputSourceInterpolationWithMagicNumber* input_source_;
-
-  //
   RandomGenerationInterface* random_generation_;
 
-  //
   bool is_valid_;
 
-  // from 0.0 to 1.0
+  // Phase value ranging from 0.0 to 1.0.
   double phase_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(ExcitationGeneration);
 };
 

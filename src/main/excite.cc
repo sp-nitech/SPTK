@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,7 +42,8 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>   // getopt_long
+#include <getopt.h>  // getopt_long
+
 #include <exception>  // std::exception
 #include <fstream>    // std::ifstream
 #include <iomanip>    // std::setw
@@ -71,7 +72,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       excite [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -p p  : frame period                       (   int)[" << std::setw(5) << std::right << kDefaultFramePeriod         << "][ 0 <  p <=     ]" << std::endl;  // NOLINT
+  *stream << "       -p p  : frame period                       (   int)[" << std::setw(5) << std::right << kDefaultFramePeriod         << "][ 1 <= p <=     ]" << std::endl;  // NOLINT
   *stream << "       -i i  : interpolation period               (   int)[" << std::setw(5) << std::right << kDefaultInterpolationPeriod << "][ 0 <= i <= p/2 ]" << std::endl;  // NOLINT
   *stream << "       -n    : use gauss noise for unvoiced frame (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultFlagToUseNormalDistributedRandomValue) << "]" << std::endl;  // NOLINT
   *stream << "               default is M-sequence" << std::endl;
@@ -92,6 +93,40 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a excite [ @e option ] [ @e infile ]
+ *
+ * - @b -p @e int
+ *   - frame_period @f$(1 \le P)@f$
+ * - @b -i @e int
+ *   - interpolation period @f$(0 \le I \le P/2)@f$
+ * - @b -n @e bool
+ *   - use gaussian noise instead of M-sequence for unvoiced frame
+ * - @b -s @e double
+ *   - seed for random number generation
+ * - @b infile @e str
+ *   - pitch period
+ * - @b stdout
+ *   - excitation
+ *
+ * This command generates an excitation sequence from the pitch period in
+ * @c infile (or standard input), and sends the result to standard output.
+ * When the pitch period is nonzero, the excitation is to be a pulse train.
+ * When the pitch period is zero (i.e., unvoiced), the excitation is to be
+ * a Gaussian or M-sequence noise.
+ *
+ * In the example below, the excitation is generated from the @c data.p and
+ * passed through an LPC synthesis filter. The speech signal is written to
+ * @c data.syn file.
+ *
+ * @code{.sh}
+ *   excite < data.p | poledf data.lpc > data.syn
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int frame_period(kDefaultFramePeriod);
   int interpolation_period(kDefaultInterpolationPeriod);
@@ -187,7 +222,7 @@ int main(int argc, char* argv[]) {
           kMagicNumberForUnvoicedFrame, &input_source_from_stream);
   if (!input_source_interpolation_with_magic_number.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set the condition for input";
+    error_message << "Failed to initialize InputSourceFromStream";
     sptk::PrintErrorMessage("excite", error_message);
     return 1;
   }
@@ -206,7 +241,7 @@ int main(int argc, char* argv[]) {
 
     if (!excitation_generation.IsValid()) {
       std::ostringstream error_message;
-      error_message << "Failed to set condition for excitation generation";
+      error_message << "Failed to initialize ExcitationGeneration";
       sptk::PrintErrorMessage("excite", error_message);
       delete random_generation;
       return 1;
