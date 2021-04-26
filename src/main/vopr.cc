@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,7 +42,8 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>    // getopt_long_only
+#include <getopt.h>  // getopt_long_only
+
 #include <algorithm>   // std::max, std::min, std::transform
 #include <cmath>       // std::atan2, std::sqrt
 #include <fstream>     // std::ifstream
@@ -57,7 +58,8 @@
 namespace {
 
 enum LongOptions {
-  kATAN2 = 1000,
+  kATAN = 1000,
+  kQM,
   kAM,
   kGM,
   kHM,
@@ -84,9 +86,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       vopr [ options ] [ infile ] [ file1 ] > stdout" << std::endl;  // NOLINT
   *stream << "  options:" << std::endl;
-  *stream << "       -l l   : length of vector         (   int)[" << std::setw(5) << std::right << kDefaultVectorLength << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -n n   : order of vector          (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= n <=   ]" << std::endl;  // NOLINT
-  *stream << "       -q q   : input format             (   int)[" << std::setw(5) << std::right << kDefaultInputFormat  << "][ 0 <= q <= 2 ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : length of vector         (   int)[" << std::setw(5) << std::right << kDefaultVectorLength << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -n n  : order of vector          (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= n <=   ]" << std::endl;  // NOLINT
+  *stream << "       -q q  : input format             (   int)[" << std::setw(5) << std::right << kDefaultInputFormat  << "][ 0 <= q <= 2 ]" << std::endl;  // NOLINT
   *stream << "                  0 (naive)" << std::endl;
   *stream << "                      infile: a11 a12 .. a1l  a21 a22 .. a2l  a31 a32 .. a3l  a41 a42 .. a4l" << std::endl;  // NOLINT
   *stream << "                      file1 : b11 b12 .. b1l  b21 b22 .. b2l  b31 b32 .. b3l  b41 b42 .. b4l" << std::endl;  // NOLINT
@@ -96,23 +98,24 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                  2 (interleaved)" << std::endl;
   *stream << "                      infile: a11 a12 .. a1l  b11 b12 .. b2l  a21 a22 .. a2l  b21 b22 .. b2l" << std::endl;  // NOLINT
   *stream << "                      file1 : not required" << std::endl;
-  *stream << "       -a     : addition                 (  bool)[FALSE][       a + b ]" << std::endl;  // NOLINT
-  *stream << "       -s     : subtraction              (  bool)[FALSE][       a - b ]" << std::endl;  // NOLINT
-  *stream << "       -m     : multiplication           (  bool)[FALSE][       a * b ]" << std::endl;  // NOLINT
-  *stream << "       -d     : division                 (  bool)[FALSE][       a / b ]" << std::endl;  // NOLINT
-  *stream << "       -ATAN2 : arctangent               (  bool)[FALSE][ atan(b / a) ]" << std::endl;  // NOLINT
-  *stream << "       -AM    : arithmetic mean          (  bool)[FALSE][ (a + b) / 2 ]" << std::endl;  // NOLINT
-  *stream << "       -GM    : geometric mean           (  bool)[FALSE][ sqrt(a * b) ]" << std::endl;  // NOLINT
-  *stream << "       -HM    : harmonic mean            (  bool)[FALSE][ 2/(1/a+1/b) ]" << std::endl;  // NOLINT
-  *stream << "       -MIN   : minimum                  (  bool)[FALSE][   min(a, b) ]" << std::endl;  // NOLINT
-  *stream << "       -MAX   : maximum                  (  bool)[FALSE][   max(a, b) ]" << std::endl;  // NOLINT
-  *stream << "       -EQ    : equal to                 (  bool)[FALSE][      a == b ]" << std::endl;  // NOLINT
-  *stream << "       -NE    : not equal to             (  bool)[FALSE][      a != b ]" << std::endl;  // NOLINT
-  *stream << "       -LT    : less than                (  bool)[FALSE][      a <  b ]" << std::endl;  // NOLINT
-  *stream << "       -LE    : less than or equal to    (  bool)[FALSE][      a <= b ]" << std::endl;  // NOLINT
-  *stream << "       -GT    : greater than             (  bool)[FALSE][      a >  b ]" << std::endl;  // NOLINT
-  *stream << "       -GE    : greater than or equal to (  bool)[FALSE][      a >= b ]" << std::endl;  // NOLINT
-  *stream << "       -h     : print this message" << std::endl;
+  *stream << "       -a    : addition                                [       a + b ]" << std::endl;  // NOLINT
+  *stream << "       -s    : subtraction                             [       a - b ]" << std::endl;  // NOLINT
+  *stream << "       -m    : multiplication                          [       a * b ]" << std::endl;  // NOLINT
+  *stream << "       -d    : division                                [       a / b ]" << std::endl;  // NOLINT
+  *stream << "       -ATAN : arctangent                              [ atan(b / a) ]" << std::endl;  // NOLINT
+  *stream << "       -QM   : quadratic mean                          [ sqrt(a^2 + b^2 / 2) ]" << std::endl;  // NOLINT
+  *stream << "       -AM   : arithmetic mean                         [ (a + b) / 2 ]" << std::endl;  // NOLINT
+  *stream << "       -GM   : geometric mean                          [ sqrt(a * b) ]" << std::endl;  // NOLINT
+  *stream << "       -HM   : harmonic mean                           [ 2 / (1 / a + 1 / b) ]" << std::endl;  // NOLINT
+  *stream << "       -MIN  : minimum                                 [   min(a, b) ]" << std::endl;  // NOLINT
+  *stream << "       -MAX  : maximum                                 [   max(a, b) ]" << std::endl;  // NOLINT
+  *stream << "       -EQ   : equal to                                [      a == b ]" << std::endl;  // NOLINT
+  *stream << "       -NE   : not equal to                            [      a != b ]" << std::endl;  // NOLINT
+  *stream << "       -LT   : less than                               [      a <  b ]" << std::endl;  // NOLINT
+  *stream << "       -LE   : less than or equal to                   [      a <= b ]" << std::endl;  // NOLINT
+  *stream << "       -GT   : greater than                            [      a >  b ]" << std::endl;  // NOLINT
+  *stream << "       -GE   : greater than or equal to                [      a >= b ]" << std::endl;  // NOLINT
+  *stream << "       -h    : print this message" << std::endl;
   *stream << "  file1:" << std::endl;
   *stream << "       data sequence                     (double)" << std::endl;
   *stream << "  infile:" << std::endl;
@@ -127,25 +130,143 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a vopr [ @e option ] [ @e infile ] [ @e file1 ] > stdout
+ *
+ * - @b -l @e int
+ *   - length of vector @f$(1 \le L)@f$
+ * - @b -n @e int
+ *   - order of vector @f$(0 \le L - 1)@f$
+ * - @b -q @e int
+ *   - input format
+ *     \arg @c 0 naive
+ *     \arg @c 1 recursive
+ *     \arg @c 2 interleaved
+ * - @b -a
+ *   - addition
+ * - @b -s
+ *   - subtraction
+ * - @b -m
+ *   - multiplication
+ * - @b -d
+ *   - division
+ * - @b -ATAN
+ *   - arctangent
+ * - @b -QM
+ *   - quadratic mean
+ * - @b -AM
+ *   - arithmetric mean
+ * - @b -GM
+ *   - geometric mean
+ * - @b -HM
+ *   - harmonic mean
+ * - @b -MIN
+ *   - minimum
+ * - @b -MAX
+ *   - maximum
+ * - @b -EQ
+ *   - equal to
+ * - @b -NE
+ *   - not equal to
+ * - @b -LT
+ *   - less than
+ * - @b -LE
+ *   - less than or equal to
+ * - @b -GT
+ *   - greater than
+ * - @b -GE
+ *   - greater than or equal to
+ * - @b infile @e str
+ *   - double-type data sequence
+ * - @b file1 @e str
+ *   - double-type data sequence
+ * - @b stdout
+ *   - double-type data sequence after operation
+ *
+ * This command performs vector operations between two sequences.
+ *
+ * The inputs are
+ * @f[
+ *   \begin{array}{ccc}
+ *     \boldsymbol{a}_{0}, & \boldsymbol{a}_{1}, & \ldots,
+ *   \end{array}
+ * @f]
+ * and
+ * @f[
+ *   \begin{array}{ccc}
+ *     \boldsymbol{b}_{0}, & \boldsymbol{b}_{1}, & \ldots,
+ *   \end{array}
+ * @f]
+ * where @f$\boldsymbol{a}_t@f$ and @f$\boldsymbol{b}_t@f$ are
+ * @f$L@f$-length vectors.
+ * The output is
+ * @f[
+ *   \begin{array}{ccc}
+ *     \boldsymbol{y}_{0}, & \boldsymbol{y}_{1}, & \ldots,
+ *   \end{array}
+ * @f]
+ * where
+ * @f[
+ *   \boldsymbol{y}_{t} = f(\boldsymbol{a}_{t}, \boldsymbol{b}_{t})
+ * @f]
+ * and @f$f(\cdot)@f$ is a function which returns an
+ * @f$L@f$-length vector.
+ *
+ * There are three kinds of input formats.
+ * - Case @c -q0
+ * @f[
+ *   \left\{ \begin{array}{ll}
+ *     \boldsymbol{a}_0, \boldsymbol{a}_1, \ldots, & (\mbox{infile}) \\
+ *     \boldsymbol{b}_0, \boldsymbol{b}_1, \ldots, & (\mbox{file1})
+ *   \end{array} \right.
+ * @f]
+ * - Case @c -q1
+ * @f[
+ *   \left\{ \begin{array}{ll}
+ *     \boldsymbol{a}_0, \boldsymbol{a}_1, \ldots, & (\mbox{infile}) \\
+ *     \boldsymbol{b}, & (\mbox{file1})
+ *   \end{array} \right.
+ * @f]
+ * where @f$\boldsymbol{b}_t=\boldsymbol{b}@f$ for any @f$t@f$.
+ * - Case @c -q2
+ * @f[
+ *   \left\{ \begin{array}{ll}
+ *     \boldsymbol{a}_0, \boldsymbol{b}_0,
+ *     \boldsymbol{a}_1, \boldsymbol{b}_1, \ldots, & (\mbox{infile}) \\
+ *   \end{array} \right.
+ * @f]
+ *
+ * @code{.sh}
+ *   echo 1 2 3 4 5 6 | x2x +ad > data.a
+ *   echo 3 2 1 0 5 6 | x2x +ad > data.b
+ *
+ *   vopr -GT data.a data.b | x2x +da
+ *   # 0, 0, 1, 1, 0, 0
+ *   vopr -q 0 -l 3 -s data.a data.b | x2x +da
+ *   # -2, 0, 2, 4, 0, 0
+ *   vopr -q 1 -l 3 -s data.a data.b | x2x +da
+ *   # -2, 0, 2, 1, 3, 5
+ *   vopr -q 2 -l 3 -s data.a | x2x +da
+ *   # -3, -3, -3
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int vector_length(kDefaultVectorLength);
   InputFormats input_format(kDefaultInputFormat);
   int operation_type(-1);
 
   const struct option long_options[] = {
-      {"ATAN2", no_argument, NULL, kATAN2},
-      {"AM", no_argument, NULL, kAM},
-      {"GM", no_argument, NULL, kGM},
-      {"HM", no_argument, NULL, kHM},
-      {"MIN", no_argument, NULL, kMIN},
-      {"MAX", no_argument, NULL, kMAX},
-      {"EQ", no_argument, NULL, kEQ},
-      {"NE", no_argument, NULL, kNE},
-      {"LT", no_argument, NULL, kLT},
-      {"LE", no_argument, NULL, kLE},
-      {"GT", no_argument, NULL, kGT},
-      {"GE", no_argument, NULL, kGE},
-      {0, 0, 0, 0},
+      {"ATAN", no_argument, NULL, kATAN}, {"QM", no_argument, NULL, kQM},
+      {"AM", no_argument, NULL, kAM},     {"GM", no_argument, NULL, kGM},
+      {"HM", no_argument, NULL, kHM},     {"MIN", no_argument, NULL, kMIN},
+      {"MAX", no_argument, NULL, kMAX},   {"EQ", no_argument, NULL, kEQ},
+      {"NE", no_argument, NULL, kNE},     {"LT", no_argument, NULL, kLT},
+      {"LE", no_argument, NULL, kLE},     {"GT", no_argument, NULL, kGT},
+      {"GE", no_argument, NULL, kGE},     {0, 0, 0, 0},
   };
 
   for (;;) {
@@ -196,7 +317,8 @@ int main(int argc, char* argv[]) {
       case 's':
       case 'm':
       case 'd':
-      case kATAN2:
+      case kATAN:
+      case kQM:
       case kAM:
       case kGM:
       case kHM:
@@ -337,10 +459,17 @@ int main(int argc, char* argv[]) {
                        result.begin(), std::divides<double>());
         break;
       }
-      case kATAN2: {
+      case kATAN: {
         std::transform(vector_a.begin(), vector_a.end(), vector_b.begin(),
                        result.begin(),
                        [](double a, double b) { return std::atan2(b, a); });
+        break;
+      }
+      case kQM: {
+        std::transform(vector_a.begin(), vector_a.end(), vector_b.begin(),
+                       result.begin(), [](double a, double b) {
+                         return std::sqrt(0.5 * (a * a + b * b));
+                       });
         break;
       }
       case kAM: {

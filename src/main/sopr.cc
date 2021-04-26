@@ -166,7 +166,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b -s @e double
  *   - subtraction
  * - @b -m @e double
-doc/main/window.rst *   - multiplication
+ *   - multiplication
  * - @b -d @e double
  *   - division
  * - @b -r @e int
