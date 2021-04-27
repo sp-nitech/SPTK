@@ -856,6 +856,7 @@ INPUT                  = \
                          ../include/SPTK/check/line_spectral_pairs_stability_check.h \
                          ../include/SPTK/check/linear_predictive_coefficients_stability_check.h \
                          ../include/SPTK/check/mlsa_digital_filter_stability_check.h \
+                         ../include/SPTK/compression/huffman_coding.h \
                          ../include/SPTK/compression/huffman_decoding.h \
                          ../include/SPTK/compression/huffman_encoding.h \
                          ../include/SPTK/compression/inverse_multistage_vector_quantization.h \
@@ -962,6 +963,7 @@ INPUT                  = \
                          ../src/main/gnorm.cc \
                          ../src/main/grpdelay.cc \
                          ../src/main/histogram.cc \
+                         ../src/main/huffman.cc \
                          ../src/main/huffman_decode.cc \
                          ../src/main/huffman_encode.cc \
                          ../src/main/idct.cc \

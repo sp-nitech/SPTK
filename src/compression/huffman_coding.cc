@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -51,12 +51,16 @@ namespace {
 
 class Node {
  public:
-  // Leaf node
+  /**
+   * Leaf node.
+   */
   Node(int symbol, double probability)
       : symbol_(symbol), probability_(probability), left_(NULL), right_(NULL) {
   }
 
-  // Internal node
+  /**
+   * Internal node.
+   */
   Node(const Node* left, const Node* right)
       : symbol_(-1),
         probability_((NULL == left || NULL == right)
@@ -101,15 +105,15 @@ struct Compare {
 };
 
 void Encode(const Node* node, std::string code,
-            std::vector<std::string>* codeword) {
+            std::vector<std::string>* codewords) {
   if (NULL == node) return;
 
   const int symbol(node->GetSymbol());
   if (0 <= symbol) {
-    (*codeword)[symbol] = code;
+    (*codewords)[symbol] = code;
   } else {
-    Encode(node->GetLeft(), code + "0", codeword);
-    Encode(node->GetRight(), code + "1", codeword);
+    Encode(node->GetLeft(), code + "0", codewords);
+    Encode(node->GetRight(), code + "1", codewords);
   }
 }
 
@@ -128,25 +132,26 @@ HuffmanCoding::HuffmanCoding(int num_element)
     : num_element_(num_element), is_valid_(true) {
   if (num_element_ <= 0) {
     is_valid_ = false;
+    return;
   }
 }
 
-bool HuffmanCoding::Run(const std::vector<double>& probability,
-                        std::vector<std::string>* codeword) const {
-  // check inputs
+bool HuffmanCoding::Run(const std::vector<double>& probabilities,
+                        std::vector<std::string>* codewords) const {
+  // Check inputs.
   if (!is_valid_ ||
-      probability.size() != static_cast<std::size_t>(num_element_) ||
-      NULL == codeword) {
+      probabilities.size() != static_cast<std::size_t>(num_element_) ||
+      NULL == codewords) {
     return false;
   }
 
-  // prepare memory
-  if (codeword->size() != static_cast<std::size_t>(num_element_)) {
-    codeword->resize(num_element_);
+  // Prepare memories.
+  if (codewords->size() != static_cast<std::size_t>(num_element_)) {
+    codewords->resize(num_element_);
   }
 
   if (1 == num_element_) {
-    (*codeword)[0] = "0";
+    (*codewords)[0] = "0";
     return true;
   }
 
@@ -154,7 +159,7 @@ bool HuffmanCoding::Run(const std::vector<double>& probability,
 
   try {
     for (int i(0); i < num_element_; ++i) {
-      tree.push(new Node(i, probability[i]));
+      tree.push(new Node(i, probabilities[i]));
     }
     while (1 < tree.size()) {
       const Node* left(tree.top());
@@ -170,7 +175,7 @@ bool HuffmanCoding::Run(const std::vector<double>& probability,
         throw;
       }
     }
-    Encode(tree.top(), "", codeword);
+    Encode(tree.top(), "", codewords);
     Free(tree.top());
   } catch (...) {
     while (!tree.empty()) {

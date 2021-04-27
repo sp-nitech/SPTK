@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -52,37 +52,61 @@
 
 namespace sptk {
 
+/**
+ * Generate variable-length code codewords based on Huffman coding.
+ *
+ * The input is the probabilites or frequencies of @f$N@f$ events:
+ * @f[
+ *   \begin{array}{cccc}
+ *     p(0), & p(1), & \ldots, & p(N-1),
+ *   \end{array}
+ * @f]
+ * and the output is the corresponding codewords:
+ * @f[
+ *   \begin{array}{cccc}
+ *     c(0), & c(1), & \ldots, & c(N-1),
+ *   \end{array}
+ * @f]
+ * where @f$c(n) \in \{0,1\}^{\ast}@f$.
+ *
+ * The implementation is based on priority queue.
+ */
 class HuffmanCoding {
  public:
-  //
+  /**
+   * @param[in] num_element Number of elements.
+   */
   explicit HuffmanCoding(int num_element);
 
-  //
   virtual ~HuffmanCoding() {
   }
 
-  //
+  /**
+   * @return Number of elements.
+   */
   int GetNumElement() const {
     return num_element_;
   }
 
-  //
+  /**
+   * @return True if this object is valid.
+   */
   bool IsValid() const {
     return is_valid_;
   }
 
-  //
-  bool Run(const std::vector<double>& probability,
-           std::vector<std::string>* codeword) const;
+  /**
+   * @param[in] probabilities @f$N@f$ probabilities or frequencies.
+   * @param[out] codewords @f$N@f$ codewords.
+   */
+  bool Run(const std::vector<double>& probabilities,
+           std::vector<std::string>* codewords) const;
 
  private:
-  //
   const int num_element_;
 
-  //
   bool is_valid_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(HuffmanCoding);
 };
 

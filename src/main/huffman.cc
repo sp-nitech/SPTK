@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream, std::ofstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -81,6 +82,22 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a huffman [ @e option ] [ @e infile ]
+ *
+ * - @b -s @e int
+ *   - start index @f$(S)@f$
+ * - @b -L @e str
+ *   - output filename of double-type average code length
+ * - @b infile @e str
+ *   - double-type probability sequence
+ * - @b stdout
+ *   - ascii-type codebook
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int start_index(kDefaultStartIndex);
   const char* average_code_length_file(NULL);
@@ -114,7 +131,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -124,7 +140,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -147,50 +162,53 @@ int main(int argc, char* argv[]) {
   }
   std::ostream& output_stream(ofs);
 
-  std::vector<double> probability;
+  std::vector<double> probabilities;
   {
     double tmp;
     while (sptk::ReadStream(&tmp, &input_stream)) {
-      probability.push_back(tmp);
+      probabilities.push_back(tmp);
     }
   }
-  if (probability.empty()) return 0;
+  if (probabilities.empty()) return 0;
 
-  const int num_element(probability.size());
+  const int num_element(probabilities.size());
   sptk::HuffmanCoding huffman_coding(num_element);
   if (!huffman_coding.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for coding";
+    error_message << "Failed to initialize HuffmanCoding";
     sptk::PrintErrorMessage("huffman", error_message);
     return 1;
   }
 
-  std::vector<std::string> codeword(num_element);
-  if (!huffman_coding.Run(probability, &codeword)) {
+  std::vector<std::string> codewords(num_element);
+  if (!huffman_coding.Run(probabilities, &codewords)) {
     std::ostringstream error_message;
-    error_message << "Failed to run Huffman coding";
+    error_message << "Failed to perform Huffman coding";
     sptk::PrintErrorMessage("huffman", error_message);
     return 1;
   }
 
-  std::vector<std::string> codebook(num_element);
-  for (int i(0), index(start_index); i < num_element; ++i, ++index) {
-    std::ostringstream oss;
-    oss << index << " " << codeword[i];
-    codebook[i] = oss.str();
+  // Output codebook.
+  {
+    std::vector<std::string> codebook(num_element);
+    for (int i(0), index(start_index); i < num_element; ++i, ++index) {
+      std::ostringstream oss;
+      oss << index << " " << codewords[i];
+      codebook[i] = oss.str();
+    }
+    if (!sptk::WriteStream(0, num_element, codebook, &std::cout, NULL)) {
+      std::ostringstream error_message;
+      error_message << "Failed to write codebook";
+      sptk::PrintErrorMessage("huffman", error_message);
+      return 1;
+    }
   }
 
-  if (!sptk::WriteStream(0, num_element, codebook, &std::cout, NULL)) {
-    std::ostringstream error_message;
-    error_message << "Failed to write codebook";
-    sptk::PrintErrorMessage("huffman", error_message);
-    return 1;
-  }
-
+  // Output average code length.
   if (NULL != average_code_length_file) {
     double average_code_length(0.0);
     for (int i(0); i < num_element; ++i) {
-      average_code_length += probability[i] * codeword[i].length();
+      average_code_length += probabilities[i] * codewords[i].length();
     }
     if (!sptk::WriteStream(average_code_length, &output_stream)) {
       std::ostringstream error_message;
