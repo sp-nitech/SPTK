@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -53,31 +53,40 @@
 
 namespace sptk {
 
+/**
+ * Encode symbols to binary sequence.
+ *
+ * The input is a symbol and the output is the corresponding codeword.
+ */
 class HuffmanEncoding {
  public:
-  //
+  /**
+   * @param[in] input_stream Stream which contains codebook.
+   */
   explicit HuffmanEncoding(std::ifstream* input_stream);
 
-  //
   virtual ~HuffmanEncoding() {
   }
 
-  //
+  /**
+   * @return True if this object is valid.
+   */
   bool IsValid() const {
     return is_valid_;
   }
 
-  //
-  bool Run(double input, std::vector<bool>* output) const;
+  /**
+   * @param[in] input Symbol.
+   * @param[out] output Codeword.
+   * @return True on success, false on failure.
+   */
+  bool Run(int input, std::vector<bool>* output) const;
 
  private:
-  //
-  std::unordered_map<double, std::vector<bool> > codebook_;
+  std::unordered_map<int, std::vector<bool> > codebook_;
 
-  //
   bool is_valid_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(HuffmanEncoding);
 };
 

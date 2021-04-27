@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -51,33 +51,43 @@
 
 namespace sptk {
 
+/**
+ * Decode symbols from binary sequence.
+ *
+ * The input is a codeword and the output is the corresponding symbol.
+ */
 class HuffmanDecoding {
  public:
-  //
+  /**
+   * @param[in] input_stream Stream which contains codebook.
+   */
   explicit HuffmanDecoding(std::ifstream* input_stream);
 
-  //
   virtual ~HuffmanDecoding() {
     Free(root_);
   }
 
-  //
+  /**
+   * @return True if this object is valid.
+   */
   bool IsValid() const {
     return is_valid_;
   }
 
-  //
-  bool Get(bool input, double* output, bool* is_leaf);
+  /**
+   * @param[in] input A bit.
+   * @param[in] output Symbol.
+   * @param[in] is_leaf True if output is overwritten.
+   */
+  bool Get(bool input, int* output, bool* is_leaf);
 
  private:
-  //
   struct Node {
     Node* left;
     Node* right;
-    double symbol;
+    int symbol;
   };
 
-  //
   void Free(Node* node) {
     if (NULL == node) return;
     Free(node->left);
@@ -85,16 +95,11 @@ class HuffmanDecoding {
     delete node;
   }
 
-  //
   bool is_valid_;
 
-  //
   Node* root_;
-
-  //
   Node* curr_node_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(HuffmanDecoding);
 };
 

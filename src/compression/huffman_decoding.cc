@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -60,7 +60,7 @@ HuffmanDecoding::HuffmanDecoding(std::ifstream* input_stream)
     root_->left = NULL;
     root_->right = NULL;
 
-    double symbol;
+    int symbol;
     std::string bits;
     while (*input_stream >> symbol >> bits) {
       Node* node(root_);
@@ -90,8 +90,8 @@ HuffmanDecoding::HuffmanDecoding(std::ifstream* input_stream)
   curr_node_ = root_;
 }
 
-bool HuffmanDecoding::Get(bool input, double* output, bool* is_leaf) {
-  // check inputs
+bool HuffmanDecoding::Get(bool input, int* output, bool* is_leaf) {
+  // Check inputs.
   if (!is_valid_ || NULL == output || NULL == is_leaf || NULL == curr_node_) {
     return false;
   }

@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -59,7 +59,7 @@ HuffmanEncoding::HuffmanEncoding(std::ifstream* input_stream)
   }
 
   {
-    double symbol;
+    int symbol;
     std::string bits;
     while (*input_stream >> symbol >> bits) {
       std::vector<bool> codeword;
@@ -70,13 +70,14 @@ HuffmanEncoding::HuffmanEncoding(std::ifstream* input_stream)
     }
   }
 
-  if (0 == codebook_.size()) {
+  if (codebook_.empty()) {
     is_valid_ = false;
+    return;
   }
 }
 
-bool HuffmanEncoding::Run(double input, std::vector<bool>* output) const {
-  // check inputs
+bool HuffmanEncoding::Run(int input, std::vector<bool>* output) const {
+  // Check inputs.
   if (!is_valid_ || NULL == output) {
     return false;
   }

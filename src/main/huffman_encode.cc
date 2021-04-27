@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
@@ -65,9 +66,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  cbfile:" << std::endl;
   *stream << "       codebook                   (string)" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       input sequence             (double)[stdin]" << std::endl;
+  *stream << "       symbol sequence            (   int)[stdin]" << std::endl;
   *stream << "  stdout:" << std::endl;
-  *stream << "       encoded sequence           (  bool)" << std::endl;
+  *stream << "       codeword sequence          (  bool)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -76,6 +77,27 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a huffman_encode @e cbfile [ @e infile ]
+ *
+ * - @b cbfile @e str
+ *   - ascii codebook
+ * - @b infile @e str
+ *   - int-type symbol sequence
+ * - @b stdout
+ *   - bool-type codeword sequence
+ *
+ * The below example encodes @c data.i and decodes it.
+ *
+ * @code{.sh}
+ *   huffman_encode cbfile < data.i | huffman_decode cbfile > data.i2
+ *   # data.i and data.i2 should be identical
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   for (;;) {
     const int option_char(getopt_long(argc, argv, "h", NULL, NULL));
@@ -120,7 +142,7 @@ int main(int argc, char* argv[]) {
   sptk::HuffmanEncoding huffman_encoding(&ifs1);
   if (!huffman_encoding.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for encoding";
+    error_message << "Failed to initialize HuffmanEncoding";
     sptk::PrintErrorMessage("huffman_encode", error_message);
     return 1;
   }
@@ -135,7 +157,7 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs2.fail() ? std::cin : ifs2);
 
-  double input;
+  int input;
   std::vector<bool> output;
 
   while (sptk::ReadStream(&input, &input_stream)) {
