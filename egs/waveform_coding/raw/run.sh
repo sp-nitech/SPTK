@@ -84,4 +84,4 @@ huff_size=$(stat -c %s $dump/data.enc)
 
 echo "Original size: $org_size bits"
 echo "Quantized size: $ulaw_size bits"
-echo "Huffman size: $huff_size bits"
+echo "Compressed size: $huff_size bits"
