@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -47,7 +47,7 @@
 #include <algorithm>   // std::copy, std::transform
 #include <cmath>       // std::sqrt
 #include <cstddef>     // std::size_t
-#include <functional>  // std::bind1st, std::multiplies, std::plus, std::ptr_fun
+#include <functional>  // std::plus
 
 namespace sptk {
 
@@ -59,6 +59,7 @@ StatisticsAccumulation::StatisticsAccumulation(int num_order,
   if (num_order_ < 0 || num_statistics_order_ < 0 ||
       2 < num_statistics_order_) {
     is_valid_ = false;
+    return;
   }
 }
 
@@ -102,10 +103,10 @@ bool StatisticsAccumulation::GetMean(
     mean->resize(num_order_ + 1);
   }
 
+  const double z(1.0 / buffer.zeroth_order_statistics_);
   std::transform(buffer.first_order_statistics_.begin(),
                  buffer.first_order_statistics_.end(), mean->begin(),
-                 std::bind1st(std::multiplies<double>(),
-                              1.0 / buffer.zeroth_order_statistics_));
+                 [z](double x) { return x * z; });
 
   return true;
 }
@@ -127,12 +128,11 @@ bool StatisticsAccumulation::GetDiagonalCovariance(
     return false;
   }
 
-  const double inverse_num_data(1.0 / buffer.zeroth_order_statistics_);
+  const double z(1.0 / buffer.zeroth_order_statistics_);
   const double* mu(&(mean[0]));
   double* variance(&((*diagonal_covariance)[0]));
   for (int i(0); i <= num_order_; ++i) {
-    variance[i] = inverse_num_data * buffer.second_order_statistics_[i][i] -
-                  mu[i] * mu[i];
+    variance[i] = z * buffer.second_order_statistics_[i][i] - mu[i] * mu[i];
   }
 
   return true;
@@ -151,7 +151,7 @@ bool StatisticsAccumulation::GetStandardDeviation(
 
   std::transform(standard_deviation->begin(), standard_deviation->end(),
                  standard_deviation->begin(),
-                 std::ptr_fun<double, double>(std::sqrt));
+                 [](double x) { return std::sqrt(x); });
 
   return true;
 }
@@ -173,13 +173,12 @@ bool StatisticsAccumulation::GetFullCovariance(
     return false;
   }
 
-  const double inverse_num_data(1.0 / buffer.zeroth_order_statistics_);
+  const double z(1.0 / buffer.zeroth_order_statistics_);
   const double* mu(&(mean[0]));
   for (int i(0); i <= num_order_; ++i) {
     for (int j(0); j <= i; ++j) {
       (*full_covariance)[i][j] =
-          inverse_num_data * buffer.second_order_statistics_[i][j] -
-          mu[i] * mu[j];
+          z * buffer.second_order_statistics_[i][j] - mu[i] * mu[j];
     }
   }
 
@@ -218,14 +217,14 @@ void StatisticsAccumulation::Clear(
 
 bool StatisticsAccumulation::Run(const std::vector<double>& data,
                                  StatisticsAccumulation::Buffer* buffer) const {
-  // check inputs
+  // Check inputs.
   const int length(num_order_ + 1);
   if (!is_valid_ || data.size() != static_cast<std::size_t>(length) ||
       NULL == buffer) {
     return false;
   }
 
-  // prepare buffer
+  // Prepare memories.
   if (1 <= num_statistics_order_ &&
       buffer->first_order_statistics_.size() !=
           static_cast<std::size_t>(length)) {
@@ -236,17 +235,17 @@ bool StatisticsAccumulation::Run(const std::vector<double>& data,
     buffer->second_order_statistics_.Resize(length);
   }
 
-  // 0th order
+  // Accumulate 0th order statistics.
   ++(buffer->zeroth_order_statistics_);
 
-  // 1st order
+  // Accumulate 1st order statistics.
   if (1 <= num_statistics_order_) {
     std::transform(
         data.begin(), data.end(), buffer->first_order_statistics_.begin(),
         buffer->first_order_statistics_.begin(), std::plus<double>());
   }
 
-  // 2nd order
+  // Accumulate 2nd order statistics.
   if (2 <= num_statistics_order_) {
     for (int i(0); i < length; ++i) {
       for (int j(0); j <= i; ++j) {

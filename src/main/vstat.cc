@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <cmath>     // std::sqrt
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
@@ -245,6 +246,133 @@ bool OutputStatistics(const sptk::StatisticsAccumulation& accumulation,
 
 }  // namespace
 
+/**
+ * @a vstat [ @e option ] [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - length of vector @f$(1 \le L)@f$
+ * - @b -m @e int
+ *   - order of vector @f$(0 \le L - 1)@f$
+ * - @b -t @e int
+ *   - output interval @f$(1 \le T)@f$
+ * - @b -c @e double
+ *   - confidence level @f$(0 < C < 100)@f$
+ * - @b -o @e int
+ *   - output format
+ *     \arg @c 0 mean and covariance
+ *     \arg @c 1 mean
+ *     \arg @c 2 covariance
+ *     \arg @c 3 standard deviation
+ *     \arg @c 4 correlation
+ *     \arg @c 5 precision
+ *     \arg @c 6 mean and lower/upper bounds
+ * - @b -d @e bool
+ *   - output only diagonal elements
+ * - @b infile @e str
+ *   - double-type vectors
+ * - @b stdout
+ *   - double-type statistics
+ *
+ * The input of this command is
+ * @f[
+ *   \begin{array}{cccc}
+ *     \underbrace{
+ *       \underbrace{x_1(1), \; \ldots, \; x_1(L)}_L, \; \ldots, \;
+ *       \underbrace{x_T(1), \; \ldots, \; x_T(L)}_L,
+ *     }_{L \times T} \; \ldots,
+ *   \end{array}
+ * @f]
+ * and the output format depends on @c -o option.
+ *
+ * If @f$O=1@f$,
+ * @f[
+ *   \begin{array}{ccc}
+ *     \underbrace{\mu_{0}(1), \; \ldots, \; \mu_{0}(L)}_L, &
+ *     \underbrace{\mu_{T}(1), \; \ldots, \; \mu_{T}(L)}_L, &
+ *     \ldots,
+ *   \end{array}
+ * @f]
+ * where
+ * @f[
+ *   \mu_t(l) = \frac{1}{T} \sum_{\tau=1}^T x_{t+\tau}(l).
+ * @f]
+ *
+ * If @f$O=2@f$,
+ * @f[
+ *   \begin{array}{cc}
+ *     \underbrace{\sigma^2_0(1,1),  \; \sigma^2_{0}(1,2), \; \ldots, \;
+ *                 \sigma^2_0(L,L)}_{L \times L}, &
+ *     \ldots,
+ *   \end{array}
+ * @f]
+ * where
+ * @f[
+ *   \sigma^2_t(k,l) = \frac{1}{T} \sum_{\tau=1}^T
+ *     (x_{t+\tau}(k) - \mu_t(k)) (x_{t+\tau}(l) - \mu_t(l)).
+ * @f]
+ *
+ * If @f$O=3@f$,
+ * @f[
+ *   \begin{array}{cc}
+ *     \underbrace{\sigma_{0}(1,1), \; \sigma_{0}(2,2), \; \ldots, \;
+ *                 \sigma_{0}(L,L)}_L, &
+ *     \ldots
+ *   \end{array}
+ * @f]
+ *
+ * If @f$O=4@f$,
+ * @f[
+ *   \begin{array}{cc}
+ *     \underbrace{r_{0}(1,1), \; r_{0}(1,2), \; \ldots, \;
+ *                 r_{0}(L,L)}_{L \times L}, &
+ *     \ldots,
+ *   \end{array}
+ * @f]
+ * where
+ * @f[
+ *   r_t(k,l) = \frac{\sigma^2_t(k,l)}{\sigma_t(k,k) \, \sigma_t(l,l)}.
+ * @f]
+ *
+ * If @f$O=5@f$,
+ * @f[
+ *   \begin{array}{cc}
+ *     \underbrace{s_{0}(1,1), \; s_{0}(1,2), \; \ldots, \;
+ *                 s_{0}(L,L)}_{L \times L}, &
+ *     \ldots,
+ *   \end{array}
+ * @f]
+ * where @f$s_t(k,l)@f$ is the @f$(k,l)@f$-th component of the inverse of the
+ * covariance matrix @f$\{\sigma^2_t(k,l)\}_{k,l=1}^L@f$.
+ *
+ * If @f$O=6@f$,
+ * @f[
+ *   \begin{array}{ccc}
+ *     \underbrace{\mu_{0}(1), \; \ldots, \; \mu_{0}(L)}_L, &
+ *     \underbrace{\ell_{0}(1), \; \ldots, \; \ell_{0}(L)}_L, &
+ *     \underbrace{u_{0}(1), \; \ldots, \; u_{0}(L)}_L, &
+ *     \ldots,
+ *   \end{array}
+ * @f]
+ * where
+ * @f{eqnarray}{
+ *   \ell_t(l) &=& \mu_t(l) - p(C, L-1) \sqrt{\frac{\sigma^2_t(l,l)}{L-1}}, \\
+ *      u_t(l) &=& \mu_t(l) + p(C, L-1) \sqrt{\frac{\sigma^2_t(l,l)}{L-1}},
+ * @f}
+ * and @f$p(C, L-1)@f$ is the upper @f$(100-C)/2@f$-th percentile of the of the
+ * t-distribution with degrees of freedom @f$L-1@f$.
+ *
+ * @code{.sh}
+ *   echo 0 1 2 3 4 5 6 7 8 9 | x2x +ad > data.d
+ *   vstat -o 1 data.d | x2x +da
+ *   # 4.5
+ *   vstat -o 1 data.d -t 5 | x2x +da
+ *   # 2, 7
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int vector_length(kDefaultVectorLength);
   int output_interval(kMagicNumberForEndOfFile);
@@ -332,7 +460,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -342,7 +469,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -353,11 +479,12 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  sptk::StatisticsAccumulation accumulation(vector_length - 1, 2);
+  sptk::StatisticsAccumulation accumulation(vector_length - 1,
+                                            kMean == output_format ? 1 : 2);
   sptk::StatisticsAccumulation::Buffer buffer;
   if (!accumulation.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for accumulation";
+    error_message << "Failed to initialize StatisticsAccumulation";
     sptk::PrintErrorMessage("vstat", error_message);
     return 1;
   }
