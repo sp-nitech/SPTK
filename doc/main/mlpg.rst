@@ -9,3 +9,6 @@ mlpg
 
 .. doxygenclass:: sptk::RecursiveMaximumLikelihoodParameterGeneration
    :members:
+
+.. doxygenclass:: sptk::NonrecursiveMaximumLikelihoodParameterGeneration
+   :members:

@@ -42,7 +42,7 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include "SPTK/math/delta_calculation.h"
+#include "SPTK/generation/delta_calculation.h"
 
 #include <algorithm>  // std::copy, std::fill
 #include <cstddef>    // std::size_t

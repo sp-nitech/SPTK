@@ -50,6 +50,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
+#include "SPTK/generation/nonrecursive_maximum_likelihood_parameter_generation.h"
 #include "SPTK/generation/recursive_maximum_likelihood_parameter_generation.h"
 #include "SPTK/input/input_source_from_stream.h"
 #include "SPTK/input/input_source_interface.h"
@@ -64,9 +65,12 @@ enum InputFormats {
   kNumInputFormats
 };
 
+enum Modes { kRecursive = 0, kNonrecursive, kNumModes };
+
 const int kDefaultNumOrder(25);
 const int kDefaultNumPastFrame(30);
 const InputFormats kDefaultInputFormat(kMeanAndVariance);
+const Modes kDefaultMode(kRecursive);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -88,6 +92,10 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                       delta coefficients" << std::endl;
   *stream << "       -r r1 (r2)    : width of regression     (   int)[" << std::setw(5) << std::right << "N/A"                << "]" << std::endl;  // NOLINT
   *stream << "                       coefficients" << std::endl;
+  *stream << "       -M magic      : magic number            (double)[" << std::setw(5) << std::right << "N/A"                << "]" << std::endl;  // NOLINT
+  *stream << "       -R            : mode                    (   int)[" << std::setw(5) << std::right << kDefaultMode         << "][ 0 <= R <= 1 ]" << std::endl;  // NOLINT
+  *stream << "                         0 (recursive)" << std::endl;
+  *stream << "                         1 (non-recursive)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       mean and variance parameter sequence    (double)[stdin]" << std::endl;  // NOLINT
@@ -95,8 +103,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       static parameter sequence               (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
   *stream << "       -d and -D options can be given multiple times" << std::endl;  // NOLINT
-  *stream << "       implmented algorithm is recursive using kalman filter" << std::endl;  // NOLINT
-  *stream << "       magic number is not supported currently" << std::endl;  // NOLINT
+  *stream << "       -s option is valid with R=0" << std::endl;
+  *stream << "       -M option is not supported with R=0" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -196,6 +204,12 @@ class InputSourcePreprocessing : public sptk::InputSourceInterface {
  *   - filename of double-type delta coefficients
  * - @b -r @e int+
  *   - width of 1st (and 2nd) regression coefficients
+ * - @b -M @e double
+ *   - magic number
+ * - @b -R @e int
+ *   - mode
+ *     \arg @c 0 recursive (Kalman filter)
+ *     \arg @c 1 non-recursive (Cholesky decomposition)
  * - @b infile @e str
  *   - double-type mean and variance parameter sequence
  * - @b stdout
@@ -207,10 +221,13 @@ int main(int argc, char* argv[]) {
   InputFormats input_format(kDefaultInputFormat);
   std::vector<std::vector<double> > window_coefficients;
   bool is_regression_specified(false);
+  double magic_number(0.0);
+  bool is_magic_number_specified(false);
+  Modes mode(kDefaultMode);
 
   for (;;) {
     const int option_char(
-        getopt_long(argc, argv, "l:m:s:q:d:D:r:h", NULL, NULL));
+        getopt_long(argc, argv, "l:m:s:q:d:D:r:M:R:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -363,6 +380,31 @@ int main(int argc, char* argv[]) {
         is_regression_specified = true;
         break;
       }
+      case 'M': {
+        if (!sptk::ConvertStringToDouble(optarg, &magic_number)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -M option must be a number";
+          sptk::PrintErrorMessage("mlpg", error_message);
+          return 1;
+        }
+        is_magic_number_specified = true;
+        break;
+      }
+      case 'R': {
+        const int min(0);
+        const int max(static_cast<int>(kNumModes) - 1);
+        int tmp;
+        if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
+            !sptk::IsInRange(tmp, min, max)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -R option must be an integer "
+                        << "in the range of " << min << " to " << max;
+          sptk::PrintErrorMessage("mlpg", error_message);
+          return 1;
+        }
+        mode = static_cast<Modes>(tmp);
+        break;
+      }
       case 'h': {
         PrintUsage(&std::cout);
         return 0;
@@ -398,24 +440,78 @@ int main(int argc, char* argv[]) {
   sptk::InputSourceFromStream input_source(false, read_size, &input_stream);
   InputSourcePreprocessing preprocessed_source(input_format, &input_source);
 
-  sptk::RecursiveMaximumLikelihoodParameterGeneration generator(
-      num_order, num_past_frame, window_coefficients, &preprocessed_source);
-  if (!generator.IsValid()) {
-    std::ostringstream error_message;
-    error_message
-        << "Failed to initialize RecursiveMaximumLikelihoodParameterGeneration";
-    sptk::PrintErrorMessage("mlpg", error_message);
-    return 1;
-  }
-
-  std::vector<double> smoothed_static_parameters(static_size);
-  while (generator.Get(&smoothed_static_parameters)) {
-    if (!sptk::WriteStream(0, static_size, smoothed_static_parameters,
-                           &std::cout, NULL)) {
+  if (kRecursive == mode) {
+    if (is_magic_number_specified) {
       std::ostringstream error_message;
-      error_message << "Failed to write static parameters";
+      error_message << "Magic number is not supported on recursive mode";
       sptk::PrintErrorMessage("mlpg", error_message);
       return 1;
+    }
+
+    sptk::RecursiveMaximumLikelihoodParameterGeneration generation(
+        num_order, num_past_frame, window_coefficients, &preprocessed_source);
+    if (!generation.IsValid()) {
+      std::ostringstream error_message;
+      error_message << "Failed to initialize "
+                       "RecursiveMaximumLikelihoodParameterGeneration";
+      sptk::PrintErrorMessage("mlpg", error_message);
+      return 1;
+    }
+
+    std::vector<double> smoothed_static_parameters(static_size);
+    while (generation.Get(&smoothed_static_parameters)) {
+      if (!sptk::WriteStream(0, static_size, smoothed_static_parameters,
+                             &std::cout, NULL)) {
+        std::ostringstream error_message;
+        error_message << "Failed to write static parameters";
+        sptk::PrintErrorMessage("mlpg", error_message);
+        return 1;
+      }
+    }
+  } else if (kNonrecursive == mode) {
+    sptk::NonrecursiveMaximumLikelihoodParameterGeneration generation(
+        num_order, window_coefficients, is_magic_number_specified,
+        magic_number);
+    if (!generation.IsValid()) {
+      std::ostringstream error_message;
+      error_message << "Failed to initialize "
+                    << "NonrecursiveMaximumLikelihoodParameterGeneration";
+      sptk::PrintErrorMessage("mlpg", error_message);
+      return 1;
+    }
+
+    std::vector<std::vector<double> > mean_vectors;
+    std::vector<std::vector<double> > variance_vectors;
+    {
+      const int size(input_source.GetSize() / 2);
+      std::vector<double> tmp;
+      while (input_source.Get(&tmp)) {
+        mean_vectors.push_back(
+            std::vector<double>(tmp.begin(), tmp.begin() + size));
+        variance_vectors.push_back(
+            std::vector<double>(tmp.begin() + size, tmp.end()));
+      }
+    }
+
+    std::vector<std::vector<double> > smoothed_static_parameters;
+    if (!generation.Run(mean_vectors, variance_vectors,
+                        &smoothed_static_parameters)) {
+      std::ostringstream error_message;
+      error_message << "Failed to perform MLPG";
+      sptk::PrintErrorMessage("mlpg", error_message);
+      return 1;
+    }
+
+    const int sequence_length(
+        static_cast<int>(smoothed_static_parameters.size()));
+    for (int t(0); t < sequence_length; ++t) {
+      if (!sptk::WriteStream(0, static_size, smoothed_static_parameters[t],
+                             &std::cout, NULL)) {
+        std::ostringstream error_message;
+        error_message << "Failed to write static parameters";
+        sptk::PrintErrorMessage("mlpg", error_message);
+        return 1;
+      }
     }
   }
 

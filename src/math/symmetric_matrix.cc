@@ -156,6 +156,17 @@ bool SymmetricMatrix::GetDiagonal(
   return true;
 }
 
+bool SymmetricMatrix::SetDiagonal(
+    const std::vector<double>& diagonal_elements) const {
+  if (diagonal_elements.size() != static_cast<std::size_t>(num_dimension_)) {
+    return false;
+  }
+  for (int i(0); i < num_dimension_; ++i) {
+    index_[i][i] = diagonal_elements[i];
+  }
+  return true;
+}
+
 bool SymmetricMatrix::CholeskyDecomposition(
     SymmetricMatrix* lower_triangular_matrix,
     std::vector<double>* diagonal_elements) const {

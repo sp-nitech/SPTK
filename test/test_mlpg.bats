@@ -62,6 +62,7 @@ teardown() {
    # Make pdf.
    $sptk3/merge +d -l 4 -L 4 tmp/1 tmp/2 > tmp/3
 
+   # Perform MLPG.
    $sptk3/mlpg -l 2 -r 1 1 tmp/3 > tmp/4
    $sptk4/mlpg -l 2 -r 1 tmp/3 > tmp/5
    run $sptk4/aeq tmp/4 tmp/5
@@ -73,10 +74,17 @@ teardown() {
    $sptk4/mlpg -l 4 -d -0.5 0 0.5 tmp/3 > tmp/5
    run $sptk4/aeq -t 1e-5 -L -e 1 tmp/4 tmp/5
    [ "$status" -eq 0 ]
+
+   # Check consistency between recursive and non-recursive mode.
+   $sptk4/mlpg -l 4 -d -0.5 0 0.5 -R 1 tmp/3 > tmp/6
+   run $sptk4/aeq tmp/5 tmp/6
+   [ "$status" -eq 0 ]
 }
 
 @test "mlpg: valgrind" {
    $sptk3/nrand -l 20 > tmp/1
-   run valgrind $sptk4/mlpg -l 2 tmp/1
+   run valgrind $sptk4/mlpg -l 2 -R 0 tmp/1
+   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+   run valgrind $sptk4/mlpg -l 2 -R 1 tmp/1
    [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
 }

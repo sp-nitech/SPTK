@@ -50,8 +50,8 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
+#include "SPTK/generation/delta_calculation.h"
 #include "SPTK/input/input_source_from_stream.h"
-#include "SPTK/math/delta_calculation.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

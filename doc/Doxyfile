@@ -897,13 +897,14 @@ INPUT                  = \
                          ../include/SPTK/filter/line_spectral_pairs_digital_filter.h \
                          ../include/SPTK/filter/pseudo_quadrature_mirror_filter_banks.h \
                          ../include/SPTK/filter/second_order_digital_filter.h \
+                         ../include/SPTK/generation/delta_calculation.h \
                          ../include/SPTK/generation/excitation_generation.h \
                          ../include/SPTK/generation/m_sequence_generation.h \
+                         ../include/SPTK/generation/nonrecursive_maximum_likelihood_parameter_generation.h \
                          ../include/SPTK/generation/normal_distributed_random_value_generation.h \
                          ../include/SPTK/generation/recursive_maximum_likelihood_parameter_generation.h \
                          ../include/SPTK/math/discrete_cosine_transform.h \
                          ../include/SPTK/math/entropy_calculation.h \
-                         ../include/SPTK/math/delta_calculation.h \
                          ../include/SPTK/math/durand_kerner_method.h \
                          ../include/SPTK/math/fast_fourier_transform.h \
                          ../include/SPTK/math/frequency_transform.h \
