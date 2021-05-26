@@ -124,8 +124,8 @@ bool NonrecursiveMaximumLikelihoodParameterGeneration::Run(
   }
 
   const int sequence_length(static_cast<int>(variance_vectors.size()));
-  std::vector<sptk::SymmetricMatrix> covariance_matrices(
-      sequence_length, sptk::SymmetricMatrix(variance_vectors[0].size()));
+  std::vector<SymmetricMatrix> covariance_matrices(
+      sequence_length, SymmetricMatrix(variance_vectors[0].size()));
   for (int t(0); t < sequence_length; ++t) {
     if (!covariance_matrices[t].SetDiagonal(variance_vectors[t])) {
       return false;
@@ -136,7 +136,7 @@ bool NonrecursiveMaximumLikelihoodParameterGeneration::Run(
 
 bool NonrecursiveMaximumLikelihoodParameterGeneration::Run(
     const std::vector<std::vector<double> >& mean_vectors,
-    const std::vector<sptk::SymmetricMatrix>& covariance_matrices,
+    const std::vector<SymmetricMatrix>& covariance_matrices,
     std::vector<std::vector<double> >* smoothed_static_parameters) const {
   // Check inputs.
   if (!is_valid_ || mean_vectors.empty() ||
@@ -172,8 +172,7 @@ bool NonrecursiveMaximumLikelihoodParameterGeneration::Run(
   const int wuw_width(static_size * max_window_width);
   std::vector<std::vector<double> > mseq(continuous_length,
                                          std::vector<double>(length));
-  std::vector<sptk::SymmetricMatrix> vseq(continuous_length,
-                                          sptk::SymmetricMatrix(length));
+  std::vector<SymmetricMatrix> vseq(continuous_length, SymmetricMatrix(length));
   std::vector<double> wum(wuw_height);
   std::vector<std::vector<double> > wuw(wuw_height,
                                         std::vector<double>(wuw_width));

@@ -141,7 +141,7 @@ class NonrecursiveMaximumLikelihoodParameterGeneration {
    * @return True on success, false on failure.
    */
   bool Run(const std::vector<std::vector<double> >& mean_vectors,
-           const std::vector<sptk::SymmetricMatrix>& covariance_matrices,
+           const std::vector<SymmetricMatrix>& covariance_matrices,
            std::vector<std::vector<double> >* smoothed_static_parameters) const;
 
  private:

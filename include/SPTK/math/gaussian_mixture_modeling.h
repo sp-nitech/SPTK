@@ -165,7 +165,7 @@ class GaussianMixtureModeling {
    private:
     std::vector<double> d_;
     std::vector<double> gconsts_;
-    std::vector<sptk::SymmetricMatrix> precisions_;
+    std::vector<SymmetricMatrix> precisions_;
     bool precomputed_;
 
     friend class GaussianMixtureModeling;
@@ -196,7 +196,7 @@ class GaussianMixtureModeling {
       double smoothing_parameter = 0.0,
       const std::vector<double>& ubm_weights = {},
       const std::vector<std::vector<double> >& ubm_mean_vectors = {},
-      const std::vector<sptk::SymmetricMatrix>& ubm_covariance_matrices = {});
+      const std::vector<SymmetricMatrix>& ubm_covariance_matrices = {});
 
   virtual ~GaussianMixtureModeling() {
   }
@@ -291,7 +291,7 @@ class GaussianMixtureModeling {
   bool Run(const std::vector<std::vector<double> >& input_vectors,
            std::vector<double>* weights,
            std::vector<std::vector<double> >* mean_vectors,
-           std::vector<sptk::SymmetricMatrix>* covariance_matrices) const;
+           std::vector<SymmetricMatrix>* covariance_matrices) const;
 
   /**
    * Calculate log-probablity of data.
@@ -314,21 +314,19 @@ class GaussianMixtureModeling {
       const std::vector<double>& input_vector,
       const std::vector<double>& weights,
       const std::vector<std::vector<double> >& mean_vectors,
-      const std::vector<sptk::SymmetricMatrix>& covariance_matrices,
+      const std::vector<SymmetricMatrix>& covariance_matrices,
       std::vector<double>* components_of_log_probability,
       double* log_probability, GaussianMixtureModeling::Buffer* buffer);
 
  private:
   void FloorWeight(std::vector<double>* weights) const;
 
-  void FloorVariance(
-      std::vector<sptk::SymmetricMatrix>* covariance_matrices) const;
+  void FloorVariance(std::vector<SymmetricMatrix>* covariance_matrices) const;
 
-  bool Initialize(
-      const std::vector<std::vector<double> >& input_vectors,
-      std::vector<double>* weights,
-      std::vector<std::vector<double> >* mean_vectors,
-      std::vector<sptk::SymmetricMatrix>* covariance_matrices) const;
+  bool Initialize(const std::vector<std::vector<double> >& input_vectors,
+                  std::vector<double>* weights,
+                  std::vector<std::vector<double> >* mean_vectors,
+                  std::vector<SymmetricMatrix>* covariance_matrices) const;
 
   const int num_order_;
   const int num_mixture_;
@@ -344,12 +342,12 @@ class GaussianMixtureModeling {
   const double smoothing_parameter_;
   const std::vector<double> ubm_weights_;
   const std::vector<std::vector<double> > ubm_mean_vectors_;
-  const std::vector<sptk::SymmetricMatrix> ubm_covariance_matrices_;
+  const std::vector<SymmetricMatrix> ubm_covariance_matrices_;
 
   const bool is_diagonal_;
   bool is_valid_;
 
-  sptk::SymmetricMatrix mask_;
+  SymmetricMatrix mask_;
   std::vector<double> xi_;
 
   DISALLOW_COPY_AND_ASSIGN(GaussianMixtureModeling);

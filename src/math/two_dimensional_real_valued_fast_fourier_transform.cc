@@ -67,8 +67,8 @@ TwoDimensionalRealValuedFastFourierTransform::
 }
 
 bool TwoDimensionalRealValuedFastFourierTransform::Run(
-    const sptk::Matrix& real_part_input, sptk::Matrix* real_part_output,
-    sptk::Matrix* imag_part_output,
+    const Matrix& real_part_input, Matrix* real_part_output,
+    Matrix* imag_part_output,
     TwoDimensionalRealValuedFastFourierTransform::Buffer* buffer) const {
   // Check inputs.
   if (!is_valid_ || real_part_input.GetNumRow() != num_row_ ||
@@ -159,7 +159,7 @@ bool TwoDimensionalRealValuedFastFourierTransform::Run(
 }
 
 bool TwoDimensionalRealValuedFastFourierTransform::Run(
-    sptk::Matrix* real_part, sptk::Matrix* imag_part,
+    Matrix* real_part, Matrix* imag_part,
     TwoDimensionalRealValuedFastFourierTransform::Buffer* buffer) const {
   if (NULL == real_part) return false;
   return Run(*real_part, real_part, imag_part, buffer);

@@ -93,7 +93,7 @@ GaussianMixtureModeling::GaussianMixtureModeling(
     InitializationType initialization_type, int log_interval,
     double smoothing_parameter, const std::vector<double>& ubm_weights,
     const std::vector<std::vector<double> >& ubm_mean_vectors,
-    const std::vector<sptk::SymmetricMatrix>& ubm_covariance_matrices)
+    const std::vector<SymmetricMatrix>& ubm_covariance_matrices)
     : num_order_(num_order),
       num_mixture_(num_mixture),
       num_iteration_(num_iteration),
@@ -193,7 +193,7 @@ bool GaussianMixtureModeling::Run(
     const std::vector<std::vector<double> >& input_vectors,
     std::vector<double>* weights,
     std::vector<std::vector<double> >* mean_vectors,
-    std::vector<sptk::SymmetricMatrix>* covariance_matrices) const {
+    std::vector<SymmetricMatrix>* covariance_matrices) const {
   // Check inputs.
   if (!is_valid_ || input_vectors.empty() || NULL == weights ||
       NULL == mean_vectors || NULL == covariance_matrices) {
@@ -232,7 +232,7 @@ bool GaussianMixtureModeling::Run(
   for (int k(0); k < num_mixture_; ++k) {
     buffer1[k].resize(length);
   }
-  std::vector<sptk::SymmetricMatrix> buffer2(num_mixture_);
+  std::vector<SymmetricMatrix> buffer2(num_mixture_);
   for (int k(0); k < num_mixture_; ++k) {
     buffer2[k].Resize(length);
   }
@@ -383,7 +383,7 @@ bool GaussianMixtureModeling::CalculateLogProbability(
     int num_order, int num_mixture, bool is_diagonal, bool check_size,
     const std::vector<double>& input_vector, const std::vector<double>& weights,
     const std::vector<std::vector<double> >& mean_vectors,
-    const std::vector<sptk::SymmetricMatrix>& covariance_matrices,
+    const std::vector<SymmetricMatrix>& covariance_matrices,
     std::vector<double>* components_of_log_probability, double* log_probability,
     GaussianMixtureModeling::Buffer* buffer) {
   // Check inputs.
@@ -514,7 +514,7 @@ void GaussianMixtureModeling::FloorWeight(std::vector<double>* weights) const {
 }
 
 void GaussianMixtureModeling::FloorVariance(
-    std::vector<sptk::SymmetricMatrix>* covariance_matrices) const {
+    std::vector<SymmetricMatrix>* covariance_matrices) const {
   for (int k(0); k < num_mixture_; ++k) {
     for (int l(0); l <= num_order_; ++l) {
       if ((*covariance_matrices)[k][l][l] < variance_floor_) {
@@ -528,12 +528,12 @@ bool GaussianMixtureModeling::Initialize(
     const std::vector<std::vector<double> >& input_vectors,
     std::vector<double>* weights,
     std::vector<std::vector<double> >* mean_vectors,
-    std::vector<sptk::SymmetricMatrix>* covariance_matrices) const {
+    std::vector<SymmetricMatrix>* covariance_matrices) const {
   // Initialize codebook.
   {
     mean_vectors->clear();
-    sptk::StatisticsAccumulation statistics_accumulation(num_order_, 1);
-    sptk::StatisticsAccumulation::Buffer buffer;
+    StatisticsAccumulation statistics_accumulation(num_order_, 1);
+    StatisticsAccumulation::Buffer buffer;
 
     for (const std::vector<double>& vector : input_vectors) {
       if (!statistics_accumulation.Run(vector, &buffer)) {

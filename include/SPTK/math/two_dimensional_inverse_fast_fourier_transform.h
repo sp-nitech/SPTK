@@ -143,9 +143,8 @@ class TwoDimensionalInverseFastFourierTransform {
    * @param[out] buffer Buffer.
    * @return True on success, false on failure.
    */
-  bool Run(const sptk::Matrix& real_part_input,
-           const sptk::Matrix& imag_part_input, sptk::Matrix* real_part_output,
-           sptk::Matrix* imag_part_output,
+  bool Run(const Matrix& real_part_input, const Matrix& imag_part_input,
+           Matrix* real_part_output, Matrix* imag_part_output,
            TwoDimensionalInverseFastFourierTransform::Buffer* buffer) const;
 
   /**
@@ -154,7 +153,7 @@ class TwoDimensionalInverseFastFourierTransform {
    * @param[out] buffer Buffer.
    * @return True on success, false on failure.
    */
-  bool Run(sptk::Matrix* real_part, sptk::Matrix* imag_part,
+  bool Run(Matrix* real_part, Matrix* imag_part,
            TwoDimensionalInverseFastFourierTransform::Buffer* buffer) const;
 
  private:
