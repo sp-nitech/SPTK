@@ -11,8 +11,10 @@ Development
 -----------
 For the development of SPTK, you may need to install the following programs:
 
+- [Bison](http://ftp.gnu.org/gnu/bison/)
 - ClangFormat
-- CMake 3.3+
+- [CMake](https://cmake.org/download/) 3.3+
+- [flex](https://github.com/westes/flex/releases) 2.6.3
 - Python 3.6
 - Valgrind
 - Virtualenv
