@@ -118,7 +118,7 @@ NonrecursiveMaximumLikelihoodParameterGeneration::
 bool NonrecursiveMaximumLikelihoodParameterGeneration::Run(
     const std::vector<std::vector<double> >& mean_vectors,
     const std::vector<std::vector<double> >& variance_vectors,
-    std::vector<std::vector<double> >* smoothed_static_parameters) {
+    std::vector<std::vector<double> >* smoothed_static_parameters) const {
   if (!is_valid_ || variance_vectors.empty()) {
     return false;
   }
@@ -137,7 +137,7 @@ bool NonrecursiveMaximumLikelihoodParameterGeneration::Run(
 bool NonrecursiveMaximumLikelihoodParameterGeneration::Run(
     const std::vector<std::vector<double> >& mean_vectors,
     const std::vector<sptk::SymmetricMatrix>& covariance_matrices,
-    std::vector<std::vector<double> >* smoothed_static_parameters) {
+    std::vector<std::vector<double> >* smoothed_static_parameters) const {
   // Check inputs.
   if (!is_valid_ || mean_vectors.empty() ||
       mean_vectors.size() != covariance_matrices.size() ||

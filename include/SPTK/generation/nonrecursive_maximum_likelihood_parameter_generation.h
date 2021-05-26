@@ -131,7 +131,7 @@ class NonrecursiveMaximumLikelihoodParameterGeneration {
    */
   bool Run(const std::vector<std::vector<double> >& mean_vectors,
            const std::vector<std::vector<double> >& variance_vectors,
-           std::vector<std::vector<double> >* smoothed_static_parameters);
+           std::vector<std::vector<double> >* smoothed_static_parameters) const;
 
   /**
    * @param[in] mean_vectors Mean vector sequence. The shape is @f$[T, DM]$@f$.
@@ -142,7 +142,7 @@ class NonrecursiveMaximumLikelihoodParameterGeneration {
    */
   bool Run(const std::vector<std::vector<double> >& mean_vectors,
            const std::vector<sptk::SymmetricMatrix>& covariance_matrices,
-           std::vector<std::vector<double> >* smoothed_static_parameters);
+           std::vector<std::vector<double> >* smoothed_static_parameters) const;
 
  private:
   const int num_order_;
