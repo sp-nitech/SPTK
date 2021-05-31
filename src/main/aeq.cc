@@ -242,11 +242,11 @@ int main(int argc, char* argv[]) {
 
     double error(std::fabs(actual - expected));
     if (kRelative == error_type) {
-      error /= expected;
+      error /= std::fabs(expected);
     }
     if (tolerance < error) {
-      std::cout << "[No. " << sample_index << "] is not almost equal"
-                << std::endl;
+      std::cout << "[No. " << sample_index << "] is not almost equal "
+                << "(Error: " << error << ")" << std::endl;
       status = -1;
     }
   }
