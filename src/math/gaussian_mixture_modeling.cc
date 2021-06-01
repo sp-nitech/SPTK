@@ -390,7 +390,7 @@ bool GaussianMixtureModeling::CalculateLogProbability(
   const int length(num_order + 1);
   if (num_mixture < 0 ||
       input_vector.size() != static_cast<std::size_t>(length) ||
-      NULL == log_probability || NULL == buffer) {
+      NULL == buffer) {
     return false;
   }
 
@@ -430,14 +430,13 @@ bool GaussianMixtureModeling::CalculateLogProbability(
       } else {
         SymmetricMatrix tmp;
         std::vector<double> diag;
-        if (covariance_matrices[k].CholeskyDecomposition(&tmp, &diag)) {
-          log_determinant += std::accumulate(
-              diag.begin(), diag.end(), 0.0,
-              [](double acc, double x) { return acc + std::log(x); });
-          gconst += log_determinant;
-        } else {
-          gconst = sptk::kLogZero;
+        if (!covariance_matrices[k].CholeskyDecomposition(&tmp, &diag)) {
+          return false;
         }
+        log_determinant += std::accumulate(
+            diag.begin(), diag.end(), 0.0,
+            [](double acc, double x) { return acc + std::log(x); });
+        gconst += log_determinant;
       }
       buffer->gconsts_[k] = gconst;
     }
@@ -487,7 +486,9 @@ bool GaussianMixtureModeling::CalculateLogProbability(
     total = AddInLogSpace(total, p);
   }
 
-  *log_probability = total;
+  if (log_probability) {
+    *log_probability = total;
+  }
 
   return true;
 }

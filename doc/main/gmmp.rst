@@ -5,4 +5,4 @@ gmmp
 
 .. doxygenfile:: gmmp.cc
 
-.. seealso:: :ref:`gmm`
+.. seealso:: :ref:`gmm`  :ref:`vc`

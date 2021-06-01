@@ -64,7 +64,7 @@ namespace sptk {
  * and the output is composed of the set of dynamic feature components:
  * @f[
  *   \begin{array}{cccccc}
- *     \Delta^{(1)} x_t(0), & \ldots, & \Delta^{(1)} x_t(M),
+ *     \Delta^{(1)} x_t(0), & \ldots, & \Delta^{(1)} x_t(M), &
  *     \Delta^{(2)} x_t(0), & \ldots, & \Delta^{(D)} x_t(M).
  *   \end{array}
  * @f]

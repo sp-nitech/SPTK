@@ -201,7 +201,7 @@ bool SymmetricMatrix::CholeskyDecomposition(
       d[i] -= lower_triangular_matrix->index_[i][j] *
               lower_triangular_matrix->index_[i][j] * d[j];
     }
-    if (0.0 == d[i]) {
+    if (d[i] <= 0.0) {
       return false;
     }
     lower_triangular_matrix->index_[i][i] = 1.0;

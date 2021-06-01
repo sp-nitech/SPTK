@@ -909,6 +909,7 @@ INPUT                  = \
                          ../include/SPTK/math/fast_fourier_transform.h \
                          ../include/SPTK/math/frequency_transform.h \
                          ../include/SPTK/math/gaussian_mixture_modeling.h \
+                         ../include/SPTK/math/gaussian_mixture_model_based_conversion.h \
                          ../include/SPTK/math/histogram_calculation.h \
                          ../include/SPTK/math/inverse_discrete_cosine_transform.h \
                          ../include/SPTK/math/inverse_fast_fourier_transform.h \
@@ -1026,6 +1027,7 @@ INPUT                  = \
                          ../src/main/train.cc \
                          ../src/main/transpose.cc \
                          ../src/main/ulaw.cc \
+                         ../src/main/vc.cc \
                          ../src/main/vopr.cc \
                          ../src/main/vstat.cc \
                          ../src/main/vsum.cc \
