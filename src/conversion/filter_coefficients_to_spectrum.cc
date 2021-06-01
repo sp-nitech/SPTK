@@ -44,9 +44,8 @@
 
 #include "SPTK/conversion/filter_coefficients_to_spectrum.h"
 
-#include <algorithm>   // std::copy, std::fill, std::max, std::max_element, etc.
+#include <algorithm>   // std::copy, std::fill, std::transform, etc.
 #include <cfloat>      // DBL_MAX
-#include <cmath>       // std::log, std::log10, std::pow, std::sqrt
 #include <cstddef>     // std::size_t
 #include <functional>  // std::bind, std::divides, std::multiplies, etc.
 
@@ -54,23 +53,21 @@ namespace sptk {
 
 FilterCoefficientsToSpectrum::FilterCoefficientsToSpectrum(
     int num_numerator_order, int num_denominator_order, int fft_length,
-    OutputFormats output_format, double epsilon_for_calculating_logarithms,
+    SpectrumToSpectrum::InputOutputFormats output_format,
+    double epsilon_for_calculating_logarithms,
     double relative_floor_in_decibels)
     : num_numerator_order_(num_numerator_order),
       num_denominator_order_(num_denominator_order),
       fft_length_(fft_length),
-      output_format_(output_format),
-      epsilon_for_calculating_logarithms_(epsilon_for_calculating_logarithms),
-      relative_floor_in_decibels_(relative_floor_in_decibels),
       fast_fourier_transform_(fft_length_),
+      spectrum_to_spectrum_(fft_length_, SpectrumToSpectrum::kPowerSpectrum,
+                            output_format, epsilon_for_calculating_logarithms,
+                            relative_floor_in_decibels),
       is_valid_(true) {
   if (num_numerator_order_ < 0 || num_denominator_order_ < 0 ||
       fft_length_ <= num_numerator_order_ ||
-      fft_length_ <= num_denominator_order_ || output_format_ < 0 ||
-      kNumOutputFormats <= output_format_ ||
-      epsilon_for_calculating_logarithms_ < 0.0 ||
-      0.0 <= relative_floor_in_decibels_ ||
-      !fast_fourier_transform_.IsValid()) {
+      fft_length_ <= num_denominator_order_ ||
+      !fast_fourier_transform_.IsValid() || !spectrum_to_spectrum_.IsValid()) {
     is_valid_ = false;
   }
 }
@@ -193,48 +190,8 @@ bool FilterCoefficientsToSpectrum::Run(
         [gain](double x, double y) { return gain * x / y; });
   }
 
-  if (kLogAmplitudeSpectrumInDecibels == output_format_ ||
-      kLogAmplitudeSpectrum == output_format_) {
-    if (0.0 != epsilon_for_calculating_logarithms_) {
-      std::transform(
-          spectrum->begin(), spectrum->end(), spectrum->begin(),
-          std::bind(std::plus<double>(), epsilon_for_calculating_logarithms_,
-                    std::placeholders::_1));
-    }
-    if (-DBL_MAX != relative_floor_in_decibels_) {
-      const double max_value_of_power_spectrum(
-          *std::max_element(spectrum->begin(), spectrum->end()));
-      const double floor_in_power_spectrum(
-          max_value_of_power_spectrum *
-          std::pow(10.0, 0.1 * relative_floor_in_decibels_));
-      std::transform(spectrum->begin(), spectrum->end(), spectrum->begin(),
-                     [floor_in_power_spectrum](double x) {
-                       return std::max(x, floor_in_power_spectrum);
-                     });
-    }
-  }
-
-  switch (output_format_) {
-    case kLogAmplitudeSpectrumInDecibels: {
-      std::transform(spectrum->begin(), spectrum->end(), spectrum->begin(),
-                     [this](double x) { return 10.0 * std::log10(x); });
-      break;
-    }
-    case kLogAmplitudeSpectrum: {
-      std::transform(spectrum->begin(), spectrum->end(), spectrum->begin(),
-                     [this](double x) { return 0.5 * std::log(x); });
-      break;
-    }
-    case kAmplitudeSpectrum: {
-      std::transform(spectrum->begin(), spectrum->end(), spectrum->begin(),
-                     [](double x) { return std::sqrt(x); });
-      break;
-    }
-    case kPowerSpectrum: {
-      // nothing to do
-      break;
-    }
-    default: { return false; }
+  if (!spectrum_to_spectrum_.Run(spectrum)) {
+    return false;
   }
 
   return true;

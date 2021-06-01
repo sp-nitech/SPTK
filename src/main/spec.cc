@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <cfloat>    // DBL_MAX
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
@@ -51,6 +52,7 @@
 #include <vector>    // std::vector
 
 #include "SPTK/conversion/filter_coefficients_to_spectrum.h"
+#include "SPTK/conversion/spectrum_to_spectrum.h"
 #include "SPTK/conversion/waveform_to_spectrum.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -61,8 +63,8 @@ const int kDefaultNumNumeratorOrder(0);
 const int kDefaultNumDenominatorOrder(0);
 const double kDefaultEpsilonForCalculatingLogarithms(0.0);
 const double kDefaultRelativeFloorInDecibels(-DBL_MAX);
-const sptk::FilterCoefficientsToSpectrum::OutputFormats kDefaultOutputFormat(
-    sptk::FilterCoefficientsToSpectrum::kLogAmplitudeSpectrumInDecibels);
+const sptk::SpectrumToSpectrum::InputOutputFormats kDefaultOutputFormat(
+    sptk::SpectrumToSpectrum::kLogAmplitudeSpectrumInDecibels);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -112,7 +114,7 @@ int main(int argc, char* argv[]) {
   double epsilon_for_calculating_logarithms(
       kDefaultEpsilonForCalculatingLogarithms);
   double relative_floor_in_decibels(kDefaultRelativeFloorInDecibels);
-  sptk::FilterCoefficientsToSpectrum::OutputFormats output_format(
+  sptk::SpectrumToSpectrum::InputOutputFormats output_format(
       kDefaultOutputFormat);
 
   for (;;) {
@@ -190,8 +192,7 @@ int main(int argc, char* argv[]) {
       case 'o': {
         const int min(0);
         const int max(
-            static_cast<int>(
-                sptk::FilterCoefficientsToSpectrum::kNumOutputFormats) -
+            static_cast<int>(sptk::SpectrumToSpectrum::kNumInputOutputFormats) -
             1);
         int tmp;
         if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
@@ -203,7 +204,7 @@ int main(int argc, char* argv[]) {
           return 1;
         }
         output_format =
-            static_cast<sptk::FilterCoefficientsToSpectrum::OutputFormats>(tmp);
+            static_cast<sptk::SpectrumToSpectrum::InputOutputFormats>(tmp);
         break;
       }
       case 'h': {

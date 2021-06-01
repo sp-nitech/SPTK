@@ -48,7 +48,7 @@ namespace sptk {
 
 WaveformToSpectrum::WaveformToSpectrum(
     int frame_length, int fft_length,
-    FilterCoefficientsToSpectrum::OutputFormats output_format,
+    SpectrumToSpectrum::InputOutputFormats output_format,
     double epsilon_for_calculating_logarithms,
     double relative_floor_in_decibels)
     : filter_coefficients_to_spectrum_(

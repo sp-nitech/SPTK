@@ -42,15 +42,14 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>   // getopt_long
-#include <algorithm>  // std::copy, std::transform
-#include <cfloat>     // DBL_MAX
-#include <cmath>      // std::exp, std::pow
-#include <fstream>    // std::ifstream
-#include <iomanip>    // std::setw
-#include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
-#include <sstream>    // std::ostringstream
-#include <vector>     // std::vector
+#include <getopt.h>  // getopt_long
+
+#include <cfloat>    // DBL_MAX
+#include <fstream>   // std::ifstream
+#include <iomanip>   // std::setw
+#include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>   // std::ostringstream
+#include <vector>    // std::vector
 
 #include "SPTK/analysis/mel_generalized_cepstral_analysis.h"
 #include "SPTK/conversion/generalized_cepstrum_gain_normalization.h"
@@ -64,7 +63,7 @@ enum InputFormats {
   kLogAmplitudeSpectrumInDecibels = 0,
   kLogAmplitudeSpectrum,
   kAmplitudeSpectrum,
-  kPeriodogram,
+  kPowerSpectrum,
   kWaveform,
   kNumInputFormats
 };
@@ -310,12 +309,24 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
+  sptk::SpectrumToSpectrum spectrum_to_spectrum(
+      fft_length,
+      static_cast<sptk::SpectrumToSpectrum::InputOutputFormats>(input_format),
+      sptk::SpectrumToSpectrum::InputOutputFormats::kPowerSpectrum,
+      epsilon_for_calculating_logarithms, relative_floor_in_decibels);
+  if (kWaveform != input_format && !spectrum_to_spectrum.IsValid()) {
+    std::ostringstream error_message;
+    error_message << "Failed to set condition for input formatting";
+    sptk::PrintErrorMessage("mgcep", error_message);
+    return 1;
+  }
+
   sptk::WaveformToSpectrum waveform_to_spectrum(
       fft_length, fft_length,
-      sptk::FilterCoefficientsToSpectrum::OutputFormats::kPowerSpectrum,
+      sptk::SpectrumToSpectrum::InputOutputFormats::kPowerSpectrum,
       epsilon_for_calculating_logarithms, relative_floor_in_decibels);
   sptk::WaveformToSpectrum::Buffer buffer_for_spectral_analysis;
-  if (!waveform_to_spectrum.IsValid()) {
+  if (kWaveform == input_format && !waveform_to_spectrum.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for spectral analysis";
     sptk::PrintErrorMessage("mgcep", error_message);
@@ -360,37 +371,21 @@ int main(int argc, char* argv[]) {
 
   while (sptk::ReadStream(false, 0, 0, input_length, &input, &input_stream,
                           NULL)) {
-    switch (input_format) {
-      case kLogAmplitudeSpectrumInDecibels: {
-        std::transform(input.begin(), input.end(), processed_input.begin(),
-                       [](double x) { return std::pow(10, 0.1 * x); });
-        break;
+    if (kWaveform != input_format) {
+      if (!spectrum_to_spectrum.Run(input, &processed_input)) {
+        std::ostringstream error_message;
+        error_message << "Failed to convert spectrum";
+        sptk::PrintErrorMessage("mgcep", error_message);
+        return 1;
       }
-      case kLogAmplitudeSpectrum: {
-        std::transform(input.begin(), input.end(), processed_input.begin(),
-                       [](double x) { return std::exp(2.0 * x); });
-        break;
+    } else {
+      if (!waveform_to_spectrum.Run(input, &processed_input,
+                                    &buffer_for_spectral_analysis)) {
+        std::ostringstream error_message;
+        error_message << "Failed to transform waveform to spectrum";
+        sptk::PrintErrorMessage("mgcep", error_message);
+        return 1;
       }
-      case kAmplitudeSpectrum: {
-        std::transform(input.begin(), input.end(), processed_input.begin(),
-                       [](double x) { return x * x; });
-        break;
-      }
-      case kPeriodogram: {
-        std::copy(input.begin(), input.end(), processed_input.begin());
-        break;
-      }
-      case kWaveform: {
-        if (!waveform_to_spectrum.Run(input, &processed_input,
-                                      &buffer_for_spectral_analysis)) {
-          std::ostringstream error_message;
-          error_message << "Failed to transform waveform to spectrum";
-          sptk::PrintErrorMessage("mgcep", error_message);
-          return 1;
-        }
-        break;
-      }
-      default: { break; }
     }
 
     if (!analysis.Run(processed_input, &output,

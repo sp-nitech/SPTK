@@ -47,6 +47,7 @@
 
 #include <vector>  // std::vector
 
+#include "SPTK/conversion/spectrum_to_spectrum.h"
 #include "SPTK/math/real_valued_fast_fourier_transform.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -54,15 +55,6 @@ namespace sptk {
 
 class FilterCoefficientsToSpectrum {
  public:
-  //
-  enum OutputFormats {
-    kLogAmplitudeSpectrumInDecibels = 0,
-    kLogAmplitudeSpectrum,
-    kAmplitudeSpectrum,
-    kPowerSpectrum,
-    kNumOutputFormats
-  };
-
   class Buffer {
    public:
     Buffer() {
@@ -82,11 +74,11 @@ class FilterCoefficientsToSpectrum {
   };
 
   //
-  FilterCoefficientsToSpectrum(int num_numerator_order,
-                               int num_denominator_order, int fft_length,
-                               OutputFormats output_format,
-                               double epsilon_for_calculating_logarithms,
-                               double relative_floor_in_decibels);
+  FilterCoefficientsToSpectrum(
+      int num_numerator_order, int num_denominator_order, int fft_length,
+      SpectrumToSpectrum::InputOutputFormats output_format,
+      double epsilon_for_calculating_logarithms,
+      double relative_floor_in_decibels);
 
   //
   virtual ~FilterCoefficientsToSpectrum() {
@@ -108,18 +100,18 @@ class FilterCoefficientsToSpectrum {
   }
 
   //
-  OutputFormats GetOutputFormat() const {
-    return output_format_;
+  SpectrumToSpectrum::InputOutputFormats GetOutputFormat() const {
+    return spectrum_to_spectrum_.GetOutputFormat();
   }
 
   //
   double GetEpsilonForCalculatingLogarithms() const {
-    return epsilon_for_calculating_logarithms_;
+    return spectrum_to_spectrum_.GetEpsilonForCalculatingLogarithms();
   }
 
   //
   double GetRelativeFloorInDecibels() const {
-    return relative_floor_in_decibels_;
+    return spectrum_to_spectrum_.GetRelativeFloorInDecibels();
   }
 
   //
@@ -144,16 +136,10 @@ class FilterCoefficientsToSpectrum {
   const int fft_length_;
 
   //
-  const OutputFormats output_format_;
-
-  //
-  const double epsilon_for_calculating_logarithms_;
-
-  //
-  const double relative_floor_in_decibels_;
-
-  //
   const RealValuedFastFourierTransform fast_fourier_transform_;
+
+  //
+  const SpectrumToSpectrum spectrum_to_spectrum_;
 
   //
   bool is_valid_;

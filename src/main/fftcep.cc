@@ -44,16 +44,15 @@
 
 #include <getopt.h>  // getopt_long
 
-#include <algorithm>  // std::copy, std::transform
-#include <cfloat>     // DBL_MAX
-#include <cmath>      // std::exp, std::pow
-#include <fstream>    // std::ifstream
-#include <iomanip>    // std::setw
-#include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
-#include <sstream>    // std::ostringstream
-#include <vector>     // std::vector
+#include <cfloat>    // DBL_MAX
+#include <fstream>   // std::ifstream
+#include <iomanip>   // std::setw
+#include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>   // std::ostringstream
+#include <vector>    // std::vector
 
 #include "SPTK/analysis/fast_fourier_transform_cepstral_analysis.h"
+#include "SPTK/conversion/spectrum_to_spectrum.h"
 #include "SPTK/conversion/waveform_to_spectrum.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -284,12 +283,24 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
+  sptk::SpectrumToSpectrum spectrum_to_spectrum(
+      fft_length,
+      static_cast<sptk::SpectrumToSpectrum::InputOutputFormats>(input_format),
+      sptk::SpectrumToSpectrum::InputOutputFormats::kPowerSpectrum,
+      epsilon_for_calculating_logarithms, relative_floor_in_decibels);
+  if (kWaveform != input_format && !spectrum_to_spectrum.IsValid()) {
+    std::ostringstream error_message;
+    error_message << "Failed to set condition for input formatting";
+    sptk::PrintErrorMessage("fftcep", error_message);
+    return 1;
+  }
+
   sptk::WaveformToSpectrum waveform_to_spectrum(
       fft_length, fft_length,
-      sptk::FilterCoefficientsToSpectrum::OutputFormats::kPowerSpectrum,
+      sptk::SpectrumToSpectrum::InputOutputFormats::kPowerSpectrum,
       epsilon_for_calculating_logarithms, relative_floor_in_decibels);
   sptk::WaveformToSpectrum::Buffer buffer_for_spectral_analysis;
-  if (!waveform_to_spectrum.IsValid()) {
+  if (kWaveform == input_format && !waveform_to_spectrum.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to initialize WaveformToSpectrum";
     sptk::PrintErrorMessage("fftcep", error_message);
@@ -317,37 +328,21 @@ int main(int argc, char* argv[]) {
 
   while (sptk::ReadStream(false, 0, 0, input_length, &input, &input_stream,
                           NULL)) {
-    switch (input_format) {
-      case kLogAmplitudeSpectrumInDecibels: {
-        std::transform(input.begin(), input.end(), processed_input.begin(),
-                       [](double x) { return std::pow(10, 0.1 * x); });
-        break;
+    if (kWaveform != input_format) {
+      if (!spectrum_to_spectrum.Run(input, &processed_input)) {
+        std::ostringstream error_message;
+        error_message << "Failed to convert spectrum";
+        sptk::PrintErrorMessage("fftcep", error_message);
+        return 1;
       }
-      case kLogAmplitudeSpectrum: {
-        std::transform(input.begin(), input.end(), processed_input.begin(),
-                       [](double x) { return std::exp(2.0 * x); });
-        break;
+    } else {
+      if (!waveform_to_spectrum.Run(input, &processed_input,
+                                    &buffer_for_spectral_analysis)) {
+        std::ostringstream error_message;
+        error_message << "Failed to transform waveform to spectrum";
+        sptk::PrintErrorMessage("fftcep", error_message);
+        return 1;
       }
-      case kAmplitudeSpectrum: {
-        std::transform(input.begin(), input.end(), processed_input.begin(),
-                       [](double x) { return x * x; });
-        break;
-      }
-      case kPowerSpectrum: {
-        std::copy(input.begin(), input.end(), processed_input.begin());
-        break;
-      }
-      case kWaveform: {
-        if (!waveform_to_spectrum.Run(input, &processed_input,
-                                      &buffer_for_spectral_analysis)) {
-          std::ostringstream error_message;
-          error_message << "Failed to transform waveform to spectrum";
-          sptk::PrintErrorMessage("fftcep", error_message);
-          return 1;
-        }
-        break;
-      }
-      default: { break; }
     }
 
     if (!analysis.Run(processed_input, &output,
