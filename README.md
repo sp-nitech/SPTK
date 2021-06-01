@@ -43,18 +43,14 @@ Changes from SPTK3
 ------------------
 - **Input and output types are changed to double from float**
 - Deprecated commands:
-  - `acep`
-  - `c2sp`
-  - `gc2gc`
-  - `gcep`
-  - `glsadf`
-  - `ivq`
-  - `lmadf`
-  - `lsp2sp`
-  - `mcep`
-  - `mlsadf`
-  - `uels`
-  - `vq`
+  - `acep` -> `amgcep`
+  - `c2sp` -> `mgc2sp`
+  - `gc2gc` -> `mgc2mgc`
+  - `gcep`, `mcep`, and `uels` -> `mgcep`
+  - `glsadf`, `lmadf`, and `mlsadf` -> `mglsadf`
+  - `ivq` -> `imsvq`
+  - `lsp2sp` -> `mglsp2sp`
+  - `vq` -> `msvq`
 - Split commands:
   - `dtw` -> `dtw` and `dtw_merge`
   - `mglsadf` -> `mglsadf` and `imglsadf`
