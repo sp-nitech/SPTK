@@ -550,8 +550,8 @@ bool GaussianMixtureModeling::Initialize(
   }
 
   // Initialize mean vectors.
-  std::vector<int> codebook_indices;
-  {
+  std::vector<int> codebook_indices(input_vectors.size(), 0);
+  if (2 <= num_mixture_) {
     const int num_iteration(1000);
     const double convergence_threshold(1e-5);
     const double splitting_factor(1e-5);
