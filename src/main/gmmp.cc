@@ -71,9 +71,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -m m  : order of vector     (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -k k  : number of mixtures  (   int)[" << std::setw(5) << std::right << kDefaultNumMixture   << "][ 1 <= k <=   ]" << std::endl;  // NOLINT
   *stream << "       -f    : use full covariance (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultFullCovarianceFlag) << "]" << std::endl;  // NOLINT
-  *stream << "     (level 2)" << std::endl;
-  *stream << "       -B B1 .. Bp : block size of (   int)[" << std::setw(5) << std::right << "N/A"                << "][ 1 <= B <= l ]" << std::endl;  // NOLINT
-  *stream << "                     covariance matrix" << std::endl;
+  *stream << "               or block covariance" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  gmmfile:" << std::endl;
   *stream << "       GMM parameters              (double)" << std::endl;
@@ -101,9 +99,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b -k @e int
  *   - number of mixtures @f$(1 \le K)@f$
  * - @b -f @e bool
- *   - use full covariance instead of diagonal one
- * - @b -B @e int+
- *   - block size of covariance matrix
+ *   - use full or block covariance instead of diagonal one
  * - @b gmmfile @e str
  *   - double-type GMM parameters
  * - @b infile @e str
@@ -149,10 +145,9 @@ int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   int num_mixture(kDefaultNumMixture);
   bool full_covariance_flag(kDefaultFullCovarianceFlag);
-  std::vector<int> block_size;
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:m:k:fB:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:k:fh", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -194,24 +189,6 @@ int main(int argc, char* argv[]) {
         full_covariance_flag = true;
         break;
       }
-      case 'B': {
-        block_size.clear();
-        int size;
-        if (!sptk::ConvertStringToInteger(optarg, &size) || size <= 0) {
-          std::ostringstream error_message;
-          error_message << "The argument for the -B option must be a "
-                        << "non-negative integer";
-          sptk::PrintErrorMessage("gmmp", error_message);
-          return 1;
-        }
-        block_size.push_back(size);
-        while (optind < argc &&
-               sptk::ConvertStringToInteger(argv[optind], &size)) {
-          block_size.push_back(size);
-          ++optind;
-        }
-        break;
-      }
       case 'h': {
         PrintUsage(&std::cout);
         return 0;
@@ -221,10 +198,6 @@ int main(int argc, char* argv[]) {
         return 1;
       }
     }
-  }
-
-  if (block_size.empty()) {
-    block_size.push_back(num_order + 1);
   }
 
   // Get input file names.
@@ -244,7 +217,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  const bool is_diagonal(!full_covariance_flag && 1 == block_size.size());
+  const bool is_diagonal(!full_covariance_flag);
 
   std::vector<double> weights(num_mixture);
   std::vector<std::vector<double> > mean_vectors(num_mixture);
@@ -276,6 +249,7 @@ int main(int argc, char* argv[]) {
         return 1;
       }
 
+      covariance_matrices[k].Resize(num_order + 1);
       if (is_diagonal) {
         std::vector<double> variance;
         if (!sptk::ReadStream(false, 0, 0, num_order + 1, &variance,
@@ -285,12 +259,8 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("gmmp", error_message);
           return 1;
         }
-        covariance_matrices[k].Resize(num_order + 1);
-        for (int l(0); l <= num_order; ++l) {
-          covariance_matrices[k][l][l] = variance[l];
-        }
+        covariance_matrices[k].SetDiagonal(variance);
       } else {
-        covariance_matrices[k].Resize(num_order + 1);
         if (!sptk::ReadStream(&covariance_matrices[k], &input_stream)) {
           std::ostringstream error_message;
           error_message << "Failed to load covariance matrix";
