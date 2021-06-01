@@ -78,7 +78,7 @@ teardown() {
    cat tmp/1 tmp/4 > tmp/5
    cat tmp/2 tmp/4 > tmp/6
 
-   $sptk4/rmse -M $magic tmp/5 tmp/6 > tmp/7
+   $sptk4/rmse -magic $magic tmp/5 tmp/6 > tmp/7
    run $sptk4/aeq tmp/3 tmp/7
    [ "$status" -eq 0 ]
 }

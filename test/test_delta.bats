@@ -72,6 +72,8 @@ teardown() {
    $sptk3/nrand -l 20 | $sptk4/delta -l 2 -r 2 3 > tmp/2
    run $sptk4/aeq tmp/1 tmp/2
    [ "$status" -eq 0 ]
+
+   # -R with -M option is removed from SPTK4.
 }
 
 @test "delta: identity" {

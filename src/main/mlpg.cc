@@ -42,7 +42,7 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>  // getopt_long
+#include <getopt.h>  // getopt_long_only
 
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
@@ -57,6 +57,10 @@
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
+
+enum LongOptions {
+  kMagic = 1000,
+};
 
 enum InputFormats {
   kMeanAndVariance = 0,
@@ -92,7 +96,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                       delta coefficients" << std::endl;
   *stream << "       -r r1 (r2)    : width of regression     (   int)[" << std::setw(5) << std::right << "N/A"                << "]" << std::endl;  // NOLINT
   *stream << "                       coefficients" << std::endl;
-  *stream << "       -M magic      : magic number            (double)[" << std::setw(5) << std::right << "N/A"                << "]" << std::endl;  // NOLINT
+  *stream << "       -magic magic  : magic number            (double)[" << std::setw(5) << std::right << "N/A"                << "]" << std::endl;  // NOLINT
   *stream << "       -R            : mode                    (   int)[" << std::setw(5) << std::right << kDefaultMode         << "][ 0 <= R <= 1 ]" << std::endl;  // NOLINT
   *stream << "                         0 (recursive)" << std::endl;
   *stream << "                         1 (non-recursive)" << std::endl;
@@ -104,7 +108,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  notice:" << std::endl;
   *stream << "       -d and -D options can be given multiple times" << std::endl;  // NOLINT
   *stream << "       -s option is valid with R=0" << std::endl;
-  *stream << "       -M option is not supported with R=0" << std::endl;
+  *stream << "       -magic option is not supported with R=0" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -204,7 +208,7 @@ class InputSourcePreprocessing : public sptk::InputSourceInterface {
  *   - filename of double-type delta coefficients
  * - @b -r @e int+
  *   - width of 1st (and 2nd) regression coefficients
- * - @b -M @e double
+ * - @b -magic @e double
  *   - magic number
  * - @b -R @e int
  *   - mode
@@ -225,9 +229,13 @@ int main(int argc, char* argv[]) {
   bool is_magic_number_specified(false);
   Modes mode(kDefaultMode);
 
+  const struct option long_options[] = {
+      {"magic", required_argument, NULL, kMagic}, {0, 0, 0, 0},
+  };
+
   for (;;) {
     const int option_char(
-        getopt_long(argc, argv, "l:m:s:q:d:D:r:M:R:h", NULL, NULL));
+        getopt_long_only(argc, argv, "l:m:s:q:d:D:r:R:h", long_options, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -380,10 +388,11 @@ int main(int argc, char* argv[]) {
         is_regression_specified = true;
         break;
       }
-      case 'M': {
+      case kMagic: {
         if (!sptk::ConvertStringToDouble(optarg, &magic_number)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -M option must be a number";
+          error_message
+              << "The argument for the -magic option must be a number";
           sptk::PrintErrorMessage("mlpg", error_message);
           return 1;
         }

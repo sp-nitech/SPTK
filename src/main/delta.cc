@@ -56,6 +56,10 @@
 
 namespace {
 
+enum LongOptions {
+  kMagic = 1000,
+};
+
 const int kDefaultNumOrder(24);
 
 void PrintUsage(std::ostream* stream) {
@@ -66,15 +70,15 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       delta [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l          : length of vector        (   int)[" << std::setw(5) << std::right << kDefaultNumOrder + 1 << "][   1 <= l <=     ]" << std::endl;  // NOLINT
-  *stream << "       -m m          : order of vector         (   int)[" << std::setw(5) << std::right << "l-1"                << "][   0 <= m <      ]" << std::endl;  // NOLINT
+  *stream << "       -l l          : length of vector        (   int)[" << std::setw(5) << std::right << kDefaultNumOrder + 1 << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m          : order of vector         (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -d d1 d2 ...  : delta coefficients      (double)[" << std::setw(5) << std::right << "N/A"                << "]" << std::endl;  // NOLINT
   *stream << "       -D D          : filename of double type (string)[" << std::setw(5) << std::right << "N/A"                << "]" << std::endl;  // NOLINT
   *stream << "                       delta coefficients" << std::endl;
   *stream << "       -r r1 (r2)    : width of regression     (   int)[" << std::setw(5) << std::right << "N/A"                << "]" << std::endl;  // NOLINT
   *stream << "                       coefficients" << std::endl;
-  *stream << "       -M magic      : magic number            (double)[" << std::setw(5) << std::right << "N/A"                << "]" << std::endl;  // NOLINT
-  *stream << "       -h    : print this message" << std::endl;
+  *stream << "       -magic magic  : magic number            (double)[" << std::setw(5) << std::right << "N/A"                << "]" << std::endl;  // NOLINT
+  *stream << "       -h            : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       static feature vectors                  (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
@@ -102,7 +106,7 @@ void PrintUsage(std::ostream* stream) {
  *   - filename of double-type delta coefficients
  * - @b -r @e int+
  *   - width of 1st (and 2nd) regression coefficients
- * - @b -M @e double
+ * - @b -magic @e double
  *   - magic number
  * - @b infile @e str
  *   - double-type static feature vectors
@@ -125,9 +129,9 @@ void PrintUsage(std::ostream* stream) {
  * @endcode
  *
  * If data contains a special number such as an unvoiced symbol in a sequence
- * of fundamental frequencies, use @b -M option:
+ * of fundamental frequencies, use @b -magic option:
  * @code{.sh}
- *   delta -l 15 -D delta.win -M -1e+10 < data.lf0 > data.lf0.delta
+ *   delta -l 15 -D delta.win -magic -1e+10 < data.lf0 > data.lf0.delta
  * @endcode
  *
  * @b -r option specifies the width of regression coefficients, @f$L^{(1)}@f$
@@ -160,8 +164,13 @@ int main(int argc, char* argv[]) {
   double magic_number(0.0);
   bool is_magic_number_specified(false);
 
+  const struct option long_options[] = {
+      {"magic", required_argument, NULL, kMagic}, {0, 0, 0, 0},
+  };
+
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:m:d:D:r:M:h", NULL, NULL));
+    const int option_char(
+        getopt_long_only(argc, argv, "l:m:d:D:r:h", long_options, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -288,10 +297,11 @@ int main(int argc, char* argv[]) {
         is_regression_specified = true;
         break;
       }
-      case 'M': {
+      case kMagic: {
         if (!sptk::ConvertStringToDouble(optarg, &magic_number)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -M option must be a number";
+          error_message
+              << "The argument for the -magic option must be a number";
           sptk::PrintErrorMessage("delta", error_message);
           return 1;
         }

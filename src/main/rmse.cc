@@ -42,7 +42,7 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>  // getopt_long
+#include <getopt.h>  // getopt_long_only
 
 #include <cmath>     // std::sqrt
 #include <fstream>   // std::ifstream
@@ -56,7 +56,10 @@
 
 namespace {
 
-const int kMagic(1000);
+enum LongOptions {
+  kMagic = 1000,
+};
+
 const int kMagicNumberForEndOfFile(-1);
 const bool kDefaultUseMagicNumber(false);
 const bool kDefaultOutputFrameByFrameFlag(false);
@@ -69,17 +72,17 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       rmse [ options ] file1 [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l     : length of vector      (   int)[" << std::setw(5) << std::right << "EOF" << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -m m     : order of vector       (   int)[" << std::setw(5) << std::right << "l-1" << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -M magic : remove magic number   (double)[" << std::setw(5) << std::right << "N/A" << "]" << std::endl;  // NOLINT
-  *stream << "       -f       : output frame by frame (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultOutputFrameByFrameFlag) << "]" << std::endl;  // NOLINT
-  *stream << "       -h       : print this message" << std::endl;
+  *stream << "       -l l         : length of vector      (   int)[" << std::setw(5) << std::right << "EOF" << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m         : order of vector       (   int)[" << std::setw(5) << std::right << "l-1" << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -magic magic : remove magic number   (double)[" << std::setw(5) << std::right << "N/A" << "]" << std::endl;  // NOLINT
+  *stream << "       -f           : output frame by frame (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultOutputFrameByFrameFlag) << "]" << std::endl;  // NOLINT
+  *stream << "       -h           : print this message" << std::endl;
   *stream << "  file1:" << std::endl;
-  *stream << "       data sequence                    (double)" << std::endl;
+  *stream << "       data sequence                        (double)" << std::endl;  // NOLINT
   *stream << "  infile:" << std::endl;
-  *stream << "       data sequence                    (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       data sequence                        (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       root mean squared error          (double)" << std::endl;
+  *stream << "       root mean squared error              (double)" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -95,7 +98,7 @@ void PrintUsage(std::ostream* stream) {
  *   - length of vector @f$(1 \le L)@f$
  * - @b -m @e int
  *   - order of vector @f$(0 \le L - 1)@f$
- * - @b -M @e double
+ * - @b -magic @e double
  *   - remove magic number
  * - @b -f @e bool
  *   - output RMSE frame-by-frame
@@ -151,8 +154,13 @@ int main(int argc, char* argv[]) {
   bool use_magic_number(kDefaultUseMagicNumber);
   bool output_frame_by_frame(kDefaultOutputFrameByFrameFlag);
 
+  const struct option long_options[] = {
+      {"magic", required_argument, NULL, kMagic}, {0, 0, 0, 0},
+  };
+
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:m:M:fh", NULL, NULL));
+    const int option_char(
+        getopt_long_only(argc, argv, "l:m:fh", long_options, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -179,10 +187,10 @@ int main(int argc, char* argv[]) {
         ++vector_length;
         break;
       }
-      case 'M': {
+      case kMagic: {
         if (!sptk::ConvertStringToDouble(optarg, &magic_number)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -M option must be numeric";
+          error_message << "The argument for the -magic option must be numeric";
           sptk::PrintErrorMessage("rmse", error_message);
           return 1;
         }
