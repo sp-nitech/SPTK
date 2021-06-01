@@ -127,7 +127,7 @@ void PrintUsage(std::ostream* stream) {
  *   - double-type initial GMM parameters
  * - @b -f @e bool
  *   - use full covariance
- * - @b -v @e bool
+ * - @b -V @e bool
  *   - show log likelihood at each iteration
  * - @b -B @e int+
  *   - block size of covariance matrix
@@ -417,7 +417,11 @@ int main(int argc, char* argv[]) {
   if (!gaussian_mixture_modeling.Run(input_vectors, &weights, &mean_vectors,
                                      &covariance_matrices)) {
     std::ostringstream error_message;
-    error_message << "Failed to train Gaussian mixture models";
+    error_message << "Failed to train Gaussian mixture models. "
+                  << "Please consider the following attemps: "
+                  << "a) increase training data; "
+                  << "b) decrease number of mixtures; "
+                  << "c) use (block) diagonal covariance";
     sptk::PrintErrorMessage("gmm", error_message);
     return 1;
   }
