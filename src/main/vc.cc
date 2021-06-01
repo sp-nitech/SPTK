@@ -84,7 +84,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -r r1 (r2)    : width of regression     (   int)[" << std::setw(5) << std::right << "N/A"                << "]" << std::endl;  // NOLINT
   *stream << "                       coefficients" << std::endl;
   *stream << "       -magic magic  : magic number            (double)[" << std::setw(5) << std::right << "N/A"                << "]" << std::endl;  // NOLINT
-  *stream << "       -h    : print this message" << std::endl;
+  *stream << "       -h            : print this message" << std::endl;
   *stream << "  gmmfile:" << std::endl;
   *stream << "       GMM parameters                          (double)" << std::endl;  // NOLINT
   *stream << "  infile:" << std::endl;

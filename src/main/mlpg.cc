@@ -100,7 +100,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -R            : mode                    (   int)[" << std::setw(5) << std::right << kDefaultMode         << "][ 0 <= R <= 1 ]" << std::endl;  // NOLINT
   *stream << "                         0 (recursive)" << std::endl;
   *stream << "                         1 (non-recursive)" << std::endl;
-  *stream << "       -h    : print this message" << std::endl;
+  *stream << "       -h            : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       mean and variance parameter sequence    (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
