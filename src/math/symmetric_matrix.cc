@@ -45,6 +45,7 @@
 #include "SPTK/math/symmetric_matrix.h"
 
 #include <algorithm>  // std::fill, std::swap
+#include <cmath>      // std::fabs
 #include <cstddef>    // std::size_t
 #include <stdexcept>  // std::out_of_range
 
@@ -53,6 +54,7 @@
 namespace {
 
 const char* kErrorMessage("SymmetricMatrix: Out of range");
+const double kEpsilon(1e-6);
 
 }  // namespace
 
@@ -201,7 +203,7 @@ bool SymmetricMatrix::CholeskyDecomposition(
       d[i] -= lower_triangular_matrix->index_[i][j] *
               lower_triangular_matrix->index_[i][j] * d[j];
     }
-    if (d[i] <= 0.0) {
+    if (std::fabs(d[i]) <= kEpsilon) {
       return false;
     }
     lower_triangular_matrix->index_[i][i] = 1.0;
