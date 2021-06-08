@@ -952,6 +952,7 @@ INPUT                  = \
                          ../src/main/dfs.cc \
                          ../src/main/dmp.cc \
                          ../src/main/dtw.cc \
+                         ../src/main/dtw_merge.cc \
                          ../src/main/entropy.cc \
                          ../src/main/excite.cc \
                          ../src/main/extract.cc \
