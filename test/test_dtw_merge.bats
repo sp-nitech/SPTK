@@ -54,26 +54,20 @@ teardown() {
    rm -rf tmp
 }
 
-@test "dtw: compatibility" {
+@test "dtw_merge: compatibility" {
    $sptk3/nrand -s 1 -l 100 > tmp/0_q
    $sptk3/nrand -s 2 -l 80 > tmp/0_r
 
-   for d in $(seq 0 1); do
-      for p in $(seq 0 6); do
-         $sptk3/dtw -l 2 -p $(($p+1)) -n $(($d+1)) \
-                    tmp/0_r tmp/0_q -s tmp/1_s > tmp/1
-         $sptk4/dtw -l 2 -p $p -d $d \
-                    tmp/0_r tmp/0_q -S tmp/2_s > tmp/2
-         run $sptk4/aeq tmp/1 tmp/2
-         [ "$status" -eq 0 ]
-         run $sptk4/aeq tmp/1_s tmp/2_s
-         [ "$status" -eq 0 ]
-      done
-   done
+   $sptk3/dtw -l 2 tmp/0_r tmp/0_q -v tmp/1 > /dev/null
+   $sptk3/dtw -l 2 tmp/0_r tmp/0_q -V tmp/1 > tmp/2
+   $sptk4/dtw_merge -l 2 tmp/1 tmp/0_r tmp/0_q > tmp/3
+   run $sptk4/aeq tmp/2 tmp/3
+   [ "$status" -eq 0 ]
 }
 
-@test "dtw: valgrind" {
-   $sptk3/nrand -l 20 > tmp/0
-   run valgrind $sptk4/dtw -l 2 -p 4 tmp/0 tmp/0
+@test "dtw_merge: valgrind" {
+   echo 0 0 1 1 | $sptk3/x2x +ai > tmp/1
+   $sptk3/nrand -l 2 > tmp/2
+   run valgrind $sptk4/dtw_merge -l 1 tmp/1 tmp/2 tmp/2
    [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
 }

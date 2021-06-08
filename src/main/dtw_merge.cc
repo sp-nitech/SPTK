@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -61,14 +62,14 @@ void PrintUsage(std::ostream* stream) {
   *stream << " dtw_merge - merge two vector sequences" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
-  *stream << "       dtw_merge [ options ] file1 file2 [ infile ] > stdout" << std::endl;  // NOLINT
+  *stream << "       dtw_merge [ options ] vfile file1 [ infile ] > stdout" << std::endl;  // NOLINT
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : length of vector   (   int)[" << std::setw(5) << std::right << kDefaultNumOrder + 1 << "][ 0 <  l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : length of vector   (   int)[" << std::setw(5) << std::right << kDefaultNumOrder + 1 << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -m m  : order of vector    (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
-  *stream << "  file1:" << std::endl;
+  *stream << "  vfile:" << std::endl;
   *stream << "       Viterbi path               (   int)" << std::endl;
-  *stream << "  file2:" << std::endl;
+  *stream << "  file1:" << std::endl;
   *stream << "       reference vector sequence  (double)" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       query vector sequence      (double)[stdin]" << std::endl;
@@ -82,6 +83,26 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a dtw_merge [ @e option ] @e vfile @e file1 [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - length of vector @f$(1 \le M+1)@f$
+ * - @b -m @e int
+ *   - order of vector @f$(0 \le M)@f$
+ * - @b vfile @e str
+ *   - int-type Viterbi path
+ * - @b file1 @e str
+ *   - double-type reference vector sequence
+ * - @b infile @e str
+ *   - double-type query vector sequence
+ * - @b stdout
+ *   - double-type concatenated vector sequence
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
 
@@ -124,7 +145,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const char* viterbi_path_file;
   const char* reference_file;
   const char* query_file;
@@ -193,7 +213,7 @@ int main(int argc, char* argv[]) {
         curr_query_vector_index < prev_query_vector_index ||
         curr_reference_vector_index < prev_reference_vector_index) {
       std::ostringstream error_message;
-      error_message << "Invalid path";
+      error_message << "Invalid Viterbi path";
       sptk::PrintErrorMessage("dtw_merge", error_message);
       return 1;
     }

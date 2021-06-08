@@ -100,7 +100,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a dtw [ @e option ] [ @e infile ]
+ * @a dtw [ @e option ] @e file1 [ @e infile ]
  *
  * - @b -l @e int
  *   - length of vector @f$(1 \le M+1)@f$
@@ -117,7 +117,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b -P @e str
  *   - int-type Viterbi path
  * - @b -S @e str
- *   - double-type DTW score.
+ *   - double-type DTW score
  * - @b file1 @e str
  *   - double-type reference vector sequence
  * - @b infile @e str
