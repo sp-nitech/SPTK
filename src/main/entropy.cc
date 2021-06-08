@@ -108,8 +108,8 @@ void PrintUsage(std::ostream* stream) {
  * The input is a set of probabilities:
  * @f[
  *   \begin{array}{ccc}
- *     \underbrace{p_1(1),\,p_1(2),\,\ldots,\,p_1(N)}_{\boldsymbol{p}(0)}, &
- *     \underbrace{p_2(1),\,p_2(2),\,\ldots,\,p_2(N)}_{\boldsymbol{p}(1)}, &
+ *     \underbrace{p_0(1),\,p_0(2),\,\ldots,\,p_0(N)}_{\boldsymbol{p}(0)}, &
+ *     \underbrace{p_1(1),\,p_1(2),\,\ldots,\,p_1(N)}_{\boldsymbol{p}(1)}, &
  *     \ldots,
  *   \end{array}
  * @f]
@@ -142,7 +142,7 @@ void PrintUsage(std::ostream* stream) {
  * The below example calculates maximum value of entropy:
  *
  * @code{.sh}
- *   step -l 4 | bin/sopr -d 4 | entropy -l 4 | x2x +da
+ *   step -l 4 | sopr -d 4 | entropy -l 4 | x2x +da
  * @endcode
  *
  * @param[in] argc Number of arguments.
