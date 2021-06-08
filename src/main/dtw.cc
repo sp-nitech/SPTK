@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream, std::ofstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -59,9 +60,9 @@ namespace {
 const int kDefaultNumOrder(25);
 const sptk::DynamicTimeWarping::LocalPathConstraints
     kDefaultLocalPathConstraint(
-        sptk::DynamicTimeWarping::LocalPathConstraints::kType5);
+        sptk::DynamicTimeWarping::LocalPathConstraints::kType4);
 const sptk::DistanceCalculation::DistanceMetrics kDefaultDistanceMetric(
-    sptk::DistanceCalculation::DistanceMetrics::kSquaredEuclidean);
+    sptk::DistanceCalculation::DistanceMetrics::kEuclidean);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -71,7 +72,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       dtw [ options ] file1 [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : length of vector               (   int)[" << std::setw(5) << std::right << kDefaultNumOrder + 1        << "][ 0 <  l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : length of vector               (   int)[" << std::setw(5) << std::right << kDefaultNumOrder + 1        << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -m m  : order of vector                (   int)[" << std::setw(5) << std::right << "l-1"                       << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -p p  : type of local path constraints (   int)[" << std::setw(5) << std::right << kDefaultLocalPathConstraint << "][ 0 <= p <= 6 ]" << std::endl;  // NOLINT
   *stream << "       -d d  : distance metric                (   int)[" << std::setw(5) << std::right << kDefaultDistanceMetric      << "][ 0 <= d <= 3 ]" << std::endl;  // NOLINT
@@ -98,6 +99,36 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a dtw [ @e option ] [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - length of vector @f$(1 \le M+1)@f$
+ * - @b -m @e int
+ *   - order of vector @f$(0 \le M)@f$
+ * - @b -p @e int
+ *   - type of local path constraints @f$(0 \le P \le 6)@f$
+ * - @b -d @e int
+ *   - distance metric
+ *     \arg @c 0 Manhattan
+ *     \arg @c 1 Euclidean
+ *     \arg @c 2 squared Euclidean
+ *     \arg @c 3 symmetric Kullback-Leibler
+ * - @b -P @e str
+ *   - int-type Viterbi path
+ * - @b -S @e str
+ *   - double-type DTW score.
+ * - @b file1 @e str
+ *   - double-type reference vector sequence
+ * - @b infile @e str
+ *   - double-type query vector sequence
+ * - @b stdout
+ *   - double-type concatenated vector sequence
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   sptk::DynamicTimeWarping::LocalPathConstraints local_path_constraint(
@@ -192,7 +223,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const char* reference_file;
   const char* query_file;
   const int num_input_files(argc - optind);
@@ -247,35 +277,11 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  std::ofstream ofs1;
-  if (NULL != total_score_file) {
-    ofs1.open(total_score_file, std::ios::out | std::ios::binary);
-    if (ofs1.fail()) {
-      std::ostringstream error_message;
-      error_message << "Cannot open file " << total_score_file;
-      sptk::PrintErrorMessage("dtw", error_message);
-      return 1;
-    }
-  }
-  std::ostream& output_stream_for_score(ofs1);
-
-  std::ofstream ofs2;
-  if (NULL != viterbi_path_file) {
-    ofs2.open(viterbi_path_file, std::ios::out | std::ios::binary);
-    if (ofs2.fail()) {
-      std::ostringstream error_message;
-      error_message << "Cannot open file " << viterbi_path_file;
-      sptk::PrintErrorMessage("dtw", error_message);
-      return 1;
-    }
-  }
-  std::ostream& output_stream_for_path(ofs2);
-
   sptk::DynamicTimeWarping dynamic_time_warping(
       num_order, local_path_constraint, distance_metric);
   if (!dynamic_time_warping.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set the condition for dynamic time warping";
+    error_message << "Failed to initialize DynamicTimeWarping";
     sptk::PrintErrorMessage("dtw", error_message);
     return 1;
   }
@@ -285,7 +291,7 @@ int main(int argc, char* argv[]) {
   if (!dynamic_time_warping.Run(query_vectors, reference_vectors, &viterbi_path,
                                 &total_score)) {
     std::ostringstream error_message;
-    error_message << "Failed to run dynamic time warping";
+    error_message << "Failed to perform dynamic time warping";
     sptk::PrintErrorMessage("dtw", error_message);
     return 1;
   }
@@ -304,10 +310,20 @@ int main(int argc, char* argv[]) {
   }
 
   if (NULL != viterbi_path_file) {
+    std::ofstream ofs;
+    ofs.open(viterbi_path_file, std::ios::out | std::ios::binary);
+    if (ofs.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << viterbi_path_file;
+      sptk::PrintErrorMessage("dtw", error_message);
+      return 1;
+    }
+    std::ostream& output_stream(ofs);
+
     for (std::vector<std::pair<int, int> >::iterator itr(viterbi_path.begin());
          itr != viterbi_path.end(); ++itr) {
-      if (!sptk::WriteStream(itr->first, &output_stream_for_path) ||
-          !sptk::WriteStream(itr->second, &output_stream_for_path)) {
+      if (!sptk::WriteStream(itr->first, &output_stream) ||
+          !sptk::WriteStream(itr->second, &output_stream)) {
         std::ostringstream error_message;
         error_message << "Failed to write Viterbi path";
         sptk::PrintErrorMessage("dtw", error_message);
@@ -317,7 +333,17 @@ int main(int argc, char* argv[]) {
   }
 
   if (NULL != total_score_file) {
-    if (!sptk::WriteStream(total_score, &output_stream_for_score)) {
+    std::ofstream ofs;
+    ofs.open(total_score_file, std::ios::out | std::ios::binary);
+    if (ofs.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << total_score_file;
+      sptk::PrintErrorMessage("dtw", error_message);
+      return 1;
+    }
+    std::ostream& output_stream(ofs);
+
+    if (!sptk::WriteStream(total_score, &output_stream)) {
       std::ostringstream error_message;
       error_message << "Failed to write total score";
       sptk::PrintErrorMessage("dtw", error_message);

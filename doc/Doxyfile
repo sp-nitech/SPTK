@@ -904,8 +904,10 @@ INPUT                  = \
                          ../include/SPTK/generation/normal_distributed_random_value_generation.h \
                          ../include/SPTK/generation/recursive_maximum_likelihood_parameter_generation.h \
                          ../include/SPTK/math/discrete_cosine_transform.h \
+                         ../include/SPTK/math/distance_calculation.h \
                          ../include/SPTK/math/entropy_calculation.h \
                          ../include/SPTK/math/durand_kerner_method.h \
+                         ../include/SPTK/math/dynamic_time_warping.h \
                          ../include/SPTK/math/fast_fourier_transform.h \
                          ../include/SPTK/math/frequency_transform.h \
                          ../include/SPTK/math/gaussian_mixture_modeling.h \
@@ -949,6 +951,7 @@ INPUT                  = \
                          ../src/main/df2.cc \
                          ../src/main/dfs.cc \
                          ../src/main/dmp.cc \
+                         ../src/main/dtw.cc \
                          ../src/main/entropy.cc \
                          ../src/main/excite.cc \
                          ../src/main/extract.cc \

@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -66,6 +66,8 @@ DynamicTimeWarping::DynamicTimeWarping(
     : num_order_(num_order),
       local_path_constraint_(local_path_constraint),
       distance_calculation_(num_order_, distance_metric),
+      includes_skip_transition_((kType4 == local_path_constraint_ ||
+                                 kType6 == local_path_constraint_)),
       is_valid_(true) {
   if (num_order_ < 0 || !distance_calculation_.IsValid()) {
     is_valid_ = false;
@@ -73,41 +75,41 @@ DynamicTimeWarping::DynamicTimeWarping(
   }
 
   switch (local_path_constraint_) {
-    case kType1: {
+    case kType0: {
       local_path_candidates_.push_back(std::make_pair(1, 0));
       local_path_candidates_.push_back(std::make_pair(0, 1));
       break;
     }
-    case kType2: {
+    case kType1: {
       local_path_candidates_.push_back(std::make_pair(1, 0));
       local_path_candidates_.push_back(std::make_pair(0, 1));
+      local_path_candidates_.push_back(std::make_pair(1, 1));
+      break;
+    }
+    case kType2: {
+      local_path_candidates_.push_back(std::make_pair(1, 0));
       local_path_candidates_.push_back(std::make_pair(1, 1));
       break;
     }
     case kType3: {
       local_path_candidates_.push_back(std::make_pair(1, 0));
       local_path_candidates_.push_back(std::make_pair(1, 1));
-      break;
-    }
-    case kType4: {
-      local_path_candidates_.push_back(std::make_pair(1, 0));
-      local_path_candidates_.push_back(std::make_pair(1, 1));
       local_path_candidates_.push_back(std::make_pair(1, 2));
       break;
     }
-    case kType5: {
+    case kType4: {
       local_path_candidates_.push_back(std::make_pair(1, 0));
       local_path_candidates_.push_back(std::make_pair(0, 1));
       local_path_candidates_.push_back(std::make_pair(1, 1));
       break;
     }
-    case kType6: {
+    case kType5: {
       local_path_candidates_.push_back(std::make_pair(1, 1));
       local_path_candidates_.push_back(std::make_pair(1, 2));
       local_path_candidates_.push_back(std::make_pair(2, 1));
       break;
     }
-    case kType7: {
+    case kType6: {
       local_path_candidates_.push_back(std::make_pair(1, 0));
       local_path_candidates_.push_back(std::make_pair(1, 1));
       local_path_candidates_.push_back(std::make_pair(1, 2));
@@ -132,7 +134,7 @@ bool DynamicTimeWarping::Run(
     const std::vector<std::vector<double> >& reference_vector_sequence,
     std::vector<std::pair<int, int> >* viterbi_path,
     double* total_score) const {
-  // check inputs
+  // Check inputs.
   if (!is_valid_ || query_vector_sequence.empty() ||
       reference_vector_sequence.empty() || NULL == viterbi_path ||
       NULL == total_score) {
@@ -147,11 +149,6 @@ bool DynamicTimeWarping::Run(
                                        std::vector<Cell>(num_reference_vector));
   std::vector<std::vector<Cell> > cell_for_skip_transition(
       num_query_vector, std::vector<Cell>(num_reference_vector));
-
-  const bool includes_skip_transition(
-      (kType5 == local_path_constraint_ || kType7 == local_path_constraint_)
-          ? true
-          : false);
 
   for (int i(0); i < num_query_vector; ++i) {
     for (int j(0); j < num_reference_vector; ++j) {
@@ -174,7 +171,7 @@ bool DynamicTimeWarping::Run(
         const int j_k(j - local_path_candidates_[k].second);
         if (0 <= i_k && 0 <= j_k) {
           double score;
-          if (includes_skip_transition && (i_k == i || j_k == j)) {
+          if (includes_skip_transition_ && (i_k == i || j_k == j)) {
             score = local_path_weights_[k] * local_distance +
                     cell_for_skip_transition[i_k][j_k].score;
           } else {
@@ -182,7 +179,7 @@ bool DynamicTimeWarping::Run(
                 local_path_weights_[k] * local_distance + cell[i_k][j_k].score;
           }
 
-          if (includes_skip_transition && (i_k != i && j_k != j) &&
+          if (includes_skip_transition_ && (i_k != i && j_k != j) &&
               score < best_score_of_diagonal_paths) {
             best_score_of_diagonal_paths = score;
             best_i_of_diagonal_paths = i_k;
@@ -196,7 +193,7 @@ bool DynamicTimeWarping::Run(
         }
       }
 
-      if (includes_skip_transition) {
+      if (includes_skip_transition_) {
         cell_for_skip_transition[i][j].score = best_score_of_diagonal_paths;
         cell_for_skip_transition[i][j].horizontal_back_pointer =
             best_i_of_diagonal_paths;
@@ -224,11 +221,11 @@ bool DynamicTimeWarping::Run(
     viterbi_path->push_back(std::make_pair(i, j));
     while (0 <= i && 0 <= j) {
       const int prev_i(
-          (includes_skip_transition && skip_transition)
+          (includes_skip_transition_ && skip_transition)
               ? cell_for_skip_transition[i][j].horizontal_back_pointer
               : cell[i][j].horizontal_back_pointer);
       const int prev_j(
-          (includes_skip_transition && skip_transition)
+          (includes_skip_transition_ && skip_transition)
               ? cell_for_skip_transition[i][j].vertical_back_pointer
               : cell[i][j].vertical_back_pointer);
       if (0 <= prev_i && 0 <= prev_j) {
