@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <cmath>     // std::sqrt
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
@@ -77,9 +78,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  options:" << std::endl;
   *stream << "       -m m  : order of cepstrum     (   int)[" << std::setw(5) << std::right << kDefaultNumOrder     << "][ 1 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output format         (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 2 ]" << std::endl;  // NOLINT
-  *stream << "                 0 (euclidean distance [dB])" << std::endl;
-  *stream << "                 1 (euclidean distance)" << std::endl;
-  *stream << "                 2 (squared euclidean distance)" << std::endl;
+  *stream << "                 0 (Euclidean [dB])" << std::endl;
+  *stream << "                 1 (Euclidean)" << std::endl;
+  *stream << "                 2 (squared Euclidean)" << std::endl;
   *stream << "       -f    : output frame by frame (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultOutputFrameByFrameFlag) << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  cfile:" << std::endl;
@@ -89,7 +90,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  stdout:" << std::endl;
   *stream << "       cepstral distance             (double)" << std::endl;
   *stream << "  notice:" << std::endl;
-  *stream << "       0th cepstral coefficients are ignored" << std::endl;
+  *stream << "       0th cepstral coefficient is ignored" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -98,6 +99,110 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a cdist [ @e option ] @e cfile [ @e infile ]
+ *
+ * - @b -m @e int
+ *   - order of coefficients @f$(0 \le M)@f$
+ * - @b -o @e int
+ *   - output format @f$(0 \le O \le 2)@f$
+ *     \arg @c 0 Euclidean [dB]
+ *     \arg @c 1 Euclidean
+ *     \arg @c 2 squared Euclidean
+ * - @b -f @e bool
+ *   - output distance frame-by-frame
+ * - @b cfile @e str
+ *   - double-type minimum phase cepstrum
+ * - @b infile @e str
+ *   - double-type minimum phase cepstrum
+ * - @b stdout
+ *   - double-type cepstral distance
+ *
+ * The cepsturm model can be described as
+ * @f[
+ *   \log H(e^{j\omega}) = \sum_{m=0}^M c(m) e^{-j\omega m}.
+ * @f]
+ * Let us define
+ * @f[
+ *   \log H_0(e^{j\omega}) = \sum_{m=1}^M c(m) e^{-j\omega m},
+ * @f]
+ * where
+ * @f[
+ *   \log H_0(e^{j\omega}) = \log|H_0(e^{j\omega})| + j \arg H_0(e^{j\omega}).
+ * @f]
+ * Using the properties of complex conjugate, we obtain
+ * @f{eqnarray}{
+ *   \sum_{m=1}^M c(m) e^{-j\omega m} + \sum_{m=1}^M c(m) e^{j\omega m}
+ *     &=& 2\log |H_0(e^{j\omega})| \\
+ *   \sum_{m=-M}^M \hat{c}(m) e^{-j\omega m}
+ *     &=& \log |H_0(e^{j\omega})|^2 \\
+ * @f}
+ * where
+ * @f[
+ *   \hat{c}(m) = \left\{ \begin{array}{ll}
+ *     c(-m), & m < 0 \\
+ *     0,     & m = 0 \\
+ *     c(m).  & m > 0
+ *   \end{array} \right.
+ * @f]
+ * The Parseval's theorem says that the distance between two cepstral
+ * coefficients equivalents to the distance between two log spectra:
+ * @f[
+ *   \sum_{m=-M}^M (\hat{c}^{(1)}(m) - \hat{c}^{(2)}(m))^2
+ *     = \frac{1}{2\pi} \int_{-\pi}^{\pi}
+ *       \left( \log|H_0^{(1)}(e^{j\omega})|^2 - \log|H_0^{(2)}(e^{j\omega})|^2
+ *       \right)^2 d\omega.
+ * @f]
+ * The Euclidean distance can be written as
+ * @f[
+ *   \sqrt{\sum_{m=-M}^M (\hat{c}^{(1)}(m) - \hat{c}^{(2)}(m))^2}
+ *   = \sqrt{2 \sum_{m=1}^M (c^{(1)}(m) - c^{(2)}(m))^2}.
+ * @f]
+ * It can be converted into decibels by multipling a constant:
+ * @f[
+ *   \underbrace{\frac{10 \sqrt{2}}{\log 10}}_C
+ *     \sqrt{\underbrace{\sum_{m=1}^M (c^{(1)}(m) - c^{(2)}(m))^2}_d}.
+ * @f]
+ *
+ * The input of this command is
+ * @f[
+ *   \begin{array}{ccccc}
+ *     c^{(1)}_t(0), & c^{(1)}_t(1), & \ldots, & c^{(1)}_t(M), & \ldots \\
+ *     c^{(2)}_t(0), & c^{(2)}_t(1), & \ldots, & c^{(2)}_t(M), & \ldots
+ *   \end{array}
+ * @f]
+ * and the output is
+ * @f[
+ *   \begin{array}{cccc}
+ *     d'_t, & d'_{t+1}, & d'_{t+2}, & \ldots
+ *   \end{array}
+ * @f]
+ * where
+ * @f[
+ *   d'_t = \left\{ \begin{array}{cl}
+ *     C \sqrt{d_t}, & (O = 0) \\
+ *     \sqrt{d_t}, & (O = 1) \\
+ *     d_t. & (O = 2)
+ *   \end{array} \right.
+ * @f]
+ * If @c -f option is not given, the output is the total cepstral distance
+ * between two cepstral coefficients:
+ * @f[
+ *    d' = \frac{1}{T} \sum_{t=0}^{T-1} d'_t
+ * @f]
+ * where @f$T@f$ is the number of frames.
+ *
+ * In the example below, the spectral distance of the 15-th order cepstrum files
+ * @c data1.cep and @c data2.cep is evaluated and displayed:
+ *
+ * @code{.sh}
+ *   cdist -m 15 data1.cep data2.cep | dmp +d
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   OutputFormats output_format(kDefaultOutputFormat);
@@ -192,7 +297,7 @@ int main(int argc, char* argv[]) {
       sptk::DistanceCalculation::DistanceMetrics::kSquaredEuclidean);
   if (!statistics_accumulation.IsValid() || !distance_calculation.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for calculation";
+    error_message << "Failed to initialize";
     sptk::PrintErrorMessage("cdist", error_message);
     return 1;
   }

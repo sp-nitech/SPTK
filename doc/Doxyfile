@@ -941,6 +941,7 @@ INPUT                  = \
                          ../src/main/c2acr.cc \
                          ../src/main/c2mpir.cc \
                          ../src/main/c2ndps.cc \
+                         ../src/main/cdist.cc \
                          ../src/main/clip.cc \
                          ../src/main/csm2acr.cc \
                          ../src/main/dct.cc \
