@@ -60,8 +60,9 @@ teardown() {
 
    $sptk3/dtw -l 2 tmp/0_r tmp/0_q -v tmp/1 > /dev/null
    $sptk3/dtw -l 2 tmp/0_r tmp/0_q -V tmp/1 > tmp/2
-   $sptk4/dtw_merge -l 2 tmp/1 tmp/0_r tmp/0_q > tmp/3
-   run $sptk4/aeq tmp/2 tmp/3
+   $sptk4/dtw -l 2 tmp/0_r tmp/0_q -P tmp/3 > /dev/null
+   $sptk4/dtw_merge -l 2 tmp/3 tmp/0_r tmp/0_q > tmp/4
+   run $sptk4/aeq tmp/2 tmp/4
    [ "$status" -eq 0 ]
 }
 
