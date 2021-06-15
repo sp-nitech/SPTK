@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -76,7 +77,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       composite sinusoidal modeling        (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
   *stream << "       value of m must be odd" << std::endl;
-  *stream << "       if m > 40, cannot compute reliable CSM due to computational accuracy" << std::endl;  // NOLINT
+  *stream << "       if m > 30, cannot compute reliable CSM due to computational accuracy" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -85,6 +86,24 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a acr2csm [ @e option ] [ @e infile ]
+ *
+ * - @b -m @e int
+ *   - order of autocorrelation @f$(1 \le M)@f$
+ * - @b -i @e int
+ *   - number of iterations of root finding @f$(1 \le N)@f$
+ * - @b -d @e double
+ *   - convergence threshold of root finding @f$(0 \le \epsilon)@f$
+ * - @b infile @e str
+ *   - double-type autocorrelation
+ * - @b stdout
+ *   - double-type CSM parameters
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   int num_iteration(kDefaultNumIteration);
@@ -139,7 +158,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -149,7 +167,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -166,7 +183,8 @@ int main(int argc, char* argv[]) {
   sptk::AutocorrelationToCompositeSinusoidalModeling::Buffer buffer;
   if (!autocorrelation_to_composite_sinusoidal_modeling.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for transformation";
+    error_message
+        << "Failed to initialize AutocorrelationToCompositeSinusoidalModeling";
     sptk::PrintErrorMessage("acr2csm", error_message);
     return 1;
   }
@@ -181,7 +199,7 @@ int main(int argc, char* argv[]) {
             autocorrelation, &composite_sinusoidal_modeling, &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to convert autocorrelation to composite "
-                       "sinusoidal modeling";
+                       "sinusoidal modeling coefficients";
       sptk::PrintErrorMessage("acr2csm", error_message);
       return 1;
     }
@@ -189,7 +207,8 @@ int main(int argc, char* argv[]) {
     if (!sptk::WriteStream(0, length, composite_sinusoidal_modeling, &std::cout,
                            NULL)) {
       std::ostringstream error_message;
-      error_message << "Failed to write composite sinusoidal modeling sequence";
+      error_message
+          << "Failed to write composite sinusoidal modeling coefficients";
       sptk::PrintErrorMessage("acr2csm", error_message);
       return 1;
     }

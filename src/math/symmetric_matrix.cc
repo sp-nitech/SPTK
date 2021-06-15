@@ -53,8 +53,8 @@
 
 namespace {
 
-const char* kErrorMessage("SymmetricMatrix: Out of range");
-const double kEpsilon(1e-6);
+const char* kErrorMessageForOutOfRange("SymmetricMatrix: Out of range");
+const double kMinimumValueOfDiagonalElement(1e-12);
 
 }  // namespace
 
@@ -125,7 +125,7 @@ double& SymmetricMatrix::At(int row, int column) {
     std::swap(row, column);
   }
   if (column < 0 || num_dimension_ <= row) {
-    throw std::out_of_range(kErrorMessage);
+    throw std::out_of_range(kErrorMessageForOutOfRange);
   }
   return index_[row][column];
 }
@@ -135,7 +135,7 @@ const double& SymmetricMatrix::At(int row, int column) const {
     std::swap(row, column);
   }
   if (column < 0 || num_dimension_ <= row) {
-    throw std::out_of_range(kErrorMessage);
+    throw std::out_of_range(kErrorMessageForOutOfRange);
   }
   return index_[row][column];
 }
@@ -203,7 +203,7 @@ bool SymmetricMatrix::CholeskyDecomposition(
       d[i] -= lower_triangular_matrix->index_[i][j] *
               lower_triangular_matrix->index_[i][j] * d[j];
     }
-    if (std::fabs(d[i]) <= kEpsilon) {
+    if (std::fabs(d[i]) <= kMinimumValueOfDiagonalElement) {
       return false;
     }
     lower_triangular_matrix->index_[i][i] = 1.0;

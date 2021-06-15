@@ -869,6 +869,7 @@ INPUT                  = \
                          ../include/SPTK/compression/uniform_quantization.h \
                          ../include/SPTK/compression/vector_quantization.h \
                          ../include/SPTK/conversion/all_pole_to_all_zero_digital_filter_coefficients.h \
+                         ../include/SPTK/conversion/autocorrelation_to_composite_sinusoidal_modeling.h \
                          ../include/SPTK/conversion/cepstrum_to_autocorrelation.h \
                          ../include/SPTK/conversion/cepstrum_to_minimum_phase_impulse_response.h \
                          ../include/SPTK/conversion/cepstrum_to_negative_derivative_of_phase_spectrum.h \
@@ -933,6 +934,7 @@ INPUT                  = \
                          ../include/SPTK/window/data_windowing.h \
                          ../src/main/aeq.cc \
                          ../src/main/acorr.cc \
+                         ../src/main/acr2csm.cc \
                          ../src/main/amgcep.cc \
                          ../src/main/average.cc \
                          ../src/main/b2mc.cc \
