@@ -52,6 +52,9 @@
 
 namespace sptk {
 
+/**
+ * Extract pitch based on WORLD (DUO).
+ */
 class PitchExtractionByWorld : public PitchExtractionInterface {
  public:
   /**
@@ -60,7 +63,6 @@ class PitchExtractionByWorld : public PitchExtractionInterface {
    * @param[in] lower_f0 Lower bound of F0 in Hz.
    * @param[in] upper_f0 Upper bound of F0 in Hz.
    * @param[in] voicing_threshold Threshold for determining voiced/unvoiced.
-   * @param[in] algorithm Algorithm used for pitch extraction.
    */
   PitchExtractionByWorld(int frame_shift, double sampling_rate, double lower_f0,
                          double upper_f0, double voicing_threshold);

@@ -45,17 +45,27 @@
 #ifndef SPTK_GENERATION_RANDOM_GENERATION_INTERFACE_H_
 #define SPTK_GENERATION_RANDOM_GENERATION_INTERFACE_H_
 
-#include "SPTK/utils/sptk_utils.h"
-
 namespace sptk {
 
+/**
+ * An interface of random number generation.
+ */
 class RandomGenerationInterface {
  public:
   virtual ~RandomGenerationInterface() {
   }
 
+  /**
+   * Reset state.
+   */
   virtual void Reset() = 0;
 
+  /**
+   * Get random number.
+   *
+   * @param[out] output Random number.
+   * @return True on success, false on failure.
+   */
   virtual bool Get(double* output) = 0;
 };
 

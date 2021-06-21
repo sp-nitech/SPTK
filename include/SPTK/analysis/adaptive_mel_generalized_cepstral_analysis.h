@@ -53,6 +53,10 @@
 
 namespace sptk {
 
+/**
+ * This is a wrapper of AdaptiveGeneralizedCepstralAnalysis and
+ * AdaptiveMelCepstralAnalysis.
+ */
 class AdaptiveMelGeneralizedCepstralAnalysis {
  public:
   /**

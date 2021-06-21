@@ -49,8 +49,14 @@
 
 namespace sptk {
 
+/**
+ * An interface of pitch extraction.
+ */
 class PitchExtractionInterface {
  public:
+  /**
+   * Polarity.
+   */
   enum Polarity {
     kUnknown = 0,
     kPositive,
@@ -60,8 +66,18 @@ class PitchExtractionInterface {
   virtual ~PitchExtractionInterface() {
   }
 
+  /**
+   * @return True if this object is valid.
+   */
   virtual bool IsValid() const = 0;
 
+  /**
+   * @param[in] waveform Waveform samples.
+   * @param[out] f0 F0.
+   * @param[out] epochs Epochs.
+   * @param[out] polarity Polarity.
+   * @return True on success, false on failure.
+   */
   virtual bool Get(const std::vector<double>& waveform, std::vector<double>* f0,
                    std::vector<double>* epochs, Polarity* polarity) const = 0;
 };
