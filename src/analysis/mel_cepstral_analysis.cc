@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -120,14 +120,15 @@ MelCepstralAnalysis::MelCepstralAnalysis(int fft_length, int num_order,
   // Compute (-a)^0, (-a)^1, (-a)^2, ..., (-a)^M.
   alpha_vector_.resize(num_order_ + 1);
   alpha_vector_[0] = 1.0;
-  for (int i(1); i <= num_order_; ++i) {
-    alpha_vector_[i] = -alpha_ * alpha_vector_[i - 1];
+  for (int m(1); m <= num_order_; ++m) {
+    alpha_vector_[m] = -alpha_ * alpha_vector_[m - 1];
   }
 }
 
 bool MelCepstralAnalysis::Run(const std::vector<double>& periodogram,
                               std::vector<double>* mel_cepstrum,
                               MelCepstralAnalysis::Buffer* buffer) const {
+  // Check inputs.
   const int half_fft_length(fft_length_ / 2);
   if (!is_valid_ ||
       periodogram.size() != static_cast<std::size_t>(half_fft_length + 1) ||
@@ -135,6 +136,7 @@ bool MelCepstralAnalysis::Run(const std::vector<double>& periodogram,
     return false;
   }
 
+  // Prepare memories.
   const int length(num_order_ + 1);
   if (mel_cepstrum->size() != static_cast<std::size_t>(length)) {
     mel_cepstrum->resize(length);
@@ -172,8 +174,7 @@ bool MelCepstralAnalysis::Run(const std::vector<double>& periodogram,
                       buffer->log_periodogram_.end() - 1,
                       buffer->cepstrum_.begin() + half_fft_length + 1);
     if (!inverse_fourier_transform_.Run(
-            buffer->cepstrum_, &buffer->cepstrum_,
-            &buffer->imaginary_part_output_,
+            buffer->cepstrum_, &buffer->cepstrum_, &buffer->imag_part_output_,
             &buffer->buffer_for_inverse_fourier_transform_)) {
       return false;
     }
@@ -202,7 +203,7 @@ bool MelCepstralAnalysis::Run(const std::vector<double>& periodogram,
     // c -> \log D
     buffer->cepstrum_.resize(fft_length_, 0.0);
     if (!fourier_transform_.Run(buffer->cepstrum_, &buffer->d_,
-                                &buffer->imaginary_part_output_,
+                                &buffer->imag_part_output_,
                                 &buffer->buffer_for_fourier_transform_)) {
       return false;
     }
@@ -218,7 +219,7 @@ bool MelCepstralAnalysis::Run(const std::vector<double>& periodogram,
 
     // I_N / |D|^2 -> r
     if (!inverse_fourier_transform_.Run(
-            buffer->d_, &buffer->r_, &buffer->imaginary_part_output_,
+            buffer->d_, &buffer->r_, &buffer->imag_part_output_,
             &buffer->buffer_for_inverse_fourier_transform_)) {
       return false;
     }
@@ -227,6 +228,14 @@ bool MelCepstralAnalysis::Run(const std::vector<double>& periodogram,
     CoefficientsFrequencyTransform(buffer->r_, half_fft_length + 1,
                                    2 * length - 1, alpha_, &buffer->rt_,
                                    &buffer->b_);
+
+    // Check convergence.
+    const double epsilon(buffer->rt_[0]);
+    const double relative_change((epsilon - prev_epsilon) / epsilon);
+    if (std::fabs(relative_change) < convergence_threshold_) {
+      break;
+    }
+    prev_epsilon = epsilon;
 
     // \tilde{r} -> R
     std::reverse_copy(buffer->rt_.begin() + 1, buffer->rt_.begin() + length,
@@ -250,14 +259,6 @@ bool MelCepstralAnalysis::Run(const std::vector<double>& periodogram,
     std::transform(mel_cepstrum->begin(), mel_cepstrum->end(),
                    buffer->gradient_.begin(), mel_cepstrum->begin(),
                    std::plus<double>());
-
-    // Check convergence.
-    const double epsilon(buffer->rt_[0]);
-    const double relative_change((epsilon - prev_epsilon) / epsilon);
-    if (std::fabs(relative_change) < convergence_threshold_) {
-      break;
-    }
-    prev_epsilon = epsilon;
   }
 
   return true;

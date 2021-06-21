@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -184,6 +184,7 @@ bool MelGeneralizedCepstralAnalysis::Run(
         &buffer->buffer_for_mel_cepstral_analysis_);
   }
 
+  // Check inputs.
   const int half_fft_length(fft_length_ / 2);
   if (!is_valid_ ||
       periodogram.size() != static_cast<std::size_t>(half_fft_length + 1) ||
@@ -191,6 +192,7 @@ bool MelGeneralizedCepstralAnalysis::Run(
     return false;
   }
 
+  // Prepare memories.
   const int length(num_order_ + 1);
   if (mel_generalized_cepstrum->size() != static_cast<std::size_t>(length)) {
     mel_generalized_cepstrum->resize(length);

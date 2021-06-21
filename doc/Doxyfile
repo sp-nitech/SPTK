@@ -846,28 +846,9 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = \
-                         ../include/SPTK/analysis/adaptive_generalized_cepstral_analysis.h \
-                         ../include/SPTK/analysis/adaptive_mel_cepstral_analysis.h \
-                         ../include/SPTK/analysis/fast_fourier_transform_cepstral_analysis.h \
-                         ../include/SPTK/analysis/mel_filter_bank_analysis.h \
-                         ../include/SPTK/analysis/mel_frequency_cepstral_coefficients_analysis.h \
-                         ../include/SPTK/analysis/pitch_extraction.h \
-                         ../include/SPTK/analysis/zero_crossing_analysis.h \
-                         ../include/SPTK/check/line_spectral_pairs_stability_check.h \
-                         ../include/SPTK/check/linear_predictive_coefficients_stability_check.h \
-                         ../include/SPTK/check/mlsa_digital_filter_stability_check.h \
-                         ../include/SPTK/compression/huffman_coding.h \
-                         ../include/SPTK/compression/huffman_decoding.h \
-                         ../include/SPTK/compression/huffman_encoding.h \
-                         ../include/SPTK/compression/inverse_multistage_vector_quantization.h \
-                         ../include/SPTK/compression/inverse_uniform_quantization.h \
-                         ../include/SPTK/compression/inverse_vector_quantization.h \
-                         ../include/SPTK/compression/linde_buzo_gray_algorithm.h \
-                         ../include/SPTK/compression/mu_law_compression.h \
-                         ../include/SPTK/compression/mu_law_expansion.h \
-                         ../include/SPTK/compression/multistage_vector_quantization.h \
-                         ../include/SPTK/compression/uniform_quantization.h \
-                         ../include/SPTK/compression/vector_quantization.h \
+                         ../include/SPTK/analysis \
+                         ../include/SPTK/check \
+                         ../include/SPTK/compression \
                          ../include/SPTK/conversion/all_pole_to_all_zero_digital_filter_coefficients.h \
                          ../include/SPTK/conversion/autocorrelation_to_composite_sinusoidal_modeling.h \
                          ../include/SPTK/conversion/cepstrum_to_autocorrelation.h \
@@ -898,12 +879,7 @@ INPUT                  = \
                          ../include/SPTK/filter/line_spectral_pairs_digital_filter.h \
                          ../include/SPTK/filter/pseudo_quadrature_mirror_filter_banks.h \
                          ../include/SPTK/filter/second_order_digital_filter.h \
-                         ../include/SPTK/generation/delta_calculation.h \
-                         ../include/SPTK/generation/excitation_generation.h \
-                         ../include/SPTK/generation/m_sequence_generation.h \
-                         ../include/SPTK/generation/nonrecursive_maximum_likelihood_parameter_generation.h \
-                         ../include/SPTK/generation/normal_distributed_random_value_generation.h \
-                         ../include/SPTK/generation/recursive_maximum_likelihood_parameter_generation.h \
+                         ../include/SPTK/generation \
                          ../include/SPTK/math/discrete_cosine_transform.h \
                          ../include/SPTK/math/distance_calculation.h \
                          ../include/SPTK/math/entropy_calculation.h \
@@ -1001,6 +977,7 @@ INPUT                  = \
                          ../src/main/median.cc \
                          ../src/main/merge.cc \
                          ../src/main/mfcc.cc \
+                         ../src/main/mgcep.cc \
                          ../src/main/mglsp2sp.cc \
                          ../src/main/minmax.cc \
                          ../src/main/mlpg.cc \

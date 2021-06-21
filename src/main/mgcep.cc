@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -82,7 +82,7 @@ const double kDefaultGamma(0.0);
 const int kDefaultFftLength(256);
 const InputFormats kDefaultInputFormat(kWaveform);
 const OutputFormats kDefaultOutputFormat(kCepstrum);
-const int kDefaultNumIteration(10);
+const int kDefaultNumIteration(30);
 const double kDefaultConvergenceThreshold(1e-3);
 
 void PrintUsage(std::ostream* stream) {
@@ -107,7 +107,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -o o  : output format                     (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat         << "][    0 <= o <= 3   ]" << std::endl;  // NOLINT
   *stream << "                 0 (mel-cepstrum)" << std::endl;
   *stream << "                 1 (mlsa filter coefficients)" << std::endl;
-  *stream << "                 2 (gain normalized cepstrum)" << std::endl;
+  *stream << "                 2 (gain normalized mel-cepstrum)" << std::endl;
   *stream << "                 3 (gain normalized mlsa filter coefficients)" << std::endl;  // NOLINT
   *stream << "     (level 2)" << std::endl;
   *stream << "       -i i  : maximum number of iterations      (   int)[" << std::setw(5) << std::right << kDefaultNumIteration         << "][    0 <= i <=     ]" << std::endl;  // NOLINT
@@ -130,6 +130,61 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a mgcep [ @e option ] [ @e infile ]
+ *
+ * - @b -m @e int
+ *   - order of coefficients @f$(0 \le M)@f$
+ * - @b -a @e double
+ *   - all-pass constant @f$(|\alpha|<1)@f$
+ * - @b -g @e double
+ *   - gamma @f$(|\gamma| \le 1)@f$
+ * - @b -c @e int
+ *   - gamma @f$\gamma = -1 / C@f$ @f$(1 \le C)@f$
+ * - @b -l @e int
+ *   - FFT length @f$(2 \le N)@f$
+ * - @b -q @e int
+ *   - input format
+ *     \arg @c 0 amplitude spectrum in dB
+ *     \arg @c 1 log amplitude spectrum
+ *     \arg @c 2 amplitude spectrum
+ *     \arg @c 3 power spectrum
+ *     \arg @c 4 windowed waveform
+ * - @b -o @e int
+ *   - output format
+ *     \arg @c 0 mel-cepstrum
+ *     \arg @c 1 MLSA filter coefficients
+ *     \arg @c 2 gain normalized mel-cepstrum
+ *     \arg @c 3 gain normalized MLSA filter coefficients.
+ * - @b -i @e int
+ *   - number of iterations @f$(0 \le J)@f$
+ * - @b -d @e double
+ *   - convergence threshold @f$(0 \le \epsilon)@f$
+ * - @b -e @e double
+ *   - small value added to power spectrum to prevent @f$\log(0)@f$
+ * - @b -E @e double
+ *   - relative floor in decibels
+ * - @b infile @e str
+ *   - double-type windowed sequence or spectrum
+ * - @b stdout
+ *   - double-type mel-generalized cepstral coefficients
+ *
+ * In the example below, mel-cepstral coefficients are extracted from @c data.d.
+ *
+ * @code{.sh}
+ *   frame < data.d | window | mgcep > data.mcep
+ * @endcode
+ *
+ * This is equivalents to the below line.
+ *
+ * @code{.sh}
+ *   frame < data.d | window | fftr -o 3 -H | mgcep -q 3 > data.mcep
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   double alpha(kDefaultAlpha);
@@ -288,7 +343,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -298,7 +352,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
