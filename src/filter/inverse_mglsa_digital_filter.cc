@@ -47,7 +47,7 @@
 #include <algorithm>   // std::fill, std::transform
 #include <cmath>       // std::exp
 #include <cstddef>     // std::size_t
-#include <functional>  // std::bind1st, std::multiplies
+#include <functional>  // std::negate
 
 namespace sptk {
 
@@ -69,13 +69,14 @@ InverseMglsaDigitalFilter::InverseMglsaDigitalFilter(int num_filter_order,
   }
   if (0 == num_stage && !mlsa_digital_filter_.IsValid()) {
     is_valid_ = false;
+    return;
   }
 }
 
 bool InverseMglsaDigitalFilter::Run(
     const std::vector<double>& filter_coefficients, double filter_input,
     double* filter_output, InverseMglsaDigitalFilter::Buffer* buffer) const {
-  // check inputs
+  // Check inputs.
   if (!is_valid_ ||
       filter_coefficients.size() !=
           static_cast<std::size_t>(num_filter_order_ + 1) ||
@@ -83,6 +84,7 @@ bool InverseMglsaDigitalFilter::Run(
     return false;
   }
 
+  // Use inverse MLSA filter.
   if (0 == num_stage_) {
     if (buffer->inverse_filter_coefficients_.size() !=
         static_cast<std::size_t>(num_filter_order_ + 1)) {
@@ -90,13 +92,13 @@ bool InverseMglsaDigitalFilter::Run(
     }
     std::transform(filter_coefficients.begin(), filter_coefficients.end(),
                    buffer->inverse_filter_coefficients_.begin(),
-                   std::bind1st(std::multiplies<double>(), -1.0));
+                   std::negate<double>());
     return mlsa_digital_filter_.Run(buffer->inverse_filter_coefficients_,
                                     filter_input, filter_output,
-                                    &(buffer->mlsa_digital_filter_buffer_));
+                                    &buffer->mlsa_digital_filter_buffer_);
   }
 
-  // prepare memories
+  // Prepare memories.
   if (buffer->signals_.size() !=
       static_cast<std::size_t>((num_filter_order_ + 1) * num_stage_)) {
     buffer->signals_.resize((num_filter_order_ + 1) * num_stage_);
@@ -148,6 +150,13 @@ bool InverseMglsaDigitalFilter::Run(
   *filter_output = x;
 
   return true;
+}
+
+bool InverseMglsaDigitalFilter::Run(
+    const std::vector<double>& filter_coefficients, double* input_and_output,
+    InverseMglsaDigitalFilter::Buffer* buffer) const {
+  if (NULL == input_and_output) return false;
+  return Run(filter_coefficients, *input_and_output, input_and_output, buffer);
 }
 
 }  // namespace sptk

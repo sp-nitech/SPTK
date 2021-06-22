@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -109,7 +109,7 @@ MlsaDigitalFilter::MlsaDigitalFilter(int num_filter_order, int num_pade_order,
 bool MlsaDigitalFilter::Run(const std::vector<double>& filter_coefficients,
                             double filter_input, double* filter_output,
                             MlsaDigitalFilter::Buffer* buffer) const {
-  // check inputs
+  // Check inputs.
   if (!is_valid_ ||
       filter_coefficients.size() !=
           static_cast<std::size_t>(num_filter_order_ + 1) ||
@@ -117,7 +117,7 @@ bool MlsaDigitalFilter::Run(const std::vector<double>& filter_coefficients,
     return false;
   }
 
-  // prepare memories
+  // Prepare memories.
   if (buffer->signals_for_basic_filter1_.size() !=
       static_cast<std::size_t>(num_pade_order_ + 1)) {
     buffer->signals_for_basic_filter1_.resize(num_pade_order_ + 1);
@@ -144,7 +144,6 @@ bool MlsaDigitalFilter::Run(const std::vector<double>& filter_coefficients,
               buffer->signals_for_exp_filter2_.end(), 0.0);
   }
 
-  // set value
   const double gained_input(filter_input * std::exp(filter_coefficients[0]));
   if (0 == num_filter_order_) {
     *filter_output = gained_input;
@@ -154,7 +153,7 @@ bool MlsaDigitalFilter::Run(const std::vector<double>& filter_coefficients,
   const double* b(&(filter_coefficients[0]));
   const double beta(1.0 - alpha_ * alpha_);
 
-  // First stage
+  // First stage:
   double first_output(0.0);
   {
     double* d1(&buffer->signals_for_basic_filter1_[0]);
@@ -172,7 +171,7 @@ bool MlsaDigitalFilter::Run(const std::vector<double>& filter_coefficients,
     first_output += x;
   }
 
-  // Second stage
+  // Second stage:
   double second_output(0.0);
   {
     double* p2(&buffer->signals_for_exp_filter2_[0]);
@@ -217,6 +216,13 @@ bool MlsaDigitalFilter::Run(const std::vector<double>& filter_coefficients,
   *filter_output = second_output;
 
   return true;
+}
+
+bool MlsaDigitalFilter::Run(const std::vector<double>& filter_coefficients,
+                            double* input_and_output,
+                            MlsaDigitalFilter::Buffer* buffer) const {
+  if (NULL == input_and_output) return false;
+  return Run(filter_coefficients, *input_and_output, input_and_output, buffer);
 }
 
 }  // namespace sptk

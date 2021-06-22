@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,15 +42,15 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>    // getopt_long
-#include <algorithm>   // std::transform
-#include <cmath>       // std::log
-#include <fstream>     // std::ifstream
-#include <functional>  // std::bind1st, std::multiplies
-#include <iomanip>     // std::setw
-#include <iostream>    // std::cerr, std::cin, std::cout, std::endl, etc.
-#include <sstream>     // std::ostringstream
-#include <vector>      // std::vector
+#include <getopt.h>  // getopt_long
+
+#include <algorithm>  // std::transform
+#include <cmath>      // std::log
+#include <fstream>    // std::ifstream
+#include <iomanip>    // std::setw
+#include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>    // std::ostringstream
+#include <vector>     // std::vector
 
 #include "SPTK/conversion/generalized_cepstrum_gain_normalization.h"
 #include "SPTK/conversion/mel_cepstrum_to_mlsa_digital_filter_coefficients.h"
@@ -81,7 +81,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -m m  : order of filter coefficients  (   int)[" << std::setw(5) << std::right << kDefaultNumFilterOrder      << "][    0 <= m <=     ]" << std::endl;  // NOLINT
   *stream << "       -a a  : all-pass constant             (double)[" << std::setw(5) << std::right << kDefaultAlpha               << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
   *stream << "       -c c  : gamma = -1 / c                (   int)[" << std::setw(5) << std::right << kDefaultNumStage            << "][    0 <= c <=     ]" << std::endl;  // NOLINT
-  *stream << "       -p p  : frame period                  (   int)[" << std::setw(5) << std::right << kDefaultFramePeriod         << "][    0 <  p <=     ]" << std::endl;  // NOLINT
+  *stream << "       -p p  : frame period                  (   int)[" << std::setw(5) << std::right << kDefaultFramePeriod         << "][    1 <= p <=     ]" << std::endl;  // NOLINT
   *stream << "       -i i  : interpolation period          (   int)[" << std::setw(5) << std::right << kDefaultInterpolationPeriod << "][    0 <= i <= p/2 ]" << std::endl;  // NOLINT
   *stream << "       -P P  : order of Pade approximation   (   int)[" << std::setw(5) << std::right << kDefaultNumPadeOrder        << "][    4 <= P <= 7   ]" << std::endl;  // NOLINT
   *stream << "       -t    : transpose filter              (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultTranspositionFlag) << "]" << std::endl;  // NOLINT
@@ -106,11 +106,11 @@ void PrintUsage(std::ostream* stream) {
 class InputSourcePreprocessingForMelCepstrum
     : public sptk::InputSourceInterface {
  public:
-  //
   InputSourcePreprocessingForMelCepstrum(double alpha, double gamma,
                                          bool gain_flag,
                                          sptk::InputSourceInterface* source)
-      : gain_flag_(gain_flag),
+      : gamma_(gamma),
+        gain_flag_(gain_flag),
         source_(source),
         mel_cepstrum_to_mlsa_digital_filter_coefficients_(
             source ? source->GetSize() - 1 : 0, alpha),
@@ -121,107 +121,111 @@ class InputSourcePreprocessingForMelCepstrum
         !mel_cepstrum_to_mlsa_digital_filter_coefficients_.IsValid() ||
         !generalized_cepstrum_gain_normalization_.IsValid()) {
       is_valid_ = false;
+      return;
     }
   }
 
-  //
   ~InputSourcePreprocessingForMelCepstrum() {
   }
 
-  //
-  double GetAlpha() const {
-    return mel_cepstrum_to_mlsa_digital_filter_coefficients_.GetAlpha();
-  }
-
-  //
-  double GetGamma() const {
-    return generalized_cepstrum_gain_normalization_.GetGamma();
-  }
-
-  //
   bool GetGainFlag() const {
     return gain_flag_;
   }
 
-  //
   virtual int GetSize() const {
     return source_ ? source_->GetSize() : 0;
   }
 
-  //
   virtual bool IsValid() const {
     return is_valid_;
   }
 
-  //
   virtual bool Get(std::vector<double>* mlsa_digital_filter_coefficients) {
     if (!is_valid_) {
       return false;
     }
+
     if (!source_->Get(&mel_cepstrum_)) {
       return false;
     }
+
     if (!mel_cepstrum_to_mlsa_digital_filter_coefficients_.Run(
             mel_cepstrum_, mlsa_digital_filter_coefficients)) {
       return false;
     }
 
-    // MLSA filter
-    if (0.0 == GetGamma()) {
-      if (!gain_flag_) (*mlsa_digital_filter_coefficients)[0] = 0.0;
-      return true;
+    if (0.0 != gamma_) {
+      if (!generalized_cepstrum_gain_normalization_.Run(
+              mlsa_digital_filter_coefficients)) {
+        return false;
+      }
+      if (gain_flag_) {
+        (*mlsa_digital_filter_coefficients)[0] =
+            std::log((*mlsa_digital_filter_coefficients)[0]);
+      }
+      std::transform(mlsa_digital_filter_coefficients->begin() + 1,
+                     mlsa_digital_filter_coefficients->end(),
+                     mlsa_digital_filter_coefficients->begin() + 1,
+                     [this](double b) { return b * gamma_; });
     }
 
-    // MGLSA filter
-    if (!generalized_cepstrum_gain_normalization_.Run(
-            *mlsa_digital_filter_coefficients,
-            &temporary_mlsa_digital_filter_coefficients_)) {
-      return false;
+    if (!gain_flag_) {
+      (*mlsa_digital_filter_coefficients)[0] = 0.0;  // exp(0) = 1
     }
-    std::transform(temporary_mlsa_digital_filter_coefficients_.begin() + 1,
-                   temporary_mlsa_digital_filter_coefficients_.end(),
-                   mlsa_digital_filter_coefficients->begin() + 1,
-                   std::bind1st(std::multiplies<double>(), GetGamma()));
-    if (gain_flag_) {
-      if (temporary_mlsa_digital_filter_coefficients_[0] <= 0.0) return false;
-      (*mlsa_digital_filter_coefficients)[0] =
-          std::log(temporary_mlsa_digital_filter_coefficients_[0]);
-    } else {
-      (*mlsa_digital_filter_coefficients)[0] = 0.0;
-    }
+
     return true;
   }
 
  private:
-  //
+  const double gamma_;
   const bool gain_flag_;
 
-  //
   InputSourceInterface* source_;
 
-  //
   const sptk::MelCepstrumToMlsaDigitalFilterCoefficients
       mel_cepstrum_to_mlsa_digital_filter_coefficients_;
-
-  //
   const sptk::GeneralizedCepstrumGainNormalization
       generalized_cepstrum_gain_normalization_;
 
-  //
-  std::vector<double> mel_cepstrum_;
-
-  //
-  std::vector<double> temporary_mlsa_digital_filter_coefficients_;
-
-  //
   bool is_valid_;
 
-  //
+  std::vector<double> mel_cepstrum_;
+
   DISALLOW_COPY_AND_ASSIGN(InputSourcePreprocessingForMelCepstrum);
 };
 
 }  // namespace
 
+/**
+ * @a imglsadf [ @e option ] @e mgcfile [ @e infile ]
+ *
+ * - @b -m @e int
+ *   - order of coefficients @f$(0 \le M)@f$
+ * - @b -a @e double
+ *   - all-pass constant @f$(|\alpha| < 1)@f$
+ * - @b -c @e int
+ *   - gamma @f$\gamma = -1 / C@f$ @f$(0 \le C)@f$
+ * - @b -p @e int
+ *   - frame period @f$(1 \le P)@f$
+ * - @b -i @e int
+ *   - interpolation period @f$(0 \le I \le P/2)@f$
+ * - @b -P @e int
+ *   - order of Pade approximation @f$(4 \le L \le 7)@f$
+ * - @b -t @e bool
+ *   - transpose filter
+ * - @b -k @e bool
+ *   - filtering without gain
+ * - @b mgcfile @e str
+ *   - double-type mel-generalized cepstral coefficients
+ * - @b infile @e str
+ *   - double-type input sequence
+ * - @b stdout
+ *   - double-type output sequence
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_filter_order(kDefaultNumFilterOrder);
   double alpha(kDefaultAlpha);
@@ -382,20 +386,26 @@ int main(int argc, char* argv[]) {
                                                        &input_source);
   sptk::InputSourceInterpolation interpolation(
       frame_period, interpolation_period, true, &preprocessing);
-  double filter_input, filter_output;
-
-  sptk::InverseMglsaDigitalFilter filter(num_filter_order, num_pade_order,
-                                         num_stage, alpha, transposition_flag);
-  sptk::InverseMglsaDigitalFilter::Buffer buffer;
-
-  if (!interpolation.IsValid() || !filter.IsValid()) {
+  if (!interpolation.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for filtering";
+    error_message << "Failed to initialize InputSource";
     sptk::PrintErrorMessage("imglsadf", error_message);
     return 1;
   }
 
-  while (sptk::ReadStream(&filter_input, &stream_for_filter_input)) {
+  sptk::InverseMglsaDigitalFilter filter(num_filter_order, num_pade_order,
+                                         num_stage, alpha, transposition_flag);
+  sptk::InverseMglsaDigitalFilter::Buffer buffer;
+  if (!filter.IsValid()) {
+    std::ostringstream error_message;
+    error_message << "Failed to initialize InverseMglsaDigitalFilter";
+    sptk::PrintErrorMessage("imglsadf", error_message);
+    return 1;
+  }
+
+  double signal;
+
+  while (sptk::ReadStream(&signal, &stream_for_filter_input)) {
     if (!interpolation.Get(&filter_coefficients)) {
       std::ostringstream error_message;
       error_message << "Cannot get filter coefficients";
@@ -403,15 +413,14 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    if (!filter.Run(filter_coefficients, filter_input, &filter_output,
-                    &buffer)) {
+    if (!filter.Run(filter_coefficients, &signal, &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to apply inverse MGLSA digital filter";
       sptk::PrintErrorMessage("imglsadf", error_message);
       return 1;
     }
 
-    if (!sptk::WriteStream(filter_output, &std::cout)) {
+    if (!sptk::WriteStream(signal, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write a filter output";
       sptk::PrintErrorMessage("imglsadf", error_message);

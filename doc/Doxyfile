@@ -871,14 +871,7 @@ INPUT                  = \
                          ../include/SPTK/conversion/parcor_coefficients_to_linear_predictive_coefficients.h \
                          ../include/SPTK/conversion/parcor_coefficients_to_log_area_ratio.h \
                          ../include/SPTK/conversion/waveform_to_autocorrelation.h \
-                         ../include/SPTK/filter/all_pole_digital_filter.h \
-                         ../include/SPTK/filter/all_pole_lattice_digital_filter.h \
-                         ../include/SPTK/filter/all_zero_digital_filter.h \
-                         ../include/SPTK/filter/infinite_impulse_response_digital_filter.h \
-                         ../include/SPTK/filter/inverse_pseudo_quadrature_mirror_filter_banks.h \
-                         ../include/SPTK/filter/line_spectral_pairs_digital_filter.h \
-                         ../include/SPTK/filter/pseudo_quadrature_mirror_filter_banks.h \
-                         ../include/SPTK/filter/second_order_digital_filter.h \
+                         ../include/SPTK/filter \
                          ../include/SPTK/generation \
                          ../include/SPTK/math/discrete_cosine_transform.h \
                          ../include/SPTK/math/distance_calculation.h \
@@ -956,6 +949,7 @@ INPUT                  = \
                          ../src/main/ifft.cc \
                          ../src/main/ifft2.cc \
                          ../src/main/ignorm.cc \
+                         ../src/main/imglsadf.cc \
                          ../src/main/impulse.cc \
                          ../src/main/imsvq.cc \
                          ../src/main/interpolate.cc \
@@ -978,6 +972,7 @@ INPUT                  = \
                          ../src/main/merge.cc \
                          ../src/main/mfcc.cc \
                          ../src/main/mgcep.cc \
+                         ../src/main/mglsadf.cc \
                          ../src/main/mglsp2sp.cc \
                          ../src/main/minmax.cc \
                          ../src/main/mlpg.cc \

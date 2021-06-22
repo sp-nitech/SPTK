@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -66,13 +66,14 @@ MglsaDigitalFilter::MglsaDigitalFilter(int num_filter_order, int num_pade_order,
   }
   if (0 == num_stage && !mlsa_digital_filter_.IsValid()) {
     is_valid_ = false;
+    return;
   }
 }
 
 bool MglsaDigitalFilter::Run(const std::vector<double>& filter_coefficients,
                              double filter_input, double* filter_output,
                              MglsaDigitalFilter::Buffer* buffer) const {
-  // check inputs
+  // Check inputs.
   if (!is_valid_ ||
       filter_coefficients.size() !=
           static_cast<std::size_t>(num_filter_order_ + 1) ||
@@ -80,13 +81,14 @@ bool MglsaDigitalFilter::Run(const std::vector<double>& filter_coefficients,
     return false;
   }
 
+  // Use MLSA filter.
   if (0 == num_stage_) {
     return mlsa_digital_filter_.Run(filter_coefficients, filter_input,
                                     filter_output,
                                     &(buffer->mlsa_digital_filter_buffer_));
   }
 
-  // prepare memories
+  // Prepare memories.
   if (buffer->signals_.size() !=
       static_cast<std::size_t>((num_filter_order_ + 1) * num_stage_)) {
     buffer->signals_.resize((num_filter_order_ + 1) * num_stage_);
@@ -134,6 +136,13 @@ bool MglsaDigitalFilter::Run(const std::vector<double>& filter_coefficients,
   *filter_output = x;
 
   return true;
+}
+
+bool MglsaDigitalFilter::Run(const std::vector<double>& filter_coefficients,
+                             double* input_and_output,
+                             MglsaDigitalFilter::Buffer* buffer) const {
+  if (NULL == input_and_output) return false;
+  return Run(filter_coefficients, *input_and_output, input_and_output, buffer);
 }
 
 }  // namespace sptk
