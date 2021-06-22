@@ -136,7 +136,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b -m @e int
  *   - order of coefficients @f$(0 \le M)@f$
  * - @b -a @e double
- *   - all-pass constant @f$(|\alpha|<1)@f$
+ *   - all-pass constant @f$(|\alpha| < 1)@f$
  * - @b -g @e double
  *   - gamma @f$(|\gamma| \le 1)@f$
  * - @b -c @e int

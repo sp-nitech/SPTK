@@ -138,7 +138,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b -m @e int
  *   - order of line spectral pairs @f$(0 \le M)@f$
  * - @b -a @e double
- *   - all-pass constant @f$(|\alpha|<1)@f$
+ *   - all-pass constant @f$(|\alpha| < 1)@f$
  * - @b -g @e double
  *   - gamma @f$(-1.0 \le \gamma < 0)@f$
  * - @b -c @e int

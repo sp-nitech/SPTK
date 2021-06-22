@@ -105,7 +105,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b -m @e int
  *   - order of mel-cepstral coefficients @f$(0 \le M)@f$
  * - @b -a @e double
- *   - all-pass constant @f$(|\alpha|<1)@f$
+ *   - all-pass constant @f$(|\alpha| < 1)@f$
  * - @b -c @e int
  *   - gamma @f$\gamma = -1 / C@f$ @f$(1 \le C)@f$
  * - @b -e @e double
