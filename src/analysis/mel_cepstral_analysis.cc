@@ -230,12 +230,16 @@ bool MelCepstralAnalysis::Run(const std::vector<double>& periodogram,
                                    &buffer->b_);
 
     // Check convergence.
-    const double epsilon(buffer->rt_[0]);
-    const double relative_change((epsilon - prev_epsilon) / epsilon);
-    if (std::fabs(relative_change) < convergence_threshold_) {
-      break;
+    // (Note that the check can be done after updating mel-cepstrum, but to
+    // retain the compatibility with SPTK3, this block is written here)
+    {
+      const double epsilon(buffer->rt_[0]);
+      const double relative_change((epsilon - prev_epsilon) / epsilon);
+      if (std::fabs(relative_change) < convergence_threshold_) {
+        break;
+      }
+      prev_epsilon = epsilon;
     }
-    prev_epsilon = epsilon;
 
     // \tilde{r} -> R
     std::reverse_copy(buffer->rt_.begin() + 1, buffer->rt_.begin() + length,
