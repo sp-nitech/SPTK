@@ -102,7 +102,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b -i @e int
  *   - interpolation period @f$(0 \le I \le P/2)@f$
  * - @b -k @e bool
- *   - filtering without gain @f$K@f$
+ *   - filtering without gain
  * - @b kfile @e str
  *   - double-type PARCOR coefficients
  * - @b infile @e str

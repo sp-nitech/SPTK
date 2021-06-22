@@ -106,7 +106,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b -t @e bool
  *   - transpose filter
  * - @b -k @e bool
- *   - filtering without gain @f$K@f$
+ *   - filtering without gain
  * - @b afile @e str
  *   - double-type LPC coefficients
  * - @b infile @e str
