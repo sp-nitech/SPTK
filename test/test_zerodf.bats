@@ -56,41 +56,22 @@ teardown() {
 }
 
 # Note `zerodf -i 0` has no compatibility due to the change of implementation.
-@test "zerodf: compatibility (standard form)" {
+@test "zerodf: compatibility" {
    $sptk3/x2x +sd $data | $sptk3/frame -l 400 -p 80 | \
       $sptk3/window -l 400 -w 1 -n 1 | \
       $sptk3/lpc -l 400 -m 24 > tmp/1
+
    # Calculate impulse response of all-pole filter.
    $sptk3/train -l `expr 19200 / 80 \* 240` -p 240 -n 0 | \
       $sptk3/poledf -m 24 -p 240 -i 0 tmp/1 > tmp/2
-   $sptk3/nrand -l 19200 | $sptk3/zerodf -m 239 -p 80 tmp/2 > tmp/3
-   $sptk3/nrand -l 19200 | $sptk4/zerodf -m 239 -p 80 tmp/2 > tmp/4
-   run $sptk4/aeq -L tmp/3 tmp/4
-   [ "$status" -eq 0 ]
-}
 
-@test "zerodf: compatibility (transposed form)" {
-   $sptk3/x2x +sd $data | $sptk3/frame -l 400 -p 80 | \
-      $sptk3/window -l 400 -w 1 -n 1 | \
-      $sptk3/lpc -l 400 -m 24 > tmp/1
-   $sptk3/train -l `expr 19200 / 80 \* 240` -p 240 -n 0 | \
-      $sptk3/poledf -m 24 -p 240 -i 0 tmp/1 > tmp/2
-   $sptk3/nrand -l 19200 | $sptk3/zerodf -m 239 -p 80 -t tmp/2 > tmp/3
-   $sptk3/nrand -l 19200 | $sptk4/zerodf -m 239 -p 80 -t tmp/2 > tmp/4
-   run $sptk4/aeq -L tmp/3 tmp/4
-   [ "$status" -eq 0 ]
-}
-
-@test "zerodf: compatibility (without gain)" {
-   $sptk3/x2x +sd $data | $sptk3/frame -l 400 -p 80 | \
-      $sptk3/window -l 400 -w 1 -n 1 | \
-      $sptk3/lpc -l 400 -m 24 > tmp/1
-   $sptk3/train -l `expr 19200 / 80 \* 240` -p 240 -n 0 | \
-      $sptk3/poledf -m 24 -p 240 -i 0 tmp/1 > tmp/2
-   $sptk3/nrand -l 19200 | $sptk3/zerodf -m 239 -p 80 -k tmp/2 > tmp/3
-   $sptk3/nrand -l 19200 | $sptk4/zerodf -m 239 -p 80 -k tmp/2 > tmp/4
-   run $sptk4/aeq -L tmp/3 tmp/4
-   [ "$status" -eq 0 ]
+   opt=("" "-t" "-k")
+   for o in $(seq 0 2); do
+      $sptk3/nrand -l 19200 | $sptk3/zerodf -m 239 -p 80 ${opt[$o]} tmp/2 > tmp/3
+      $sptk3/nrand -l 19200 | $sptk4/zerodf -m 239 -p 80 ${opt[$o]} tmp/2 > tmp/4
+      run $sptk4/aeq -L tmp/3 tmp/4
+      [ "$status" -eq 0 ]
+   done
 }
 
 @test "zerodf: identity" {

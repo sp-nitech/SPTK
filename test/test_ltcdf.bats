@@ -56,26 +56,19 @@ teardown() {
 }
 
 # Note `ltcdf -i 0` has no compatibility due to the change of implementation.
-@test "ltcdf: compatibility (standard form)" {
+@test "ltcdf: compatibility" {
    $sptk3/x2x +sd $data | $sptk3/frame -l 400 -p 80 | \
       $sptk3/window -l 400 -w 1 -n 1 | \
       $sptk3/lpc -l 400 -m 24 | \
       $sptk3/lpc2par -m 24 > tmp/1
-   $sptk3/nrand -l 19200 | $sptk3/ltcdf -m 24 -p 80 tmp/1 > tmp/2
-   $sptk3/nrand -l 19200 | $sptk4/ltcdf -m 24 -p 80 tmp/1 > tmp/3
-   run $sptk4/aeq -L tmp/2 tmp/3
-   [ "$status" -eq 0 ]
-}
 
-@test "ltcdf: compatibility (without gain)" {
-   $sptk3/x2x +sd $data | $sptk3/frame -l 400 -p 80 | \
-      $sptk3/window -l 400 -w 1 -n 1 | \
-      $sptk3/lpc -l 400 -m 24 | \
-      $sptk3/lpc2par -m 24 > tmp/1
-   $sptk3/nrand -l 19200 | $sptk3/ltcdf -m 24 -p 80 -k tmp/1 > tmp/2
-   $sptk3/nrand -l 19200 | $sptk4/ltcdf -m 24 -p 80 -k tmp/1 > tmp/3
-   run $sptk4/aeq -L tmp/2 tmp/3
-   [ "$status" -eq 0 ]
+   opt=("" "-k")
+   for o in $(seq 0 1); do
+      $sptk3/nrand -l 19200 | $sptk3/ltcdf -m 24 -p 80 ${opt[$o]} tmp/1 > tmp/2
+      $sptk3/nrand -l 19200 | $sptk4/ltcdf -m 24 -p 80 ${opt[$o]} tmp/1 > tmp/3
+      run $sptk4/aeq -L tmp/2 tmp/3
+      [ "$status" -eq 0 ]
+   done
 }
 
 @test "ltcdf: identity" {
