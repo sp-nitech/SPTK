@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -49,19 +49,28 @@
 
 namespace sptk {
 
+/**
+ * Input source interface.
+ */
 class InputSourceInterface {
  public:
-  //
   virtual ~InputSourceInterface() {
   }
 
-  //
+  /**
+   * @return Size of data.
+   */
   virtual int GetSize() const = 0;
 
-  //
+  /**
+   * @return True if this object is valid.
+   */
   virtual bool IsValid() const = 0;
 
-  //
+  /**
+   * @param[out] buffer Read data.
+   * @return True on success, false on failure.
+   */
   virtual bool Get(std::vector<double>* buffer) = 0;
 };
 

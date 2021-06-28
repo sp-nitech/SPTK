@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -44,11 +44,19 @@
 
 #include "SPTK/input/input_source_preprocessing_for_filter_gain.h"
 
-#include <algorithm>   // std::transform
-#include <cmath>       // std::exp
-#include <functional>  // std::bind1st, std::multiplies
+#include <algorithm>  // std::transform
+#include <cmath>      // std::exp
 
 namespace sptk {
+
+InputSourcePreprocessingForFilterGain::InputSourcePreprocessingForFilterGain(
+    FilterGainType gain_type, InputSourceInterface* source)
+    : gain_type_(gain_type), source_(source), is_valid_(true) {
+  if (NULL == source_ || !source_->IsValid()) {
+    is_valid_ = false;
+    return;
+  }
+}
 
 bool InputSourcePreprocessingForFilterGain::Get(std::vector<double>* buffer) {
   if (NULL == buffer || !is_valid_) {
@@ -76,7 +84,7 @@ bool InputSourcePreprocessingForFilterGain::Get(std::vector<double>* buffer) {
       if (0.0 == (*buffer)[0]) return false;
       const double inverse_of_b0(1.0 / (*buffer)[0]);
       std::transform(buffer->begin(), buffer->end(), buffer->begin(),
-                     std::bind1st(std::multiplies<double>(), inverse_of_b0));
+                     [inverse_of_b0](double x) { return x * inverse_of_b0; });
       break;
     }
     default: { return false; }

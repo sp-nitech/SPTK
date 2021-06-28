@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -52,64 +52,64 @@
 
 namespace sptk {
 
+/**
+ * Use matrix as input source.
+ */
 class InputSourceFromMatrix : public InputSourceInterface {
  public:
-  //
-  InputSourceFromMatrix(int row_size, int col_size, double** input_matrix)
-      : row_size_(row_size),
-        col_size_(col_size),
-        input_matrix_(input_matrix),
-        col_position_(0),
-        is_valid_(true) {
-    if (row_size_ <= 0 || col_size_ <= 0 || NULL == input_matrix_) {
-      is_valid_ = false;
-    }
-  }
+  /**
+   * @param[in] row_size Number of rows of matrix.
+   * @param[in] col_size Number of columns of matrix.
+   * @param[in] input_matrix Input 2D matrix.
+   */
+  InputSourceFromMatrix(int row_size, int col_size, double** input_matrix);
 
-  //
   virtual ~InputSourceFromMatrix() {
   }
 
-  //
+  /**
+   * @return Size of data.
+   */
   virtual int GetSize() const {
     return row_size_;
   }
 
-  //
+  /**
+   * @return Number of rows.
+   */
   int GetRowSize() const {
     return row_size_;
   }
 
-  //
+  /**
+   * @return Number of columns.
+   */
   int GetColSize() const {
     return col_size_;
   }
 
-  //
+  /**
+   * @return True if this object is valid.
+   */
   virtual bool IsValid() const {
     return is_valid_;
   }
 
-  //
+  /**
+   * @param[out] buffer Read data.
+   * @return True on success, false on failure.
+   */
   virtual bool Get(std::vector<double>* buffer);
 
  private:
-  //
   const int row_size_;
-
-  //
   const int col_size_;
-
-  //
   double** input_matrix_;
 
-  //
   int col_position_;
 
-  //
   bool is_valid_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(InputSourceFromMatrix);
 };
 

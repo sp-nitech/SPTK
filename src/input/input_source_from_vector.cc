@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -48,6 +48,20 @@
 #include <cstddef>    // std::size_t
 
 namespace sptk {
+
+InputSourceFromVector::InputSourceFromVector(bool zero_padding, int read_size,
+                                             std::vector<double>* input_vector)
+    : zero_padding_(zero_padding),
+      read_size_(read_size),
+      vector_size_(NULL == input_vector ? 0 : input_vector->size()),
+      input_vector_(input_vector),
+      position_(0),
+      is_valid_(true) {
+  if (read_size_ <= 0 || NULL == input_vector_) {
+    is_valid_ = false;
+    return;
+  }
+}
 
 bool InputSourceFromVector::Get(std::vector<double>* buffer) {
   if (NULL == buffer || !is_valid_ || vector_size_ <= position_) {

@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -52,66 +52,59 @@
 
 namespace sptk {
 
+/**
+ * Use vector as input source.
+ */
 class InputSourceFromVector : public InputSourceInterface {
  public:
-  //
+  /**
+   * @param[in] zero_padding If true, pad with zero in the last reading.
+   * @param[in] read_size Read size.
+   * @param[in] input_vector Input vector.
+   */
   InputSourceFromVector(bool zero_padding, int read_size,
-                        std::vector<double>* input_vector)
-      : zero_padding_(zero_padding),
-        read_size_(read_size),
-        vector_size_(0),
-        input_vector_(input_vector),
-        position_(0),
-        is_valid_(true) {
-    if (read_size_ <= 0 || NULL == input_vector_) {
-      is_valid_ = false;
-      return;
-    }
-    vector_size_ = input_vector_->size();
-  }
+                        std::vector<double>* input_vector);
 
-  //
   virtual ~InputSourceFromVector() {
   }
 
-  //
+  /**
+   * @return Size of data.
+   */
   virtual int GetSize() const {
     return read_size_;
   }
 
-  //
+  /**
+   * @return Size of vector.
+   */
   int VectorSize() const {
     return vector_size_;
   }
 
-  //
+  /**
+   * @return True if this object is valid.
+   */
   virtual bool IsValid() const {
     return is_valid_;
   }
 
-  //
+  /**
+   * @param[out] buffer Read data.
+   * @return True on success, false on failure.
+   */
   virtual bool Get(std::vector<double>* buffer);
 
  private:
-  //
   const bool zero_padding_;
-
-  //
   const int read_size_;
+  const int vector_size_;
+  const std::vector<double>* input_vector_;
 
-  //
-  int vector_size_;
-
-  //
-  std::vector<double>* input_vector_;
-
-  //
   int position_;
 
-  //
   bool is_valid_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(InputSourceFromVector);
 };
 

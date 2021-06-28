@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -62,49 +62,49 @@ class InputSourcePreprocessingForFilterGain : public InputSourceInterface {
     kUnityForAllZeroFilter,
   };
 
-  //
+  /**
+   * @param[in] gain_type Gain type.
+   * @param[in] source Input source.
+   */
   InputSourcePreprocessingForFilterGain(FilterGainType gain_type,
-                                        InputSourceInterface* source)
-      : gain_type_(gain_type), source_(source), is_valid_(true) {
-    if (NULL == source_ || !source_->IsValid()) {
-      is_valid_ = false;
-      return;
-    }
-  }
+                                        InputSourceInterface* source);
 
-  //
   virtual ~InputSourcePreprocessingForFilterGain() {
   }
 
-  //
+  /**
+   * @return Gain type.
+   */
   FilterGainType GetFilterGainType() const {
     return gain_type_;
   }
 
-  //
+  /**
+   * @return Size of data.
+   */
   virtual int GetSize() const {
     return source_ ? source_->GetSize() : 0;
   }
 
-  //
+  /**
+   * @return True if this object is valid.
+   */
   virtual bool IsValid() const {
     return is_valid_;
   }
 
-  //
+  /**
+   * @param[out] buffer Read data.
+   * @return True on success, false on failure.
+   */
   virtual bool Get(std::vector<double>* buffer);
 
  private:
-  //
   const FilterGainType gain_type_;
-
-  //
   InputSourceInterface* source_;
 
-  //
   bool is_valid_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(InputSourcePreprocessingForFilterGain);
 };
 

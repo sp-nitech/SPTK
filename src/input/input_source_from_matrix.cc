@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -48,6 +48,19 @@
 #include <cstddef>    // std::size_t
 
 namespace sptk {
+
+InputSourceFromMatrix::InputSourceFromMatrix(int row_size, int col_size,
+                                             double** input_matrix)
+    : row_size_(row_size),
+      col_size_(col_size),
+      input_matrix_(input_matrix),
+      col_position_(0),
+      is_valid_(true) {
+  if (row_size_ <= 0 || col_size_ <= 0 || NULL == input_matrix_) {
+    is_valid_ = false;
+    return;
+  }
+}
 
 bool InputSourceFromMatrix::Get(std::vector<double>* buffer) {
   if (NULL == buffer || !is_valid_ || col_size_ <= col_position_) {

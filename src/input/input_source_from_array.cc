@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -47,6 +47,20 @@
 #include <cstddef>  // std::size_t
 
 namespace sptk {
+
+InputSourceFromArray::InputSourceFromArray(bool zero_padding, int read_size,
+                                           int array_size, double* input_array)
+    : zero_padding_(zero_padding),
+      read_size_(read_size),
+      array_size_(array_size),
+      input_array_(input_array),
+      position_(0),
+      is_valid_(true) {
+  if (read_size_ <= 0 || array_size_ <= 0 || NULL == input_array_) {
+    is_valid_ = false;
+    return;
+  }
+}
 
 bool InputSourceFromArray::Get(std::vector<double>* buffer) {
   if (NULL == buffer || !is_valid_ || array_size_ <= position_) {

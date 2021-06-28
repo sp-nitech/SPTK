@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -45,6 +45,18 @@
 #include "SPTK/input/input_source_from_stream.h"
 
 namespace sptk {
+
+InputSourceFromStream::InputSourceFromStream(bool zero_padding, int read_size,
+                                             std::istream* input_stream)
+    : zero_padding_(zero_padding),
+      read_size_(read_size),
+      input_stream_(input_stream),
+      is_valid_(true) {
+  if (read_size_ <= 0 || NULL == input_stream_) {
+    is_valid_ = false;
+    return;
+  }
+}
 
 bool InputSourceFromStream::Get(std::vector<double>* buffer) {
   if (NULL == buffer || !is_valid_) {
