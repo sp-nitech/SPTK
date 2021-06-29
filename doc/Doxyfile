@@ -1003,6 +1003,7 @@ INPUT                  = \
                          ../src/main/rmse.cc \
                          ../src/main/root_pol.cc \
                          ../src/main/sin.cc \
+                         ../src/main/snr.cc \
                          ../src/main/sopr.cc \
                          ../src/main/step.cc \
                          ../src/main/swab.cc \
@@ -1017,7 +1018,7 @@ INPUT                  = \
                          ../src/main/window.cc \
                          ../src/main/zcross.cc \
                          ../src/main/zerodf.cc \
-                         ../src/utils/misc_utils.cc \
+                         ../src/utils/misc_utils.cc
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses

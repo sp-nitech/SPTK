@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <cmath>     // std::log10
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
@@ -72,7 +73,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       snr [ options ] file1 [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : frame length       (   int)[" << std::setw(5) << std::right << kDefaultFrameLength << "][ 0 <  l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : frame length       (   int)[" << std::setw(5) << std::right << kDefaultFrameLength << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -o o  : output type        (   int)[" << std::setw(5) << std::right << kDefaultOutputType  << "][ 0 <= o <= 2 ]" << std::endl;  // NOLINT
   *stream << "                 0 (SNR)" << std::endl;
   *stream << "                 1 (segmental SNR)" << std::endl;
@@ -92,6 +93,57 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a snr [ @e option ] @e file1 [ @e infile ]
+ *
+ * - @b -l @e int
+ *   - frame length @f$(1 \le L)@f$
+ * - @b -o @e int
+ *   - output type @f$(0 \le O \le 2)@f$
+ *     \arg @c 0 SNR
+ *     \arg @c 1 segmental SNR
+ *     \arg @c 2 segmental SNR per frame
+ * - @b file1 @e str
+ *   - double-type signal sequence, @f$x_1@f$
+ * - @b infile @e str
+ *   - double-type signal+noise sequence, @f$x_2@f$
+ * - @b stdout
+ *   - double-type SNR
+ *
+ * The inputs of this commands are two signals:
+ * @f[
+ *   \begin{array}{cccc}
+ *     x_1(0), & x_1(1), & \ldots, & x_1(T-1), \\
+ *     x_2(0), & x_2(1), & \ldots, & x_2(T-1).
+ *   \end{array}
+ * @f]
+ * If @f$O=2@f$, segmental SNR is calculated and output at every frame:
+ * @f[
+ *   \begin{array}{cccc}
+ *     y(0), & y(1), & \ldots, & y(N-1),
+ *   \end{array}
+ * @f]
+ * where @f$N = \lfloor (T-1)/L \rfloor@f$ and
+ * @f[
+ *   y(n) = 10 \log_{10}
+ *     \frac{\displaystyle\sum_{l=0}^{L-1} \{ x_1(nL + l) \}^2 }
+ *          {\displaystyle\sum_{l=0}^{L-1} \{ x_2(nL + l) - x_1(nL + l) \}^2 }.
+ * @f]
+ * If @f$O=1@f$, the output is averaged segmental SNR:
+ * @f[
+ *   y = \frac{1}{N} \sum_{n=0}^{N-1} y(n).
+ * @f]
+ * If @f$O=0@f$, the output is a standard SNR:
+ * @f[
+ *   y = 10 \log_{10}
+ *     \frac{\displaystyle\sum_{t=0}^{T-1} \{ x_1(t) \}^2 }
+ *          {\displaystyle\sum_{t=0}^{T-1} \{ x_2(t) - x_1(t) \}^2 }.
+ * @f]
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int frame_length(kDefaultFrameLength);
   OutputType output_type(kDefaultOutputType);
