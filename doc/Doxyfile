@@ -1016,6 +1016,7 @@ INPUT                  = \
                          ../src/main/vstat.cc \
                          ../src/main/vsum.cc \
                          ../src/main/window.cc \
+                         ../src/main/x2x.cc \
                          ../src/main/zcross.cc \
                          ../src/main/zerodf.cc \
                          ../src/utils/misc_utils.cc

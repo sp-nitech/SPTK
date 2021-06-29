@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,7 +42,8 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>   // getopt_long
+#include <getopt.h>  // getopt_long
+
 #include <cfloat>     // DBL_MAX, FLT_MAX
 #include <climits>    // INT_MIN, INT_MAX, SCHAR_MIN, SCHAR_MAX, etc.
 #include <cstdint>    // int8_t, int16_t, int32_t, int64_t, etc.
@@ -72,7 +73,7 @@ enum WarningType { kIgnore = 0, kWarn, kExit, kNumWarningTypes };
 const int kBufferSize(128);
 const char* kDefaultDataTypes("da");
 const bool kDefaultRoundingFlag(false);
-const WarningType kDefaultWarningType(kIgnore);
+const WarningType kDefaultWarningType(kExit);
 const int kDefaultNumColumn(1);
 
 void PrintUsage(std::ostream* stream) {
@@ -144,7 +145,7 @@ class DataTransform : public DataTransformInterface {
     char buffer[kBufferSize];
     int index(0);
     for (;; ++index) {
-      // read
+      // Read.
       T1 input_data;
       if (is_ascii_input_) {
         std::string word;
@@ -161,11 +162,12 @@ class DataTransform : public DataTransformInterface {
         }
       }
 
-      // convert
+      // Convert.
       T2 output_data(input_data);
+
       bool is_clipped(false);
       {
-        // clipping
+        // Clipping.
         if (minimum_value_ < maximum_value_) {
           if (kSignedInteger == input_numeric_type_) {
             if (static_cast<int64_t>(input_data) <
@@ -200,7 +202,7 @@ class DataTransform : public DataTransformInterface {
           }
         }
 
-        // rounding
+        // Rounding.
         if (rounding_ && !is_clipped) {
           if (0.0 < input_data) {
             output_data = static_cast<T2>(input_data + 0.5);
@@ -217,7 +219,7 @@ class DataTransform : public DataTransformInterface {
         if (kExit == warning_type_) return false;
       }
 
-      // write
+      // Write output.
       if (is_ascii_output_) {
         if (!sptk::SnPrintf(output_data, print_format_, sizeof(buffer),
                             buffer)) {
@@ -1183,6 +1185,65 @@ class DataTransformWrapper {
 
 }  // namespace
 
+/**
+ * @a x2x [ @e option ] [ @e infile ]
+ *
+ * - @b +type @e char
+ *   - data type
+ *     \arg @c c char (1byte)
+ *     \arg @c C unsigned char (1byte)
+ *     \arg @c s short (2byte)
+ *     \arg @c S unsigned short (2byte)
+ *     \arg @c h int (3byte)
+ *     \arg @c H unsigned int (3byte)
+ *     \arg @c i int (4byte)
+ *     \arg @c I unsigned int (4byte)
+ *     \arg @c l long (8byte)
+ *     \arg @c L unsigned long (8byte)
+ *     \arg @c f float (4byte)
+ *     \arg @c d double (8byte)
+ *     \arg @c e long double (16byte)
+ *     \arg @c a ascii
+ * - @b -r @e bool
+ *   - rounding
+ * - @b -e @e int
+ *   - warning type for out-of-range value
+ *     \arg @c 0 no warning
+ *     \arg @c 1 output index
+ *     \arg @c 2 output index and exit immediately
+ * - @b -c @e int
+ *   - number of columns
+ * - @b -f @e str
+ *   - print format
+ * - @b infile @e str
+ *   - double-type data sequence
+ * - @b stdout
+ *   - double-type transformed data sequence
+ *
+ * @code{.sh}
+ *   ramp -l 4 | x2x +da
+ *   # 0
+ *   # 1
+ *   # 2
+ *   # 3
+ *   ramp -l 4 | x2x +da -c 2
+ *   # 0       1
+ *   # 2       3
+ *   ramp -l 4 | sopr -a 0.5 | x2x +dc -r | x2x +ca -c 2
+ *   # 1       2
+ *   # 3       4
+ *   ramp -l 4 | x2x +da -c 2 -f %.1f
+ *   # 0.0     1.0
+ *   # 2.0     3.0
+ *   echo -1 1000 | x2x +aC -e 0 | x2x +Ca
+ *   # 0
+ *   # 255
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   bool rounding_flag(kDefaultRoundingFlag);
   WarningType warning_type(kDefaultWarningType);
@@ -1247,7 +1308,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const char* input_file(NULL);
   for (int i(argc - optind); 1 <= i; --i) {
     const char* arg(argv[argc - i]);
@@ -1270,7 +1330,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {

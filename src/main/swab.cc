@@ -270,6 +270,10 @@ class ByteSwapWrapper {
  *   ramp -l 4 | x2x +fs | swab +s | swab +s | x2x +sa
  *   # 0, 1, 2, 3
  * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
  */
 int main(int argc, char* argv[]) {
   int start_address(kDefaultStartAddress);
