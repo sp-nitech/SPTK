@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -74,39 +74,48 @@ bool ReadStream(T* data_to_read, std::istream* input_stream);
 bool ReadStream(sptk::Matrix* matrix_to_read, std::istream* input_stream);
 bool ReadStream(sptk::SymmetricMatrix* matrix_to_read,
                 std::istream* input_stream);
+
 template <typename T>
 bool ReadStream(bool zero_padding, int stream_skip, int read_point,
                 int read_size, std::vector<T>* sequence_to_read,
                 std::istream* input_stream, int* actual_read_size);
+
 template <typename T>
 bool WriteStream(T data_to_write, std::ostream* output_stream);
 bool WriteStream(const sptk::Matrix& matrix_to_write,
                  std::ostream* output_stream);
 bool WriteStream(const sptk::SymmetricMatrix& matrix_to_write,
                  std::ostream* output_stream);
+
 template <typename T>
 bool WriteStream(int write_point, int write_size,
                  const std::vector<T>& sequence_to_write,
                  std::ostream* output_stream, int* actual_write_size);
+
 template <typename T>
 bool SnPrintf(T data, const std::string& print_format, size_t buffer_size,
               char* buffer);
+
 const char* ConvertBooleanToString(bool input);
 bool ConvertStringToInteger(const std::string& input, int* output);
 bool ConvertStringToDouble(const std::string& input, double* output);
 bool ConvertSpecialStringToDouble(const std::string& input, double* output);
+
 bool IsEven(int num);
 bool IsInRange(int num, int min, int max);
 bool IsInRange(double num, double min, double max);
 bool IsPowerOfTwo(int num);
 bool IsValidAlpha(double alpha);
 bool IsValidGamma(double gamma);
+
 int NextPow(int num);
 int ExtractSign(double x);
+
 double FloorLog(double x);
 double FloorLog2(double x);
 double FloorLog10(double x);
 double AddInLogSpace(double log_x, double log_y);
+
 void PrintDataType(const std::string& symbol, std::ostream* stream);
 void PrintErrorMessage(const std::string& program_name,
                        const std::ostringstream& message);

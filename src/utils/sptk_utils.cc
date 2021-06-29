@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -405,7 +405,7 @@ bool IsInRange(double num, double min, double max) {
   return (min <= num && num <= max);
 }
 
-// check whether the given number is a power of two, 2^p where p is a
+// Check whether the given number is a power of two, 2^p where p is a
 // non-negative integer.
 bool IsPowerOfTwo(int num) {
   return !((num < 1) || (num & (num - 1)));
@@ -448,7 +448,7 @@ double FloorLog10(double x) {
   return (x <= 0.0) ? kLogZero : std::log10(x);
 }
 
-// compute log(x + y) given log(x) and log(y).
+// Compute log(x + y) given log(x) and log(y).
 double AddInLogSpace(double log_x, double log_y) {
   if (log_x == log_y) return log_x + kLogTwo;
 
