@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -44,9 +44,8 @@
 
 #include "SPTK/conversion/mel_generalized_cepstrum_to_mel_generalized_cepstrum.h"
 
-#include <algorithm>   // std::copy, std::transform
-#include <cstddef>     // std::size_t
-#include <functional>  // std::bind1st, std::multiplies
+#include <algorithm>  // std::copy, std::transform
+#include <cstddef>    // std::size_t
 
 #include "SPTK/conversion/generalized_cepstrum_gain_normalization.h"
 #include "SPTK/conversion/generalized_cepstrum_inverse_gain_normalization.h"
@@ -160,20 +159,21 @@ class MelGeneralizedCepstrumToMelGeneralizedCepstrumModule
     double* c2(&((*output)[0]));
 
     c2[0] = c1[0];
-    for (int i(1); i <= num_output_order_; ++i) {
+    for (int m(1); m <= num_output_order_; ++m) {
       double ss1(0.0), ss2(0.0);
-      const int min(num_input_order_ < i ? num_input_order_ : i - 1);
+      const int min(num_input_order_ < m ? num_input_order_ : m - 1);
       for (int k(1); k <= min; ++k) {
-        const int mk(i - k);
+        const int mk(m - k);
         const double cc(c1[k] * c2[mk]);
         ss2 += k * cc;
         ss1 += mk * cc;
       }
 
-      if (i <= num_input_order_)
-        c2[i] = c1[i] + (output_gamma_ * ss2 - input_gamma_ * ss1) / i;
-      else
-        c2[i] = (output_gamma_ * ss2 - input_gamma_ * ss1) / i;
+      if (m <= num_input_order_) {
+        c2[m] = c1[m] + (output_gamma_ * ss2 - input_gamma_ * ss1) / m;
+      } else {
+        c2[m] = (output_gamma_ * ss2 - input_gamma_ * ss1) / m;
+      }
     }
     return true;
   }
@@ -207,7 +207,7 @@ class GammaDivisionModule
     *(output->begin()) = *(input.begin());
     // c[1-m] /= g
     std::transform(++(input.begin()), input.end(), ++(output->begin()),
-                   std::bind1st(std::multiplies<double>(), 1.0 / gamma_));
+                   [this](double c) { return c / gamma_; });
     return true;
   }
 
@@ -237,7 +237,7 @@ class GammaMultiplicationModule
     *(output->begin()) = *(input.begin());
     // c[1-m] *= g
     std::transform(++(input.begin()), input.end(), ++(output->begin()),
-                   std::bind1st(std::multiplies<double>(), gamma_));
+                   [this](double c) { return c * gamma_; });
     return true;
   }
 

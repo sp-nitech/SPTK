@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------- //
 
 #include <getopt.h>  // getopt_long
+
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -92,7 +93,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       transformed mel-generalized cepstrum                         (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
   *stream << "       if -u is used without -n, input is regarded as 1+g*mgc[0],g*mgc[1],...,g*mgc[m]" << std::endl;  // NOLINT
-  *stream << "       if -U is used without -N, output is regarded as 1+g*mgc[0],g*mgc[1],...,g*mgc[m]" << std::endl;  // NOLINT
+  *stream << "       if -U is used without -N, output is regarded as 1+g*mgc[0],g*mgc[1],...,g*mgc[M]" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -101,6 +102,54 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a mgc2mgc [ @e option ] [ @e infile ]
+ *
+ * - @b -m @e int
+ *   - order of input coefficients @f$(0 \le M_1)@f$
+ * - @b -a @e double
+ *   - input all-pass constant @f$(|\alpha_1| < 1)@f$
+ * - @b -g @e double
+ *   - input gamma @f$(|\gamma_1| \le 1)@f$
+ * - @b -c @e int
+ *   - input gamma @f$\gamma_1 = -1 / C_1@f$ @f$(1 \le C_1)@f$
+ * - @b -n @e bool
+ *   - regard input as normalized mel-generalized cepstrum
+ * - @b -u @e bool
+ *   - regard input as multiplied by gamma
+ * - @b -M @e int
+ *   - order of output coefficients @f$(0 \le M_2)@f$
+ * - @b -A @e double
+ *   - output all-pass constant @f$(|\alpha_2| < 1)@f$
+ * - @b -G @e double
+ *   - output gamma @f$(|\gamma_2| \le 1)@f$
+ * - @b -C @e int
+ *   - output gamma @f$\gamma_2 = -1 / C_2@f$ @f$(1 \le C_2)@f$
+ * - @b -N @e bool
+ *   - regard output as normalized mel-generalized cepstrum
+ * - @b -U @e bool
+ *   - regard output as multiplied by gamma
+ * - @b infile @e str
+ *   - double-type mel-generalized cepstral coefficients
+ * - @b stdout
+ *   - double-type converted mel-generalized cepstral coefficients
+ *
+ * If @c -u without @c -n, the 0th input is regarded as
+ * @f$1 + \gamma_1 c_{\alpha_1,\gamma_1}(0)@f$.
+ * If @c -U without @c -N, the 0th output is regarded as
+ * @f$1 + \gamma_2 c_{\alpha_2,\gamma_2}(0)@f$.
+ *
+ * In the example below, 12-th order LPC coefficients in @c data.lpc are
+ * converted to 30-th order mel-cepstral coefficients.
+ *
+ * @code{.sh}
+ *   mgc2mgc -m 12 -a 0 -g -1 -M 30 -A 0.31 -G 0 < data.lpc > data.mcep
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int input_num_order(kDefaultInputNumOrder);
   double input_alpha(kDefaultInputAlpha);
@@ -236,7 +285,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -246,7 +294,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -257,7 +304,6 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for gain normalization
   sptk::MelGeneralizedCepstrumToMelGeneralizedCepstrum
       mel_generalized_cepstrum_transform(
           input_num_order, input_alpha, input_gamma, input_normalization_flag,
@@ -266,7 +312,8 @@ int main(int argc, char* argv[]) {
   sptk::MelGeneralizedCepstrumToMelGeneralizedCepstrum::Buffer buffer;
   if (!mel_generalized_cepstrum_transform.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set the condition";
+    error_message << "Failed to initialize "
+                  << "MelGeneralizedCepstrumToMelGeneralizedCepstrum";
     sptk::PrintErrorMessage("mgc2mgc", error_message);
     return 1;
   }
@@ -278,11 +325,12 @@ int main(int argc, char* argv[]) {
 
   while (sptk::ReadStream(false, 0, 0, input_length, &mel_generalized_cepstrum,
                           &input_stream, NULL)) {
-    // input modification: 1+g*mgc[0] -> mgc[0]
+    // Perform input modification: 1+g*mgc[0] -> mgc[0]
     if (!input_normalization_flag && input_multiplication_flag)
       (*mel_generalized_cepstrum.begin()) =
           (*(mel_generalized_cepstrum.begin()) - 1.0) / input_gamma;
-    // transform
+
+    // Transform.
     if (!mel_generalized_cepstrum_transform.Run(
             mel_generalized_cepstrum, &transformed_mel_generalized_cepstrum,
             &buffer)) {
@@ -291,11 +339,13 @@ int main(int argc, char* argv[]) {
       sptk::PrintErrorMessage("mgc2mgc", error_message);
       return 1;
     }
-    // output modification: mgc[0] -> 1+g*mgc[0]
+
+    // Perform output modification: mgc[0] -> 1+g*mgc[0]
     if (!output_normalization_flag && output_multiplication_flag)
       (*transformed_mel_generalized_cepstrum.begin()) =
           *(transformed_mel_generalized_cepstrum.begin()) * output_gamma + 1.0;
-    // write results
+
+    // Write results.
     if (!sptk::WriteStream(0, output_length,
                            transformed_mel_generalized_cepstrum, &std::cout,
                            NULL)) {
