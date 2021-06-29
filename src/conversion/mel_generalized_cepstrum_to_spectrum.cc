@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -44,8 +44,6 @@
 
 #include "SPTK/conversion/mel_generalized_cepstrum_to_spectrum.h"
 
-#include <cstddef>  // std::size_t
-
 namespace sptk {
 
 MelGeneralizedCepstrumToSpectrum::MelGeneralizedCepstrumToSpectrum(
@@ -59,6 +57,7 @@ MelGeneralizedCepstrumToSpectrum::MelGeneralizedCepstrumToSpectrum(
   if (!mel_generalized_cepstrum_transform_.IsValid() ||
       !fast_fourier_transform_.IsValid()) {
     is_valid_ = false;
+    return;
   }
 }
 
@@ -67,10 +66,8 @@ bool MelGeneralizedCepstrumToSpectrum::Run(
     std::vector<double>* amplitude_spectrum,
     std::vector<double>* phase_spectrum,
     MelGeneralizedCepstrumToSpectrum::Buffer* buffer) const {
-  if (!is_valid_ ||
-      mel_generalized_cepstrum.size() !=
-          static_cast<std::size_t>(GetNumOrder() + 1) ||
-      NULL == amplitude_spectrum || NULL == phase_spectrum || NULL == buffer) {
+  if (!is_valid_ || NULL == amplitude_spectrum || NULL == phase_spectrum ||
+      NULL == buffer) {
     return false;
   }
 

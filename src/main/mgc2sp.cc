@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -42,15 +42,15 @@
 // POSSIBILITY OF SUCH DAMAGE.                                       //
 // ----------------------------------------------------------------- //
 
-#include <getopt.h>    // getopt_long
-#include <algorithm>   // std::transform
-#include <cmath>       // std::exp
-#include <fstream>     // std::ifstream
-#include <functional>  // std::bind1st, std::multiplies, std::ptr_fun
-#include <iomanip>     // std::setw
-#include <iostream>    // std::cerr, std::cin, std::cout, std::endl, etc.
-#include <sstream>     // std::ostringstream
-#include <vector>      // std::vector
+#include <getopt.h>  // getopt_long
+
+#include <algorithm>  // std::transform
+#include <cmath>      // std::exp
+#include <fstream>    // std::ifstream
+#include <iomanip>    // std::setw
+#include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>    // std::ostringstream
+#include <vector>     // std::vector
 
 #include "SPTK/conversion/mel_generalized_cepstrum_to_spectrum.h"
 #include "SPTK/utils/sptk_utils.h"
@@ -62,7 +62,7 @@ enum OutputFormats {
   kLogAmplitudeSpectrum,
   kAmplitudeSpectrum,
   kPowerSpectrum,
-  kPhaseSpectrumInNormalizedRadians,
+  kPhaseSpectrumInCycles,
   kPhaseSpectrumInRadians,
   kPhaseSpectrumInDegrees,
   kNumOutputFormats
@@ -116,6 +116,48 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
+/**
+ * @a mgc2sp [ @e option ] [ @e infile ]
+ *
+ * - @b -m @e int
+ *   - order of coefficients @f$(0 \le M)@f$
+ * - @b -a @e double
+ *   - all-pass constant @f$(|\alpha| < 1)@f$
+ * - @b -g @e double
+ *   - gamma @f$(|\gamma| \le 1)@f$
+ * - @b -c @e int
+ *   - gamma @f$\gamma = -1 / C@f$ @f$(1 \le C)@f$
+ * - @b -n @e bool
+ *   - regard as normalized mel-generalized cepstrum
+ * - @b -u @e bool
+ *   - regard as multiplied by gamma
+ * - @b -l @e int
+ *   - FFT length @f$(2 \le N)@f$
+ * - @b -o @e int
+ *   - output format
+ *     \arg @c 0 @f$20 \log_{10} |H(z)|@f$
+ *     \arg @c 1 @f$\log |H(z)|@f$
+ *     \arg @c 2 @f$|H(z)|@f$
+ *     \arg @c 3 @f$|H(z)|^2@f$
+ *     \arg @c 4 @f$\arg|H(z)| / \pi@f$
+ *     \arg @c 5 @f$\arg|H(z)|@f$
+ *     \arg @c 6 @f$\arg|H(z)| \times 180/\pi@f$
+ * - @b infile @e str
+ *   - double-type mel-generalized cepstral coefficients
+ * - @b stdout
+ *   - double-type spectrum
+ *
+ * In the following example, 12-th order mel-generalized cepstral coefficients
+ * in @c data.mgcep are converted to log magnitude spectrum.
+ *
+ * @code{.sh}
+ *   mgc2sp -m 12 -a 0.35 -c 2 < data.mgcep > data.spec
+ * @endcode
+ *
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Argument vector.
+ * @return 0 on success, 1 on failure.
+ */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   double alpha(kDefaultAlpha);
@@ -226,7 +268,6 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // get input file
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;
@@ -236,7 +277,6 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // open stream
   std::ifstream ifs;
   ifs.open(input_file, std::ios::in | std::ios::binary);
   if (ifs.fail() && NULL != input_file) {
@@ -247,14 +287,13 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  // prepare for gain normalization
   sptk::MelGeneralizedCepstrumToSpectrum mel_generalized_cepstrum_to_spectrum(
       num_order, alpha, gamma, normalization_flag, multiplication_flag,
       fft_length);
   sptk::MelGeneralizedCepstrumToSpectrum::Buffer buffer;
   if (!mel_generalized_cepstrum_to_spectrum.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to set condition for transformation";
+    error_message << "Failed to initialize MelGeneralizedCepstrumToSpectrum";
     sptk::PrintErrorMessage("mgc2sp", error_message);
     return 1;
   }
@@ -267,13 +306,13 @@ int main(int argc, char* argv[]) {
 
   while (sptk::ReadStream(false, 0, 0, input_length, &mel_generalized_cepstrum,
                           &input_stream, NULL)) {
-    // input modification
+    // Perform input modification.
     if (!normalization_flag && multiplication_flag) {
       (*mel_generalized_cepstrum.begin()) =
           (*(mel_generalized_cepstrum.begin()) - 1.0) / gamma;
     }
 
-    // transform
+    // Transform.
     if (!mel_generalized_cepstrum_to_spectrum.Run(mel_generalized_cepstrum,
                                                   &amplitude_spectrum,
                                                   &phase_spectrum, &buffer)) {
@@ -289,7 +328,7 @@ int main(int argc, char* argv[]) {
         std::transform(amplitude_spectrum.begin(),
                        amplitude_spectrum.begin() + output_length,
                        amplitude_spectrum.begin(),
-                       std::bind1st(std::multiplies<double>(), sptk::kNeper));
+                       [](double x) { return x * sptk::kNeper; });
         break;
       }
       case kLogAmplitudeSpectrum: {
@@ -300,22 +339,20 @@ int main(int argc, char* argv[]) {
         std::transform(amplitude_spectrum.begin(),
                        amplitude_spectrum.begin() + output_length,
                        amplitude_spectrum.begin(),
-                       std::ptr_fun<double, double>(std::exp));
+                       [](double x) { return std::exp(x); });
         break;
       }
       case kPowerSpectrum: {
         std::transform(amplitude_spectrum.begin(),
                        amplitude_spectrum.begin() + output_length,
                        amplitude_spectrum.begin(),
-                       std::ptr_fun<double, double>(
-                           [](double x) { return std::exp(2.0 * x); }));
+                       [](double x) { return std::exp(2.0 * x); });
         break;
       }
-      case kPhaseSpectrumInNormalizedRadians: {
+      case kPhaseSpectrumInCycles: {
         std::transform(
             phase_spectrum.begin(), phase_spectrum.begin() + output_length,
-            phase_spectrum.begin(),
-            std::bind1st(std::multiplies<double>(), 1.0 / sptk::kPi));
+            phase_spectrum.begin(), [](double x) { return x / sptk::kPi; });
         break;
       }
       case kPhaseSpectrumInRadians: {
@@ -323,10 +360,10 @@ int main(int argc, char* argv[]) {
         break;
       }
       case kPhaseSpectrumInDegrees: {
-        std::transform(
-            phase_spectrum.begin(), phase_spectrum.begin() + output_length,
-            phase_spectrum.begin(),
-            std::bind1st(std::multiplies<double>(), 180.0 / sptk::kPi));
+        std::transform(phase_spectrum.begin(),
+                       phase_spectrum.begin() + output_length,
+                       phase_spectrum.begin(),
+                       [](double x) { return x * 180.0 / sptk::kPi; });
         break;
       }
       default: { break; }
@@ -346,7 +383,7 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      case kPhaseSpectrumInNormalizedRadians:
+      case kPhaseSpectrumInCycles:
       case kPhaseSpectrumInRadians:
       case kPhaseSpectrumInDegrees: {
         if (!sptk::WriteStream(0, output_length, phase_spectrum, &std::cout,

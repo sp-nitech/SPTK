@@ -285,6 +285,13 @@ int main(int argc, char* argv[]) {
     }
   }
 
+  if (0.0 == input_gamma && input_multiplication_flag) {
+    std::ostringstream error_message;
+    error_message << "If -u option is given, input gamma must not be 0";
+    sptk::PrintErrorMessage("mgc2mgc", error_message);
+    return 1;
+  }
+
   const int num_input_files(argc - optind);
   if (1 < num_input_files) {
     std::ostringstream error_message;

@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -53,12 +53,23 @@
 
 namespace sptk {
 
+/**
+ * Convert mel-generalized cepstrum to spectrum.
+ *
+ * This is a simple combination of
+ * MelGeneralizedCepstrumToMelGeneralizedCepstrum and
+ * RealValuedFastFourierTransform.
+ */
 class MelGeneralizedCepstrumToSpectrum {
  public:
+  /**
+   * Buffer for MelGeneralizedCepstrumToSpectrum class.
+   */
   class Buffer {
    public:
     Buffer() {
     }
+
     virtual ~Buffer() {
     }
 
@@ -67,72 +78,95 @@ class MelGeneralizedCepstrumToSpectrum {
         mel_generalized_cepstrum_transform_buffer_;
     RealValuedFastFourierTransform::Buffer fast_fourier_transform_buffer_;
     std::vector<double> cepstrum_;
+
     friend class MelGeneralizedCepstrumToSpectrum;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
 
-  //
+  /**
+   * @param[in] num_order Order of coefficients, @f$M@f$.
+   * @param[in] alpha All-pass constant, @f$\alpha@f$.
+   * @param[in] gamma Exponent parameter, @f$\gamma@f$.
+   * @param[in] is_normalized gain-normalized flag.
+   * @param[in] is_multiplied gamma-multiplied flag.
+   * @param[in] fft_length FFT length, @f$N@f$.
+   */
   MelGeneralizedCepstrumToSpectrum(int num_order, double alpha, double gamma,
                                    bool is_normalized, bool is_multiplied,
                                    int fft_length);
 
-  //
   virtual ~MelGeneralizedCepstrumToSpectrum() {
   }
 
-  //
+  /**
+   * @return Order of coefficients.
+   */
   int GetNumOrder() const {
     return mel_generalized_cepstrum_transform_.GetNumInputOrder();
   }
 
-  //
+  /**
+   * @return Alpha.
+   */
   double GetAlpha() const {
     return mel_generalized_cepstrum_transform_.GetInputAlpha();
   }
 
-  //
+  /**
+   * @return Gamma.
+   */
   double GetGamma() const {
     return mel_generalized_cepstrum_transform_.GetInputGamma();
   }
 
-  //
+  /**
+   * @return True if input is gain-normalized.
+   */
   bool IsNormalized() const {
     return mel_generalized_cepstrum_transform_.IsNormalizedInput();
   }
 
-  //
+  /**
+   * @return True if input is multiplied by gamma.
+   */
   bool IsMultiplied() const {
     return mel_generalized_cepstrum_transform_.IsMultipliedInput();
   }
 
-  //
+  /**
+   * @return FFT length.
+   */
   int GetFftLength() const {
     return fast_fourier_transform_.GetFftLength();
   }
 
-  //
+  /**
+   * @return True if this object is valid.
+   */
   bool IsValid() const {
     return is_valid_;
   }
 
-  //
+  /**
+   * @param[in] mel_generalized_cepstrum @f$M@f$-th order mel-generalized
+   *            cepstrum.
+   * @param[out] amplitude_spectrum @f$N@f$-length amplitude spectrum.
+   * @param[out] phase_spectrum @f$N@f$-length phase spectrum.
+   * @param[out] buffer Buffer.
+   * @return True on success, false on failure.
+   */
   bool Run(const std::vector<double>& mel_generalized_cepstrum,
            std::vector<double>* amplitude_spectrum,
            std::vector<double>* phase_spectrum,
            MelGeneralizedCepstrumToSpectrum::Buffer* buffer) const;
 
  private:
-  //
   const MelGeneralizedCepstrumToMelGeneralizedCepstrum
       mel_generalized_cepstrum_transform_;
-
-  //
   const RealValuedFastFourierTransform fast_fourier_transform_;
 
-  //
   bool is_valid_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(MelGeneralizedCepstrumToSpectrum);
 };
 
