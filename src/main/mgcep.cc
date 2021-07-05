@@ -91,7 +91,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << " mgcep - mel-generalized cepstral analysis" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
-  *stream << "       mgcep [ options ] [ infile ] > stdout" << std::endl;  // NOLINT
+  *stream << "       mgcep [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -m m  : order of mel-generalized cepstrum (   int)[" << std::setw(5) << std::right << kDefaultNumOrder             << "][    0 <= m <=     ]" << std::endl;  // NOLINT
   *stream << "       -a a  : all-pass constant                 (double)[" << std::setw(5) << std::right << kDefaultAlpha                << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
