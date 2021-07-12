@@ -45,11 +45,14 @@ Changes from SPTK3
 - Deprecated commands:
   - `acep` -> `amgcep`
   - `c2sp` -> `mgc2sp`
+  - `ds`, `us`, `us16`, and `uscd` -> `sox`
   - `gc2gc` -> `mgc2mgc`
   - `gcep`, `mcep`, and `uels` -> `mgcep`
   - `glsadf`, `lmadf`, and `mlsadf` -> `mglsadf`
   - `ivq` -> `imsvq`
   - `lsp2sp` -> `mglsp2sp`
+  - `raw2wav`, `wav2raw`, `wavjoin`, and `wavsplit` -> `sox`
+  - `smcep` ->
   - `vq` -> `msvq`
 - Split commands:
   - `dtw` -> `dtw` and `dtw_merge`
