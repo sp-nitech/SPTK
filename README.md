@@ -42,6 +42,15 @@ cd egs/analysis_synthesis/mgc
 Changes from SPTK3
 ------------------
 - **Input and output types are changed to double from float**
+- New features:
+  - Provide signal processing classes written in C++
+  - Support conversion from/to log area ratio (`lar2par` and `par2lar`)
+  - Support nonrecursive MLPG (`mlpg`)
+  - Support pitch extraction by DIO used in WORLD (`pitch`)
+  - Entropy calculation (`entropy`)
+  - Huffman coding (`huffman`, `huffman_encode`, and `huffman_decode`)
+  - Subband decomposition (`pqmf` and `ipqmf`)
+  - Mel-filter-bank extraction (`fbank`)
 - Deprecated commands:
   - `acep` -> `amgcep`
   - `c2sp` -> `mgc2sp`
@@ -67,8 +76,9 @@ Changes from SPTK3
 Authors
 -------
 * **Keiichi Tokuda** - *Produce and Design* - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~tokuda/)
-* **Keiichiro Oura** - *Main Maintainer* - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~uratec/)
-* **Takenori Yoshimura** - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~takenori/)
+* **Keiichiro Oura** - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~uratec/)
+* **Takenori Yoshimura** - *Main Maintainer* - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~takenori/)
+* **Takato Fujimoto** - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~taka19/)
 * **Yoshihiko Nankaku** - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~nankaku/)
 
 
