@@ -71,6 +71,11 @@ Changes from SPTK3
   - `vstat` -> `vstat` and `median`
 
 
+Relationship at a glance
+------------------------
+![diagram](asset/diagram.png?raw=true)
+
+
 Authors
 -------
 * **Keiichi Tokuda** - *Produce and Design* - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~tokuda/)
