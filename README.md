@@ -52,7 +52,7 @@ Changes from SPTK3
   - Subband decomposition (`pqmf` and `ipqmf`)
   - Mel-filter-bank extraction (`fbank`)
 - Deprecated commands:
-  - `acep` -> `amgcep`
+  - `acep`, `agcep`, and `amcep` -> `amgcep`
   - `c2sp` -> `mgc2sp`
   - `ds`, `us`, `us16`, and `uscd` -> `sox`
   - `gc2gc` -> `mgc2mgc`
@@ -63,14 +63,12 @@ Changes from SPTK3
   - `raw2wav`, `wav2raw`, `wavjoin`, and `wavsplit` -> `sox`
   - `smcep` ->
   - `vq` -> `msvq`
-- Split commands:
+- Separated commands:
   - `dtw` -> `dtw` and `dtw_merge`
   - `mglsadf` -> `mglsadf` and `imglsadf`
   - `train` -> `train` and `mseq`
   - `ulaw` -> `ulaw` and `iulaw`
   - `vstat` -> `vstat` and `median`
-- Integrated commands:
-  - `agcep` and `amcep` -> `amgcep`
 
 
 Authors
