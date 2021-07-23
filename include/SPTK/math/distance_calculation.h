@@ -101,6 +101,7 @@ class DistanceCalculation {
    * @param[in] vector1 @f$M@f$-th order vector.
    * @param[in] vector2 @f$M@f$-th order vector.
    * @param[out] distance Distance between the two vectors.
+   * @return True on success, false on failure.
    */
   bool Run(const std::vector<double>& vector1,
            const std::vector<double>& vector2, double* distance) const;

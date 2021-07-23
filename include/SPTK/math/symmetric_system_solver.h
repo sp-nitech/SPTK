@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -52,52 +52,85 @@
 
 namespace sptk {
 
+/**
+ * Solve the following symmetric system:
+ * @f[
+ *   \boldsymbol{A} \boldsymbol{x} = \boldsymbol{b},
+ * @f]
+ * where @f$\boldsymbol{A}@f$ is a symmetric matrix.
+ *
+ * The inputs are @f$\boldsymbol{A}@f$ and @f$M@f$-th order constant vector:
+ * @f[
+ *   \begin{array}{cccc}
+ *     b(0), & b(1), & \ldots, & b(M).
+ *   \end{array}
+ * @f]
+ * The outputs are the unknown coefficients
+ * @f[
+ *   \begin{array}{cccc}
+ *     x(0), & x(1), & \ldots, & x(M).
+ *   \end{array}
+ * @f]
+ */
 class SymmetricSystemSolver {
  public:
+  /**
+   * Buffer for SymmetricSystemSolver class.
+   */
   class Buffer {
    public:
     Buffer() {
     }
+
     virtual ~Buffer() {
     }
 
    private:
     SymmetricMatrix inverse_matrix_;
+
     friend class SymmetricSystemSolver;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
 
-  //
+  /**
+   * @param[in] num_order Order of vector, @f$M@f$.
+   */
   explicit SymmetricSystemSolver(int num_order);
 
-  //
   virtual ~SymmetricSystemSolver() {
   }
 
-  //
+  /**
+   * @return Order of vector.
+   */
   int GetNumOrder() const {
     return num_order_;
   }
 
-  //
+  /**
+   * @return True if this object is valid.
+   */
   bool IsValid() const {
     return is_valid_;
   }
 
-  //
+  /**
+   * @param[in] coefficient_matrix @f$(M+1, M+1)@f$ matrix @f$\boldsymbol{A}@f$.
+   * @param[in] constant_vector @f$M@f$-th order vector @f$\boldsymbol{b}@f$.
+   * @param[out] solution_vector @f$M@f$-th order vector @f$\boldsymbol{x}@f$.
+   * @param[out] buffer Buffer.
+   * @return True on success, false on failure.
+   */
   bool Run(const SymmetricMatrix& coefficient_matrix,
            const std::vector<double>& constant_vector,
            std::vector<double>* solution_vector,
            SymmetricSystemSolver::Buffer* buffer) const;
 
  private:
-  //
   const int num_order_;
 
-  //
   bool is_valid_;
 
-  //
   DISALLOW_COPY_AND_ASSIGN(SymmetricSystemSolver);
 };
 

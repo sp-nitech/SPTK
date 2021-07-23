@@ -51,40 +51,80 @@
 
 namespace sptk {
 
+/**
+ * Fourier transform wrapper.
+ */
 class FourierTransform {
  public:
+  /**
+   * Inteface of Fourier transform.
+   */
   class FourierTransformInterface {
    public:
     virtual ~FourierTransformInterface() {
     }
 
+    /**
+     * @return DFT length.
+     */
     virtual int GetLength() const = 0;
 
+    /**
+     * @return True if this object is valid.
+     */
     virtual bool IsValid() const = 0;
 
+    /**
+     * @param[in] real_part_input @f$L@f$-length real part of input.
+     * @param[in] imag_part_input @f$L@f$-length imaginary part of input.
+     * @param[out] real_part_output @f$L@f$-length real part of output.
+     * @param[out] imag_part_output @f$L@f$-length imaginary part of output.
+     * @return True on success, false on failure.
+     */
     virtual bool Run(const std::vector<double>& real_part_input,
                      const std::vector<double>& imag_part_input,
                      std::vector<double>* real_part_output,
                      std::vector<double>* imag_part_output) const = 0;
 
-    virtual bool Run(std::vector<double>* real_part_output,
-                     std::vector<double>* imag_part_output) const = 0;
+    /**
+     * @param[in,out] real_part Real part.
+     * @param[in,out] imag_part Imaginary part.
+     * @return True on success, false on failure.
+     */
+    virtual bool Run(std::vector<double>* real_part,
+                     std::vector<double>* imag_part) const = 0;
   };
 
+  /**
+   * @param[in] length DFT length, @f$L@f$.
+   */
   explicit FourierTransform(int length);
 
   ~FourierTransform() {
     delete fourier_transform_;
   }
 
+  /**
+   * @return DFT length.
+   */
   int GetLength() const {
     return fourier_transform_->GetLength();
   }
 
+  /**
+   * @return True if this object is valid.
+   */
   bool IsValid() const {
     return fourier_transform_->IsValid();
   }
 
+  /**
+   * @param[in] real_part_input @f$L@f$-length real part of input.
+   * @param[in] imag_part_input @f$L@f$-length imaginary part of input.
+   * @param[out] real_part_output @f$L@f$-length real part of output.
+   * @param[out] imag_part_output @f$L@f$-length imaginary part of output.
+   * @return True on success, false on failure.
+   */
   bool Run(const std::vector<double>& real_part_input,
            const std::vector<double>& imag_part_input,
            std::vector<double>* real_part_output,
@@ -93,6 +133,11 @@ class FourierTransform {
                                    real_part_output, imag_part_output);
   }
 
+  /**
+   * @param[in,out] real_part Real part.
+   * @param[in,out] imag_part Imaginary part.
+   * @return True on success, false on failure.
+   */
   bool Run(std::vector<double>* real_part,
            std::vector<double>* imag_part) const {
     return fourier_transform_->Run(real_part, imag_part);

@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -49,87 +49,156 @@
 
 namespace sptk {
 
+/**
+ * Symmetric matrix.
+ */
 class SymmetricMatrix {
  public:
+  /**
+   * A row of symmetric matrix.a
+   */
   class Row {
    public:
-    Row(const SymmetricMatrix& symmetric_matrix, int row)
-        : symmetric_matrix_(symmetric_matrix), row_(row) {
+    /**
+     * @param[in] matrix Symmetric matrix.
+     * @param[in] row Row index.
+     */
+    Row(const SymmetricMatrix& matrix, int row) : matrix_(matrix), row_(row) {
     }
+
     virtual ~Row() {
     }
+
+    /**
+     * @param[in] column Column index.
+     * @return Element.
+     */
     double& operator[](int column);
+
+    /**
+     * @param[in] column Column index.
+     * @return Element.
+     */
     const double& operator[](int column) const;
 
    private:
-    const SymmetricMatrix& symmetric_matrix_;
+    const SymmetricMatrix& matrix_;
     const int row_;
+
     friend class SymmetricMatrix;
     Row(const Row&);
     void operator=(const Row&);
   };
 
-  //
+  /**
+   * @param[in] num_dimension Size of matrix.
+   */
   explicit SymmetricMatrix(int num_dimension = 0);
 
-  //
-  SymmetricMatrix(const SymmetricMatrix& symmetric_matrix);
+  /**
+   * @param[in] matrix Symmetric matrix.
+   */
+  SymmetricMatrix(const SymmetricMatrix& matrix);
 
-  //
-  SymmetricMatrix& operator=(const SymmetricMatrix& symmetric_matrix);
+  /**
+   * @param[in] matrix Symmetric matrix.
+   */
+  SymmetricMatrix& operator=(const SymmetricMatrix& matrix);
 
-  //
   virtual ~SymmetricMatrix() {
   }
 
-  //
+  /**
+   * @return Number of dimensions.
+   */
   int GetNumDimension() const {
     return num_dimension_;
   }
 
-  //
+  /**
+   * Resize matrix.
+   *
+   * @param[in] num_dimension Number of dimensions.
+   */
   void Resize(int num_dimension);
 
-  //
+  /**
+   * @param[in] row Row.
+   */
   Row operator[](int row) {
     return Row(*this, row);
   }
 
-  //
+  /**
+   * @param[in] row Row.
+   */
   const Row operator[](int row) const {
     return Row(*this, row);
   }
 
-  //
+  /**
+   * Get element.
+   *
+   * @param[in] row i.
+   * @param[in] column j.
+   * @return (i, j)-th element.
+   */
   double& At(int row, int column);
 
-  //
+  /**
+   * Get element.
+   *
+   * @param[in] row i.
+   * @param[in] column j.
+   * @return (i, j)-th element.
+   */
   const double& At(int row, int column) const;
 
-  //
+  /**
+   * Overwrite all elements with a value.
+   *
+   * @param[in] value Value.
+   */
   void Fill(double value);
 
-  //
+  /**
+   * Get diagonal elements.
+   *
+   * @param[out] diagonal_elements Diagonal elements.
+   * @return True on success, false on failure.
+   */
   bool GetDiagonal(std::vector<double>* diagonal_elements) const;
 
-  //
+  /**
+   * Set diagonal elements.
+   *
+   * @param[in] diagonal_elements Diagonal elements.
+   * @return True on success, false on failure.
+   */
   bool SetDiagonal(const std::vector<double>& diagonal_elements) const;
 
-  //
+  /**
+   * Perform Cholesky decomposition.
+   *
+   * @param[out] lower_triangular_matrix Lower triangular matrix.
+   * @param[out] diagonal_elements Diagonal elements.
+   * @return True on success, false on failure.
+   */
   bool CholeskyDecomposition(SymmetricMatrix* lower_triangular_matrix,
                              std::vector<double>* diagonal_elements) const;
 
-  //
+  /**
+   * Compute inverse matrix.
+   *
+   * @param[out] inverse_matrix Inverse matrix.
+   * @return True on success, false on failure.
+   */
   bool Invert(SymmetricMatrix* inverse_matrix) const;
 
  private:
-  //
   int num_dimension_;
 
-  //
   std::vector<double> data_;
-
-  //
   std::vector<double*> index_;
 };
 

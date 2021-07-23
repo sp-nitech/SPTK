@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -65,7 +65,7 @@ double& SymmetricMatrix::Row::operator[](int column) {
   if (row < column) {
     std::swap(row, column);
   }
-  return symmetric_matrix_.index_[row][column];
+  return matrix_.index_[row][column];
 }
 
 const double& SymmetricMatrix::Row::operator[](int column) const {
@@ -73,7 +73,7 @@ const double& SymmetricMatrix::Row::operator[](int column) const {
   if (row < column) {
     std::swap(row, column);
   }
-  return symmetric_matrix_.index_[row][column];
+  return matrix_.index_[row][column];
 }
 
 SymmetricMatrix::SymmetricMatrix(int num_dimension)
@@ -86,9 +86,9 @@ SymmetricMatrix::SymmetricMatrix(int num_dimension)
   }
 }
 
-SymmetricMatrix::SymmetricMatrix(const SymmetricMatrix& symmetric_matrix)
-    : num_dimension_(symmetric_matrix.num_dimension_) {
-  data_ = symmetric_matrix.data_;
+SymmetricMatrix::SymmetricMatrix(const SymmetricMatrix& matrix)
+    : num_dimension_(matrix.num_dimension_) {
+  data_ = matrix.data_;
   index_.resize(num_dimension_);
 
   for (int i(0), j(0); i < num_dimension_; ++i, j += i) {
@@ -96,11 +96,10 @@ SymmetricMatrix::SymmetricMatrix(const SymmetricMatrix& symmetric_matrix)
   }
 }
 
-SymmetricMatrix& SymmetricMatrix::operator=(
-    const SymmetricMatrix& symmetric_matrix) {
-  if (this != &symmetric_matrix) {
-    num_dimension_ = symmetric_matrix.num_dimension_;
-    data_ = symmetric_matrix.data_;
+SymmetricMatrix& SymmetricMatrix::operator=(const SymmetricMatrix& matrix) {
+  if (this != &matrix) {
+    num_dimension_ = matrix.num_dimension_;
+    data_ = matrix.data_;
     index_.resize(num_dimension_);
 
     for (int i(0), j(0); i < num_dimension_; ++i, j += i) {
