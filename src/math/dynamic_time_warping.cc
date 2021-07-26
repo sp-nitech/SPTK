@@ -143,7 +143,8 @@ bool DynamicTimeWarping::Run(
 
   const int num_candidate(static_cast<int>(local_path_candidates_.size()));
   const int num_query_vector(static_cast<int>(query_vector_sequence.size()));
-  const int num_reference_vector(static_cast<int>(reference_vector_sequence.size()));
+  const int num_reference_vector(
+      static_cast<int>(reference_vector_sequence.size()));
 
   std::vector<std::vector<Cell> > cell(num_query_vector,
                                        std::vector<Cell>(num_reference_vector));

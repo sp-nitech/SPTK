@@ -87,12 +87,13 @@ bool UniformQuantization::Run(double input, int* output) const {
   int index;
   switch (quantization_type_) {
     case kMidRise: {
-      index = static_cast<int>(std::floor(input * inverse_step_size_) + quantization_levels_ / 2);
+      index = static_cast<int>(std::floor(input * inverse_step_size_) +
+                               quantization_levels_ / 2);
       break;
     }
     case kMidTread: {
       index = static_cast<int>(std::round(input * inverse_step_size_) +
-              (quantization_levels_ - 1) / 2);
+                               (quantization_levels_ - 1) / 2);
       break;
     }
     default: { return false; }

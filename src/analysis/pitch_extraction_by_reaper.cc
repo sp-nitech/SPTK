@@ -84,8 +84,10 @@ bool PitchExtractionByReaper::Get(
   reaper::EpochTracker epoch_tracker;
   epoch_tracker.set_unvoiced_cost(static_cast<float>(voicing_threshold_));
   std::vector<int16_t> integer_waveform(waveform.begin(), waveform.end());
-  if (!epoch_tracker.Init(&(integer_waveform[0]), static_cast<int32_t>(waveform.size()),
-                          static_cast<float>(sampling_rate_), static_cast<float>(lower_f0_), static_cast<float>(upper_f0_), true, false)) {
+  if (!epoch_tracker.Init(
+          &(integer_waveform[0]), static_cast<int32_t>(waveform.size()),
+          static_cast<float>(sampling_rate_), static_cast<float>(lower_f0_),
+          static_cast<float>(upper_f0_), true, false)) {
     return false;
   }
 

@@ -65,42 +65,48 @@ void MakeBartlett(bool periodic, std::vector<double>* window) {
 }
 
 void MakeBlackman(bool periodic, std::vector<double>* window) {
-  sptk::CosineWindow maker(static_cast<int>(window->size()), {0.42, 0.5, 0.08}, periodic);
+  sptk::CosineWindow maker(static_cast<int>(window->size()), {0.42, 0.5, 0.08},
+                           periodic);
   *window = maker.Get();
 }
 
 void MakeBlackmanHarris(bool periodic, std::vector<double>* window) {
-  sptk::CosineWindow maker(static_cast<int>(window->size()), {0.35875, 0.48829, 0.14128, 0.01168},
-                           periodic);
+  sptk::CosineWindow maker(static_cast<int>(window->size()),
+                           {0.35875, 0.48829, 0.14128, 0.01168}, periodic);
   *window = maker.Get();
 }
 
 void MakeBlackmanNuttall(bool periodic, std::vector<double>* window) {
-  sptk::CosineWindow maker(
-    static_cast<int>(window->size()), {0.3635819, 0.4891775, 0.1365995, 0.0106411}, periodic);
-  *window = maker.Get();
-}
-
-void MakeFlatTop(bool periodic, std::vector<double>* window) {
-  sptk::CosineWindow maker(static_cast<int>(window->size()), {0.21557895, 0.41663158, 0.277263158,
-                                            0.083578947, 0.006947368},
+  sptk::CosineWindow maker(static_cast<int>(window->size()),
+                           {0.3635819, 0.4891775, 0.1365995, 0.0106411},
                            periodic);
   *window = maker.Get();
 }
 
+void MakeFlatTop(bool periodic, std::vector<double>* window) {
+  sptk::CosineWindow maker(
+      static_cast<int>(window->size()),
+      {0.21557895, 0.41663158, 0.277263158, 0.083578947, 0.006947368},
+      periodic);
+  *window = maker.Get();
+}
+
 void MakeHamming(bool periodic, std::vector<double>* window) {
-  sptk::CosineWindow maker(static_cast<int>(window->size()), {0.54, 0.46}, periodic);
+  sptk::CosineWindow maker(static_cast<int>(window->size()), {0.54, 0.46},
+                           periodic);
   *window = maker.Get();
 }
 
 void MakeHanning(bool periodic, std::vector<double>* window) {
-  sptk::CosineWindow maker(static_cast<int>(window->size()), {0.5, 0.5}, periodic);
+  sptk::CosineWindow maker(static_cast<int>(window->size()), {0.5, 0.5},
+                           periodic);
   *window = maker.Get();
 }
 
 void MakeNuttall(bool periodic, std::vector<double>* window) {
-  sptk::CosineWindow maker(
-    static_cast<int>(window->size()), {0.3635819, 0.4891775, 0.1365995, 0.0106411}, periodic);
+  sptk::CosineWindow maker(static_cast<int>(window->size()),
+                           {0.3635819, 0.4891775, 0.1365995, 0.0106411},
+                           periodic);
   *window = maker.Get();
 }
 

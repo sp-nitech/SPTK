@@ -125,7 +125,8 @@ bool NonrecursiveMaximumLikelihoodParameterGeneration::Run(
 
   const int sequence_length(static_cast<int>(variance_vectors.size()));
   std::vector<SymmetricMatrix> covariance_matrices(
-      sequence_length, SymmetricMatrix(static_cast<int>(variance_vectors[0].size())));
+      sequence_length,
+      SymmetricMatrix(static_cast<int>(variance_vectors[0].size())));
   for (int t(0); t < sequence_length; ++t) {
     if (!covariance_matrices[t].SetDiagonal(variance_vectors[t])) {
       return false;

@@ -89,12 +89,14 @@ bool PitchExtractionByWorld::Get(
     option.f0_ceil = upper_f0_;
     option.allowed_range = voicing_threshold_;
 
-    const int tmp_length(
-        world::GetSamplesForDIO(static_cast<int>(sampling_rate_), static_cast<int>(waveform.size()), frame_period));
+    const int tmp_length(world::GetSamplesForDIO(
+        static_cast<int>(sampling_rate_), static_cast<int>(waveform.size()),
+        frame_period));
     std::vector<double> time_axis(tmp_length);
     std::vector<double> tmp_f0(tmp_length);
-    world::Dio(&(waveform[0]), static_cast<int>(waveform.size()), static_cast<int>(sampling_rate_), &option,
-               &(time_axis[0]), &(tmp_f0[0]));
+    world::Dio(&(waveform[0]), static_cast<int>(waveform.size()),
+               static_cast<int>(sampling_rate_), &option, &(time_axis[0]),
+               &(tmp_f0[0]));
 
     const int target_length(static_cast<int>(
         std::ceil(static_cast<double>(waveform.size()) / frame_shift_)));
