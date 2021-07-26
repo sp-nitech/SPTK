@@ -60,13 +60,13 @@ GaussianMixtureModelBasedConversion::GaussianMixtureModelBasedConversion(
     : num_source_order_(num_source_order),
       num_target_order_(num_target_order),
       source_length_((num_source_order_ + 1) *
-                     (window_coefficients.size() + 1)),
+                     (static_cast<int>(window_coefficients.size() + 1))),
       target_length_((num_target_order_ + 1) *
-                     (window_coefficients.size() + 1)),
+                     (static_cast<int>(window_coefficients.size() + 1))),
       weights_(weights),
       use_magic_number_(use_magic_number),
       magic_number_(magic_number),
-      num_mixture_(weights_.size()),
+      num_mixture_(static_cast<int>(weights_.size())),
       mlpg_(num_target_order_, window_coefficients, use_magic_number_,
             magic_number_),
       is_valid_(true),
@@ -174,10 +174,10 @@ bool GaussianMixtureModelBasedConversion::Run(
         return false;
       }
 
-      const int selected_mixture(
+      const int selected_mixture(static_cast<int>(
           std::max_element(components_of_log_probability.begin(),
                            components_of_log_probability.end()) -
-          components_of_log_probability.begin());
+          components_of_log_probability.begin()));
 
       // Set E.
       for (int l(0); l < target_length_; ++l) {

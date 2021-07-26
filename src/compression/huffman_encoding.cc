@@ -86,8 +86,8 @@ bool HuffmanEncoding::Run(int input, std::vector<bool>* output) const {
     return false;
   }
 
-  const int output_length(codebook_.at(input).size());
-  if (output->size() != static_cast<std::size_t>(output_length)) {
+  const std::size_t output_length(codebook_.at(input).size());
+  if (output->size() != output_length) {
     output->resize(output_length);
   }
 

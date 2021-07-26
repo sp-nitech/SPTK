@@ -82,10 +82,10 @@ bool PitchExtractionByReaper::Get(
   }
 
   reaper::EpochTracker epoch_tracker;
-  epoch_tracker.set_unvoiced_cost(voicing_threshold_);
+  epoch_tracker.set_unvoiced_cost(static_cast<float>(voicing_threshold_));
   std::vector<int16_t> integer_waveform(waveform.begin(), waveform.end());
-  if (!epoch_tracker.Init(&(integer_waveform[0]), waveform.size(),
-                          sampling_rate_, lower_f0_, upper_f0_, true, false)) {
+  if (!epoch_tracker.Init(&(integer_waveform[0]), static_cast<int32_t>(waveform.size()),
+                          static_cast<float>(sampling_rate_), static_cast<float>(lower_f0_), static_cast<float>(upper_f0_), true, false)) {
     return false;
   }
 
@@ -117,15 +117,15 @@ bool PitchExtractionByReaper::Get(
 
   if (NULL != f0) {
     const float external_frame_interval(static_cast<float>(frame_shift_) /
-                                        sampling_rate_);
+                                        static_cast<float>(sampling_rate_));
     std::vector<float> tmp_f0;
     std::vector<float> correlation;
     if (!epoch_tracker.ResampleAndReturnResults(external_frame_interval,
                                                 &tmp_f0, &correlation)) {
       return false;
     }
-    const int target_length(
-        std::ceil(static_cast<float>(waveform.size()) / frame_shift_));
+    const int target_length(static_cast<int>(
+        std::ceil(static_cast<float>(waveform.size()) / frame_shift_)));
     if (target_length < static_cast<int>(tmp_f0.size())) {
       tmp_f0.resize(target_length);
     }

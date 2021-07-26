@@ -54,7 +54,7 @@ DeltaCalculation::DeltaCalculation(
     InputSourceInterface* input_source, bool use_magic_number,
     double magic_number)
     : num_order_(num_order),
-      num_delta_(window_coefficients.size()),
+      num_delta_(static_cast<int>(window_coefficients.size())),
       window_coefficients_(window_coefficients),
       input_source_(input_source),
       use_magic_number_(use_magic_number),
@@ -73,7 +73,7 @@ DeltaCalculation::DeltaCalculation(
       return;
     }
     if (max_window_width_ < static_cast<int>(window_coefficients[d].size())) {
-      max_window_width_ = window_coefficients[d].size();
+      max_window_width_ = static_cast<int>(window_coefficients[d].size());
     }
   }
 

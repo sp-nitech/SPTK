@@ -62,7 +62,7 @@ CosineWindow::CosineWindow(int window_length, const std::vector<double>& alpha,
     return;
   }
 
-  const int alpha_size(alpha.size());
+  const int alpha_size(static_cast<int>(alpha.size()));
   const double m(kTwoPi / (periodic_ ? window_length_ : window_length_ - 1));
   double* window(&(window_[0]));
   for (int i(0); i < window_length_; ++i) {

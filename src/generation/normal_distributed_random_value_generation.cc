@@ -55,7 +55,7 @@ double PseudoRandomGeneration(std::uint64_t* next) {
   }
 
   *next = (*next) * 1103515245L + 12345;
-  const double r(((*next) / 65536L) % 32768L);
+  const double r(static_cast<double>(((*next) / 65536L) % 32768L));
 
   return r / 32767.0;
 }

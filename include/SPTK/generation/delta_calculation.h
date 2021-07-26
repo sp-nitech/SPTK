@@ -144,8 +144,8 @@ class DeltaCalculation {
   bool is_valid_;
 
   int max_window_width_;
-  std::vector<double> lefts_;
-  std::vector<double> rights_;
+  std::vector<int> lefts_;
+  std::vector<int> rights_;
 
   Buffer buffer_;
 

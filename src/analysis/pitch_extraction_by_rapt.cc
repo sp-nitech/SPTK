@@ -87,8 +87,8 @@ bool PitchExtractionByRapt::Get(
                             &tmp_length)) {
       return false;
     }
-    const int target_length(
-        std::ceil(static_cast<double>(waveform.size()) / frame_shift_));
+    const int target_length(static_cast<int>(
+        std::ceil(static_cast<double>(waveform.size()) / frame_shift_)));
     if (target_length < tmp_length) {
       tmp_length = target_length;
     }

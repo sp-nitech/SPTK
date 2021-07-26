@@ -61,7 +61,7 @@ bool CheckSize(const std::vector<std::vector<double> >& vectors, int size) {
 }
 
 bool CheckSize(const std::vector<sptk::SymmetricMatrix>& matrices, int size) {
-  const int outer_size(matrices.size());
+  const int outer_size(static_cast<int>(matrices.size()));
   for (int i(0); i < outer_size; ++i) {
     const int inner_size(matrices[i].GetNumDimension());
     if (inner_size != size) {
@@ -125,7 +125,7 @@ bool NonrecursiveMaximumLikelihoodParameterGeneration::Run(
 
   const int sequence_length(static_cast<int>(variance_vectors.size()));
   std::vector<SymmetricMatrix> covariance_matrices(
-      sequence_length, SymmetricMatrix(variance_vectors[0].size()));
+      sequence_length, SymmetricMatrix(static_cast<int>(variance_vectors[0].size())));
   for (int t(0); t < sequence_length; ++t) {
     if (!covariance_matrices[t].SetDiagonal(variance_vectors[t])) {
       return false;
@@ -163,8 +163,8 @@ bool NonrecursiveMaximumLikelihoodParameterGeneration::Run(
       }
     }
   }
-  const int continuous_length(
-      std::count(is_continuous.begin(), is_continuous.end(), true));
+  const int continuous_length(static_cast<int>(
+      std::count(is_continuous.begin(), is_continuous.end(), true)));
 
   // Prepare memories.
   const int max_window_width(2 * max_half_window_width_ + 1);

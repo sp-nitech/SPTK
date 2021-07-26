@@ -52,7 +52,7 @@
 namespace {
 
 void MakeBartlett(bool periodic, std::vector<double>* window) {
-  const int size(window->size());
+  const int size(static_cast<int>(window->size()));
   const int center(sptk::IsEven(size) ? size / 2 : (size + 1) / 2);
   const double slope(2.0 / (periodic ? size : size - 1));
   double* w(&((*window)[0]));
@@ -65,42 +65,42 @@ void MakeBartlett(bool periodic, std::vector<double>* window) {
 }
 
 void MakeBlackman(bool periodic, std::vector<double>* window) {
-  sptk::CosineWindow maker(window->size(), {0.42, 0.5, 0.08}, periodic);
+  sptk::CosineWindow maker(static_cast<int>(window->size()), {0.42, 0.5, 0.08}, periodic);
   *window = maker.Get();
 }
 
 void MakeBlackmanHarris(bool periodic, std::vector<double>* window) {
-  sptk::CosineWindow maker(window->size(), {0.35875, 0.48829, 0.14128, 0.01168},
+  sptk::CosineWindow maker(static_cast<int>(window->size()), {0.35875, 0.48829, 0.14128, 0.01168},
                            periodic);
   *window = maker.Get();
 }
 
 void MakeBlackmanNuttall(bool periodic, std::vector<double>* window) {
   sptk::CosineWindow maker(
-      window->size(), {0.3635819, 0.4891775, 0.1365995, 0.0106411}, periodic);
+    static_cast<int>(window->size()), {0.3635819, 0.4891775, 0.1365995, 0.0106411}, periodic);
   *window = maker.Get();
 }
 
 void MakeFlatTop(bool periodic, std::vector<double>* window) {
-  sptk::CosineWindow maker(window->size(), {0.21557895, 0.41663158, 0.277263158,
+  sptk::CosineWindow maker(static_cast<int>(window->size()), {0.21557895, 0.41663158, 0.277263158,
                                             0.083578947, 0.006947368},
                            periodic);
   *window = maker.Get();
 }
 
 void MakeHamming(bool periodic, std::vector<double>* window) {
-  sptk::CosineWindow maker(window->size(), {0.54, 0.46}, periodic);
+  sptk::CosineWindow maker(static_cast<int>(window->size()), {0.54, 0.46}, periodic);
   *window = maker.Get();
 }
 
 void MakeHanning(bool periodic, std::vector<double>* window) {
-  sptk::CosineWindow maker(window->size(), {0.5, 0.5}, periodic);
+  sptk::CosineWindow maker(static_cast<int>(window->size()), {0.5, 0.5}, periodic);
   *window = maker.Get();
 }
 
 void MakeNuttall(bool periodic, std::vector<double>* window) {
   sptk::CosineWindow maker(
-      window->size(), {0.3635819, 0.4891775, 0.1365995, 0.0106411}, periodic);
+    static_cast<int>(window->size()), {0.3635819, 0.4891775, 0.1365995, 0.0106411}, periodic);
   *window = maker.Get();
 }
 
@@ -109,7 +109,7 @@ void MakeRectangular(std::vector<double>* window) {
 }
 
 void MakeTrapezoidal(bool periodic, std::vector<double>* window) {
-  const int size(window->size());
+  const int size(static_cast<int>(window->size()));
   const int quarter_size(static_cast<int>(std::round(0.25 * size)));
   const double slope(4.0 / (periodic ? size : size - 1));
   double* w(&((*window)[0]));

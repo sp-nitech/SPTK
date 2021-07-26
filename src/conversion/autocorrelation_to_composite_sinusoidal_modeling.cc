@@ -52,7 +52,7 @@ namespace {
 
 uint64_t CalculateBinomialCoefficient(int n, int k) {
   if (0 == k || n == k) {
-    return 1.0;
+    return 1;
   }
 
   std::vector<uint64_t> buffer(n);

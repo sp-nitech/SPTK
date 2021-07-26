@@ -65,7 +65,7 @@ bool VectorQuantization::Run(
     const std::vector<std::vector<double> >& codebook_vectors,
     int* codebook_index) const {
   // Check inputs.
-  const int codebook_size(codebook_vectors.size());
+  const int codebook_size(static_cast<int>(codebook_vectors.size()));
   if (!is_valid_ ||
       input_vector.size() != static_cast<std::size_t>(num_order_ + 1) ||
       0 == codebook_size || NULL == codebook_index) {

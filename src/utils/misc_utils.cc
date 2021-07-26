@@ -145,7 +145,7 @@ bool ComputePercentagePointOfTDistribution(double probability,
 
   const double inverse_degrees_of_freedom(1.0 / degrees_of_freedom);
   *percentage_point = 0.0;
-  for (int i(term.size() - 1); 0 <= i; --i) {
+  for (int i(static_cast<int>(term.size()) - 1); 0 <= i; --i) {
     *percentage_point =
         (*percentage_point + term[i]) * inverse_degrees_of_freedom;
   }
@@ -284,8 +284,8 @@ bool Perform1DConvolution(const std::vector<double>& f,
     return false;
   }
 
-  const int m(f.size());
-  const int n(g.size());
+  const int m(static_cast<int>(f.size()));
+  const int n(static_cast<int>(g.size()));
   const int output_size(m + n - 1);
   if (result->size() != static_cast<std::size_t>(output_size)) {
     result->resize(output_size);

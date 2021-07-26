@@ -121,7 +121,7 @@ DynamicTimeWarping::DynamicTimeWarping(
     }
   }
 
-  const int num_candidate(local_path_candidates_.size());
+  const int num_candidate(static_cast<int>(local_path_candidates_.size()));
   local_path_weights_.resize(num_candidate);
   for (int k(0); k < num_candidate; ++k) {
     local_path_weights_[k] =
@@ -141,9 +141,9 @@ bool DynamicTimeWarping::Run(
     return false;
   }
 
-  const int num_candidate(local_path_candidates_.size());
-  const int num_query_vector(query_vector_sequence.size());
-  const int num_reference_vector(reference_vector_sequence.size());
+  const int num_candidate(static_cast<int>(local_path_candidates_.size()));
+  const int num_query_vector(static_cast<int>(query_vector_sequence.size()));
+  const int num_reference_vector(static_cast<int>(reference_vector_sequence.size()));
 
   std::vector<std::vector<Cell> > cell(num_query_vector,
                                        std::vector<Cell>(num_reference_vector));

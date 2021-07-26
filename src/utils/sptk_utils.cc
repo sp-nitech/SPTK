@@ -144,7 +144,7 @@ bool ReadStream(bool zero_padding, int stream_skip, int read_point,
       reinterpret_cast<char*>(&((*sequence_to_read)[0]) + read_point),
       num_read_bytes);
 
-  const int gcount(input_stream->gcount());
+  const int gcount(static_cast<int>(input_stream->gcount()));
   if (NULL != actual_read_size) {
     *actual_read_size = gcount / type_byte;
   }
@@ -154,8 +154,8 @@ bool ReadStream(bool zero_padding, int stream_skip, int read_point,
   } else if (zero_padding && 0 < gcount) {
     // Use std::ceil to zero incomplete data
     // as gcount may not be a multiple of sizeof(double).
-    const int num_zeros(
-        std::ceil(static_cast<double>(num_read_bytes - gcount) / type_byte));
+    const int num_zeros(static_cast<int>(
+        std::ceil(static_cast<double>(num_read_bytes - gcount) / type_byte)));
     if (num_zeros < 0) {
       return false;  // Something wrong!
     }
@@ -236,7 +236,7 @@ bool WriteStream(int write_point, int write_size,
 
   // When output_stream is cout, actual_write_size is always zero.
   if (NULL != actual_write_size) {
-    const int after(output_stream->tellp());
+    const int after(static_cast<int>(output_stream->tellp()));
     const int type_byte(sizeof(sequence_to_write[0]));
     *actual_write_size = (after - before) / type_byte;
   }
@@ -266,7 +266,7 @@ bool WriteStream(int write_point, int write_size,
   }
 
   if (NULL != actual_write_size) {
-    const int after(output_stream->tellp());
+    const int after(static_cast<int>(output_stream->tellp()));
     *actual_write_size = after - before;
   }
 

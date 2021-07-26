@@ -53,7 +53,7 @@ InputSourceFromVector::InputSourceFromVector(bool zero_padding, int read_size,
                                              std::vector<double>* input_vector)
     : zero_padding_(zero_padding),
       read_size_(read_size),
-      vector_size_(NULL == input_vector ? 0 : input_vector->size()),
+      vector_size_(NULL == input_vector ? 0 : static_cast<int>(input_vector->size())),
       input_vector_(input_vector),
       position_(0),
       is_valid_(true) {

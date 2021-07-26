@@ -84,7 +84,7 @@ InputSourceInterpolationWithMagicNumber::
   }
 
   remained_num_samples_ = frame_period_ + 1;
-  data_length_ = curr_data_.size();
+  data_length_ = static_cast<int>(curr_data_.size());
 
   if (!source_->Get(&next_data_)) {
     next_data_.resize(data_length_);

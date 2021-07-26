@@ -113,7 +113,7 @@ bool FilterCoefficientsToGroupDelay::Run(
                             &buffer->convolved_coefficients_)) {
     return false;
   }
-  const int coefficients_length(buffer->convolved_coefficients_.size());
+  const int coefficients_length(static_cast<int>(buffer->convolved_coefficients_.size()));
 
   std::copy(buffer->convolved_coefficients_.begin(),
             buffer->convolved_coefficients_.end(), buffer->real_part1_.begin());

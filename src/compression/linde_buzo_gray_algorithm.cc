@@ -85,7 +85,7 @@ bool LindeBuzoGrayAlgorithm::Run(
     std::vector<std::vector<double> >* codebook_vectors,
     std::vector<int>* codebook_indices) const {
   // Check inputs.
-  const int num_input_vector(input_vectors.size());
+  const int num_input_vector(static_cast<int>(input_vectors.size()));
   if (!is_valid_ ||
       num_input_vector < min_num_vector_in_cluster_ * target_codebook_size_ ||
       NULL == codebook_vectors || NULL == codebook_indices ||

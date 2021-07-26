@@ -83,8 +83,8 @@ bool PitchExtractionBySwipe::Get(
     swipe::vector tmp_f0(swipe::swipe(
         waveform, sampling_rate_, lower_f0_, upper_f0_, voicing_threshold_,
         static_cast<double>(frame_shift_) / sampling_rate_));
-    const int target_length(
-        std::ceil(static_cast<double>(waveform.size()) / frame_shift_));
+    const int target_length(static_cast<int>(
+        std::ceil(static_cast<double>(waveform.size()) / frame_shift_)));
     if (target_length < tmp_f0.x) {
       tmp_f0.x = target_length;
     }

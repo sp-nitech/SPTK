@@ -99,7 +99,7 @@ void CoefficientsFrequencyTransform(const std::vector<double>& input,
 void PTransform(double alpha, std::vector<double>* p) {
   if (0.0 == alpha) return;
 
-  const int order(p->size() - 1);
+  const int order(static_cast<int>(p->size()) - 1);
   double* x(&((*p)[0]));
   double d(x[order]);
   for (int k(order); 0 < k; --k) {
@@ -116,7 +116,7 @@ void PTransform(double alpha, std::vector<double>* p) {
 void QTransform(double alpha, std::vector<double>* q) {
   if (0.0 == alpha) return;
 
-  const int order(q->size() - 1);
+  const int order(static_cast<int>(q->size()) - 1);
   double* x(&((*q)[0]));
   double d(x[1]);
   for (int k(1); k <= order; ++k) {

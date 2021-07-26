@@ -62,7 +62,7 @@ bool InverseVectorQuantization::Run(
     const std::vector<std::vector<double> >& codebook_vectors,
     std::vector<double>* reconstructed_vector) const {
   // Check inputs.
-  const int codebook_size(codebook_vectors.size());
+  const int codebook_size(static_cast<int>(codebook_vectors.size()));
   if (!is_valid_ || codebook_index < 0 || codebook_size <= codebook_index ||
       NULL == reconstructed_vector) {
     return false;

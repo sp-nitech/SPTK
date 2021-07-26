@@ -92,8 +92,8 @@ RecursiveMaximumLikelihoodParameterGeneration::
 
   for (int i(1); i < calculation_field_; ++i) {
     if (!input_source->Get(&buffer_.static_and_dynamic_parameters)) {
-      const int static_and_dynamic_size(
-          buffer_.static_and_dynamic_parameters.size() / 2);
+      const int static_and_dynamic_size(static_cast<int>(
+          buffer_.static_and_dynamic_parameters.size() / 2));
       // Initialize with zero mean.
       std::fill(buffer_.static_and_dynamic_parameters.begin(),
                 buffer_.static_and_dynamic_parameters.begin() +
@@ -119,8 +119,8 @@ bool RecursiveMaximumLikelihoodParameterGeneration::Get(
   }
 
   if (!input_source_->Get(&buffer_.static_and_dynamic_parameters)) {
-    const int static_and_dynamic_size(
-        buffer_.static_and_dynamic_parameters.size() / 2);
+    const int static_and_dynamic_size(static_cast<int>(
+        buffer_.static_and_dynamic_parameters.size() / 2));
     // Unobserbed mean is zero.
     std::fill(
         buffer_.static_and_dynamic_parameters.begin(),
@@ -154,7 +154,7 @@ bool RecursiveMaximumLikelihoodParameterGeneration::Get(
 }
 
 bool RecursiveMaximumLikelihoodParameterGeneration::Forward() {
-  const int num_delta(window_coefficients_.size());
+  const int num_delta(static_cast<int>(window_coefficients_.size()));
   const int static_size(num_order_ + 1);
   const int dynamic_size(static_size * num_delta);
 

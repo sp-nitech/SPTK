@@ -54,7 +54,7 @@ double CalculateChebyshevPolynomial(const std::vector<double>& coefficients,
   const double* c(&coefficients[0]);
   double b2(0.0);
   double b1(0.0);
-  for (int i(coefficients.size() - 1); 0 < i; --i) {
+  for (int i(static_cast<int>(coefficients.size()) - 1); 0 < i; --i) {
     const double b0(2.0 * x * b1 - b2 + c[i]);
     b2 = b1;
     b1 = b0;

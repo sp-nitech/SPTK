@@ -165,14 +165,14 @@ class FilterCoefficientsToGroupDelay {
   /**
    * @return Alpha.
    */
-  bool GetAlpha() const {
+  double GetAlpha() const {
     return alpha_;
   }
 
   /**
    * @return Gamma.
    */
-  bool GetGamma() const {
+  double GetGamma() const {
     return gamma_;
   }
 
