@@ -5,7 +5,7 @@ window
 
 .. doxygenfile:: window.cc
 
-.. seealso:: :ref:`fftr`
+.. seealso:: :ref:`frame`
 
 .. doxygenclass:: sptk::DataWindowing
    :members:

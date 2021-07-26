@@ -5,7 +5,7 @@ mseq
 
 .. doxygenfile:: mseq.cc
 
-.. seealso:: :ref:`train`
+.. seealso:: :ref:`nrand`
 
 .. doxygenclass:: sptk::MSequenceGeneration
    :members:

@@ -5,4 +5,4 @@ average
 
 .. doxygenfile:: average.cc
 
-.. seealso:: :ref:`vsum`
+.. seealso:: :ref:`vsum`  :ref:`vstat`

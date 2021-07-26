@@ -51,15 +51,19 @@ Changes from SPTK3
   - Huffman coding (`huffman`, `huffman_encode`, and `huffman_decode`)
   - Subband decomposition (`pqmf` and `ipqmf`)
   - Mel-filter-bank extraction (`fbank`)
-- Deprecated commands:
+- Obsoluted commands:
   - `acep`, `agcep`, and `amcep` -> `amgcep`
+  - `bell` ->
   - `c2sp` -> `mgc2sp`
+  - `cat2` and `echo2` ->
+  - `da` ->
   - `ds`, `us`, `us16`, and `uscd` -> `sox`
   - `gc2gc` -> `mgc2mgc`
   - `gcep`, `mcep`, and `uels` -> `mgcep`
   - `glsadf`, `lmadf`, and `mlsadf` -> `mglsadf`
   - `ivq` -> `imsvq`
   - `lsp2sp` -> `mglsp2sp`
+  - `mgc2mgclsp` and `mgclsp2mgc` -> `mgc2mgc`
   - `raw2wav`, `wav2raw`, `wavjoin`, and `wavsplit` -> `sox`
   - `smcep` ->
   - `vq` -> `msvq`
@@ -69,6 +73,9 @@ Changes from SPTK3
   - `train` -> `train` and `mseq`
   - `ulaw` -> `ulaw` and `iulaw`
   - `vstat` -> `vstat` and `median`
+- Renamed commands:
+  - `c2ir` -> `c2mpir`
+  - `mgclsp2sp` -> `mglsp2sp`
 
 
 Relationship at a glance

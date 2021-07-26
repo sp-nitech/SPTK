@@ -5,7 +5,7 @@ ignorm
 
 .. doxygenfile:: ignorm.cc
 
-.. seealso:: :ref:`gnorm`  :ref:`freqt`
+.. seealso:: :ref:`gnorm`  :ref:`freqt`  :ref:`mgc2mgc`
 
 .. doxygenclass:: sptk::GeneralizedCepstrumInverseGainNormalization
    :members:

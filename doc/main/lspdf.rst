@@ -5,7 +5,7 @@ lspdf
 
 .. doxygenfile:: lspdf.cc
 
-.. seealso:: :ref:`lsp2lpc`
+.. seealso:: :ref:`lpc2lsp`  :ref:`lspcheck`
 
 .. doxygenclass:: sptk::LineSpectralPairsDigitalFilter
    :members:

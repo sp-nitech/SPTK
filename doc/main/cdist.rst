@@ -5,4 +5,4 @@ cdist
 
 .. doxygenfile:: cdist.cc
 
-.. seealso:: :ref:`amgcep`
+.. seealso:: :ref:`amgcep`  :ref:`mgcep`  :ref:`rmse`

@@ -5,7 +5,7 @@ zerodf
 
 .. doxygenfile:: zerodf.cc
 
-.. seealso:: :ref:`poledf`
+.. seealso:: :ref:`poledf`  :ref:`norm0`
 
 .. doxygenclass:: sptk::AllZeroDigitalFilter
    :members:

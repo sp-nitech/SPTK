@@ -1,8 +1,8 @@
 .. _step:
 
 step
-=======
+====
 
 .. doxygenfile:: step.cc
 
-.. seealso:: :ref:`impulse`
+.. seealso:: :ref:`impulse`  :ref:`ramp`  :ref:`train`  :ref:`sin`

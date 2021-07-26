@@ -5,7 +5,7 @@ mc2b
 
 .. doxygenfile:: mc2b.cc
 
-.. seealso:: :ref:`b2mc`
+.. seealso:: :ref:`b2mc`  :ref:`mgc2mgc`
 
 .. doxygenclass:: sptk::MelCepstrumToMlsaDigitalFilterCoefficients
    :members:
