@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -60,8 +60,9 @@ namespace sptk {
  * Type 0:
  * @f[
  *   \begin{array}{cccc}
- *     20 \log_{10}|H(0)|, & 20 \log_{10}|H(1)|, & \ldots, & 20
- * \log_{10}|H(N/2)|. \end{array}
+ *     20 \log_{10}|H(0)|, & 20 \log_{10}|H(1)|, & \ldots, &
+ *     20 \log_{10}|H(N/2)|.
+ *   \end{array}
  * @f]
  * Type 1:
  * @f[
@@ -122,13 +123,7 @@ class SpectrumToSpectrum {
                      InputOutputFormats output_format, double epsilon,
                      double relative_floor_in_decibels);
 
-  virtual ~SpectrumToSpectrum() {
-    for (std::vector<SpectrumToSpectrum::OperationInterface*>::iterator itr(
-             operations_.begin());
-         itr != operations_.end(); ++itr) {
-      delete (*itr);
-    }
-  }
+  virtual ~SpectrumToSpectrum();
 
   /**
    * @return FFT length.

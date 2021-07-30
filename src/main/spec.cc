@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -129,16 +129,17 @@ void PrintUsage(std::ostream* stream) {
  * - @b stdout
  *   - double-type spectrum
  *
- * The below example performs spectral analysis with a small value to add to the power spectrum.
+ * The below example performs spectral analysis. To prevent @f$log(0)@f$,
+ * a small value is add to power spectrum using @c -e option.
  *
  * @code{.sh}
- *   frame -l 400 -p 80 data.d | window -l 400 -L 512 | spec -l 512 -e 1e-6 > data.spec
+ *   frame -l 400 data.d | window -l 400 -L 512 | spec -l 512 -e 1e-6 > data.sp
  * @endcode
  *
- * Also, in the following example, the floor value is set as -30 dB per frame.
+ * Instead a relative floor value of spectrum can be set using @c -E option.
  *
  * @code{.sh}
- *   spec -E -30 data.d > data.spec
+ *   spec -E -30 data.d2 > data.sp
  * @endcode
  *
  * @param[in] argc Number of arguments.
@@ -281,7 +282,6 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    // open stream
     std::ifstream ifs_for_numerator;
     if (is_numerator_specified) {
       ifs_for_numerator.open(numerator_coefficients_file,
@@ -355,9 +355,7 @@ int main(int argc, char* argv[]) {
         return 1;
       }
     }
-
   } else {
-    // get input file
     const int num_input_files(argc - optind);
     if (1 < num_input_files) {
       std::ostringstream error_message;
@@ -367,7 +365,6 @@ int main(int argc, char* argv[]) {
     }
     const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-    // open stream
     std::ifstream ifs;
     ifs.open(input_file, std::ios::in | std::ios::binary);
     if (ifs.fail() && NULL != input_file) {

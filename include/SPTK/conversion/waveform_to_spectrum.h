@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -67,8 +67,9 @@ namespace sptk {
  * Type 0:
  * @f[
  *   \begin{array}{cccc}
- *     20 \log_{10}|H(0)|, & 20 \log_{10}|H(1)|, & \ldots, & 20
- * \log_{10}|H(N/2)|. \end{array}
+ *     20 \log_{10}|H(0)|, & 20 \log_{10}|H(1)|, & \ldots, &
+ *     20 \log_{10}|H(N/2)|.
+ *   \end{array}
  * @f]
  * Type 1:
  * @f[
@@ -99,11 +100,13 @@ class WaveformToSpectrum {
    public:
     Buffer() {
     }
+
     virtual ~Buffer() {
     }
 
    private:
     FilterCoefficientsToSpectrum::Buffer buffer_;
+
     friend class WaveformToSpectrum;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
@@ -175,6 +178,7 @@ class WaveformToSpectrum {
 
  private:
   const FilterCoefficientsToSpectrum filter_coefficients_to_spectrum_;
+
   const std::vector<double> dummy_for_filter_coefficients_to_spectrum_;
 
   DISALLOW_COPY_AND_ASSIGN(WaveformToSpectrum);

@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -44,10 +44,9 @@
 
 #include "SPTK/conversion/filter_coefficients_to_spectrum.h"
 
-#include <algorithm>   // std::copy, std::fill, std::transform, etc.
+#include <algorithm>   // std::copy, std::fill, std::transform
 #include <cfloat>      // DBL_MAX
 #include <cstddef>     // std::size_t
-#include <functional>  // std::bind, std::divides, std::multiplies, etc.
 
 namespace sptk {
 
@@ -75,7 +74,7 @@ bool FilterCoefficientsToSpectrum::Run(
     const std::vector<double>& denominator_coefficients,
     std::vector<double>* spectrum,
     FilterCoefficientsToSpectrum::Buffer* buffer) const {
-  // check inputs
+  // Check inputs.
   const int numerator_length(num_numerator_order_ + 1);
   const int denominator_length(num_denominator_order_ + 1);
   if (!is_valid_ ||
@@ -87,7 +86,7 @@ bool FilterCoefficientsToSpectrum::Run(
     return false;
   }
 
-  // prepare memories
+  // Prepare memories.
   const int output_length(fft_length_ / 2 + 1);
   if (spectrum->size() != static_cast<std::size_t>(output_length)) {
     spectrum->resize(output_length);
@@ -105,7 +104,7 @@ bool FilterCoefficientsToSpectrum::Run(
     buffer->denominator_of_transfer_function_.resize(output_length);
   }
 
-  // calculate numerators of transfer function
+  // Calculate numerators of transfer function.
   if (1 != numerator_length) {
     std::copy(numerator_coefficients.begin(), numerator_coefficients.end(),
               buffer->fast_fourier_transform_input_.begin());
@@ -127,7 +126,7 @@ bool FilterCoefficientsToSpectrum::Run(
     }
   }
 
-  // calculate denominators of transfer function
+  // Calculate denominators of transfer function.
   if (1 != denominator_length) {
     buffer->fast_fourier_transform_input_[0] = 1.0;
     std::copy(denominator_coefficients.begin() + 1,
@@ -155,13 +154,13 @@ bool FilterCoefficientsToSpectrum::Run(
     }
   }
 
-  // get gain of transfer function
+  // Get gain of transfer function.
   const double gain(denominator_coefficients[0] * denominator_coefficients[0]);
   if (0.0 == gain) {
     return false;
   }
 
-  // calculate power spectrum
+  // Calculate power spectrum.
   if (1 == numerator_length && 1 == denominator_length) {
     const double tmp(gain * numerator_coefficients[0] *
                      numerator_coefficients[0]);
@@ -172,14 +171,12 @@ bool FilterCoefficientsToSpectrum::Run(
     std::transform(
         buffer->denominator_of_transfer_function_.begin(),
         buffer->denominator_of_transfer_function_.begin() + output_length,
-        spectrum->begin(),
-        std::bind(std::divides<double>(), tmp, std::placeholders::_1));
+        spectrum->begin(), [tmp](double y) { return tmp / y; });
   } else if (1 != numerator_length && 1 == denominator_length) {
     std::transform(
         buffer->numerator_of_transfer_function_.begin(),
         buffer->numerator_of_transfer_function_.begin() + output_length,
-        spectrum->begin(),
-        std::bind(std::multiplies<double>(), gain, std::placeholders::_1));
+        spectrum->begin(), [gain](double x) { return gain * x; });
   } else {
     std::transform(
         buffer->numerator_of_transfer_function_.begin(),

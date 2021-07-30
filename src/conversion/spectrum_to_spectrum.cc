@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2020  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -44,9 +44,9 @@
 
 #include "SPTK/conversion/spectrum_to_spectrum.h"
 
-#include <algorithm>  // std::copy, std::max, std::max_element, etc.
+#include <algorithm>  // std::copy, std::max, std::max_element, std::transform
 #include <cfloat>     // DBL_MAX
-#include <cmath>      // std::exp, std::log, std::log10, std::pow, etc.
+#include <cmath>      // std::exp, std::log, std::log10, std::pow, std::sqrt
 #include <cstddef>    // std::size_t
 
 namespace {
@@ -462,15 +462,24 @@ SpectrumToSpectrum::SpectrumToSpectrum(int fft_length,
   }
 }
 
+SpectrumToSpectrum::~SpectrumToSpectrum() {
+  for (std::vector<SpectrumToSpectrum::OperationInterface*>::iterator itr(
+           operations_.begin());
+       itr != operations_.end(); ++itr) {
+    delete (*itr);
+  }
+}
+
 bool SpectrumToSpectrum::Run(const std::vector<double>& input,
                              std::vector<double>* output) const {
-  // check inputs
+  // Check inputs.
   const int length(fft_length_ / 2 + 1);
   if (!is_valid_ || input.size() != static_cast<std::size_t>(length) ||
       NULL == output) {
     return false;
   }
 
+  // Prepare memories.
   if (output->size() != static_cast<std::size_t>(length)) {
     output->resize(length);
   }
