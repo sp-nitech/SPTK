@@ -38,6 +38,14 @@ cd egs/analysis_synthesis/mgc
 ./run.sh
 ```
 
+The below is a simple example that decreases the volume of input audio.
+You may need to install `sox` command on your system.
+```sh
+sox -t wav input.wav -c 1 -t s16 -r 16000 - | \
+   x2x +sd | sopr -m 0.5 | x2x +ds -r | \
+   sox -c 1 -t s16 -r 16000 - -t wav output.wav
+```
+
 
 Changes from SPTK3
 ------------------
