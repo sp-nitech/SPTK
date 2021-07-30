@@ -18,7 +18,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'SPTK'
-copyright = '2020, SPTK Working Group'
+copyright = '2021, SPTK Working Group'
 author = 'SPTK Working Group'
 
 

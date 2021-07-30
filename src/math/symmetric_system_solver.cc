@@ -8,7 +8,7 @@
 //                           Interdisciplinary Graduate School of    //
 //                           Science and Engineering                 //
 //                                                                   //
-//                1996-2019  Nagoya Institute of Technology          //
+//                1996-2021  Nagoya Institute of Technology          //
 //                           Department of Computer Science          //
 //                                                                   //
 // All rights reserved.                                              //
@@ -59,7 +59,7 @@ bool SymmetricSystemSolver::Run(const SymmetricMatrix& coefficient_matrix,
                                 const std::vector<double>& constant_vector,
                                 std::vector<double>* solution_vector,
                                 SymmetricSystemSolver::Buffer* buffer) const {
-  // check inputs
+  // Check inputs.
   const int length(num_order_ + 1);
   if (!is_valid_ || coefficient_matrix.GetNumDimension() != length ||
       constant_vector.size() != static_cast<std::size_t>(length) ||
@@ -67,17 +67,14 @@ bool SymmetricSystemSolver::Run(const SymmetricMatrix& coefficient_matrix,
     return false;
   }
 
-  // prepare memories
+  // Prepare memories.
   if (solution_vector->size() != static_cast<std::size_t>(length)) {
     solution_vector->resize(length);
   }
-
-  // prepare buffer
   if (buffer->inverse_matrix_.GetNumDimension() != length) {
     buffer->inverse_matrix_.Resize(length);
   }
 
-  // get values
   const double* b(&constant_vector[0]);
   double* x(&((*solution_vector)[0]));
 
