@@ -45,6 +45,7 @@
 #include "SPTK/math/gaussian_mixture_model_based_conversion.h"
 
 #include <algorithm>  // std::copy, std::max_element
+#include <cstddef>    // std::size_t
 
 #include "SPTK/math/gaussian_mixture_modeling.h"
 
