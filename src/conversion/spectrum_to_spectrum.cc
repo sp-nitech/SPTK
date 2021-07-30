@@ -408,28 +408,28 @@ void SelectOperation(
 
 namespace sptk {
 
-SpectrumToSpectrum::SpectrumToSpectrum(
-    int fft_length, InputOutputFormats input_format,
-    InputOutputFormats output_format, double epsilon_for_calculating_logarithms,
-    double relative_floor_in_decibels)
+SpectrumToSpectrum::SpectrumToSpectrum(int fft_length,
+                                       InputOutputFormats input_format,
+                                       InputOutputFormats output_format,
+                                       double epsilon,
+                                       double relative_floor_in_decibels)
     : fft_length_(fft_length),
       input_format_(input_format),
       output_format_(output_format),
-      epsilon_for_calculating_logarithms_(epsilon_for_calculating_logarithms),
+      epsilon_(epsilon),
       relative_floor_in_decibels_(relative_floor_in_decibels),
       is_valid_(true) {
   if (fft_length_ <= 0 || !IsPowerOfTwo(fft_length_) || input_format_ < 0 ||
       kNumInputOutputFormats <= input_format_ || output_format_ < 0 ||
-      kNumInputOutputFormats <= output_format_ ||
-      epsilon_for_calculating_logarithms_ < 0.0 ||
+      kNumInputOutputFormats <= output_format_ || epsilon_ < 0.0 ||
       0.0 <= relative_floor_in_decibels_) {
     is_valid_ = false;
     return;
   }
 
-  if (0.0 != epsilon_for_calculating_logarithms_) {
+  if (0.0 != epsilon_) {
     SelectOperation(input_format_, kPowerSpectrum, &operations_);
-    operations_.push_back(new Addition(epsilon_for_calculating_logarithms_));
+    operations_.push_back(new Addition(epsilon_));
     SelectOperation(kPowerSpectrum, output_format_, &operations_);
   } else {
     SelectOperation(input_format_, output_format_, &operations_);

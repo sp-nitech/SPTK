@@ -48,12 +48,11 @@ namespace sptk {
 
 WaveformToSpectrum::WaveformToSpectrum(
     int frame_length, int fft_length,
-    SpectrumToSpectrum::InputOutputFormats output_format,
-    double epsilon_for_calculating_logarithms,
+    SpectrumToSpectrum::InputOutputFormats output_format, double epsilon,
     double relative_floor_in_decibels)
-    : filter_coefficients_to_spectrum_(
-          frame_length - 1, 0, fft_length, output_format,
-          epsilon_for_calculating_logarithms, relative_floor_in_decibels),
+    : filter_coefficients_to_spectrum_(frame_length - 1, 0, fft_length,
+                                       output_format, epsilon,
+                                       relative_floor_in_decibels),
       dummy_for_filter_coefficients_to_spectrum_(1, 1.0) {
 }
 

@@ -857,6 +857,7 @@ INPUT                  = \
                          ../include/SPTK/conversion/composite_sinusoidal_modeling_to_autocorrelation.h \
                          ../include/SPTK/conversion/filter_coefficients_to_group_delay.h \
                          ../include/SPTK/conversion/filter_coefficients_to_phase_spectrum.h \
+                         ../include/SPTK/conversion/filter_coefficients_to_spectrum.h \
                          ../include/SPTK/conversion/generalized_cepstrum_gain_normalization.h \
                          ../include/SPTK/conversion/generalized_cepstrum_inverse_gain_normalization.h \
                          ../include/SPTK/conversion/line_spectral_pairs_to_linear_predictive_coefficients.h \
@@ -872,7 +873,9 @@ INPUT                  = \
                          ../include/SPTK/conversion/negative_derivative_of_phase_spectrum_to_cepstrum.h \
                          ../include/SPTK/conversion/parcor_coefficients_to_linear_predictive_coefficients.h \
                          ../include/SPTK/conversion/parcor_coefficients_to_log_area_ratio.h \
+                         ../include/SPTK/conversion/spectrum_to_spectrum.h \
                          ../include/SPTK/conversion/waveform_to_autocorrelation.h \
+                         ../include/SPTK/conversion/waveform_to_spectrum.h \
                          ../include/SPTK/filter \
                          ../include/SPTK/generation \
                          ../include/SPTK/math \

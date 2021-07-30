@@ -93,32 +93,32 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       mgcep [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of mel-generalized cepstrum (   int)[" << std::setw(5) << std::right << kDefaultNumOrder             << "][    0 <= m <=     ]" << std::endl;  // NOLINT
-  *stream << "       -a a  : all-pass constant                 (double)[" << std::setw(5) << std::right << kDefaultAlpha                << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
-  *stream << "       -g g  : gamma                             (double)[" << std::setw(5) << std::right << kDefaultGamma                << "][ -1.0 <= g <= 0.0 ]" << std::endl;  // NOLINT
-  *stream << "       -c c  : gamma = -1 / c                    (   int)[" << std::setw(5) << std::right << "N/A"                        << "][    1 <= c <=     ]" << std::endl;  // NOLINT
-  *stream << "       -l l  : frame length (FFT length)         (   int)[" << std::setw(5) << std::right << kDefaultFftLength            << "][    2 <= l <=     ]" << std::endl;  // NOLINT
-  *stream << "       -q q  : input format                      (   int)[" << std::setw(5) << std::right << kDefaultInputFormat          << "][    0 <= q <= 4   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of mel-generalized cepstrum   (   int)[" << std::setw(5) << std::right << kDefaultNumOrder             << "][    0 <= m <=     ]" << std::endl;  // NOLINT
+  *stream << "       -a a  : all-pass constant                   (double)[" << std::setw(5) << std::right << kDefaultAlpha                << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -g g  : gamma                               (double)[" << std::setw(5) << std::right << kDefaultGamma                << "][ -1.0 <= g <= 0.0 ]" << std::endl;  // NOLINT
+  *stream << "       -c c  : gamma = -1 / c                      (   int)[" << std::setw(5) << std::right << "N/A"                        << "][    1 <= c <=     ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : frame length (FFT length)           (   int)[" << std::setw(5) << std::right << kDefaultFftLength            << "][    2 <= l <=     ]" << std::endl;  // NOLINT
+  *stream << "       -q q  : input format                        (   int)[" << std::setw(5) << std::right << kDefaultInputFormat          << "][    0 <= q <= 4   ]" << std::endl;  // NOLINT
   *stream << "                 0 (20*log|X(z)|)" << std::endl;
   *stream << "                 1 (ln|X(z)|)" << std::endl;
   *stream << "                 2 (|X(z)|)" << std::endl;
   *stream << "                 3 (|X(z)|^2)" << std::endl;
   *stream << "                 4 (windowed waveform)" << std::endl;
-  *stream << "       -o o  : output format                     (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat         << "][    0 <= o <= 3   ]" << std::endl;  // NOLINT
+  *stream << "       -o o  : output format                       (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat         << "][    0 <= o <= 3   ]" << std::endl;  // NOLINT
   *stream << "                 0 (mel-cepstrum)" << std::endl;
   *stream << "                 1 (mlsa filter coefficients)" << std::endl;
   *stream << "                 2 (gain normalized mel-cepstrum)" << std::endl;
   *stream << "                 3 (gain normalized mlsa filter coefficients)" << std::endl;  // NOLINT
   *stream << "     (level 2)" << std::endl;
-  *stream << "       -i i  : maximum number of iterations      (   int)[" << std::setw(5) << std::right << kDefaultNumIteration         << "][    0 <= i <=     ]" << std::endl;  // NOLINT
-  *stream << "       -d d  : convergence threshold             (double)[" << std::setw(5) << std::right << kDefaultConvergenceThreshold << "][  0.0 <= d <=     ]" << std::endl;  // NOLINT
-  *stream << "       -e e  : small value for calculating log   (double)[" << std::setw(5) << std::right << "N/A"                        << "][  0.0 <  e <=     ]" << std::endl;  // NOLINT
-  *stream << "       -E E  : relative floor in decibels        (double)[" << std::setw(5) << std::right << "N/A"                        << "][      <= E <  0.0 ]" << std::endl;  // NOLINT
+  *stream << "       -i i  : maximum number of iterations        (   int)[" << std::setw(5) << std::right << kDefaultNumIteration         << "][    0 <= i <=     ]" << std::endl;  // NOLINT
+  *stream << "       -d d  : convergence threshold               (double)[" << std::setw(5) << std::right << kDefaultConvergenceThreshold << "][  0.0 <= d <=     ]" << std::endl;  // NOLINT
+  *stream << "       -e e  : small value added to power spectrum (double)[" << std::setw(5) << std::right << "N/A"                        << "][  0.0 <  e <=     ]" << std::endl;  // NOLINT
+  *stream << "       -E E  : relative floor in decibels          (double)[" << std::setw(5) << std::right << "N/A"                        << "][      <= E <  0.0 ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       windowed data sequence or spectrum        (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       windowed data sequence or spectrum          (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       mel-generalized cepstrum                  (double)" << std::endl;  // NOLINT
+  *stream << "       mel-generalized cepstrum                    (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
   *stream << "       value of l must be a power of 2" << std::endl;
   *stream << "       -e and -E are valid only if q is 4" << std::endl;
@@ -161,7 +161,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b -d @e double
  *   - convergence threshold @f$(0 \le \epsilon)@f$
  * - @b -e @e double
- *   - small value added to power spectrum to prevent @f$\log(0)@f$
+ *   - small value added to power spectrum
  * - @b -E @e double
  *   - relative floor in decibels
  * - @b infile @e str
@@ -194,7 +194,7 @@ int main(int argc, char* argv[]) {
   OutputFormats output_format(kDefaultOutputFormat);
   int num_iteration(kDefaultNumIteration);
   double convergence_threshold(kDefaultConvergenceThreshold);
-  double epsilon_for_calculating_logarithms(0.0);
+  double epsilon(0.0);
   double relative_floor_in_decibels(-DBL_MAX);
 
   for (;;) {
@@ -310,9 +310,7 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'e': {
-        if (!sptk::ConvertStringToDouble(optarg,
-                                         &epsilon_for_calculating_logarithms) ||
-            epsilon_for_calculating_logarithms <= 0.0) {
+        if (!sptk::ConvertStringToDouble(optarg, &epsilon) || epsilon <= 0.0) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -e option must be a positive number";
@@ -365,8 +363,8 @@ int main(int argc, char* argv[]) {
   sptk::SpectrumToSpectrum spectrum_to_spectrum(
       fft_length,
       static_cast<sptk::SpectrumToSpectrum::InputOutputFormats>(input_format),
-      sptk::SpectrumToSpectrum::InputOutputFormats::kPowerSpectrum,
-      epsilon_for_calculating_logarithms, relative_floor_in_decibels);
+      sptk::SpectrumToSpectrum::InputOutputFormats::kPowerSpectrum, epsilon,
+      relative_floor_in_decibels);
   if (kWaveform != input_format && !spectrum_to_spectrum.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for input formatting";
@@ -376,8 +374,8 @@ int main(int argc, char* argv[]) {
 
   sptk::WaveformToSpectrum waveform_to_spectrum(
       fft_length, fft_length,
-      sptk::SpectrumToSpectrum::InputOutputFormats::kPowerSpectrum,
-      epsilon_for_calculating_logarithms, relative_floor_in_decibels);
+      sptk::SpectrumToSpectrum::InputOutputFormats::kPowerSpectrum, epsilon,
+      relative_floor_in_decibels);
   sptk::WaveformToSpectrum::Buffer buffer_for_spectral_analysis;
   if (kWaveform == input_format && !waveform_to_spectrum.IsValid()) {
     std::ostringstream error_message;

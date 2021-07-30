@@ -2,5 +2,15 @@
 
 spec
 ====
+.. doxygenfile:: spec.cc
 
 .. seealso:: :ref:`fftr`  :ref:`phase`  :ref:`grpdelay`
+
+.. doxygenclass:: sptk::WaveformToSpectrum
+   :members:
+
+.. doxygenclass:: sptk::FilterCoefficientsToSpectrum
+   :members:
+
+.. doxygenclass:: sptk::SpectrumToSpectrum
+   :members:

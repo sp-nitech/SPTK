@@ -53,16 +53,14 @@ namespace sptk {
 
 FilterCoefficientsToSpectrum::FilterCoefficientsToSpectrum(
     int num_numerator_order, int num_denominator_order, int fft_length,
-    SpectrumToSpectrum::InputOutputFormats output_format,
-    double epsilon_for_calculating_logarithms,
+    SpectrumToSpectrum::InputOutputFormats output_format, double epsilon,
     double relative_floor_in_decibels)
     : num_numerator_order_(num_numerator_order),
       num_denominator_order_(num_denominator_order),
       fft_length_(fft_length),
       fast_fourier_transform_(fft_length_),
       spectrum_to_spectrum_(fft_length_, SpectrumToSpectrum::kPowerSpectrum,
-                            output_format, epsilon_for_calculating_logarithms,
-                            relative_floor_in_decibels),
+                            output_format, epsilon, relative_floor_in_decibels),
       is_valid_(true) {
   if (num_numerator_order_ < 0 || num_denominator_order_ < 0 ||
       fft_length_ <= num_numerator_order_ ||

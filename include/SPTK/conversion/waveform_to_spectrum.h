@@ -112,14 +112,12 @@ class WaveformToSpectrum {
    * @param[in] frame_length Frame length, @f$L@f$.
    * @param[in] fft_length FFT length, @f$N@f$.
    * @param[in] output_format Output format.
-   * @param[in] epsilon_for_calculating_logarithms Small value added to power
-   * spectrum to prevent @f$\log(0)@f$.
+   * @param[in] epsilon Small value added to power spectrum.
    * @param[in] relative_floor_in_decibels Relative floor in decibels.
    */
   WaveformToSpectrum(int frame_length, int fft_length,
                      SpectrumToSpectrum::InputOutputFormats output_format,
-                     double epsilon_for_calculating_logarithms,
-                     double relative_floor_in_decibels);
+                     double epsilon, double relative_floor_in_decibels);
 
   virtual ~WaveformToSpectrum() {
   }
@@ -148,9 +146,8 @@ class WaveformToSpectrum {
   /**
    * @return Epsilon.
    */
-  double GetEpsilonForCalculatingLogarithms() const {
-    return filter_coefficients_to_spectrum_
-        .GetEpsilonForCalculatingLogarithms();
+  double GetEpsilon() const {
+    return filter_coefficients_to_spectrum_.GetEpsilon();
   }
 
   /**
