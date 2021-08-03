@@ -49,6 +49,9 @@
 
 namespace sptk {
 
+/**
+ * Interface of window function.
+ */
 class WindowInterface {
  public:
   virtual ~WindowInterface() {

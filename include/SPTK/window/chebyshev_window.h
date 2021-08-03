@@ -52,6 +52,9 @@
 
 namespace sptk {
 
+/**
+ * Generate Chebyshev window.
+ */
 class ChebyshevWindow : public WindowInterface {
  public:
   /**

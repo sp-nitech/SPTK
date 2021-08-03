@@ -52,6 +52,9 @@
 
 namespace sptk {
 
+/**
+ * Generate Kaiser window.
+ */
 class KaiserWindow : public WindowInterface {
  public:
   /**

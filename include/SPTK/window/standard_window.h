@@ -52,6 +52,9 @@
 
 namespace sptk {
 
+/**
+ * Generate standard window.
+ */
 class StandardWindow : public WindowInterface {
  public:
   /**

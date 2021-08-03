@@ -52,6 +52,9 @@
 
 namespace sptk {
 
+/**
+ * Generate cosine-based window.
+ */
 class CosineWindow : public WindowInterface {
  public:
   /**
