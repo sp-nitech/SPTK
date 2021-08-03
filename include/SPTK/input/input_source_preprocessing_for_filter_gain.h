@@ -52,9 +52,14 @@
 
 namespace sptk {
 
+/**
+ * Preprocess filter gain.
+ */
 class InputSourcePreprocessingForFilterGain : public InputSourceInterface {
  public:
-  //
+  /**
+   * Type of filter gain.
+   */
   enum FilterGainType {
     kLinear = 0,
     kLog,
