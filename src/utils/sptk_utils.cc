@@ -48,7 +48,6 @@
 #include <cctype>     // std::tolower
 #include <cerrno>     // errno, ERANGE
 #include <cmath>      // std::ceil, std::exp, std::log, std::sqrt, etc.
-#include <cstddef>    // std::size_t
 #include <cstdint>    // int8_t, int16_t, int32_t, int64_t, etc.
 #include <cstdio>     // std::snprintf
 #include <cstdlib>    // std::strtod, std::strtol
@@ -244,6 +243,7 @@ bool WriteStream(int write_point, int write_size,
   return !output_stream->fail();
 }
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 template <>
 bool WriteStream(int write_point, int write_size,
                  const std::vector<std::string>& sequence_to_write,
@@ -272,6 +272,7 @@ bool WriteStream(int write_point, int write_size,
 
   return !output_stream->fail();
 }
+#endif  // DOXYGEN_SHOULD_SKIP_THIS
 
 template <typename T>
 bool SnPrintf(T data, const std::string& print_format, std::size_t buffer_size,
@@ -285,6 +286,7 @@ bool SnPrintf(T data, const std::string& print_format, std::size_t buffer_size,
              : true;
 }
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 template <>
 bool SnPrintf(int24_t data, const std::string& print_format,
               std::size_t buffer_size, char* buffer) {
@@ -297,7 +299,9 @@ bool SnPrintf(int24_t data, const std::string& print_format,
              ? false
              : true;
 }
+#endif  // DOXYGEN_SHOULD_SKIP_THIS
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 template <>
 bool SnPrintf(uint24_t data, const std::string& print_format,
               std::size_t buffer_size, char* buffer) {
@@ -310,6 +314,7 @@ bool SnPrintf(uint24_t data, const std::string& print_format,
              ? false
              : true;
 }
+#endif  // DOXYGEN_SHOULD_SKIP_THIS
 
 const char* ConvertBooleanToString(bool input) {
   return input ? "TRUE" : "FALSE";
@@ -405,8 +410,6 @@ bool IsInRange(double num, double min, double max) {
   return (min <= num && num <= max);
 }
 
-// Check whether the given number is a power of two, 2^p where p is a
-// non-negative integer.
 bool IsPowerOfTwo(int num) {
   return !((num < 1) || (num & (num - 1)));
 }
@@ -419,7 +422,7 @@ bool IsValidGamma(double gamma) {
   return (std::fabs(gamma) <= 1.0);
 }
 
-int NextPow(int num) {
+int NextPowTwo(int num) {
   num--;
   num |= num >> 1;
   num |= num >> 2;
@@ -430,25 +433,24 @@ int NextPow(int num) {
   return num;
 }
 
-int ExtractSign(double x) {
-  if (0.0 < x) return 1;
-  if (x < 0.0) return -1;
+int ExtractSign(double num) {
+  if (0.0 < num) return 1;
+  if (num < 0.0) return -1;
   return 0;
 }
 
-double FloorLog(double x) {
-  return (x <= 0.0) ? kLogZero : std::log(x);
+double FloorLog(double num) {
+  return (num <= 0.0) ? kLogZero : std::log(num);
 }
 
-double FloorLog2(double x) {
-  return (x <= 0.0) ? kLogZero : std::log2(x);
+double FloorLog2(double num) {
+  return (num <= 0.0) ? kLogZero : std::log2(num);
 }
 
-double FloorLog10(double x) {
-  return (x <= 0.0) ? kLogZero : std::log10(x);
+double FloorLog10(double num) {
+  return (num <= 0.0) ? kLogZero : std::log10(num);
 }
 
-// Compute log(x + y) given log(x) and log(y).
 double AddInLogSpace(double log_x, double log_y) {
   if (log_x == log_y) return log_x + kLogTwo;
 
@@ -524,6 +526,7 @@ void PrintErrorMessage(const std::string& program_name,
 }
 
 // clang-format off
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 template bool ReadStream<bool>(bool*, std::istream*);
 template bool ReadStream<int8_t>(int8_t*, std::istream*);
 template bool ReadStream<int16_t>(int16_t*, std::istream*);
@@ -589,6 +592,7 @@ template bool SnPrintf(uint64_t, const std::string&, std::size_t, char*);
 template bool SnPrintf(float, const std::string&, std::size_t, char*);
 template bool SnPrintf(double, const std::string&, std::size_t, char*);
 template bool SnPrintf(long double, const std::string&, std::size_t, char*);
+#endif  // DOXYGEN_SHOULD_SKIP_THIS
 // clang-format on
 
 }  // namespace sptk
