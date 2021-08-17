@@ -51,7 +51,7 @@ virtualenv:
 
 bats.done:
 	rm -rf bats
-	git clone https://github.com/sstephenson/bats.git -b v0.4.0 --depth 1
+	git clone https://github.com/sstephenson/bats.git --depth 1
 	touch bats.done
 
 cpplint.done:
