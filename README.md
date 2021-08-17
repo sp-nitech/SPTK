@@ -59,6 +59,7 @@ Changes from SPTK3
   - Huffman coding (`huffman`, `huffman_encode`, and `huffman_decode`)
   - Subband decomposition (`pqmf` and `ipqmf`)
   - Mel-filter-bank extraction (`fbank`)
+  - Mel-cepstrum postfilter (`mcpf`)
 - Obsoluted commands:
   - `acep`, `agcep`, and `amcep` -> `amgcep`
   - `bell` ->
