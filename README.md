@@ -109,4 +109,4 @@ Contributors
 
 License
 -------
-This software is released under the Modified BSD license - see LICENSE file for details.
+This software is released under the Apache License 2.0.
