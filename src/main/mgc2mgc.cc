@@ -146,6 +146,14 @@ void PrintUsage(std::ostream* stream) {
  *   mgc2mgc -m 12 -a 0 -g -1 -M 30 -A 0.31 -G 0 < data.lpc > data.mcep
  * @endcode
  *
+ * Impulse response can be calculated using this command instead of @c c2mpir.
+ *
+ * @code{.sh}
+ *   mgc2mgc -m 10 -a 0.4 -g 0 -M 30 -A 0.0 -G 1 -U < data.mcep > data.ir
+ *   # This is equivalent to that:
+ *   # freqt -a 0.4 -A 0.0 -m 10 -M 30 data.mcep | c2mpir -m 30 -M 30 > data.ir
+ * @endcode
+ *
  * @param[in] argc Number of arguments.
  * @param[in] argv Argument vector.
  * @return 0 on success, 1 on failure.
