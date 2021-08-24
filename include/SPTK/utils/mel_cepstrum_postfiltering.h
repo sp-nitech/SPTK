@@ -70,7 +70,8 @@ namespace sptk {
  *     \tilde{c}_\beta(0), & \tilde{c}_\beta(1), & \ldots, & \tilde{c}_\beta(M),
  *   \end{array}
  * @f]
- * where @f$\beta@f$ is the intensity of postfiltering.
+ * where @f$\beta@f$ is the intensity of postfiltering. Note if @f$\beta=0@f$,
+ * postfiltering is not performed.
  *
  * [1] T. Yoshimura, K. Tokuda, T. Masuko, and T. Kobayashi, &quot;Incorporating
  *     a mixed excitation model and postfilter into HMM-based text-to-speech
@@ -105,17 +106,14 @@ class MelCepstrumPostfiltering {
 
   /**
    * @param[in] num_order Order of mel-cepstral coefficients, @f$M@f$.
-   * @param[in] num_cepstrum_order Order of cepstral coefficients, @f$N@f$,
-   *            to approximate mel-cepstrum.
    * @param[in] impulse_response_length Length of impulse response, @f$L@f$.
    * @param[in] onset_index This is typically set to two, i.e., 0th and 1st
    *            mel-cepstral coefficients are not emphasized.
    * @param[in] alpha All-pass constant, @f$\alpha@f$.
    * @param[in] beta Intensity of postfiltering, @f$\beta@f$.
    */
-  MelCepstrumPostfiltering(int num_order, int num_cepstrum_order,
-                           int impulse_response_length, int onset_index,
-                           double alpha, double beta);
+  MelCepstrumPostfiltering(int num_order, int impulse_response_length,
+                           int onset_index, double alpha, double beta);
 
   virtual ~MelCepstrumPostfiltering() {
   }
@@ -125,13 +123,6 @@ class MelCepstrumPostfiltering {
    */
   int GetNumOrder() const {
     return frequency_transform_.GetNumInputOrder();
-  }
-
-  /**
-   * @return Order of cepstral coefficients.
-   */
-  int GetCepstrumOrder() const {
-    return frequency_transform_.GetNumOutputOrder();
   }
 
   /**

@@ -56,7 +56,6 @@
 namespace {
 
 const int kDefaultNumOrder(25);
-const int kDefaultNumCepstrumOrder(255);
 const int kDefaultImpulseResponseLength(1024);
 const int kDefaultOnsetIndex(2);
 const double kDefaultAlpha(0.35);
@@ -70,10 +69,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       mcpf [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of mel-cepstrum      (   int)[" << std::setw(5) << std::right << kDefaultNumOrder              << "][    0 <= m <=     ]" << std::endl;  // NOLINT
-  *stream << "       -M M  : order of cepstrum to       (   int)[" << std::setw(5) << std::right << kDefaultNumCepstrumOrder      << "][    m <= M <=     ]" << std::endl;  // NOLINT
-  *stream << "               approximate mel-cepstrum" << std::endl;
-  *stream << "       -l l  : length of impulse response (   int)[" << std::setw(5) << std::right << kDefaultImpulseResponseLength << "][    M <  L <=     ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of mel-cepstrum      (   int)[" << std::setw(5) << std::right << kDefaultNumOrder              << "][    0 <= m <  l   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : length of impulse response (   int)[" << std::setw(5) << std::right << kDefaultImpulseResponseLength << "][    2 <= l <=     ]" << std::endl;  // NOLINT
   *stream << "       -s s  : onset index                (   int)[" << std::setw(5) << std::right << kDefaultOnsetIndex            << "][    0 <= s <= m   ]" << std::endl;  // NOLINT
   *stream << "       -a a  : all-pass constant          (double)[" << std::setw(5) << std::right << kDefaultAlpha                 << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
   *stream << "       -b b  : intensity                  (double)[" << std::setw(5) << std::right << kDefaultBeta                  << "][      <= b <=     ]" << std::endl;  // NOLINT
@@ -82,6 +79,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       mel-cepstrum                       (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
   *stream << "       postfiltered mel-cepstrum          (double)" << std::endl;
+  *stream << "  notice:" << std::endl;
+  *stream << "       value of l must be a power of 2" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -94,11 +93,11 @@ void PrintUsage(std::ostream* stream) {
  * @a mcpf [ @e option ] [ @e infile ]
  *
  * - @b -m @e int
- *   - order of mel-cepstral coefficients @f$(0 \le M_1)@f$
- * - @b -M @e int
- *   - order of cepstral coefficients @f$(M_1 \le M_2)@f$
+ *   - order of mel-cepstral coefficients @f$(0 \le M < L)@f$
  * - @b -l @e int
- *   - length of impulse response @f$(M_2 < L)@f$
+ *   - length of impulse response @f$(M < L)@f$
+ * - @b -s @e int
+ *   - onset index @f$(0 \le S \le M)@f$
  * - @b -a @e double
  *   - all-pass constant @f$(|\alpha| < 1)@f$
  * - @b -b @e double
@@ -114,14 +113,13 @@ void PrintUsage(std::ostream* stream) {
  */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
-  int num_cepstrum_order(kDefaultNumCepstrumOrder);
   int impulse_response_length(kDefaultImpulseResponseLength);
   int onset_index(kDefaultOnsetIndex);
   double alpha(kDefaultAlpha);
   double beta(kDefaultBeta);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "m:M:l:s:a:b:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "m:l:s:a:b:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -130,17 +128,6 @@ int main(int argc, char* argv[]) {
             num_order < 0) {
           std::ostringstream error_message;
           error_message << "The argument for the -m option must be a "
-                        << "non-negative integer";
-          sptk::PrintErrorMessage("mcpf", error_message);
-          return 1;
-        }
-        break;
-      }
-      case 'M': {
-        if (!sptk::ConvertStringToInteger(optarg, &num_cepstrum_order) ||
-            num_cepstrum_order < 0) {
-          std::ostringstream error_message;
-          error_message << "The argument for the -M option must be a "
                         << "non-negative integer";
           sptk::PrintErrorMessage("mcpf", error_message);
           return 1;
@@ -198,10 +185,17 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  if (!sptk::IsInRange(num_cepstrum_order, num_order,
-                       impulse_response_length - 1)) {
+  if (impulse_response_length <= num_order) {
     std::ostringstream error_message;
-    error_message << "Options must be satisfy m <= M < L";
+    error_message
+        << "Order of mel-cepstrum must be less than length of impulse response";
+    sptk::PrintErrorMessage("mcpf", error_message);
+    return 1;
+  }
+
+  if (num_order < onset_index) {
+    std::ostringstream error_message;
+    error_message << "Order of mel-cepstrum must be greater than onset index";
     sptk::PrintErrorMessage("mcpf", error_message);
     return 1;
   }
@@ -226,8 +220,7 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
   sptk::MelCepstrumPostfiltering mel_cepstrum_postfiltering(
-      num_order, num_cepstrum_order, impulse_response_length, onset_index,
-      alpha, beta);
+      num_order, impulse_response_length, onset_index, alpha, beta);
   sptk::MelCepstrumPostfiltering::Buffer buffer;
   if (!mel_cepstrum_postfiltering.IsValid()) {
     std::ostringstream error_message;

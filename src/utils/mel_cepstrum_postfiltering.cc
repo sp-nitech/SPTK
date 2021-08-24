@@ -51,19 +51,18 @@
 namespace sptk {
 
 MelCepstrumPostfiltering::MelCepstrumPostfiltering(int num_order,
-                                                   int num_cepstrum_order,
                                                    int impulse_response_length,
                                                    int onset_index,
                                                    double alpha, double beta)
     : onset_index_(onset_index),
       beta_(beta),
-      frequency_transform_(num_order, num_cepstrum_order, -alpha),
-      cepstrum_to_autocorrelation_(num_cepstrum_order, 0,
+      frequency_transform_(num_order, impulse_response_length - 1, -alpha),
+      cepstrum_to_autocorrelation_(impulse_response_length - 1, 0,
                                    impulse_response_length),
       mel_cepstrum_to_mlsa_digital_filter_coefficients_(num_order, alpha),
       mlsa_digital_filter_coefficients_to_mel_cepstrum_(num_order, alpha),
       is_valid_(true) {
-  if (!IsInRange(num_cepstrum_order, num_order, impulse_response_length - 1) ||
+  if (!IsInRange(num_order, 0, impulse_response_length - 1) ||
       !IsInRange(onset_index_, 0, num_order) ||
       !frequency_transform_.IsValid() ||
       !cepstrum_to_autocorrelation_.IsValid() ||

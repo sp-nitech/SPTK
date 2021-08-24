@@ -89,7 +89,7 @@ teardown() {
       $sptk3/merge +d -n $(($m-1)) -s 0 -N 0 tmp/b0p | \
       $sptk3/b2mc -m $m -a $a > tmp/mcp
 
-   $sptk4/mcpf -m $m -M $M -l $l -s $s -a $a -b $b tmp/mc > tmp/mcp2
+   $sptk4/mcpf -m $m -l $l -s $s -a $a -b $b tmp/mc > tmp/mcp2
    run $sptk4/aeq tmp/mcp tmp/mcp2
    [ "$status" -eq 0 ]
 }
