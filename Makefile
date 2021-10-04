@@ -68,6 +68,9 @@ format:
 	./tools/cpplint/cpplint.py --filter=-readability/streams,-build/include_subdir \
 		--root=$(abspath $(INCLUDEDIR)) $(wildcard $(INCLUDEDIR)/SPTK/*/*.h)
 
+shellcheck:
+	./tools/shellcheck/shellcheck egs/*/*/run.sh
+
 test:
 	./tools/bats/bin/bats test
 
@@ -77,4 +80,4 @@ clean: doc-clean
 	done
 	rm -rf $(BUILDDIR) $(LIBDIR) $(BINDIR) $(DOCDIR)/xml
 
-.PHONY: all $(THIRDPARTYDIRS) doc doc-clean format test clean
+.PHONY: all $(THIRDPARTYDIRS) doc doc-clean format shellcheck test clean

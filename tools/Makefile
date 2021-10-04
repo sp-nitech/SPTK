@@ -14,10 +14,13 @@
 # limitations under the License.                                           #
 # ------------------------------------------------------------------------ #
 
-all: virtualenv bats.done cpplint.done doxygen.done sptk.done
+PYTHON_VERSION := 3.8
+SHELLCHECK_VERSION := 0.7.2
+
+all: virtualenv bats.done cpplint.done doxygen.done shellcheck.done sptk.done
 
 virtualenv:
-	test -d venv || virtualenv -p python3.6 venv
+	test -d venv || virtualenv -p python$(PYTHON_VERSION) venv
 	. venv/bin/activate; pip install -r requirements.txt --upgrade
 	touch venv/bin/activate
 
@@ -28,7 +31,7 @@ bats.done:
 
 cpplint.done:
 	rm -rf cpplint
-	git clone https://github.com/cpplint/cpplint.git -b 1.5.5 --depth 1
+	git clone https://github.com/cpplint/cpplint.git --depth 1
 	touch cpplint.done
 
 doxygen.done:
@@ -37,10 +40,17 @@ doxygen.done:
 	cd doxygen; mkdir -p build; cd build; cmake -G "Unix Makefiles" ..; make
 	touch doxygen.done
 
+shellcheck.done:
+	rm -rf shellcheck
+	wget https://github.com/koalaman/shellcheck/releases/download/v$(SHELLCHECK_VERSION)/shellcheck-v$(SHELLCHECK_VERSION).linux.x86_64.tar.xz
+	tar -xf shellcheck-v$(SHELLCHECK_VERSION).linux.x86_64.tar.xz
+	rm -f shellcheck-v$(SHELLCHECK_VERSION).linux.x86_64.tar.xz
+	mv shellcheck-v$(SHELLCHECK_VERSION) shellcheck
+
 sptk.done:
 	rm -rf sptk
 	git clone https://git.code.sf.net/p/sp-tk/SPTK sptk
-	cd sptk/src; aclocal; touch ChangeLog; automake -a -c; autoconf; \
+	cd sptk/src; aclocal; automake -a -c; autoconf; \
 	./configure --enable-double --prefix=$(CURDIR)/sptk; make; make install
 	touch sptk.done
 

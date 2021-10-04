@@ -22,8 +22,8 @@ data=../../../asset/data.short
 dump=dump
 
 sr=16          # Sample rate in kHz
-fl=$(($sr*25)) # Frame length (16kHz x 25ms)
-fp=$(($sr*5))  # Frame shift  (16kHz x 5ms)
+fl=$((sr*25))  # Frame length (16kHz x 25ms)
+fp=$((sr*5))   # Frame shift  (16kHz x 5ms)
 nfft=512       # FFT length
 order=24       # Order of mel-cepstrum
 alpha=0.42     # Alpha of mel-cepstrum
@@ -33,25 +33,27 @@ fo=79          # Order of filter
 mkdir -p $dump
 
 # Extract mel-cepstrum.
-$sptk4/x2x +sd $data | \
-   $sptk4/frame -l $fl -p $fp | \
-   $sptk4/window -l $fl -L $nfft | \
-   $sptk4/mgcep -l $nfft -m $order -a $alpha > $dump/data.mgc
+$sptk4/x2x +sd $data |
+    $sptk4/frame -l $fl -p $fp |
+    $sptk4/window -l $fl -L $nfft |
+    $sptk4/mgcep -l $nfft -m $order -a $alpha > $dump/data.mgc
 
 # Inverse filtering.
-$sptk4/x2x +sd $data | \
-   $sptk4/imglsadf -p $fp -m $order -a $alpha -P 7 $dump/data.mgc > $dump/data.res
+$sptk4/x2x +sd $data |
+    $sptk4/imglsadf -p $fp -m $order -a $alpha -P 7 $dump/data.mgc > $dump/data.res
 
 # Analysis.
-$sptk4/pqmf -k $nband -m $fo $dump/data.res | \
-   $sptk4/decimate -l $nband -p $nband > $dump/data.ana.res
+$sptk4/pqmf -k $nband -m $fo $dump/data.res |
+    $sptk4/decimate -l $nband -p $nband > $dump/data.ana.res
 
 # Synthesis.
-$sptk4/interpolate -l $nband -p $nband < $dump/data.ana.res | \
-   $sptk4/sopr -m $nband | \
-   $sptk4/ipqmf -k $nband -m $fo | \
-   $sptk4/delay -s -$fo > $dump/data.syn.res
+$sptk4/interpolate -l $nband -p $nband < $dump/data.ana.res |
+    $sptk4/sopr -m $nband |
+    $sptk4/ipqmf -k $nband -m $fo |
+    $sptk4/delay -s -$fo > $dump/data.syn.res
 
 # Filtering.
-$sptk4/mglsadf -p $fp -m $order -a $alpha -P 7 $dump/data.mgc < $dump/data.syn.res | \
-   $sptk4/x2x +ds -r > $dump/data.syn.raw
+$sptk4/mglsadf -p $fp -m $order -a $alpha -P 7 $dump/data.mgc < $dump/data.syn.res |
+    $sptk4/x2x +ds -r > $dump/data.syn.raw
+
+echo "run.sh: successfully finished"
