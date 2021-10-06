@@ -20,30 +20,30 @@ sptk4=bin
 data=asset/data.short
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "ipqmf: reversibility" {
-   $sptk3/x2x +sd $data > tmp/1
-   $sptk4/pqmf -k 1 -m 50 tmp/1 | \
-      $sptk4/ipqmf -k 1 -m 50 | \
-      $sptk4/delay -s -50 > tmp/2
+    $sptk3/x2x +sd $data > tmp/1
+    $sptk4/pqmf -k 1 -m 50 tmp/1 |
+        $sptk4/ipqmf -k 1 -m 50 |
+        $sptk4/delay -s -50 > tmp/2
 
-   $sptk3/vopr -s tmp/1 tmp/2 | \
-      $sptk3/sopr -ABS | \
-      $sptk3/average | \
-      $sptk3/sopr -FIX > tmp/3
+    $sptk3/vopr -s tmp/1 tmp/2 |
+        $sptk3/sopr -ABS |
+        $sptk3/average |
+        $sptk3/sopr -FIX > tmp/3
 
-   err=$($sptk3/x2x +da tmp/3)
-   [ $err -lt 10 ]
+    err=$($sptk3/x2x +da tmp/3)
+    [ "$err" -lt 10 ]
 }
 
 @test "ipqmf: valgrind" {
-   $sptk3/nrand -l 20 > tmp/1
-   run valgrind $sptk4/ipqmf -k 2 -m 10 tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 20 > tmp/1
+    run valgrind $sptk4/ipqmf -k 2 -m 10 tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

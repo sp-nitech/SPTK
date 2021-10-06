@@ -19,32 +19,32 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "x2x: compatibility" {
-   min=(-128   0 -32768     0 -8388608        0 -2147483648          0
-        -9223372036854775808                    0 -1e+37 -1e+308 -1e+308)
-   max=( 127 255  32767 65535  8388607 16777215  2147483647 4294967295
-         9223372036854775807 18446744073709551615  1e+37  1e+308  1e+308)
-   ary1=("c" "C" "s" "S" "i3" "I3" "i" "I" "l" "L" "f" "d" "de")
-   ary2=("c" "C" "s" "S"  "h"  "H" "i" "I" "l" "L" "f" "d"  "e")
-   for t in $(seq 0 $((${#ary1[@]}-1))); do
-      echo ${min[$t]} ${max[$t]} | $sptk3/x2x +a${ary1[$t]} | \
-         $sptk3/x2x +${ary1[$t]}d > tmp/1
-      echo ${min[$t]} ${max[$t]} | $sptk4/x2x +a${ary2[$t]} | \
-         $sptk3/x2x +${ary1[$t]}d > tmp/2
-      run $sptk4/aeq tmp/1 tmp/2
-      [ "$status" -eq 0 ]
-   done
+    min=(-128   0 -32768     0 -8388608        0 -2147483648          0
+         -9223372036854775808                    0 -1e+37 -1e+308 -1e+308)
+    max=( 127 255  32767 65535  8388607 16777215  2147483647 4294967295
+          9223372036854775807 18446744073709551615  1e+37  1e+308  1e+308)
+    ary1=("c" "C" "s" "S" "i3" "I3" "i" "I" "l" "L" "f" "d" "de")
+    ary2=("c" "C" "s" "S"  "h"  "H" "i" "I" "l" "L" "f" "d"  "e")
+    for t in $(seq 0 $((${#ary1[@]}-1))); do
+        echo "${min[$t]}" "${max[$t]}" | $sptk3/x2x +a"${ary1[$t]}" |
+            $sptk3/x2x +"${ary1[$t]}"d > tmp/1
+        echo "${min[$t]}" "${max[$t]}" | $sptk4/x2x +a"${ary2[$t]}" |
+            $sptk3/x2x +"${ary1[$t]}"d > tmp/2
+        run $sptk4/aeq tmp/1 tmp/2
+        [ "$status" -eq 0 ]
+    done
 }
 
 @test "x2x: valgrind" {
-   $sptk3/nrand -l 20 > tmp/1
-   run valgrind $sptk4/x2x +da tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 20 > tmp/1
+    run valgrind $sptk4/x2x +da tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

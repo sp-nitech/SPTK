@@ -19,28 +19,28 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "quantize: reversibility" {
-   $sptk3/nrand -l 10 -v 10 > tmp/0
-   for t in $(seq 0 1); do
-      for o in $(seq 0 1); do
-         $sptk4/quantize tmp/0 -b 4 -v 16 -t $t -o $o > tmp/1
-         $sptk4/dequantize -b 4 -v 16 -t $t -q $o tmp/1 | \
-            $sptk4/quantize -b 4 -v 16 -t $t -o $o > tmp/2
-         run $sptk4/aeq tmp/1 tmp/2
-         [ "$status" -eq 0 ]
-      done
-   done
+    $sptk3/nrand -l 10 -v 10 > tmp/0
+    for t in $(seq 0 1); do
+        for o in $(seq 0 1); do
+            $sptk4/quantize tmp/0 -b 4 -v 16 -t "$t" -o "$o" > tmp/1
+            $sptk4/dequantize -b 4 -v 16 -t "$t" -q "$o" tmp/1 |
+                $sptk4/quantize -b 4 -v 16 -t "$t" -o "$o" > tmp/2
+            run $sptk4/aeq tmp/1 tmp/2
+            [ "$status" -eq 0 ]
+        done
+    done
 }
 
 @test "quantize: valgrind" {
-   $sptk3/nrand -l 10 > tmp/1
-   run valgrind $sptk4/quantize -b 2 -v 2 tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 10 > tmp/1
+    run valgrind $sptk4/quantize -b 2 -v 2 tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

@@ -19,29 +19,29 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "gmmp: compatibility" {
-   # Note that there is no compatibility without diagonal covariance.
-   # This is because SPTK3 use previous mean instead of current mean
-   # to update covariance.
-   $sptk3/nrand -s 1 -l 256 | $sptk3/gmm -l 4 -m 4 -b 19 > tmp/1
-   $sptk3/nrand -s 1 -l 256 | $sptk4/gmm -l 4 -k 4 -i 20 > tmp/2
+    # Note that there is no compatibility without diagonal covariance.
+    # This is because SPTK3 use previous mean instead of current mean
+    # to update covariance.
+    $sptk3/nrand -s 1 -l 256 | $sptk3/gmm -l 4 -m 4 -b 19 > tmp/1
+    $sptk3/nrand -s 1 -l 256 | $sptk4/gmm -l 4 -k 4 -i 20 > tmp/2
 
-   $sptk3/nrand -s 2 -l 256 | $sptk3/gmmp -l 4 -m 4 tmp/1 > tmp/3
-   $sptk3/nrand -s 2 -l 256 | $sptk4/gmmp -l 4 -k 4 tmp/2 > tmp/4
-   run $sptk4/aeq tmp/3 tmp/4
-   [ "$status" -eq 0 ]
+    $sptk3/nrand -s 2 -l 256 | $sptk3/gmmp -l 4 -m 4 tmp/1 > tmp/3
+    $sptk3/nrand -s 2 -l 256 | $sptk4/gmmp -l 4 -k 4 tmp/2 > tmp/4
+    run $sptk4/aeq tmp/3 tmp/4
+    [ "$status" -eq 0 ]
 }
 
 @test "gmmp: valgrind" {
-   $sptk3/nrand -s 1 -l 32 | $sptk4/gmm -l 2 -k 2 > tmp/1
-   $sptk3/nrand -s 2 -l 16 > tmp/2
-   run valgrind $sptk4/gmmp -l 2 -k 2 tmp/1 tmp/2
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -s 1 -l 32 | $sptk4/gmm -l 2 -k 2 > tmp/1
+    $sptk3/nrand -s 2 -l 16 > tmp/2
+    run valgrind $sptk4/gmmp -l 2 -k 2 tmp/1 tmp/2
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

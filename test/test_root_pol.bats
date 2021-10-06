@@ -19,28 +19,30 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "root_pol: compatibility" {
-   old_arg=("" "-s" "-r")
-   new_arg=("-q 0 -o 0" "-q 1" "-o 1")
-   for i in $(seq 0 2); do
-      $sptk3/nrand -l 32 | $sptk3/root_pol -m 32 ${old_arg[$i]} | \
-         $sptk3/x2x +da2 %.16f | sort -k 1,1n 2,2n | $sptk3/x2x +ad > tmp/1
-      $sptk3/nrand -l 32 | $sptk4/root_pol -m 31 ${new_arg[$i]} | \
-         $sptk3/x2x +da2 %.16f | sort -k 1,1n 2,2n | $sptk3/x2x +ad > tmp/2
-      run $sptk4/aeq tmp/1 tmp/2
-      [ "$status" -eq 0 ]
-   done
+    ary1=("" "-s" "-r")
+    ary2=("-q 0 -o 0" "-q 1" "-o 1")
+    for i in $(seq 0 2); do
+        # shellcheck disable=SC2086
+        $sptk3/nrand -l 32 | $sptk3/root_pol -m 32 ${ary1[$i]} |
+            $sptk3/x2x +da2 %.16f | sort -k 1,1n 2,2n | $sptk3/x2x +ad > tmp/1
+        # shellcheck disable=SC2086
+        $sptk3/nrand -l 32 | $sptk4/root_pol -m 31 ${ary2[$i]} |
+            $sptk3/x2x +da2 %.16f | sort -k 1,1n 2,2n | $sptk3/x2x +ad > tmp/2
+        run $sptk4/aeq tmp/1 tmp/2
+        [ "$status" -eq 0 ]
+    done
 }
 
 @test "root_pol: valgrind" {
-   $sptk3/nrand -l 32 > tmp/1
-   run valgrind $sptk4/root_pol -m 31 tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 32 > tmp/1
+    run valgrind $sptk4/root_pol -m 31 tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

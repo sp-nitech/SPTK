@@ -19,30 +19,30 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "excite: compatibility" {
-   # There is no compatibility with SPTK3.
-   # The values within only unvoiced region is checked.
-   $sptk3/step -l 10 -v 0 > tmp/1
-   $sptk3/excite -p 4 tmp/1 > tmp/2
-   $sptk4/excite -p 4 tmp/1 > tmp/3
-   run $sptk4/aeq -L tmp/2 tmp/3
-   [ "$status" -eq 0 ]
+    # There is no compatibility with SPTK3.
+    # The values within only unvoiced region is checked.
+    $sptk3/step -l 10 -v 0 > tmp/1
+    $sptk3/excite -p 4 tmp/1 > tmp/2
+    $sptk4/excite -p 4 tmp/1 > tmp/3
+    run $sptk4/aeq -L tmp/2 tmp/3
+    [ "$status" -eq 0 ]
 
-   $sptk3/excite -n -p 4 tmp/1 > tmp/2
-   $sptk4/excite -n -p 4 tmp/1 > tmp/3
-   run $sptk4/aeq -L tmp/2 tmp/3
-   [ "$status" -eq 0 ]
+    $sptk3/excite -n -p 4 tmp/1 > tmp/2
+    $sptk4/excite -n -p 4 tmp/1 > tmp/3
+    run $sptk4/aeq -L tmp/2 tmp/3
+    [ "$status" -eq 0 ]
 }
 
 @test "excite: valgrind" {
-   $sptk3/ramp -l 10 > tmp/1
-   run valgrind $sptk4/excite -p 2 tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/ramp -l 10 > tmp/1
+    run valgrind $sptk4/excite -p 2 tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

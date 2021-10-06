@@ -19,30 +19,30 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "train: compatibility (p = 1)" {
-   for n in $(seq 0 2); do
-      $sptk3/train -l 10 -n $n -p 1 > tmp/1
-      $sptk4/train -l 10 -n $n -p 1 > tmp/2
-      run $sptk4/aeq tmp/1 tmp/2
-      [ "$status" -eq 0 ]
-   done
+    for n in $(seq 0 2); do
+        $sptk3/train -l 10 -n "$n" -p 1 > tmp/1
+        $sptk4/train -l 10 -n "$n" -p 1 > tmp/2
+        run $sptk4/aeq tmp/1 tmp/2
+        [ "$status" -eq 0 ]
+    done
 }
 
 @test "train: compatibility (p > 1)" {
-   $sptk3/step -v 3.14 -l 2 | $sptk4/excite -p 100 > tmp/1
-   $sptk4/train -n 1 -p 3.14 -m 100 > tmp/2
-   run $sptk4/aeq tmp/1 tmp/2
-   [ "$status" -eq 0 ]
+    $sptk3/step -v 3.14 -l 2 | $sptk4/excite -p 100 > tmp/1
+    $sptk4/train -n 1 -p 3.14 -m 100 > tmp/2
+    run $sptk4/aeq tmp/1 tmp/2
+    [ "$status" -eq 0 ]
 }
 
 @test "train: valgrind" {
-   run valgrind $sptk4/train -l 10
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    run valgrind $sptk4/train -l 10
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

@@ -19,44 +19,44 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "dfs: compatibility" {
-   # -a
-   $sptk3/nrand -l 20 | $sptk3/dfs -a 2 0.1 > tmp/1
-   $sptk3/nrand -l 20 | $sptk4/dfs -a 2 0.1 > tmp/2
-   run $sptk4/aeq tmp/1 tmp/2
-   [ "$status" -eq 0 ]
+    # -a
+    $sptk3/nrand -l 20 | $sptk3/dfs -a 2 0.1 > tmp/1
+    $sptk3/nrand -l 20 | $sptk4/dfs -a 2 0.1 > tmp/2
+    run $sptk4/aeq tmp/1 tmp/2
+    [ "$status" -eq 0 ]
 
-   # -b
-   $sptk3/nrand -l 20 | $sptk3/dfs -b 2 0.1 > tmp/1
-   $sptk3/nrand -l 20 | $sptk4/dfs -b 2 0.1 > tmp/2
-   run $sptk4/aeq tmp/1 tmp/2
-   [ "$status" -eq 0 ]
+    # -b
+    $sptk3/nrand -l 20 | $sptk3/dfs -b 2 0.1 > tmp/1
+    $sptk3/nrand -l 20 | $sptk4/dfs -b 2 0.1 > tmp/2
+    run $sptk4/aeq tmp/1 tmp/2
+    [ "$status" -eq 0 ]
 
-   # -p and -z
-   $sptk3/nrand -l 5 -s 123 -v 0.1 > tmp/1
-   $sptk3/nrand -l 5 -s 234 -v 0.1 > tmp/2
-   $sptk3/nrand -l 20 | $sptk3/dfs -p tmp/1 -z tmp/2 > tmp/3
-   $sptk3/nrand -l 20 | $sptk4/dfs -p tmp/1 -z tmp/2 > tmp/4
-   run $sptk4/aeq tmp/3 tmp/4
-   [ "$status" -eq 0 ]
+    # -p and -z
+    $sptk3/nrand -l 5 -s 123 -v 0.1 > tmp/1
+    $sptk3/nrand -l 5 -s 234 -v 0.1 > tmp/2
+    $sptk3/nrand -l 20 | $sptk3/dfs -p tmp/1 -z tmp/2 > tmp/3
+    $sptk3/nrand -l 20 | $sptk4/dfs -p tmp/1 -z tmp/2 > tmp/4
+    run $sptk4/aeq tmp/3 tmp/4
+    [ "$status" -eq 0 ]
 }
 
 @test "dfs: identity" {
-   $sptk3/nrand -l 20 > tmp/1
-   $sptk4/dfs tmp/1 > tmp/2
-   run $sptk4/aeq tmp/1 tmp/2
-   [ "$status" -eq 0 ]
+    $sptk3/nrand -l 20 > tmp/1
+    $sptk4/dfs tmp/1 > tmp/2
+    run $sptk4/aeq tmp/1 tmp/2
+    [ "$status" -eq 0 ]
 }
 
 @test "dfs: valgrind" {
-   $sptk3/nrand -l 20 > tmp/1
-   run valgrind $sptk4/dfs -a 4 3 -b 2 1 tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 20 > tmp/1
+    run valgrind $sptk4/dfs -a 4 3 -b 2 1 tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

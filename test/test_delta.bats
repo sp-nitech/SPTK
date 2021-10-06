@@ -19,44 +19,44 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "delta: compatibility" {
-   # -d odd
-   $sptk3/nrand -l 20 | $sptk3/delta -l 2 -d -0.5 0 0.5 -d 1 -2 1 > tmp/1
-   $sptk3/nrand -l 20 | $sptk4/delta -l 2 -d -0.5 0 0.5 -d 1 -2 1 > tmp/2
-   run $sptk4/aeq tmp/1 tmp/2
-   [ "$status" -eq 0 ]
+    # -d odd
+    $sptk3/nrand -l 20 | $sptk3/delta -l 2 -d -0.5 0 0.5 -d 1 -2 1 > tmp/1
+    $sptk3/nrand -l 20 | $sptk4/delta -l 2 -d -0.5 0 0.5 -d 1 -2 1 > tmp/2
+    run $sptk4/aeq tmp/1 tmp/2
+    [ "$status" -eq 0 ]
 
-   # -d even
-   $sptk3/nrand -l 20 | $sptk3/delta -l 2 -d -1 -0.5 0 0.5 -d 2 -2 > tmp/1
-   $sptk3/nrand -l 20 | $sptk4/delta -l 2 -d -1 -0.5 0 0.5 -d 2 -2 > tmp/2
-   run $sptk4/aeq tmp/1 tmp/2
-   [ "$status" -eq 0 ]
+    # -d even
+    $sptk3/nrand -l 20 | $sptk3/delta -l 2 -d -1 -0.5 0 0.5 -d 2 -2 > tmp/1
+    $sptk3/nrand -l 20 | $sptk4/delta -l 2 -d -1 -0.5 0 0.5 -d 2 -2 > tmp/2
+    run $sptk4/aeq tmp/1 tmp/2
+    [ "$status" -eq 0 ]
 
-   # -r
-   $sptk3/nrand -l 20 | $sptk3/delta -l 2 -r 2 2 3 > tmp/1
-   $sptk3/nrand -l 20 | $sptk4/delta -l 2 -r 2 3 > tmp/2
-   run $sptk4/aeq tmp/1 tmp/2
-   [ "$status" -eq 0 ]
+    # -r
+    $sptk3/nrand -l 20 | $sptk3/delta -l 2 -r 2 2 3 > tmp/1
+    $sptk3/nrand -l 20 | $sptk4/delta -l 2 -r 2 3 > tmp/2
+    run $sptk4/aeq tmp/1 tmp/2
+    [ "$status" -eq 0 ]
 
-   # -R with -M option is removed from SPTK4.
+    # -R with -M option is removed from SPTK4.
 }
 
 @test "delta: identity" {
-   $sptk3/nrand -l 20 > tmp/1
-   $sptk4/delta -l 10 tmp/1 > tmp/2
-   run $sptk4/aeq tmp/1 tmp/2
-   [ "$status" -eq 0 ]
+    $sptk3/nrand -l 20 > tmp/1
+    $sptk4/delta -l 10 tmp/1 > tmp/2
+    run $sptk4/aeq tmp/1 tmp/2
+    [ "$status" -eq 0 ]
 }
 
 @test "delta: valgrind" {
-   $sptk3/nrand -l 20 > tmp/1
-   run valgrind $sptk4/delta -l 10 -d -0.5 0 0.5 tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 20 > tmp/1
+    run valgrind $sptk4/delta -l 10 -d -0.5 0 0.5 tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

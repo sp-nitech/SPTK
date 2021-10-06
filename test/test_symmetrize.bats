@@ -19,39 +19,39 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "symmetrize: compatibility" {
-   ary=(1 3 2)
-   for o in $(seq 0 2); do
-      $sptk3/nrand -l 10 | $sptk3/symmetrize -l 10 -o $o > tmp/1
-      $sptk3/nrand -l 10 | $sptk4/symmetrize -l 8 -o ${ary[$o]} > tmp/2
-      run $sptk4/aeq tmp/1 tmp/2
-      [ "$status" -eq 0 ]
-   done
+    ary=(1 3 2)
+    for o in $(seq 0 2); do
+        $sptk3/nrand -l 10 | $sptk3/symmetrize -l 10 -o "$o" > tmp/1
+        $sptk3/nrand -l 10 | $sptk4/symmetrize -l 8 -o "${ary[$o]}" > tmp/2
+        run $sptk4/aeq tmp/1 tmp/2
+        [ "$status" -eq 0 ]
+    done
 }
 
 @test "symmetrize: reversibility" {
-   $sptk3/nrand -l 10 > tmp/4
-   for o in $(seq 0 3); do
-      $sptk4/symmetrize -l 8 -o $o tmp/4 > tmp/$o
-   done
-   for q in $(seq 0 3); do
-      for o in $(seq 0 3); do
-         $sptk4/symmetrize -l 8 -q $q -o $o tmp/$q > tmp/5
-         run $sptk4/aeq tmp/$o tmp/5
-         [ "$status" -eq 0 ]
-      done
-   done
+    $sptk3/nrand -l 10 > tmp/4
+    for o in $(seq 0 3); do
+        $sptk4/symmetrize -l 8 -o "$o" tmp/4 > "tmp/$o"
+    done
+    for q in $(seq 0 3); do
+        for o in $(seq 0 3); do
+            $sptk4/symmetrize -l 8 -q "$q" -o "$o" "tmp/$q" > tmp/5
+            run $sptk4/aeq "tmp/$o" tmp/5
+            [ "$status" -eq 0 ]
+        done
+    done
 }
 
 @test "symmetrize: valgrind" {
-   $sptk3/nrand -l 10 > tmp/1
-   run valgrind $sptk4/symmetrize -l 8 tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 10 > tmp/1
+    run valgrind $sptk4/symmetrize -l 8 tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

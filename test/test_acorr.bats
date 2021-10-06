@@ -19,31 +19,31 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "acorr: compatibility" {
-   $sptk3/nrand -l 20 | $sptk3/acorr -l 10 -m 4 > tmp/1
-   $sptk3/nrand -l 20 | $sptk4/acorr -l 10 -m 4 > tmp/2
-   run $sptk4/aeq tmp/1 tmp/2
-   [ "$status" -eq 0 ]
+    $sptk3/nrand -l 20 | $sptk3/acorr -l 10 -m 4 > tmp/1
+    $sptk3/nrand -l 20 | $sptk4/acorr -l 10 -m 4 > tmp/2
+    run $sptk4/aeq tmp/1 tmp/2
+    [ "$status" -eq 0 ]
 }
 
 @test "acorr: normalization" {
-   $sptk3/nrand -l 10 | $sptk4/acorr -l 9 -m 4 > tmp/1
-   z=$($sptk3/bcut +d -s 0 -e 0 tmp/1 | $sptk3/x2x +da)
-   $sptk3/sopr -d $z tmp/1 > tmp/2
-   $sptk3/nrand -l 10 | $sptk4/acorr -l 9 -m 4 -o 2 > tmp/3
-   run $sptk4/aeq tmp/2 tmp/3
-   [ "$status" -eq 0 ]
+    $sptk3/nrand -l 10 | $sptk4/acorr -l 9 -m 4 > tmp/1
+    z=$($sptk3/bcut +d -s 0 -e 0 tmp/1 | $sptk3/x2x +da)
+    $sptk3/sopr -d "$z" tmp/1 > tmp/2
+    $sptk3/nrand -l 10 | $sptk4/acorr -l 9 -m 4 -o 2 > tmp/3
+    run $sptk4/aeq tmp/2 tmp/3
+    [ "$status" -eq 0 ]
 }
 
 @test "acorr: valgrind" {
-   $sptk3/nrand -l 20 > tmp/1
-   run valgrind $sptk4/acorr -l 10 -m 4 tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 20 > tmp/1
+    run valgrind $sptk4/acorr -l 10 -m 4 tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

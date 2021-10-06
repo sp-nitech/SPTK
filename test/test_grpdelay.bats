@@ -19,31 +19,31 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "grpdelay: compatibility" {
-   $sptk3/nrand -l 32 > tmp/1
+    $sptk3/nrand -l 32 > tmp/1
 
-   # MA
-   $sptk3/grpdelay -l 8 tmp/1 > tmp/2
-   $sptk4/grpdelay -l 8 -z tmp/1 -m 7 > tmp/3
-   run $sptk4/aeq tmp/2 tmp/3
-   [ "$status" -eq 0 ]
+    # MA
+    $sptk3/grpdelay -l 8 tmp/1 > tmp/2
+    $sptk4/grpdelay -l 8 -z tmp/1 -m 7 > tmp/3
+    run $sptk4/aeq tmp/2 tmp/3
+    [ "$status" -eq 0 ]
 
-   # AR
-   $sptk3/grpdelay -l 8 -a tmp/1 > tmp/2
-   $sptk4/grpdelay -l 8 -p tmp/1 -n 7 > tmp/3
-   run $sptk4/aeq tmp/2 tmp/3
-   [ "$status" -eq 0 ]
+    # AR
+    $sptk3/grpdelay -l 8 -a tmp/1 > tmp/2
+    $sptk4/grpdelay -l 8 -p tmp/1 -n 7 > tmp/3
+    run $sptk4/aeq tmp/2 tmp/3
+    [ "$status" -eq 0 ]
 }
 
 @test "grpdelay: valgrind" {
-   $sptk3/nrand -l 16 > tmp/1
-   run valgrind $sptk4/grpdelay -l 8 tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 16 > tmp/1
+    run valgrind $sptk4/grpdelay -l 8 tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

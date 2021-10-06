@@ -19,45 +19,47 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "fft2: compatibility" {
-   ary=("" "-R" "-I" "-A" "-P")
-   for o in $(seq 0 4); do
-      $sptk3/nrand -l 512 | $sptk3/fft2 -l 16 ${ary[$o]} > tmp/1
-      $sptk3/nrand -l 512 | $sptk4/fft2 -l 16 -o $o > tmp/2
-      run $sptk4/aeq tmp/1 tmp/2
-      [ "$status" -eq 0 ]
-   done
+    ary=("" "-R" "-I" "-A" "-P")
+    for o in $(seq 0 4); do
+        # shellcheck disable=SC2086
+        $sptk3/nrand -l 512 | $sptk3/fft2 -l 16 ${ary[$o]} > tmp/1
+        $sptk3/nrand -l 512 | $sptk4/fft2 -l 16 -o "$o" > tmp/2
+        run $sptk4/aeq tmp/1 tmp/2
+        [ "$status" -eq 0 ]
+    done
 
-   ary=("" "-t" "-c" "-q")
-   for p in $(seq 1 3); do
-      $sptk3/nrand -l 512 | $sptk3/fft2 -l 16 ${ary[$p]} > tmp/1
-      $sptk3/nrand -l 512 | $sptk4/fft2 -l 16 -p $p > tmp/2
-      run $sptk4/aeq tmp/1 tmp/2
-      [ "$status" -eq 0 ]
-   done
+    ary=("" "-t" "-c" "-q")
+    for p in $(seq 1 3); do
+        # shellcheck disable=SC2086
+        $sptk3/nrand -l 512 | $sptk3/fft2 -l 16 ${ary[$p]} > tmp/1
+        $sptk3/nrand -l 512 | $sptk4/fft2 -l 16 -p "$p" > tmp/2
+        run $sptk4/aeq tmp/1 tmp/2
+        [ "$status" -eq 0 ]
+    done
 
-   $sptk3/nrand -l 512 | $sptk3/fft2 -l 16 -m 2 8 > tmp/1
-   $sptk3/nrand -l 512 | $sptk4/fft2 -l 16 -c 2 -r 8  > tmp/2
-   run $sptk4/aeq tmp/1 tmp/2
-   [ "$status" -eq 0 ]
+    $sptk3/nrand -l 512 | $sptk3/fft2 -l 16 -m 2 8 > tmp/1
+    $sptk3/nrand -l 512 | $sptk4/fft2 -l 16 -c 2 -r 8  > tmp/2
+    run $sptk4/aeq tmp/1 tmp/2
+    [ "$status" -eq 0 ]
 }
 
 @test "fft2: reversibility" {
-   $sptk3/nrand -l 512 > tmp/1
-   $sptk4/fft2 -l 16 tmp/1 | $sptk4/ifft2 -l 16 > tmp/2
-   run $sptk4/aeq tmp/1 tmp/2
-   [ "$status" -eq 0 ]
+    $sptk3/nrand -l 512 > tmp/1
+    $sptk4/fft2 -l 16 tmp/1 | $sptk4/ifft2 -l 16 > tmp/2
+    run $sptk4/aeq tmp/1 tmp/2
+    [ "$status" -eq 0 ]
 }
 
 @test "fft2: valgrind" {
-   $sptk3/nrand -l 512 > tmp/1
-   run valgrind $sptk4/fft2 -l 8 tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 512 > tmp/1
+    run valgrind $sptk4/fft2 -l 8 tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

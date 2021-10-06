@@ -19,22 +19,22 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "df2: compatibility" {
-   $sptk3/nrand -l 20 | $sptk3/df2 -p 20 200 -z 10 100 -z 30 3 > tmp/1
-   $sptk3/nrand -l 20 | $sptk4/df2 -p 20 200 -z 10 100 -z 30 3 > tmp/2
-   run $sptk4/aeq tmp/1 tmp/2
-   [ "$status" -eq 0 ]
+    $sptk3/nrand -l 20 | $sptk3/df2 -p 20 200 -z 10 100 -z 30 3 > tmp/1
+    $sptk3/nrand -l 20 | $sptk4/df2 -p 20 200 -z 10 100 -z 30 3 > tmp/2
+    run $sptk4/aeq tmp/1 tmp/2
+    [ "$status" -eq 0 ]
 }
 
 @test "df2: valgrind" {
-   $sptk3/nrand -l 20 > tmp/1
-   run valgrind $sptk4/df2 -p 10 10 -z 10 10 tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 20 > tmp/1
+    run valgrind $sptk4/df2 -p 10 10 -z 10 10 tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

@@ -19,41 +19,41 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "gmm: compatibility" {
-   # Note that there is no compatibility without diagonal covariance.
-   # This is because SPTK3 use previous mean instead of current mean
-   # to update covariance.
-   $sptk3/nrand -s 1 -l 256 | $sptk3/gmm -l 4 -m 4 -b 19 > tmp/1
-   $sptk3/nrand -s 1 -l 256 | $sptk4/gmm -l 4 -k 4 -i 20 > tmp/2
+    # Note that there is no compatibility without diagonal covariance.
+    # This is because SPTK3 use previous mean instead of current mean
+    # to update covariance.
+    $sptk3/nrand -s 1 -l 256 | $sptk3/gmm -l 4 -m 4 -b 19 > tmp/1
+    $sptk3/nrand -s 1 -l 256 | $sptk4/gmm -l 4 -k 4 -i 20 > tmp/2
 
-   $sptk3/bcp +d -l 9 -s 0 -e 0 tmp/2 > tmp/2.w
-   $sptk3/bcp +d -l 9 -s 1 tmp/2 > tmp/2.mv
-   cat tmp/2.w tmp/2.mv > tmp/3
-   run $sptk4/aeq tmp/1 tmp/3
-   [ "$status" -eq 0 ]
+    $sptk3/bcp +d -l 9 -s 0 -e 0 tmp/2 > tmp/2.w
+    $sptk3/bcp +d -l 9 -s 1 tmp/2 > tmp/2.mv
+    cat tmp/2.w tmp/2.mv > tmp/3
+    run $sptk4/aeq tmp/1 tmp/3
+    [ "$status" -eq 0 ]
 
-   # MAP estimate.
-   $sptk3/nrand -s 2 -l 256 | \
-      $sptk3/gmm -l 4 -m 4 -b 19 -F tmp/1 -M 0.1 > tmp/4
-   $sptk3/nrand -s 2 -l 256 | \
-      $sptk4/gmm -l 4 -k 4 -i 20 -U tmp/2 -M 0.1 > tmp/5
+    # MAP estimate.
+    $sptk3/nrand -s 2 -l 256 |
+        $sptk3/gmm -l 4 -m 4 -b 19 -F tmp/1 -M 0.1 > tmp/4
+    $sptk3/nrand -s 2 -l 256 |
+        $sptk4/gmm -l 4 -k 4 -i 20 -U tmp/2 -M 0.1 > tmp/5
 
-   $sptk3/bcp +d -l 9 -s 0 -e 0 tmp/5 > tmp/5.w
-   $sptk3/bcp +d -l 9 -s 1 tmp/5 > tmp/5.mv
-   cat tmp/5.w tmp/5.mv > tmp/6
-   run $sptk4/aeq tmp/4 tmp/6
-   [ "$status" -eq 0 ]
+    $sptk3/bcp +d -l 9 -s 0 -e 0 tmp/5 > tmp/5.w
+    $sptk3/bcp +d -l 9 -s 1 tmp/5 > tmp/5.mv
+    cat tmp/5.w tmp/5.mv > tmp/6
+    run $sptk4/aeq tmp/4 tmp/6
+    [ "$status" -eq 0 ]
 }
 
 @test "gmm: valgrind" {
-   $sptk3/nrand -l 20 > tmp/1
-   run valgrind $sptk4/gmm -l 2 -k 2 tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 20 > tmp/1
+    run valgrind $sptk4/gmm -l 2 -k 2 tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

@@ -19,23 +19,23 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "lpccheck: identity" {
-   $sptk3/nrand -l 20 | $sptk3/lpc -l 10 -m 4 > tmp/1
-   $sptk4/lpccheck -m 4 tmp/1 > tmp/2
-   run $sptk4/aeq tmp/1 tmp/2
-   [ "$status" -eq 0 ]
+    $sptk3/nrand -l 20 | $sptk3/lpc -l 10 -m 4 > tmp/1
+    $sptk4/lpccheck -m 4 tmp/1 > tmp/2
+    run $sptk4/aeq tmp/1 tmp/2
+    [ "$status" -eq 0 ]
 }
 
 @test "lpccheck: valgrind" {
-   $sptk3/nrand -l 20 | $sptk3/lpc -l 10 -m 4 > tmp/1
-   $sptk4/lpccheck -m 4 tmp/1 > tmp/2
-   run valgrind $sptk4/lpccheck -m 4 -x tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 20 | $sptk3/lpc -l 10 -m 4 > tmp/1
+    $sptk4/lpccheck -m 4 tmp/1 > tmp/2
+    run valgrind $sptk4/lpccheck -m 4 -x tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

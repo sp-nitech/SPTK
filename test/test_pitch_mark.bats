@@ -20,22 +20,24 @@ sptk4=bin
 data=asset/data.short
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "pitch_mark: compatibility" {
-   $sptk3/x2x +sd $data | $sptk3/pitch_mark -o 1 > tmp/1
-   $sptk3/x2x +sd $data | $sptk4/pitch_mark -o 1 > tmp/2
-   run $sptk4/aeq tmp/1 tmp/2
-   [ "$status" -eq 0 ]
+    for o in $(seq 0 2); do
+        $sptk3/x2x +sd $data | $sptk3/pitch_mark -o "$o" > tmp/1
+        $sptk3/x2x +sd $data | $sptk4/pitch_mark -o "$o" > tmp/2
+        run $sptk4/aeq -e 1 tmp/1 tmp/2
+        [ "$status" -eq 0 ]
+    done
 }
 
 @test "pitch_mark: valgrind" {
-   $sptk3/x2x +sd $data > tmp/1
-   run valgrind $sptk4/pitch_mark tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/x2x +sd $data > tmp/1
+    run valgrind $sptk4/pitch_mark tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

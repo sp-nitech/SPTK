@@ -19,48 +19,49 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "lsp2lpc: compatibility" {
-   $sptk3/nrand -l 800 | $sptk3/lpc -l 400 -m 12 | \
-      $sptk3/lpc2lsp -m 12 > tmp/1
-   ary=("" "-L" "-k")
-   for k in $(seq 0 2); do
-      $sptk3/lsp2lpc -m 12 ${ary[$k]} tmp/1 > tmp/2
-      $sptk4/lsp2lpc -m 12 -k $k tmp/1 > tmp/3
-      run $sptk4/aeq tmp/2 tmp/3
-      [ "$status" -eq 0 ]
-   done
+    $sptk3/nrand -l 800 | $sptk3/lpc -l 400 -m 12 |
+        $sptk3/lpc2lsp -m 12 > tmp/1
+    ary=("" "-L" "-k")
+    for k in $(seq 0 2); do
+        # shellcheck disable=SC2086
+        $sptk3/lsp2lpc -m 12 ${ary[$k]} tmp/1 > tmp/2
+        $sptk4/lsp2lpc -m 12 -k "$k" tmp/1 > tmp/3
+        run $sptk4/aeq tmp/2 tmp/3
+        [ "$status" -eq 0 ]
+    done
 
-   for q in $(seq 0 3); do
-      $sptk3/lsp2lpc -m 12 -q $q tmp/1 > tmp/2
-      $sptk4/lsp2lpc -m 12 -q $q tmp/1 > tmp/3
-      run $sptk4/aeq tmp/2 tmp/3
-      [ "$status" -eq 0 ]
-   done
+    for q in $(seq 0 3); do
+        $sptk3/lsp2lpc -m 12 -q "$q" tmp/1 > tmp/2
+        $sptk4/lsp2lpc -m 12 -q "$q" tmp/1 > tmp/3
+        run $sptk4/aeq tmp/2 tmp/3
+        [ "$status" -eq 0 ]
+    done
 
-   $sptk3/nrand -l 800 | $sptk3/lpc -l 400 -m 11 | \
-      $sptk3/lpc2lsp -m 11 > tmp/1
-   $sptk3/lsp2lpc -m 11 tmp/1 > tmp/2
-   $sptk4/lsp2lpc -m 11 tmp/1 > tmp/3
+    $sptk3/nrand -l 800 | $sptk3/lpc -l 400 -m 11 |
+        $sptk3/lpc2lsp -m 11 > tmp/1
+    $sptk3/lsp2lpc -m 11 tmp/1 > tmp/2
+    $sptk4/lsp2lpc -m 11 tmp/1 > tmp/3
 }
 
 @test "lsp2lpc: reversibility" {
-   $sptk3/nrand -l 400 | $sptk3/lpc -l 400 -m 12 | \
-      $sptk3/lpc2lsp -m 12 -n 256 > tmp/1
-   $sptk4/lsp2lpc -m 12 tmp/1 | $sptk4/lpc2lsp -m 12 > tmp/2
-   run $sptk4/aeq tmp/1 tmp/2
-   [ "$status" -eq 0 ]
+    $sptk3/nrand -l 400 | $sptk3/lpc -l 400 -m 12 |
+        $sptk3/lpc2lsp -m 12 -n 256 > tmp/1
+    $sptk4/lsp2lpc -m 12 tmp/1 | $sptk4/lpc2lsp -m 12 > tmp/2
+    run $sptk4/aeq tmp/1 tmp/2
+    [ "$status" -eq 0 ]
 }
 
 @test "lsp2lpc: valgrind" {
-   $sptk3/nrand -l 800 | $sptk3/lpc -l 400 -m 12 | \
-      $sptk3/lpc2lsp -m 12 -n 256 > tmp/1
-   run valgrind $sptk4/lsp2lpc -m 12 tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 800 | $sptk3/lpc -l 400 -m 12 |
+        $sptk3/lpc2lsp -m 12 -n 256 > tmp/1
+    run valgrind $sptk4/lsp2lpc -m 12 tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

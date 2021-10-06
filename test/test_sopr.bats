@@ -19,58 +19,62 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "sopr: compatibility" {
-   $sptk3/nrand -l 10 | $sptk3/sopr -ABS > tmp/0
+    $sptk3/nrand -l 10 | $sptk3/sopr -ABS > tmp/0
 
-   ary1=(" " "-a 1" "-s 1" "-m 2" "-d 2" "-p 2" "-f 0" "-c 0"
-         "-ABS" "-INV" "-P" "-R"
-         "-LN" "-LOG2" "-LOG10" "-LOGX 20"
-         "-EXP" "-POW2" "-POW10" "-POWX 20"
-         "-FIX" "-UNIT" "-CLIP"
-         "-SIN" "-COS" "-TAN" "-ATAN")
-   ary2=(" " "-a 1" "-s 1" "-m 2" "-d 2" "-p 2" "-l 0" "-u 0"
-         "-ABS" "-INV" "-SQR" "-SQRT"
-         "-LN" "-LOG2" "-LOG10" "-LOGX 20"
-         "-EXP" "-POW2" "-POW10" "-POWX 20"
-         "-ROUND" "-UNIT" "-RAMP"
-         "-SIN" "-COS" "-TAN" "-ATAN")
-   for i in $(seq 0 $((${#ary1[@]} - 1))); do
-      $sptk3/sopr tmp/0 ${ary1[$i]} > tmp/1
-      $sptk4/sopr tmp/0 ${ary2[$i]} > tmp/2
-      run $sptk4/aeq tmp/1 tmp/2
-      [ "$status" -eq 0 ]
-   done
+    ary1=(" " "-a 1" "-s 1" "-m 2" "-d 2" "-p 2" "-f 0" "-c 0"
+          "-ABS" "-INV" "-P" "-R"
+          "-LN" "-LOG2" "-LOG10" "-LOGX 20"
+          "-EXP" "-POW2" "-POW10" "-POWX 20"
+          "-FIX" "-UNIT" "-CLIP"
+          "-SIN" "-COS" "-TAN" "-ATAN")
+    ary2=(" " "-a 1" "-s 1" "-m 2" "-d 2" "-p 2" "-l 0" "-u 0"
+          "-ABS" "-INV" "-SQR" "-SQRT"
+          "-LN" "-LOG2" "-LOG10" "-LOGX 20"
+          "-EXP" "-POW2" "-POW10" "-POWX 20"
+          "-ROUND" "-UNIT" "-RAMP"
+          "-SIN" "-COS" "-TAN" "-ATAN")
+    for i in $(seq 0 $((${#ary1[@]} - 1))); do
+        # shellcheck disable=SC2086
+        $sptk3/sopr tmp/0 ${ary1[$i]} > tmp/1
+        # shellcheck disable=SC2086
+        $sptk4/sopr tmp/0 ${ary2[$i]} > tmp/2
+        run $sptk4/aeq tmp/1 tmp/2
+        [ "$status" -eq 0 ]
+    done
 
-   ary=("pi" "dB" "cent" "semitone" "octave" "sqrt100" "ln10" "exp1")
-   for i in $(seq 0 $((${#ary[@]} - 1))); do
-      $sptk3/sopr tmp/0 -m ${ary[$i]} > tmp/1
-      $sptk4/sopr tmp/0 -m ${ary[$i]} > tmp/2
-      run $sptk4/aeq tmp/1 tmp/2
-      [ "$status" -eq 0 ]
-   done
+    ary3=("pi" "dB" "cent" "semitone" "octave" "sqrt100" "ln10" "exp1")
+    for i in $(seq 0 $((${#ary3[@]} - 1))); do
+        $sptk3/sopr tmp/0 -m "${ary3[$i]}" > tmp/1
+        $sptk4/sopr tmp/0 -m "${ary3[$i]}" > tmp/2
+        run $sptk4/aeq tmp/1 tmp/2
+        [ "$status" -eq 0 ]
+    done
 
-   ary=("-magic 0" "-magic 0 -MAGIC -1")
-   for i in $(seq 0 $((${#ary[@]} - 1))); do
-      $sptk3/ramp -l 3 | $sptk3/sopr ${ary[$i]} > tmp/1
-      $sptk3/ramp -l 3 | $sptk4/sopr ${ary[$i]} > tmp/2
-      run $sptk4/aeq tmp/1 tmp/2
-      [ "$status" -eq 0 ]
-   done
-   $sptk3/ramp -l 3 > tmp/1
-   $sptk4/sopr tmp/1 -magic 0 -MAGIC -1 -magic -1 -MAGIC 0 > tmp/2
-   run $sptk4/aeq tmp/1 tmp/2
-   [ "$status" -eq 0 ]
+    ary4=("-magic 0" "-magic 0 -MAGIC -1")
+    for i in $(seq 0 $((${#ary4[@]} - 1))); do
+        # shellcheck disable=SC2086
+        $sptk3/ramp -l 3 | $sptk3/sopr ${ary4[$i]} > tmp/1
+        # shellcheck disable=SC2086
+        $sptk3/ramp -l 3 | $sptk4/sopr ${ary4[$i]} > tmp/2
+        run $sptk4/aeq tmp/1 tmp/2
+        [ "$status" -eq 0 ]
+    done
+    $sptk3/ramp -l 3 > tmp/1
+    $sptk4/sopr tmp/1 -magic 0 -MAGIC -1 -magic -1 -MAGIC 0 > tmp/2
+    run $sptk4/aeq tmp/1 tmp/2
+    [ "$status" -eq 0 ]
 }
 
 @test "sopr: valgrind" {
-   $sptk3/nrand -l 20 > tmp/1
-   run valgrind $sptk4/sopr -m 2 tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 20 > tmp/1
+    run valgrind $sptk4/sopr -m 2 tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

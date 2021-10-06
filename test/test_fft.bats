@@ -19,32 +19,33 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "fft: compatibility" {
-   ary=("" "-R" "-I" "-A" "-P")
-   for o in $(seq 0 4); do
-      $sptk3/nrand -l 20 | $sptk3/fft -m 4 -l 8 ${ary[$o]} > tmp/1
-      $sptk3/nrand -l 20 | $sptk4/fft -m 4 -l 8 -o $o > tmp/2
-      run $sptk4/aeq tmp/1 tmp/2
-      [ "$status" -eq 0 ]
-   done
+    ary=("" "-R" "-I" "-A" "-P")
+    for o in $(seq 0 4); do
+        # shellcheck disable=SC2086
+        $sptk3/nrand -l 20 | $sptk3/fft -m 4 -l 8 ${ary[$o]} > tmp/1
+        $sptk3/nrand -l 20 | $sptk4/fft -m 4 -l 8 -o "$o" > tmp/2
+        run $sptk4/aeq tmp/1 tmp/2
+        [ "$status" -eq 0 ]
+    done
 }
 
 @test "fft: reversibility" {
-   $sptk3/nrand -l 16 > tmp/1
-   $sptk4/fft -l 8 tmp/1 | $sptk4/ifft -l 8 > tmp/2
-   run $sptk4/aeq tmp/1 tmp/2
-   [ "$status" -eq 0 ]
+    $sptk3/nrand -l 16 > tmp/1
+    $sptk4/fft -l 8 tmp/1 | $sptk4/ifft -l 8 > tmp/2
+    run $sptk4/aeq tmp/1 tmp/2
+    [ "$status" -eq 0 ]
 }
 
 @test "fft: valgrind" {
-   $sptk3/nrand -l 20 > tmp/1
-   run valgrind $sptk4/fft -m 4 -l 8 tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 20 > tmp/1
+    run valgrind $sptk4/fft -m 4 -l 8 tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

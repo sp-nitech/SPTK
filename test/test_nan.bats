@@ -19,27 +19,27 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "nan: compatibility" {
-   $sptk3/nrand -l 10 | $sptk3/nan > tmp/1
-   $sptk3/nrand -l 10 | $sptk4/nan > tmp/2
-   run diff -q tmp/1 tmp/2
-   [ "${lines[0]}" = "" ]
-   # Generate NaN and Inf and check them.
-   $sptk3/ramp -l 2 | $sptk3/sopr -d 0 | $sptk3/nan > tmp/1
-   $sptk3/ramp -l 2 | $sptk3/sopr -d 0 | $sptk4/nan > tmp/2
-   run diff -q tmp/1 tmp/2
-   [ "${lines[0]}" = "" ]
+    $sptk3/nrand -l 10 | $sptk3/nan > tmp/1
+    $sptk3/nrand -l 10 | $sptk4/nan > tmp/2
+    run diff -q tmp/1 tmp/2
+    [ "${lines[0]}" = "" ]
+    # Generate NaN and Inf and check them.
+    $sptk3/ramp -l 2 | $sptk3/sopr -d 0 | $sptk3/nan > tmp/1
+    $sptk3/ramp -l 2 | $sptk3/sopr -d 0 | $sptk4/nan > tmp/2
+    run diff -q tmp/1 tmp/2
+    [ "${lines[0]}" = "" ]
 }
 
 @test "nan: valgrind" {
-   $sptk3/nrand -l 10 > tmp/1
-   run valgrind $sptk4/nan tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 10 > tmp/1
+    run valgrind $sptk4/nan tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

@@ -19,27 +19,27 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "mfcc: compatibility" {
-   # Note that there is no compatibility when -w 0 -E: SPTK3 calculates the
-   # signal energy before windowing whereas SPTK4 calculates one after
-   # windowing.
-   $sptk3/nrand -l 16 | \
-      $sptk3/mfcc -a 0 -c 10 -e 1 -l 8 -L 8 -w 1 -n 6 -m 3 -E -0 > tmp/1
-   $sptk3/nrand -l 16 | \
-      $sptk4/mfcc -c 10 -e 1 -l 8 -n 6 -m 3 -o 3 > tmp/2
-   run $sptk4/aeq tmp/1 tmp/2
-   [ "$status" -eq 0 ]
+    # Note that there is no compatibility when -w 0 -E: SPTK3 calculates the
+    # signal energy before windowing whereas SPTK4 calculates one after
+    # windowing.
+    $sptk3/nrand -l 16 |
+        $sptk3/mfcc -a 0 -c 10 -e 1 -l 8 -L 8 -w 1 -n 6 -m 3 -E -0 > tmp/1
+    $sptk3/nrand -l 16 |
+        $sptk4/mfcc -c 10 -e 1 -l 8 -n 6 -m 3 -o 3 > tmp/2
+    run $sptk4/aeq tmp/1 tmp/2
+    [ "$status" -eq 0 ]
 }
 
 @test "mfcc: valgrind" {
-   $sptk3/nrand -l 16 > tmp/1
-   run valgrind $sptk4/mfcc -l 8 -n 4 -m 3 tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 16 > tmp/1
+    run valgrind $sptk4/mfcc -l 8 -n 4 -m 3 tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

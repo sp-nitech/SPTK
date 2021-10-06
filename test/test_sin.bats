@@ -19,21 +19,21 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "sin: compatibility" {
-   $sptk3/sin -l 256 -m 0.1 -p 10 > tmp/1
-   $sptk4/sin -l 256 -a 0.1 -p 10 > tmp/2
-   run $sptk4/aeq tmp/1 tmp/2
-   [ "$status" -eq 0 ]
+    $sptk3/sin -l 256 -m 0.1 -p 10 > tmp/1
+    $sptk4/sin -l 256 -a 0.1 -p 10 > tmp/2
+    run $sptk4/aeq tmp/1 tmp/2
+    [ "$status" -eq 0 ]
 }
 
 @test "sin: valgrind" {
-   run valgrind $sptk4/sin -l 10
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    run valgrind $sptk4/sin -l 10
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

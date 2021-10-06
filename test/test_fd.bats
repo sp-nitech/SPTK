@@ -19,23 +19,23 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "fd: compatibility" {
-   $sptk3/nrand -l 16 > tmp/1
-   $sptk3/fd -a 1 tmp/1 > tmp/2
-   $sptk4/fd -s 1 -o 1 tmp/1 > tmp/3
-   run diff tmp/2 tmp/3
-   [ "$status" -eq 0 ]
+    $sptk3/nrand -l 16 > tmp/1
+    $sptk3/fd -a 1 tmp/1 > tmp/2
+    $sptk4/fd -s 1 -o 1 tmp/1 > tmp/3
+    run diff tmp/2 tmp/3
+    [ "$status" -eq 0 ]
 }
 
 @test "fd: valgrind" {
-   $sptk3/nrand -l 16 > tmp/1
-   run valgrind $sptk4/fd tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 16 > tmp/1
+    run valgrind $sptk4/fd tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

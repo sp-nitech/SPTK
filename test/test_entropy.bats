@@ -19,15 +19,15 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "entropy: valgrind" {
-   $sptk3/step -l 10 | $sptk3/window -l 10 -L 20 -n 2 -w 0 > tmp/1
-   run valgrind $sptk4/entropy -l 10 -f tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/step -l 10 | $sptk3/window -l 10 -L 20 -n 2 -w 0 > tmp/1
+    run valgrind $sptk4/entropy -l 10 -f tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

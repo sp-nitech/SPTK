@@ -19,32 +19,32 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "cdist: compatibility" {
-   $sptk3/nrand -s 123 -l 50 > tmp/1
-   $sptk3/nrand -s 321 -l 50 > tmp/2
-   ary=(0 2 1)
-   for o in $(seq 0 2); do
-      $sptk3/cdist -f -m 4 -o ${ary[$o]} tmp/1 tmp/2 > tmp/3
-      $sptk4/cdist -f -m 4 -o $o tmp/1 tmp/2 > tmp/4
-      run $sptk4/aeq tmp/3 tmp/4
-      [ "$status" -eq 0 ]
-   done
+    $sptk3/nrand -s 123 -l 50 > tmp/1
+    $sptk3/nrand -s 321 -l 50 > tmp/2
+    ary=(0 2 1)
+    for o in $(seq 0 2); do
+        $sptk3/cdist -f -m 4 -o "${ary[$o]}" tmp/1 tmp/2 > tmp/3
+        $sptk4/cdist -f -m 4 -o "$o" tmp/1 tmp/2 > tmp/4
+        run $sptk4/aeq tmp/3 tmp/4
+        [ "$status" -eq 0 ]
+    done
 
-   $sptk3/cdist -m 4 tmp/1 tmp/2 > tmp/3
-   $sptk4/cdist -m 4 tmp/1 tmp/2 > tmp/4
-   run $sptk4/aeq tmp/3 tmp/4
-   [ "$status" -eq 0 ]
+    $sptk3/cdist -m 4 tmp/1 tmp/2 > tmp/3
+    $sptk4/cdist -m 4 tmp/1 tmp/2 > tmp/4
+    run $sptk4/aeq tmp/3 tmp/4
+    [ "$status" -eq 0 ]
 }
 
 @test "cdist: valgrind" {
-   $sptk3/nrand -l 20 > tmp/1
-   run valgrind $sptk4/cdist -m 4 tmp/1 tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 20 > tmp/1
+    run valgrind $sptk4/cdist -m 4 tmp/1 tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

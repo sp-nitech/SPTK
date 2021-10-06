@@ -19,30 +19,30 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "msvq: compatibility" {
-   $sptk3/nrand -s 123 -l 32 > tmp/1
-   $sptk3/nrand -s 234 -l 32 > tmp/2
-   $sptk3/nrand -s 345 -l 32 > tmp/3
-   $sptk3/nrand -s 0 -l 20 | \
-      $sptk3/msvq -s 8 tmp/1 -s 8 tmp/2 -s 8 tmp/3 -l 4 | \
-      $sptk3/x2x +id > tmp/4
-   $sptk3/nrand -s 0 -l 20 | \
-      $sptk4/msvq -s tmp/1 -s tmp/2 -s tmp/3 -l 4 | \
-      $sptk3/x2x +id > tmp/5
-   run $sptk4/aeq tmp/4 tmp/5
-   [ "$status" -eq 0 ]
+    $sptk3/nrand -s 123 -l 32 > tmp/1
+    $sptk3/nrand -s 234 -l 32 > tmp/2
+    $sptk3/nrand -s 345 -l 32 > tmp/3
+    $sptk3/nrand -s 0 -l 20 |
+        $sptk3/msvq -s 8 tmp/1 -s 8 tmp/2 -s 8 tmp/3 -l 4 |
+        $sptk3/x2x +id > tmp/4
+    $sptk3/nrand -s 0 -l 20 |
+        $sptk4/msvq -s tmp/1 -s tmp/2 -s tmp/3 -l 4 |
+        $sptk3/x2x +id > tmp/5
+    run $sptk4/aeq tmp/4 tmp/5
+    [ "$status" -eq 0 ]
 }
 
 @test "msvq: valgrind" {
-   $sptk3/nrand -l 32 > tmp/1
-   $sptk3/nrand -l 8 > tmp/2
-   run valgrind $sptk4/msvq -s tmp/1 -l 4 tmp/2
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 32 > tmp/1
+    $sptk3/nrand -l 8 > tmp/2
+    run valgrind $sptk4/msvq -s tmp/1 -l 4 tmp/2
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

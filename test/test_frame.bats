@@ -19,39 +19,39 @@ sptk3=tools/sptk/bin
 sptk4=bin
 
 setup() {
-   mkdir -p tmp
+    mkdir -p tmp
 }
 
 teardown() {
-   rm -rf tmp
+    rm -rf tmp
 }
 
 @test "frame: compatibility (n = 0)" {
-   $sptk3/nrand -l 30 > tmp/1
-   for l in $(seq 1 10); do
-      for p in $(seq 1 10); do
-         $sptk3/frame -l $l -p $p tmp/1 > tmp/2
-         $sptk4/frame -l $l -p $p tmp/1 > tmp/3
-         run $sptk4/aeq tmp/2 tmp/3
-         [ "$status" -eq 0 ]
-      done
-   done
+    $sptk3/nrand -l 30 > tmp/1
+    for l in $(seq 1 10); do
+        for p in $(seq 1 10); do
+            $sptk3/frame -l "$l" -p "$p" tmp/1 > tmp/2
+            $sptk4/frame -l "$l" -p "$p" tmp/1 > tmp/3
+            run $sptk4/aeq tmp/2 tmp/3
+            [ "$status" -eq 0 ]
+        done
+    done
 }
 
 @test "frame: compatibility (n = 1)" {
-   $sptk3/nrand -l 30 > tmp/1
-   for l in $(seq 1 10); do
-      for p in $(seq 1 10); do
-         $sptk3/frame -l $l -p $p -n tmp/1 > tmp/2
-         $sptk4/frame -l $l -p $p -n 1 tmp/1 > tmp/3
-         run $sptk4/aeq tmp/2 tmp/3
-         [ "$status" -eq 0 ]
-      done
-   done
+    $sptk3/nrand -l 30 > tmp/1
+    for l in $(seq 1 10); do
+        for p in $(seq 1 10); do
+            $sptk3/frame -l "$l" -p "$p" -n tmp/1 > tmp/2
+            $sptk4/frame -l "$l" -p "$p" -n 1 tmp/1 > tmp/3
+            run $sptk4/aeq tmp/2 tmp/3
+            [ "$status" -eq 0 ]
+        done
+    done
 }
 
 @test "frame: valgrind" {
-   $sptk3/nrand -l 20 > tmp/1
-   run valgrind $sptk4/frame -l 4 -p 3 tmp/1
-   [ $(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/') -eq 0 ]
+    $sptk3/nrand -l 20 > tmp/1
+    run valgrind $sptk4/frame -l 4 -p 3 tmp/1
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }
