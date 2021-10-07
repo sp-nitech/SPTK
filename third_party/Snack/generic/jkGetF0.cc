@@ -519,10 +519,16 @@ static void get_cand(Cross *cross, float *peak, int *loc, int nlags, int *ncand,
 {
   register int i, lastl, *t;
   register float o, p, q, *r, *s, clip;
+#if 0
   int start, ncan, maxl;
+#else
+  int start, ncan;
+#endif
 
   clip = (float) (cand_thresh * cross->maxval);
+#if 0
   maxl = cross->maxloc;
+#endif
   lastl = nlags - 2;
   start = cross->firstlag;
 
@@ -1796,7 +1802,11 @@ cGet_f0(const std::vector<double> &waveform, int frame_shift,
   float *fdata;
   int done;
   long buff_size, actsize;
+#if 0
   double sf, start_time;
+#else
+  double sf;
+#endif
   F0_params *par, *read_f0_params();
   float *f0p, *vuvp, *rms_speech, *acpkp;
   int i, vecsize;
@@ -1900,8 +1910,8 @@ cGet_f0(const std::vector<double> &waveform, int frame_shift,
 
   if (framestep > 0)  /* If a value was specified with -S, use it. */
     par->frame_step = (float) (framestep / sf);
-  start_time = 0.0f;
 #if 0
+  start_time = 0.0f;
   if(check_f0_params(interp, par, sf)){
     Tcl_AppendResult(interp, "invalid/inconsistent parameters -- exiting.", NULL);
     return TCL_ERROR;

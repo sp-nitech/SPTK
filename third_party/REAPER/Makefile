@@ -14,22 +14,24 @@
 # limitations under the License.                                           #
 # ------------------------------------------------------------------------ #
 
-SOURCEDIR     = .
-BUILDDIR      = build
-INCLUDEDIR    = .
+SOURCEDIR  := .
+BUILDDIR   := build
+INCLUDEDIR := .
 
-SOURCES       = $(wildcard $(SOURCEDIR)/*/*.cc)
-OBJECTS       = $(patsubst $(SOURCEDIR)/%.cc, $(BUILDDIR)/%.o, $(SOURCES))
+SOURCES    := $(wildcard $(SOURCEDIR)/*/*.cc)
+OBJECTS    := $(patsubst $(SOURCEDIR)/%.cc, $(BUILDDIR)/%.o, $(SOURCES))
 
-CXX           = g++
-AR            = ar
-CXXFLAGS      = -w -O2 -g -std=c++11
-INCLUDE       = -I $(INCLUDEDIR)
+CXX        := g++
+AR         := ar
+CXXFLAGS   := -w -O2 -g
+INCLUDE    := -I $(INCLUDEDIR)
 
 all: $(OBJECTS)
 
 $(OBJECTS): $(BUILDDIR)/%.o: $(SOURCEDIR)/%.cc
-	mkdir -p $(dir $@)
+	@if [ ! -d $(dir $@) ]; then \
+		mkdir -p $(dir $@); \
+	fi
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ -c $<
 
 clean:

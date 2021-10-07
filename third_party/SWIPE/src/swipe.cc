@@ -123,7 +123,7 @@ void La(matrix L, vector f, vector fERBs, fftw_plan plan,
 void La(matrix L, vector f, vector fERBs,
                   const sptk::RealValuedFastFourierTransform& plan,
                   const std::vector<double>& fi,
-                  std::vector<std::vector<double>>* fo,
+                  std::vector<std::vector<double> >* fo,
                   sptk::RealValuedFastFourierTransform::Buffer* buffer,
                   int w2, int hi, int i) {
     int j;
@@ -157,7 +157,7 @@ matrix loudness(vector x, vector fERBs, double nyquist, int w, int w2) {
     fftw_plan plan = fftw_plan_dft_r2c_1d(w, fi, fo, FFTW_ESTIMATE); 
 #else
     std::vector<double> fi(w); 
-    std::vector<std::vector<double>> fo(2, std::vector<double>(w));
+    std::vector<std::vector<double> > fo(2, std::vector<double>(w));
     sptk::RealValuedFastFourierTransform plan(w2 * 2 - 1, w2 * 2);
     sptk::RealValuedFastFourierTransform::Buffer buffer;
 #endif

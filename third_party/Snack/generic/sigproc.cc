@@ -550,7 +550,9 @@ void crossf(float *data, int size, int start, int nlags, float *engref,
   register  float *dq, t, *p, engr, *dds, amax;
   register  double engc;
   int i, iloc, total;
+#if 0
   int sizei, sizeo, maxsize;
+#endif
 
   /* Compute mean in reference window and subtract this from the
      entire sequence.  This doesn't do too much damage to the data
@@ -571,9 +573,11 @@ void crossf(float *data, int size, int start, int nlags, float *engref,
   engr /= size;
   for(j=size+nlags+start, dq = dbdata, p=data; j--; )  *dq++ = *p++ - engr;
 
+#if 0
   maxsize = start + nlags;
   sizei = size + start + nlags + 1;
   sizeo = nlags + 1;
+#endif
  
   /* Compute energy in reference window. */
   for(j=size, dp=dbdata, sum=0.0; j--; ) {
