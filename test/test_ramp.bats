@@ -17,38 +17,39 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_ramp
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "ramp: compatibility" {
     # -l
-    $sptk3/ramp -l 16 -s 1 -t 1 > tmp/1
-    $sptk4/ramp -l 16 -s 1 -t 1 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/ramp -l 16 -s 1 -t 1 > $tmp/1
+    $sptk4/ramp -l 16 -s 1 -t 1 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 
     # -n
-    $sptk3/ramp -n 16 -s 1 -t -1 > tmp/1
-    $sptk4/ramp -m 16 -s 1 -t -1 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/ramp -n 16 -s 1 -t -1 > $tmp/1
+    $sptk4/ramp -m 16 -s 1 -t -1 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 
     # -t (e > s)
-    $sptk3/ramp -e 4 -s 0 -t 0.3 > tmp/1
-    $sptk4/ramp -e 4 -s 0 -t 0.3 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/ramp -e 4 -s 0 -t 0.3 > $tmp/1
+    $sptk4/ramp -e 4 -s 0 -t 0.3 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 
     # -t (s > e)
-    $sptk3/ramp -e 0 -s 4 -t -0.3 > tmp/1
-    $sptk4/ramp -e 0 -s 4 -t -0.3 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/ramp -e 0 -s 4 -t -0.3 > $tmp/1
+    $sptk4/ramp -e 0 -s 4 -t -0.3 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 

@@ -17,31 +17,32 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_clip
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "clip: compatibility" {
-    $sptk3/nrand -l 20 | $sptk3/clip -y -0.1 0.1 > tmp/1
-    $sptk3/nrand -l 20 | $sptk4/clip -l -0.1 -u 0.1 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/nrand -l 20 | $sptk3/clip -y -0.1 0.1 > $tmp/1
+    $sptk3/nrand -l 20 | $sptk4/clip -l -0.1 -u 0.1 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "clip: identity" {
-    $sptk3/nrand -l 20 > tmp/1
-    $sptk4/clip tmp/1 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/nrand -l 20 > $tmp/1
+    $sptk4/clip $tmp/1 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "clip: valgrind" {
-    $sptk3/nrand -l 20 > tmp/1
-    run valgrind $sptk4/clip -u 0 tmp/1
+    $sptk3/nrand -l 20 > $tmp/1
+    run valgrind $sptk4/clip -u 0 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

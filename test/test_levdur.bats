@@ -17,38 +17,39 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_levdur
 data=asset/data.short
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "levdur: compatibility" {
     $sptk3/x2x +sd $data | $sptk3/frame -l 400 -p 80 |
         $sptk3/window -l 400 -w 1 -n 1 |
-        $sptk3/acorr -l 400 -m 20 > tmp/1
-    $sptk3/levdur -m 20 tmp/1 > tmp/2
-    $sptk4/levdur -m 20 tmp/1 > tmp/3
-    run $sptk4/aeq tmp/2 tmp/3
+        $sptk3/acorr -l 400 -m 20 > $tmp/1
+    $sptk3/levdur -m 20 $tmp/1 > $tmp/2
+    $sptk4/levdur -m 20 $tmp/1 > $tmp/3
+    run $sptk4/aeq $tmp/2 $tmp/3
     [ "$status" -eq 0 ]
 }
 
 @test "levdur: reversibility" {
     $sptk3/x2x +sd $data | $sptk3/frame -l 400 -p 80 |
         $sptk3/window -l 400 -w 1 -n 1 |
-        $sptk3/acorr -l 400 -m 20 > tmp/1
-    $sptk4/levdur -m 20 tmp/1 |
-        $sptk4/rlevdur -m 20 > tmp/2
-    run $sptk4/aeq -e 1 tmp/1 tmp/2
+        $sptk3/acorr -l 400 -m 20 > $tmp/1
+    $sptk4/levdur -m 20 $tmp/1 |
+        $sptk4/rlevdur -m 20 > $tmp/2
+    run $sptk4/aeq -e 1 $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "levdur: valgrind" {
-    $sptk3/nrand -l 20 > tmp/1
-    run valgrind $sptk4/levdur -m 9 tmp/1
+    $sptk3/nrand -l 20 > $tmp/1
+    run valgrind $sptk4/levdur -m 9 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

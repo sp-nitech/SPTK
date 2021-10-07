@@ -17,26 +17,27 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_pcas
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "pcas: compatibility" {
-    $sptk3/nrand -s 1 -l 1024 | $sptk3/pca -l 16 -n 4 -v > tmp/1
-    $sptk3/nrand -l 64 | $sptk3/pcas -l 16 -n 4 tmp/1 > tmp/2
-    $sptk3/nrand -l 64 | $sptk4/pcas -l 16 -n 4 tmp/1 > tmp/3
-    run $sptk4/aeq tmp/2 tmp/3
+    $sptk3/nrand -s 1 -l 1024 | $sptk3/pca -l 16 -n 4 -v > $tmp/1
+    $sptk3/nrand -l 64 | $sptk3/pcas -l 16 -n 4 $tmp/1 > $tmp/2
+    $sptk3/nrand -l 64 | $sptk4/pcas -l 16 -n 4 $tmp/1 > $tmp/3
+    run $sptk4/aeq $tmp/2 $tmp/3
     [ "$status" -eq 0 ]
 }
 
 @test "pcas: valgrind" {
-    $sptk3/nrand -s 1 -l 12 > tmp/1
-    $sptk3/nrand -s 2 -l 8 > tmp/2
-    run valgrind $sptk4/pcas -l 4 -n 2 tmp/1 tmp/2
+    $sptk3/nrand -s 1 -l 12 > $tmp/1
+    $sptk3/nrand -s 2 -l 8 > $tmp/2
+    run valgrind $sptk4/pcas -l 4 -n 2 $tmp/1 $tmp/2
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

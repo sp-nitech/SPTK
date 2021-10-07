@@ -17,31 +17,32 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_norm0
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "norm0: compatibility" {
-    $sptk3/nrand -l 20 | $sptk3/norm0 -m 9 > tmp/1
-    $sptk3/nrand -l 20 | $sptk4/norm0 -m 9 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/nrand -l 20 | $sptk3/norm0 -m 9 > $tmp/1
+    $sptk3/nrand -l 20 | $sptk4/norm0 -m 9 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "norm0: reversibility" {
-    $sptk3/nrand -l 20 > tmp/1
-    $sptk4/norm0 -m 9 tmp/1 | $sptk4/norm0 -m 9 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/nrand -l 20 > $tmp/1
+    $sptk4/norm0 -m 9 $tmp/1 | $sptk4/norm0 -m 9 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "norm0: valgrind" {
-    $sptk3/nrand -l 20 > tmp/1
-    run valgrind $sptk4/norm0 -m 9 tmp/1
+    $sptk3/nrand -l 20 > $tmp/1
+    run valgrind $sptk4/norm0 -m 9 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

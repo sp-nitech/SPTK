@@ -17,17 +17,18 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_mgc2mgc
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "mgc2mgc: compatibility" {
-    $sptk3/nrand -l 20 > tmp/0
+    $sptk3/nrand -l 20 > $tmp/0
 
     ary1=("" "-n" "-u" "-n -u")
     ary2=("" "-N" "-U" "-N -U")
@@ -35,25 +36,25 @@ teardown() {
         for NU in $(seq 0 3); do
             # shellcheck disable=SC2086
             $sptk3/mgc2mgc -a 0.1 -A 0.2 -c 2 -C 3 \
-                           ${ary1[$nu]} ${ary2[$NU]} tmp/0 > tmp/1
+                           ${ary1[$nu]} ${ary2[$NU]} $tmp/0 > $tmp/1
             # shellcheck disable=SC2086
             $sptk4/mgc2mgc -a 0.1 -A 0.2 -c 2 -C 3 \
-                           ${ary1[$nu]} ${ary2[$NU]} tmp/0 > tmp/2
-            run $sptk4/aeq tmp/1 tmp/2
+                           ${ary1[$nu]} ${ary2[$NU]} $tmp/0 > $tmp/2
+            run $sptk4/aeq $tmp/1 $tmp/2
             [ "$status" -eq 0 ]
         done
     done
 }
 
 @test "mgc2mgc: reversibility" {
-    $sptk3/nrand -l 16 > tmp/1
-    $sptk4/mgc2mgc -m 7 -a 0.1 -g 0.5 -M 7 -A 0.1 -G 0.5 tmp/1 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/nrand -l 16 > $tmp/1
+    $sptk4/mgc2mgc -m 7 -a 0.1 -g 0.5 -M 7 -A 0.1 -G 0.5 $tmp/1 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "mgc2mgc: valgrind" {
-    $sptk3/nrand -l 20 > tmp/1
-    run valgrind $sptk4/mgc2mgc -m 4 -M 5 tmp/1
+    $sptk3/nrand -l 20 > $tmp/1
+    run valgrind $sptk4/mgc2mgc -m 4 -M 5 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

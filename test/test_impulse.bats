@@ -17,19 +17,20 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_impulse
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "impulse: compatibility" {
-    $sptk3/impulse -l 256 > tmp/1
-    $sptk4/impulse -l 256 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/impulse -l 256 > $tmp/1
+    $sptk4/impulse -l 256 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 

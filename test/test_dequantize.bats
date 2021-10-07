@@ -17,30 +17,31 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_dequantize
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "dequantize: reversibility" {
-    $sptk3/ramp -l 10 -v 10 | $sptk3/x2x +di > tmp/0
+    $sptk3/ramp -l 10 -v 10 | $sptk3/x2x +di > $tmp/0
     for t in $(seq 0 1); do
         for o in $(seq 0 1); do
-            $sptk4/dequantize tmp/0 -b 4 -v 16 -t "$t" -q "$o" > tmp/1
-            $sptk4/quantize -b 4 -v 16 -t "$t" -o "$o" tmp/1 |
-                $sptk4/dequantize -b 4 -v 16 -t "$t" -q "$o" > tmp/2
-            run $sptk4/aeq tmp/1 tmp/2
+            $sptk4/dequantize $tmp/0 -b 4 -v 16 -t "$t" -q "$o" > $tmp/1
+            $sptk4/quantize -b 4 -v 16 -t "$t" -o "$o" $tmp/1 |
+                $sptk4/dequantize -b 4 -v 16 -t "$t" -q "$o" > $tmp/2
+            run $sptk4/aeq $tmp/1 $tmp/2
             [ "$status" -eq 0 ]
         done
     done
 }
 
 @test "dequantize: valgrind" {
-    $sptk3/ramp -l 10 | $sptk3/x2x +di > tmp/1
-    run valgrind $sptk4/dequantize -b 4 -v 8 tmp/1
+    $sptk3/ramp -l 10 | $sptk3/x2x +di > $tmp/1
+    run valgrind $sptk4/dequantize -b 4 -v 8 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

@@ -17,31 +17,32 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_ndps2c
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "ndps2c: compatibility" {
-    $sptk3/nrand -l 10 | $sptk3/ndps2c -l 8 -m 3 > tmp/1
-    $sptk3/nrand -l 10 | $sptk4/ndps2c -l 8 -m 3 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/nrand -l 10 | $sptk3/ndps2c -l 8 -m 3 > $tmp/1
+    $sptk3/nrand -l 10 | $sptk4/ndps2c -l 8 -m 3 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "ndps2c: reversibility" {
-    $sptk3/nrand -l 10 | $sptk3/c2ndps -m 4 -l 8 > tmp/1
-    $sptk4/ndps2c -l 8 -m 4 tmp/1 | $sptk4/c2ndps -m 4 -l 8 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/nrand -l 10 | $sptk3/c2ndps -m 4 -l 8 > $tmp/1
+    $sptk4/ndps2c -l 8 -m 4 $tmp/1 | $sptk4/c2ndps -m 4 -l 8 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "ndps2c: valgrind" {
-    $sptk3/nrand -l 10 > tmp/1
-    run valgrind $sptk4/ndps2c -l 8 -m 4 tmp/1
+    $sptk3/nrand -l 10 > $tmp/1
+    run valgrind $sptk4/ndps2c -l 8 -m 4 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

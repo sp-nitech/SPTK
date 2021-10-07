@@ -17,13 +17,14 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_x2x
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "x2x: compatibility" {
@@ -35,16 +36,16 @@ teardown() {
     ary2=("c" "C" "s" "S"  "h"  "H" "i" "I" "l" "L" "f" "d"  "e")
     for t in $(seq 0 $((${#ary1[@]}-1))); do
         echo "${min[$t]}" "${max[$t]}" | $sptk3/x2x +a"${ary1[$t]}" |
-            $sptk3/x2x +"${ary1[$t]}"d > tmp/1
+            $sptk3/x2x +"${ary1[$t]}"d > $tmp/1
         echo "${min[$t]}" "${max[$t]}" | $sptk4/x2x +a"${ary2[$t]}" |
-            $sptk3/x2x +"${ary1[$t]}"d > tmp/2
-        run $sptk4/aeq tmp/1 tmp/2
+            $sptk3/x2x +"${ary1[$t]}"d > $tmp/2
+        run $sptk4/aeq $tmp/1 $tmp/2
         [ "$status" -eq 0 ]
     done
 }
 
 @test "x2x: valgrind" {
-    $sptk3/nrand -l 20 > tmp/1
-    run valgrind $sptk4/x2x +da tmp/1
+    $sptk3/nrand -l 20 > $tmp/1
+    run valgrind $sptk4/x2x +da $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

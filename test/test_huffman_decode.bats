@@ -17,27 +17,28 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_huffman_decode
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "huffman_decode: reversibility" {
-    $sptk3/nrand -l 8 | $sptk4/huffman > tmp/1
-    $sptk3/ramp -l 8 > tmp/2
-    $sptk3/x2x +di tmp/2 | $sptk4/huffman_encode tmp/1 |
-        $sptk4/huffman_decode tmp/1 | $sptk3/x2x +id > tmp/3
-    run $sptk4/aeq tmp/2 tmp/3
+    $sptk3/nrand -l 8 | $sptk4/huffman > $tmp/1
+    $sptk3/ramp -l 8 > $tmp/2
+    $sptk3/x2x +di $tmp/2 | $sptk4/huffman_encode $tmp/1 |
+        $sptk4/huffman_decode $tmp/1 | $sptk3/x2x +id > $tmp/3
+    run $sptk4/aeq $tmp/2 $tmp/3
     [ "$status" -eq 0 ]
 }
 
 @test "huffman_decode: valgrind" {
-    $sptk3/nrand -l 8 | $sptk4/huffman > tmp/1
-    $sptk3/ramp -l 8 | $sptk3/x2x +di | $sptk4/huffman_encode tmp/1 > tmp/2
-    run valgrind $sptk4/huffman_decode tmp/1 tmp/2
+    $sptk3/nrand -l 8 | $sptk4/huffman > $tmp/1
+    $sptk3/ramp -l 8 | $sptk3/x2x +di | $sptk4/huffman_encode $tmp/1 > $tmp/2
+    run valgrind $sptk4/huffman_decode $tmp/1 $tmp/2
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

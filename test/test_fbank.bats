@@ -17,28 +17,29 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_fbank
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "fbank: compatibility" {
     $sptk3/nrand -l 16 |
-        $sptk3/mfcc -a 0 -c 0 -e 1 -l 8 -L 8 -w 1 -n 4 -m 3 > tmp/1
+        $sptk3/mfcc -a 0 -c 0 -e 1 -l 8 -L 8 -w 1 -n 4 -m 3 > $tmp/1
     $sptk3/nrand -l 16 |
         $sptk4/fbank -l 8 -n 4 -e 1 |
         $sptk3/dct -l 4 |
-        $sptk3/bcp -l 4 -s 1 +d > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+        $sptk3/bcp -l 4 -s 1 +d > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "fbank: valgrind" {
-    $sptk3/nrand -l 16 > tmp/1
-    run valgrind $sptk4/fbank -l 8 -n 4 -e 1e-6 tmp/1
+    $sptk3/nrand -l 16 > $tmp/1
+    run valgrind $sptk4/fbank -l 8 -n 4 -e 1e-6 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

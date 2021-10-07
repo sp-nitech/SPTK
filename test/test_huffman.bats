@@ -17,17 +17,18 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_huffman
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "huffman: valgrind" {
-    $sptk3/nrand -l 16 > tmp/1
-    run valgrind $sptk4/huffman tmp/1
+    $sptk3/nrand -l 16 > $tmp/1
+    run valgrind $sptk4/huffman $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

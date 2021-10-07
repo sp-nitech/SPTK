@@ -17,32 +17,33 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_acr2csm
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "acr2csm: compatibility" {
-    $sptk3/nrand -l 40 | $sptk3/acorr -l 40 -m 9 | $sptk3/acr2csm -m 9 > tmp/1
-    $sptk3/nrand -l 40 | $sptk3/acorr -l 40 -m 9 | $sptk4/acr2csm -m 9 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/nrand -l 40 | $sptk3/acorr -l 40 -m 9 | $sptk3/acr2csm -m 9 > $tmp/1
+    $sptk3/nrand -l 40 | $sptk3/acorr -l 40 -m 9 | $sptk4/acr2csm -m 9 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "acr2csm: reversibility" {
     m=33
-    $sptk3/nrand -l 500 | $sptk3/acorr -l 100 -m $m > tmp/1
-    $sptk4/acr2csm -m $m tmp/1 | $sptk4/csm2acr -m $m > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2 -t 1e-3
+    $sptk3/nrand -l 500 | $sptk3/acorr -l 100 -m $m > $tmp/1
+    $sptk4/acr2csm -m $m $tmp/1 | $sptk4/csm2acr -m $m > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2 -t 1e-3
     [ "$status" -eq 0 ]
 }
 
 @test "acr2csm: valgrind" {
-    $sptk3/nrand -l 20 | $sptk3/acorr -l 10 -m 3 > tmp/1
-    run valgrind $sptk4/acr2csm -m 3 tmp/1
+    $sptk3/nrand -l 20 | $sptk3/acorr -l 10 -m 3 > $tmp/1
+    run valgrind $sptk4/acr2csm -m 3 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

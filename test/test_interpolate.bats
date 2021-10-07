@@ -17,36 +17,37 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_interpolate
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "interpolate: compatibility" {
-    $sptk3/nrand -l 20 | $sptk3/interpolate -p 2 -s 2 -l 2 > tmp/1
-    $sptk3/nrand -l 20 | $sptk4/interpolate -p 2 -s 2 -l 2 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/nrand -l 20 | $sptk3/interpolate -p 2 -s 2 -l 2 > $tmp/1
+    $sptk3/nrand -l 20 | $sptk4/interpolate -p 2 -s 2 -l 2 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 
-    $sptk3/nrand -l 20 | $sptk3/interpolate -p 2 -s 2 -l 2 -d > tmp/1
-    $sptk3/nrand -l 20 | $sptk4/interpolate -p 2 -s 2 -l 2 -o 1 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/nrand -l 20 | $sptk3/interpolate -p 2 -s 2 -l 2 -d > $tmp/1
+    $sptk3/nrand -l 20 | $sptk4/interpolate -p 2 -s 2 -l 2 -o 1 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "interpolate: identity" {
-    $sptk3/nrand -l 20 > tmp/1
-    $sptk4/interpolate -p 1 -s 0 -l 1 tmp/1 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/nrand -l 20 > $tmp/1
+    $sptk4/interpolate -p 1 -s 0 -l 1 $tmp/1 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "interpolate: valgrind" {
-    $sptk3/nrand -l 20 > tmp/1
-    run valgrind $sptk4/interpolate -l 2 tmp/1
+    $sptk3/nrand -l 20 > $tmp/1
+    run valgrind $sptk4/interpolate -l 2 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

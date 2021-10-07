@@ -17,40 +17,41 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_window
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "window: compatibility" {
-    $sptk3/nrand -l 20 > tmp/1
+    $sptk3/nrand -l 20 > $tmp/1
     for w in $(seq 0 5); do
-        $sptk3/window -w "$w" tmp/1 > tmp/2
-        $sptk4/window -w "$w" tmp/1 > tmp/3
-        run $sptk4/aeq tmp/2 tmp/3
+        $sptk3/window -w "$w" $tmp/1 > $tmp/2
+        $sptk4/window -w "$w" $tmp/1 > $tmp/3
+        run $sptk4/aeq $tmp/2 $tmp/3
         [ "$status" -eq 0 ]
     done
     for n in $(seq 0 2); do
-        $sptk3/window -n "$n" tmp/1 > tmp/2
-        $sptk4/window -n "$n" tmp/1 > tmp/3
-        run $sptk4/aeq tmp/2 tmp/3
+        $sptk3/window -n "$n" $tmp/1 > $tmp/2
+        $sptk4/window -n "$n" $tmp/1 > $tmp/3
+        run $sptk4/aeq $tmp/2 $tmp/3
         [ "$status" -eq 0 ]
     done
 }
 
 @test "window: identity" {
-    $sptk3/nrand -l 20 > tmp/1
-    $sptk4/window -w 5 -n 0 -l 10 tmp/1 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/nrand -l 20 > $tmp/1
+    $sptk4/window -w 5 -n 0 -l 10 $tmp/1 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "window: valgrind" {
-    $sptk3/nrand -l 20 > tmp/1
-    run valgrind $sptk4/window -l 10 tmp/1
+    $sptk3/nrand -l 20 > $tmp/1
+    run valgrind $sptk4/window -l 10 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

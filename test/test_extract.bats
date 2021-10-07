@@ -17,26 +17,27 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_extract
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "extract: compatibility" {
-    $sptk3/nrand -s 123 -l 256 | $sptk3/lbg -l 4 -e 8 -i 5 tmp/1 > /dev/null
-    $sptk3/nrand -s 234 -l 128 | $sptk3/extract -l 4 -i 0 tmp/1 > tmp/2
-    $sptk3/nrand -s 234 -l 128 | $sptk4/extract -l 4 -i 0 tmp/1 > tmp/3
-    run $sptk4/aeq tmp/2 tmp/3
+    $sptk3/nrand -s 123 -l 256 | $sptk3/lbg -l 4 -e 8 -i 5 $tmp/1 > /dev/null
+    $sptk3/nrand -s 234 -l 128 | $sptk3/extract -l 4 -i 0 $tmp/1 > $tmp/2
+    $sptk3/nrand -s 234 -l 128 | $sptk4/extract -l 4 -i 0 $tmp/1 > $tmp/3
+    run $sptk4/aeq $tmp/2 $tmp/3
     [ "$status" -eq 0 ]
 }
 
 @test "extract: valgrind" {
-    $sptk3/step -l 4 | $sptk3/x2x +di > tmp/1
-    $sptk3/nrand -l 4 > tmp/2
-    run valgrind $sptk4/extract -l 1 -i 0 tmp/2 tmp/1
+    $sptk3/step -l 4 | $sptk3/x2x +di > $tmp/1
+    $sptk3/nrand -l 4 > $tmp/2
+    run valgrind $sptk4/extract -l 1 -i 0 $tmp/2 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

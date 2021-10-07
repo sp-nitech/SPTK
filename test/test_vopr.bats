@@ -17,13 +17,14 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_vopr
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "vopr: compatibility" {
@@ -33,28 +34,28 @@ teardown() {
     ary2=("-a" "-s" "-m" "-d"
           "-ATAN" "-AM" "-GM" "-MIN" "-MAX"
           "-GT" "-GE" "-LT" "-LE" "-EQ" "-NE")
-    $sptk3/nrand -l 12 -s 1 | $sptk3/sopr -ABS > tmp/1
-    $sptk3/nrand -l 12 -s 1 | $sptk3/sopr -ABS > tmp/2
+    $sptk3/nrand -l 12 -s 1 | $sptk3/sopr -ABS > $tmp/1
+    $sptk3/nrand -l 12 -s 1 | $sptk3/sopr -ABS > $tmp/2
     for i in $(seq 0 $((${#ary1[@]} - 1))); do
-        $sptk3/vopr tmp/1 tmp/2 "${ary1[$i]}" > tmp/3
-        $sptk4/vopr tmp/1 tmp/2 "${ary2[$i]}" -q 0 > tmp/4
-        run $sptk4/aeq tmp/3 tmp/4
+        $sptk3/vopr $tmp/1 $tmp/2 "${ary1[$i]}" > $tmp/3
+        $sptk4/vopr $tmp/1 $tmp/2 "${ary2[$i]}" -q 0 > $tmp/4
+        run $sptk4/aeq $tmp/3 $tmp/4
         [ "$status" -eq 0 ]
 
-        $sptk3/vopr tmp/1 tmp/2 "${ary1[$i]}" -l 2 > tmp/3
-        $sptk4/vopr tmp/1 tmp/2 "${ary2[$i]}" -l 2 -q 1 > tmp/4
-        run $sptk4/aeq tmp/3 tmp/4
+        $sptk3/vopr $tmp/1 $tmp/2 "${ary1[$i]}" -l 2 > $tmp/3
+        $sptk4/vopr $tmp/1 $tmp/2 "${ary2[$i]}" -l 2 -q 1 > $tmp/4
+        run $sptk4/aeq $tmp/3 $tmp/4
         [ "$status" -eq 0 ]
 
-        $sptk3/vopr tmp/1 "${ary1[$i]}" -l 2 -i > tmp/3
-        $sptk4/vopr tmp/1 "${ary2[$i]}" -l 2 -q 2 > tmp/4
-        run $sptk4/aeq tmp/3 tmp/4
+        $sptk3/vopr $tmp/1 "${ary1[$i]}" -l 2 -i > $tmp/3
+        $sptk4/vopr $tmp/1 "${ary2[$i]}" -l 2 -q 2 > $tmp/4
+        run $sptk4/aeq $tmp/3 $tmp/4
         [ "$status" -eq 0 ]
     done
 }
 
 @test "vopr: valgrind" {
-    $sptk3/nrand -l 20 > tmp/1
-    run valgrind $sptk4/vopr -a tmp/1 tmp/1
+    $sptk3/nrand -l 20 > $tmp/1
+    run valgrind $sptk4/vopr -a $tmp/1 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

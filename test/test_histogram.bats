@@ -17,13 +17,14 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_histogram
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "histogram: compatibility" {
@@ -31,14 +32,14 @@ teardown() {
     cmd="import numpy as np; "
     cmd+="h, _ = np.histogram(np.arange(10), bins=4, range=(0, 9)); "
     cmd+="print(' '.join(map(str, h)))"
-    tools/venv/bin/python -c "${cmd}" | $sptk3/x2x +ad > tmp/1
-    $sptk3/ramp -l 10 | $sptk4/histogram -l 0 -u 9 -b 4 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    tools/venv/bin/python -c "${cmd}" | $sptk3/x2x +ad > $tmp/1
+    $sptk3/ramp -l 10 | $sptk4/histogram -l 0 -u 9 -b 4 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "histogram: valgrind" {
-    $sptk3/nrand -l 20 > tmp/1
-    run valgrind $sptk4/histogram -l 10 -b 2 tmp/1
+    $sptk3/nrand -l 20 > $tmp/1
+    run valgrind $sptk4/histogram -l 10 -b 2 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

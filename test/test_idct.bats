@@ -17,44 +17,45 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_idct
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "idct: compatibility" {
     # Real
-    $sptk3/nrand -l 20 | $sptk3/idct -l 8 > tmp/1
-    $sptk3/nrand -l 20 | $sptk4/idct -l 8 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/nrand -l 20 | $sptk3/idct -l 8 > $tmp/1
+    $sptk3/nrand -l 20 | $sptk4/idct -l 8 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 
     # Complex
-    $sptk3/nrand -l 20 | $sptk3/idct -l 8 -c > tmp/1
-    $sptk3/nrand -l 20 | $sptk4/idct -l 8 -q 0 -o 0 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/nrand -l 20 | $sptk3/idct -l 8 -c > $tmp/1
+    $sptk3/nrand -l 20 | $sptk4/idct -l 8 -q 0 -o 0 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 
     # DFT instead of FFT
-    $sptk3/nrand -l 20 | $sptk3/idct -l 10 > tmp/1
-    $sptk3/nrand -l 20 | $sptk4/idct -l 10 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/nrand -l 20 | $sptk3/idct -l 10 > $tmp/1
+    $sptk3/nrand -l 20 | $sptk4/idct -l 10 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "idct: reversibility" {
-    $sptk3/nrand -l 16 > tmp/1
-    $sptk4/idct -l 8 tmp/1 | $sptk4/dct -l 8 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/nrand -l 16 > $tmp/1
+    $sptk4/idct -l 8 $tmp/1 | $sptk4/dct -l 8 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "idct: valgrind" {
-    $sptk3/nrand -l 20 > tmp/1
-    run valgrind $sptk4/idct -l 4 tmp/1
+    $sptk3/nrand -l 20 > $tmp/1
+    run valgrind $sptk4/idct -l 4 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

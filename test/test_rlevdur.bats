@@ -17,32 +17,33 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_rlevdur
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "rlevdur: compatibility" {
-    $sptk3/nrand -l 20 | $sptk3/acorr -l 10 -m 3 | $sptk3/levdur -m 3 > tmp/1
-    $sptk3/rlevdur -m 3 tmp/1 > tmp/2
-    $sptk4/rlevdur -m 3 tmp/1 > tmp/3
-    run $sptk4/aeq tmp/2 tmp/3
+    $sptk3/nrand -l 20 | $sptk3/acorr -l 10 -m 3 | $sptk3/levdur -m 3 > $tmp/1
+    $sptk3/rlevdur -m 3 $tmp/1 > $tmp/2
+    $sptk4/rlevdur -m 3 $tmp/1 > $tmp/3
+    run $sptk4/aeq $tmp/2 $tmp/3
     [ "$status" -eq 0 ]
 }
 
 @test "rlevdur: reversibility" {
-    $sptk3/nrand -l 20 | $sptk3/acorr -l 10 -m 3 | $sptk3/levdur -m 3 > tmp/1
-    $sptk4/rlevdur -m 3 tmp/1 | $sptk4/levdur -m 3 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/nrand -l 20 | $sptk3/acorr -l 10 -m 3 | $sptk3/levdur -m 3 > $tmp/1
+    $sptk4/rlevdur -m 3 $tmp/1 | $sptk4/levdur -m 3 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "rlevdur: valgrind" {
-    $sptk3/nrand -l 20 > tmp/1
-    run valgrind $sptk4/rlevdur -m 9 tmp/1
+    $sptk3/nrand -l 20 > $tmp/1
+    run valgrind $sptk4/rlevdur -m 9 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

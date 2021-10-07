@@ -17,26 +17,27 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_lpc2c
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "lpc2c: compatibility" {
     for M in $(seq 8 10); do
-        $sptk3/nrand -l 20 | $sptk3/lpc2c -m 9 -M "$M" > tmp/1
-        $sptk3/nrand -l 20 | $sptk4/lpc2c -m 9 -M "$M" > tmp/2
-        run $sptk4/aeq tmp/1 tmp/2
+        $sptk3/nrand -l 20 | $sptk3/lpc2c -m 9 -M "$M" > $tmp/1
+        $sptk3/nrand -l 20 | $sptk4/lpc2c -m 9 -M "$M" > $tmp/2
+        run $sptk4/aeq $tmp/1 $tmp/2
         [ "$status" -eq 0 ]
     done
 }
 
 @test "lpc2c: valgrind" {
-    $sptk3/nrand -l 20 > tmp/1
-    run valgrind $sptk4/lpc2c -m 9 tmp/1
+    $sptk3/nrand -l 20 > $tmp/1
+    run valgrind $sptk4/lpc2c -m 9 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

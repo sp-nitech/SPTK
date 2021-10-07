@@ -17,19 +17,20 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_step
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "step: compatibility" {
-    $sptk3/step -l 256 -v -4 > tmp/1
-    $sptk4/step -l 256 -v -4 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/step -l 256 -v -4 > $tmp/1
+    $sptk4/step -l 256 -v -4 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 

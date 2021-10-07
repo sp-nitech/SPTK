@@ -17,38 +17,39 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_b2mc
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "b2mc: compatibility" {
-    $sptk3/nrand -l 20 | $sptk3/b2mc -m 9 -a 0.1 > tmp/1
-    $sptk3/nrand -l 20 | $sptk4/b2mc -m 9 -a 0.1 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/nrand -l 20 | $sptk3/b2mc -m 9 -a 0.1 > $tmp/1
+    $sptk3/nrand -l 20 | $sptk4/b2mc -m 9 -a 0.1 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "b2mc: identity" {
-    $sptk3/nrand -l 20 > tmp/1
-    $sptk4/b2mc -m 9 -a 0.0 tmp/1 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/nrand -l 20 > $tmp/1
+    $sptk4/b2mc -m 9 -a 0.0 $tmp/1 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "b2mc: reversibility" {
-    $sptk3/nrand -l 20 > tmp/1
-    $sptk4/b2mc -m 9 -a 0.4 tmp/1 | $sptk4/mc2b -m 9 -a 0.4 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/nrand -l 20 > $tmp/1
+    $sptk4/b2mc -m 9 -a 0.4 $tmp/1 | $sptk4/mc2b -m 9 -a 0.4 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "b2mc: valgrind" {
-    $sptk3/nrand -l 20 > tmp/1
-    run valgrind $sptk4/b2mc -m 9 tmp/1
+    $sptk3/nrand -l 20 > $tmp/1
+    run valgrind $sptk4/b2mc -m 9 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

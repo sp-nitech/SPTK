@@ -17,30 +17,31 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_median
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "median: compatibility" {
-    $sptk3/nrand -l 90 | $sptk3/vstat -l 10 -o 4 > tmp/1
-    $sptk3/nrand -l 90 | $sptk4/median -l 10 > tmp/2
-    run $sptk4/aeq tmp/1 tmp/2
+    $sptk3/nrand -l 90 | $sptk3/vstat -l 10 -o 4 > $tmp/1
+    $sptk3/nrand -l 90 | $sptk4/median -l 10 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 
     # median with -t option is not supported on the implementation of SPTK3.
-    $sptk3/nrand -l 90 | $sptk3/vstat -l 10 -t 5 -o 4 > tmp/1
-    $sptk3/nrand -l 90 | $sptk4/median -l 10 -t 5 > tmp/2
-    run $sptk4/aeq -L tmp/1 tmp/2
+    $sptk3/nrand -l 90 | $sptk3/vstat -l 10 -t 5 -o 4 > $tmp/1
+    $sptk3/nrand -l 90 | $sptk4/median -l 10 -t 5 > $tmp/2
+    run $sptk4/aeq -L $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "median: valgrind" {
-    $sptk3/nrand -l 10 > tmp/1
-    run valgrind $sptk4/median tmp/1
+    $sptk3/nrand -l 10 > $tmp/1
+    run valgrind $sptk4/median $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

@@ -17,30 +17,31 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
+tmp=test_dtw_merge
 
 setup() {
-    mkdir -p tmp
+    mkdir -p $tmp
 }
 
 teardown() {
-    rm -rf tmp
+    rm -rf $tmp
 }
 
 @test "dtw_merge: compatibility" {
-    $sptk3/nrand -s 1 -l 100 > tmp/0_q
-    $sptk3/nrand -s 2 -l 80 > tmp/0_r
+    $sptk3/nrand -s 1 -l 100 > $tmp/0_q
+    $sptk3/nrand -s 2 -l 80 > $tmp/0_r
 
-    $sptk3/dtw -l 2 tmp/0_r tmp/0_q -v tmp/1 > /dev/null
-    $sptk3/dtw -l 2 tmp/0_r tmp/0_q -V tmp/1 > tmp/2
-    $sptk4/dtw -l 2 tmp/0_r tmp/0_q -P tmp/3 > /dev/null
-    $sptk4/dtw_merge -l 2 tmp/3 tmp/0_r tmp/0_q > tmp/4
-    run $sptk4/aeq tmp/2 tmp/4
+    $sptk3/dtw -l 2 $tmp/0_r $tmp/0_q -v $tmp/1 > /dev/null
+    $sptk3/dtw -l 2 $tmp/0_r $tmp/0_q -V $tmp/1 > $tmp/2
+    $sptk4/dtw -l 2 $tmp/0_r $tmp/0_q -P $tmp/3 > /dev/null
+    $sptk4/dtw_merge -l 2 $tmp/3 $tmp/0_r $tmp/0_q > $tmp/4
+    run $sptk4/aeq $tmp/2 $tmp/4
     [ "$status" -eq 0 ]
 }
 
 @test "dtw_merge: valgrind" {
-    echo 0 0 1 1 | $sptk3/x2x +ai > tmp/1
-    $sptk3/nrand -l 2 > tmp/2
-    run valgrind $sptk4/dtw_merge -l 1 tmp/1 tmp/2 tmp/2
+    echo 0 0 1 1 | $sptk3/x2x +ai > $tmp/1
+    $sptk3/nrand -l 2 > $tmp/2
+    run valgrind $sptk4/dtw_merge -l 1 $tmp/1 $tmp/2 $tmp/2
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }
