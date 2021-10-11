@@ -1,0 +1,6 @@
+black
+breathe
+flake8
+isort
+sphinx
+sphinx-rtd-theme

@@ -11,6 +11,10 @@ xml/
 # example related
 dump/
 
+# python related
+__pycache__/
+*.pyc
+
 # tools related
 tools/*.done
 tools/bats/

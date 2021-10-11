@@ -24,11 +24,11 @@ jobs:
     - name: install packages
       run: |
         sudo apt-get update
-        sudo apt-get install csh clang-format valgrind
+        sudo apt-get install csh clang-format parallel valgrind
     - name: setup
-      run: cd tools; make bats.done cpplint.done sptk.done
+      run: cd tools; make test_env bats.done cpplint.done shellcheck.done sptk.done
     - name: make
-      run: make
+      run: make -j 4
     - name: make format
       run: make format
     - name: make test

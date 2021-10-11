@@ -14,19 +14,26 @@
 # limitations under the License.                                           #
 # ------------------------------------------------------------------------ #
 
-PYTHON_VERSION := 3.8
+PYTHON_VERSION     := 3.8
 SHELLCHECK_VERSION := 0.7.2
+JOBS               := 4
 
-all: virtualenv bats.done cpplint.done doxygen.done shellcheck.done sptk.done
 
-virtualenv:
+all: env test_env bats.done cpplint.done doxygen.done shellcheck.done sptk.done
+
+env:
 	test -d venv || virtualenv -p python$(PYTHON_VERSION) venv
 	. venv/bin/activate; pip install -r requirements.txt --upgrade
 	touch venv/bin/activate
 
+test_env:
+	test -d venv || virtualenv -p python$(PYTHON_VERSION) venv
+	. venv/bin/activate; pip install -r test_requirements.txt --upgrade
+	touch venv/bin/activate
+
 bats.done:
 	rm -rf bats
-	git clone https://github.com/sstephenson/bats.git --depth 1
+	git clone https://github.com/bats-core/bats-core.git bats --depth 1
 	touch bats.done
 
 cpplint.done:
@@ -46,15 +53,16 @@ shellcheck.done:
 	tar -xf shellcheck-v$(SHELLCHECK_VERSION).linux.x86_64.tar.xz
 	rm -f shellcheck-v$(SHELLCHECK_VERSION).linux.x86_64.tar.xz
 	mv shellcheck-v$(SHELLCHECK_VERSION) shellcheck
+	touch shellcheck.done
 
 sptk.done:
 	rm -rf sptk
-	git clone https://git.code.sf.net/p/sp-tk/SPTK sptk
+	export GIT_SSL_NO_VERIFY=1; git clone https://git.code.sf.net/p/sp-tk/SPTK sptk
 	cd sptk/src; aclocal; automake -a -c; autoconf; \
-	./configure --enable-double --prefix=$(CURDIR)/sptk; make; make install
+	./configure --enable-double --prefix=$(CURDIR)/sptk; make -j $(JOBS); make install
 	touch sptk.done
 
 clean:
-	rm -rf venv bats cpplint doxygen sptk *.done
+	rm -rf venv bats cpplint doxygen shellcheck sptk *.done
 
 .PHONY: all clean

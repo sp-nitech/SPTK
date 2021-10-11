@@ -14,70 +14,95 @@
 # limitations under the License.                                           #
 # ------------------------------------------------------------------------ #
 
-SOURCEDIR      = src
-MAINSOURCEDIR  = $(SOURCEDIR)/main
-BUILDDIR       = build
-INCLUDEDIR     = include
-LIBDIR         = lib
-BINDIR         = bin
-DOCDIR         = doc
-THIRDPARTYDIR  = third_party
-THIRDPARTYDIRS = $(wildcard $(THIRDPARTYDIR)/*)
+SOURCEDIR      := src
+MAINSOURCEDIR  := $(SOURCEDIR)/main
+PYTHONDIR      := $(SOURCEDIR)/draw
+BINDIR         := bin
+BUILDDIR       := build
+DOCDIR         := doc
+INCLUDEDIR     := include
+LIBDIR         := lib
+THIRDPARTYDIR  := third_party
+THIRDPARTYDIRS := $(wildcard $(THIRDPARTYDIR)/*)
 
-TARGET         = $(LIBDIR)/libsptk.a
-MAINSOURCES    = $(wildcard $(MAINSOURCEDIR)/*.cc)
-SOURCES        = $(filter-out $(MAINSOURCES), $(wildcard $(SOURCEDIR)/*/*.cc))
-OBJECTS        = $(patsubst $(SOURCEDIR)/%.cc, $(BUILDDIR)/%.o, $(SOURCES))
-BINARIES       = $(patsubst $(MAINSOURCEDIR)/%.cc, $(BINDIR)/%, $(MAINSOURCES))
+LIBRARY        := $(LIBDIR)/libsptk.a
+MAINSOURCES    := $(wildcard $(MAINSOURCEDIR)/*.cc)
+SOURCES        := $(filter-out $(MAINSOURCES), $(wildcard $(SOURCEDIR)/*/*.cc))
+OBJECTS        := $(patsubst $(SOURCEDIR)/%.cc, $(BUILDDIR)/%.o, $(SOURCES))
+BINARIES       := $(patsubst $(MAINSOURCEDIR)/%.cc, $(BINDIR)/%, $(MAINSOURCES))
+PYTHONS        := $(wildcard $(PYTHONDIR)/*.py)
+PYTHONLINKS    := $(patsubst $(PYTHONDIR)/%.py, $(BINDIR)/%, $(PYTHONS))
 
-MAKE           = make
-CXX            = g++
-AR             = ar
-CXXFLAGS       = -Wall -O2 -g -std=c++11
-LIBFLAGS       = -lm -lstdc++
-INCLUDE        = -I $(INCLUDEDIR) -I $(THIRDPARTYDIR)
+MAKE           := make
+CXX            := g++
+AR             := ar
+CXXFLAGS       := -Wall -O2 -g -std=c++11
+INCLUDE        := -I $(INCLUDEDIR) -I $(THIRDPARTYDIR)
 
-all: $(THIRDPARTYDIRS) $(TARGET) $(BINARIES)
+JOBS           := 4
 
-$(BINARIES): $(BINDIR)/%: $(MAINSOURCEDIR)/%.cc
-	mkdir -p $(BINDIR)
-	$(CXX) $(LIBFLAGS) $(CXXFLAGS) $(INCLUDE) $< $(TARGET) -o $@
 
-$(TARGET): $(OBJECTS)
-	mkdir -p $(LIBDIR)
-	$(AR) cru $(TARGET) $(OBJECTS) $(wildcard $(THIRDPARTYDIR)/*/build/*/*.o)
+all: $(BINARIES) $(PYTHONLINKS)
+
+$(BINARIES): $(BINDIR)/%: $(MAINSOURCEDIR)/%.cc $(LIBRARY)
+	@if [ ! -d $(BINDIR) ]; then \
+		mkdir -p $(BINDIR); \
+	fi
+	$(CXX) $(CXXFLAGS) $(INCLUDE) $< $(LIBRARY) -o $@
+
+$(LIBRARY): $(OBJECTS)
+	@if [ ! -d $(LIBDIR) ]; then \
+		mkdir -p $(LIBDIR); \
+	fi
+	for dir in $(THIRDPARTYDIRS); do \
+		$(MAKE) -C $$dir; \
+	done
+	$(AR) cru $(LIBRARY) $(OBJECTS) $(THIRDPARTYDIR)/*/build/*/*.o
 
 $(OBJECTS): $(BUILDDIR)/%.o: $(SOURCEDIR)/%.cc
-	mkdir -p $(dir $@)
+	@if [ ! -d $(dir $@) ]; then \
+		mkdir -p $(dir $@); \
+	fi
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ -c $<
 
-$(THIRDPARTYDIRS):
-	$(MAKE) -C $@
+$(PYTHONLINKS):
+	@if [ ! -d $(BINDIR) ]; then \
+		mkdir -p $(BINDIR); \
+	fi
+	ln -snf ../$(PYTHONDIR)/$(notdir $@).py $@
 
 doc:
 	cd $(DOCDIR); ../tools/doxygen/build/bin/doxygen
 	. ./tools/venv/bin/activate; cd $(DOCDIR); make html
 
 doc-clean:
+	rm -rf $(DOCDIR)/xml
 	. ./tools/venv/bin/activate; cd $(DOCDIR); make clean
 
 format:
+	# Bash
+	./tools/shellcheck/shellcheck egs/*/*/run.sh
+	./tools/shellcheck/shellcheck test/*.bats
+
+	# Python
+	./tools/venv/bin/black $(PYTHONDIR)
+	./tools/venv/bin/isort $(PYTHONDIR) --sl --fss --sort-order native --project sptk
+	./tools/venv/bin/flake8 $(PYTHONDIR)
+
+	# C++
 	clang-format -i $(wildcard $(SOURCEDIR)/*/*.cc)
 	clang-format -i	$(wildcard $(INCLUDEDIR)/SPTK/*/*.h)
 	./tools/cpplint/cpplint.py --filter=-readability/streams $(wildcard $(SOURCEDIR)/*/*.cc)
 	./tools/cpplint/cpplint.py --filter=-readability/streams,-build/include_subdir \
 		--root=$(abspath $(INCLUDEDIR)) $(wildcard $(INCLUDEDIR)/SPTK/*/*.h)
 
-shellcheck:
-	./tools/shellcheck/shellcheck egs/*/*/run.sh
-
 test:
-	./tools/bats/bin/bats test
+	./tools/bats/bin/bats --jobs $(JOBS) --no-parallelize-within-files test
 
 clean: doc-clean
 	for dir in $(THIRDPARTYDIRS); do \
 		$(MAKE) clean -C $$dir; \
 	done
-	rm -rf $(BUILDDIR) $(LIBDIR) $(BINDIR) $(DOCDIR)/xml
+	rm -rf $(BUILDDIR) $(LIBDIR) $(BINDIR)
 
-.PHONY: all $(THIRDPARTYDIRS) doc doc-clean format shellcheck test clean
+.PHONY: all doc doc-clean format test clean

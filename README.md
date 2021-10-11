@@ -23,7 +23,7 @@ The latest release can be installed through Git:
 ```sh
 git clone https://github.com/sp-nitech/SPTK.git
 cd SPTK
-make
+make -j 4  # Please change the number of jobs depending on your environment.
 ```
 Then the SPTK commands can be used by adding `SPTK/bin/` directory to the `PATH` environment variable.
 If you would like to use a part of the SPTK library, please link the static library `SPTK/lib/libsptk.a`.
@@ -46,6 +46,14 @@ sox -t wav input.wav -c 1 -t s16 -r 16000 - | \
    sox -c 1 -t s16 -r 16000 - -t wav output.wav
 ```
 
+If you would like to draw figures, please prepare a python environment.
+```sh
+cd tools; make env; cd ..
+. ./tools/venv/bin/activate
+impulse -l 32 | fdrw -ms 2 impulse.png
+deactivate
+```
+
 
 Changes from SPTK3
 ------------------
@@ -60,13 +68,14 @@ Changes from SPTK3
   - Subband decomposition (`pqmf` and `ipqmf`)
   - Mel-filter-bank extraction (`fbank`)
   - Mel-cepstrum postfilter (`mcpf`)
-- Obsoluted commands:
+- Obsoleted commands:
   - `acep`, `agcep`, and `amcep` -> `amgcep`
   - `bell` ->
   - `c2sp` -> `mgc2sp`
   - `cat2` and `echo2` ->
   - `da` ->
   - `ds`, `us`, `us16`, and `uscd` -> `sox`
+  - `fig` ->
   - `gc2gc` -> `mgc2mgc`
   - `gcep`, `mcep`, and `uels` -> `mgcep`
   - `glsadf`, `lmadf`, and `mlsadf` -> `mglsadf`
