@@ -208,6 +208,65 @@ def get_arguments():
     return parser.parse_args()
 
 
+##
+# @a fdrw [ @e option ] [ @e infile ] @e outfile
+#
+# - @b -F @e float
+#   - scale of figure
+# - @b -W @e float
+#   - width of figure in pixels
+# - @b -H @e float
+#   - height of figure in pixels
+# - @b -g
+#   - draw grid
+# - @b -t
+#   - transpose axis
+# - @b -b
+#   - set as bar graph mode
+# - @b -n @e int
+#   - number of samples per graph
+# - @b -z @e float
+#   - distance between graphs in the y-axis (requires -n option)
+# - @b -x @e float @e float
+#   - x-axis limits
+# - @b -y @e float @e float
+#   - y-axis limits
+# - @b -xname @e str
+#   - x-axis title
+# - @b -yname @e str
+#   - y-axis title
+# - @b -names @e str
+#   - comma-separated graph names
+# - @b -ls @e str
+#   - line style (solid, dash, dot, or dashdot)
+# - @b -lc @e str
+#   - line color
+# - @b -lw @e str
+#   - line width
+# - @b -ms @e int
+#   - marker symbol
+# - @b -mc @e str
+#   - marker color
+# - @b -mw @e str
+#   - marker size
+# - @b -mlc @e str
+#   - marker line color
+# - @b -mlw @e str
+#   - marker line width
+# - @b infile @e str
+#   - double-type data sequence
+# - @b outfile @e str
+#   - figure
+#
+# The below example draws the impulse response of a digital filter on @c out.png
+# @code{.sh}
+#   impulse -l 256 | dfs -a 1 0.8 0.5 | fdrw out.png
+# @endcode
+#
+# The below example draws two sinusoidal lines from an input sequence.
+# @code{.sh}
+#   sin -l 256 -p 50 | fdrw -n 128 -names 1st,2nd out.png
+# @endcode
 def main():
     args = get_arguments()
 
@@ -280,15 +339,17 @@ def main():
                     ),
                 )
             )
-    fig.update_xaxes(
-        title_text=args.yname if args.transpose else args.xname,
-        range=args.ylim if args.transpose else args.xlim,
-        showgrid=args.grid,
-    )
-    fig.update_yaxes(
-        title_text=args.xname if args.transpose else args.yname,
-        range=args.xlim if args.transpose else args.ylim,
-        showgrid=args.grid,
+    fig.update_layout(
+        xaxis=dict(
+            title_text=args.yname if args.transpose else args.xname,
+            range=args.ylim if args.transpose else args.xlim,
+            showgrid=args.grid,
+        ),
+        yaxis=dict(
+            title_text=args.xname if args.transpose else args.yname,
+            range=args.xlim if args.transpose else args.ylim,
+            showgrid=args.grid,
+        ),
     )
     fig.write_image(
         args.out_file, width=args.width, height=args.height, scale=args.factor
