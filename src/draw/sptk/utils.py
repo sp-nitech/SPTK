@@ -86,7 +86,11 @@ def read_binary(filename, dim=1, dtype="d"):
             buf = f.read(byte_size * dim)
             if not buf:
                 break
-            data.append(struct.unpack(format_char * dim, buf))
+            try:
+                tmp = struct.unpack(format_char * dim, buf)
+                data.append(tmp)
+            except struct.error:
+                break
 
     return asarray(data, dim=dim, dtype=dtype)
 
@@ -101,7 +105,11 @@ def read_stdin(dim=1, dtype="d"):
         buf = source.read(byte_size * dim)
         if not buf:
             break
-        data.append(struct.unpack(format_char * dim, buf))
+        try:
+            tmp = struct.unpack(format_char * dim, buf)
+            data.append(tmp)
+        except struct.error:
+            break
 
     return asarray(data, dim=dim, dtype=dtype)
 
