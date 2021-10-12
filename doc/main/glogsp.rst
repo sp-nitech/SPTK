@@ -5,4 +5,4 @@ glogsp
 
 .. doxygenfile:: glogsp.py
 
-.. seealso:: :ref:`fdrw`
+.. seealso:: :ref:`fdrw`  :ref:`grlogsp`
