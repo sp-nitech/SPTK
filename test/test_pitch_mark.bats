@@ -29,7 +29,7 @@ teardown() {
 }
 
 @test "pitch_mark: compatibility" {
-    for o in $(seq 0 2); do
+    for o in $(seq 1 2); do
         $sptk3/x2x +sd $data | $sptk3/pitch_mark -o "$o" > $tmp/1
         $sptk3/x2x +sd $data | $sptk4/pitch_mark -o "$o" > $tmp/2
         run $sptk4/aeq -e 1 $tmp/1 $tmp/2
