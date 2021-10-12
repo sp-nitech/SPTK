@@ -84,10 +84,10 @@ void PrintUsage(std::ostream* stream) {
  *   - int-type quantized data sequence
  *
  * @code{.sh}
- *    echo -2 -1 0 1 2 | x2x +ad | quantize -b 2 -v 2 -t 0 | x2x +ia
- *    # 0, 1, 2, 3, 3
- *    echo -2 -1 0 1 2 | x2x +ad | quantize -b 2 -v 2 -t 1 | x2x +ia
- *    # 0, 0, 1, 2, 2
+ *   echo -2 -1 0 1 2 | x2x +ad | quantize -b 2 -v 2 -t 0 | x2x +ia
+ *   # 0, 1, 2, 3, 3
+ *   echo -2 -1 0 1 2 | x2x +ad | quantize -b 2 -v 2 -t 1 | x2x +ia
+ *   # 0, 0, 1, 2, 2
  * @endcode
  *
  * @param[in] argc Number of arguments.

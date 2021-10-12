@@ -112,7 +112,7 @@ void PrintUsage(std::ostream* stream) {
  * The below example extracts 24-th order cepstral coefficients from @c data.d.
  *
  * @code{.sh}
- *   frame -p 80 -l 400 < data.d | window -l 400 -L 512 | \
+ *   frame -p 80 -l 400 < data.d | window -l 400 -L 512 |
  *     fftcep -m 24 -l 512 > data.cep
  * @endcode
  *

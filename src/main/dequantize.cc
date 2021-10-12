@@ -84,12 +84,12 @@ void PrintUsage(std::ostream* stream) {
  *   - double-type data sequence
  *
  * @code{.sh}
- *    echo -2 -1 0 1 2 | x2x +ad | quantize -b 2 -v 2 -t 0 | \
- *      dequantize -b 2 -v 2 -t 0 | x2x +da
- *    # -1.5, -0.5, 0.5, 1.5, 1.5
- *    echo -2 -1 0 1 2 | x2x +ad | quantize -b 2 -v 2 -t 1 | \
- *      dequantize -b 2 -v 2 -t 1 | x2x +da
- *    # -1.33333, -1.33333, 0, 1.33333, 1.33333
+ *   echo -2 -1 0 1 2 | x2x +ad | quantize -b 2 -v 2 -t 0 |
+ *     dequantize -b 2 -v 2 -t 0 | x2x +da
+ *   # -1.5, -0.5, 0.5, 1.5, 1.5
+ *   echo -2 -1 0 1 2 | x2x +ad | quantize -b 2 -v 2 -t 1 |
+ *     dequantize -b 2 -v 2 -t 1 | x2x +da
+ *   # -1.33333, -1.33333, 0, 1.33333, 1.33333
  * @endcode
  *
  * @param[in] argc Number of arguments.

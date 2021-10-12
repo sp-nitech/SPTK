@@ -142,12 +142,12 @@ void PrintUsage(std::ostream* stream) {
  * are applied to the input signal.
  *
  * @code{.sh}
- *   x2x +sd data.short | \
- *      frame -l 400 -p 160 -n | \
- *      dfs -b 1 -0.97 | \
- *      window -l 400 -L 512 -w 1 -n 0 | \
- *      mfcc -l 512 -n 40 -c 22 -m 12 -L 64 -H 4000 -o 1 | \
- *      delta -m 12 -d -0.5 0.0 0.5 -d 0.25 0.0 -0.5 0.0 0.25 > data.mfcc
+ *   x2x +sd data.short |
+ *     frame -l 400 -p 160 -n |
+ *     dfs -b 1 -0.97 |
+ *     window -l 400 -L 512 -w 1 -n 0 |
+ *     mfcc -l 512 -n 40 -c 22 -m 12 -L 64 -H 4000 -o 1 |
+ *     delta -m 12 -d -0.5 0.0 0.5 -d 0.25 0.0 -0.5 0.0 0.25 > data.mfcc
  * @endcode
  *
  * The corresponding HTK config file is shown as below.
