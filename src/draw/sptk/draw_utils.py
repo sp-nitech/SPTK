@@ -14,7 +14,6 @@
 # limitations under the License.                                           #
 # ------------------------------------------------------------------------ #
 
-import select
 import struct
 import sys
 
@@ -112,12 +111,6 @@ def read_stdin(dim=1, dtype="d"):
             break
 
     return asarray(data, dim=dim, dtype=dtype)
-
-
-def is_pipe():
-    if select.select([sys.stdin], [], [], 0)[0]:
-        return True
-    return False
 
 
 def print_error_message(name, message):

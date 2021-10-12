@@ -191,14 +191,8 @@ def main():
     dim = args.frame_length // 2 + 1
 
     if args.in_file is None:
-        if not utils.is_pipe():
-            utils.print_error_message("grlogsp", "Input file is not given")
-            sys.exit(1)
         data = utils.read_stdin(dim=dim)
     else:
-        if utils.is_pipe():
-            utils.print_error_message("grlogsp", "Too many input files")
-            sys.exit(1)
         if not os.path.exists(args.in_file):
             utils.print_error_message("grlogsp", f"Cannot open {args.in_file}")
             sys.exit(1)
