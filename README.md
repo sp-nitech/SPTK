@@ -41,9 +41,9 @@ cd egs/analysis_synthesis/mgc
 The below is a simple example that decreases the volume of input audio.
 You may need to install `sox` command on your system.
 ```sh
-sox -t wav input.wav -c 1 -t s16 -r 16000 - | \
-   x2x +sd | sopr -m 0.5 | x2x +ds -r | \
-   sox -c 1 -t s16 -r 16000 - -t wav output.wav
+sox -t wav input.wav -c 1 -t s16 -r 16000 - |
+    x2x +sd | sopr -m 0.5 | x2x +ds -r |
+    sox -c 1 -t s16 -r 16000 - -t wav output.wav
 ```
 
 If you would like to draw figures, please prepare a python environment.
@@ -58,16 +58,19 @@ deactivate
 Changes from SPTK3
 ------------------
 - **Input and output types are changed to double from float**
+- No memory leaks
 - New features:
   - Provide signal processing classes written in C++
-  - Support conversion from/to log area ratio (`lar2par` and `par2lar`)
-  - Support nonrecursive MLPG (`mlpg`)
-  - Support pitch extraction by DIO used in WORLD (`pitch`)
+  - Conversion from/to log area ratio (`lar2par` and `par2lar`)
   - Entropy calculation (`entropy`)
   - Huffman coding (`huffman`, `huffman_encode`, and `huffman_decode`)
-  - Subband decomposition (`pqmf` and `ipqmf`)
-  - Mel-filter-bank extraction (`fbank`)
   - Mel-cepstrum postfilter (`mcpf`)
+  - Mel-filter-bank extraction (`fbank`)
+  - Nonrecursive MLPG (`mlpg -R 1`)
+  - Pitch extraction by DIO used in WORLD (`pitch -a 3`)
+  - Scalar quantization (`quantize` and `dequantize`)
+  - Stability check of LPC coefficients (`lpccheck`)
+  - Subband decomposition (`pqmf` and `ipqmf`)
 - Obsoleted commands:
   - `acep`, `agcep`, and `amcep` -> `amgcep`
   - `bell` ->
