@@ -86,7 +86,7 @@ def get_arguments():
     parser.add_argument(
         "-n",
         metavar="n",
-        dest="n_samples",
+        dest="num_samples",
         default=None,
         type=int,
         help="number of samples per graph",
@@ -294,10 +294,10 @@ def main():
     else:
         names = args.names.split(",")
 
-    if args.n_samples is None or args.n_samples <= 0:
+    if args.num_samples is None or args.num_samples <= 0:
         step = len(data)
     else:
-        step = args.n_samples
+        step = args.num_samples
 
     fig = go.Figure()
     for i, j in enumerate(range(0, len(data), step)):

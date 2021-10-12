@@ -161,9 +161,9 @@ def get_arguments():
 # - @b outfile @e str
 #   - figure
 #
-# The below example draws 100th log spectrum on @c out.jpg
+# The below example draws 100th log spectrum on @c out.jpg.
 # @code{.sh}
-#   x2x +sd data.short | frame -p 80 -l 400 | window -l 400 -L 512 | spec -l 512 | \
+#   x2x +sd data.short | frame -p 80 -l 400 | window -l 400 -L 512 | spec -l 512 |
 #     glogsp -l 512 -s 100 out.jpg
 # @endcode
 def main():
@@ -207,20 +207,22 @@ def main():
             title_text="Normalized frequency [rad]",
             tickmode="array",
             tickvals=[0, 0.5, 1],
-            ticktext=[0, r"$\pi/2$", r"$\pi$"],
+            ticktext=["$0$", r"$\pi/2$", r"$\pi$"],
         )
     elif args.sr == 1:
         fig.update_xaxes(title_text="Normalized frequency [cyc]")
     else:
-        fig.update_xaxes(title_xtext="Frequency [kHz]")
-    fig.update_xaxes(
-        range=(x[0], x[-1]),
-        showgrid=args.grid,
-    )
-    fig.update_yaxes(
-        title_text="Log amplitude [dB]",
-        range=args.ylim,
-        showgrid=args.grid,
+        fig.update_xaxes(title_text="Frequency [kHz]")
+    fig.update_layout(
+        xaxis=dict(
+            range=(x[0], x[-1]),
+            showgrid=args.grid,
+        ),
+        yaxis=dict(
+            title_text="Log amplitude [dB]",
+            range=args.ylim,
+            showgrid=args.grid,
+        ),
     )
     fig.write_image(
         args.out_file, width=args.width, height=args.height, scale=args.factor
