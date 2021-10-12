@@ -82,7 +82,7 @@ doc-clean:
 format:
 	# Bash
 	./tools/shellcheck/shellcheck egs/*/*/run.sh
-	./tools/shellcheck/shellcheck test/*.bats
+	./tools/shellcheck/shellcheck -x test/*.bats
 
 	# Python
 	./tools/venv/bin/black $(PYTHONDIR)

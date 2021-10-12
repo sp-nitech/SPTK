@@ -19,7 +19,9 @@ SHELLCHECK_VERSION := 0.7.2
 JOBS               := 4
 
 
-all: env test_env bats.done cpplint.done doxygen.done shellcheck.done sptk.done
+all: action doxygen.done
+
+action: test_env bats.done cpplint.done shellcheck.done sptk.done
 
 env:
 	test -d venv || virtualenv -p python$(PYTHON_VERSION) venv
@@ -28,7 +30,7 @@ env:
 
 test_env:
 	test -d venv || virtualenv -p python$(PYTHON_VERSION) venv
-	. venv/bin/activate; pip install -r test_requirements.txt --upgrade
+	. venv/bin/activate; pip install -r requirements.txt -r test_requirements.txt --upgrade
 	touch venv/bin/activate
 
 bats.done:
