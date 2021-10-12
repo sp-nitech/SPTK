@@ -23,7 +23,7 @@ import numpy as np
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
-import sptk.utils as utils
+import sptk.draw_utils as utils
 
 
 def get_arguments():
