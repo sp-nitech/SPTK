@@ -213,9 +213,9 @@ def get_arguments():
 #
 # - @b -F @e float
 #   - scale of figure
-# - @b -W @e float
+# - @b -W @e int
 #   - width of figure in pixels
-# - @b -H @e float
+# - @b -H @e int
 #   - height of figure in pixels
 # - @b -g
 #   - draw grid
@@ -241,24 +241,24 @@ def get_arguments():
 #   - line style (solid, dash, dot, or dashdot)
 # - @b -lc @e str
 #   - line color
-# - @b -lw @e str
+# - @b -lw @e int
 #   - line width
 # - @b -ms @e int
 #   - marker symbol
 # - @b -mc @e str
 #   - marker color
-# - @b -mw @e str
+# - @b -mw @e int
 #   - marker size
 # - @b -mlc @e str
 #   - marker line color
-# - @b -mlw @e str
+# - @b -mlw @e int
 #   - marker line width
 # - @b infile @e str
 #   - double-type data sequence
 # - @b outfile @e str
 #   - figure
 #
-# The below example draws the impulse response of a digital filter on @c out.png
+# The below example draws the impulse response of a digital filter on @c out.png.
 # @code{.sh}
 #   impulse -l 256 | dfs -a 1 0.8 0.5 | fdrw out.png
 # @endcode

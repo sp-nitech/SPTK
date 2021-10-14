@@ -136,9 +136,9 @@ def get_arguments():
 #
 # - @b -F @e float
 #   - scale of figure
-# - @b -W @e float
+# - @b -W @e int
 #   - width of figure in pixels
-# - @b -H @e float
+# - @b -H @e int
 #   - height of figure in pixels
 # - @b -g
 #   - draw grid
@@ -154,7 +154,7 @@ def get_arguments():
 #   - line style (solid, dash, dot, or dashdot)
 # - @b -lc @e str
 #   - line color
-# - @b -lw @e str
+# - @b -lw @e int
 #   - line width
 # - @b infile @e str
 #   - double-type log spectrum
