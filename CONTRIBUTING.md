@@ -15,7 +15,7 @@ For the development of SPTK, you may need to install the following programs:
 - ClangFormat
 - [CMake](https://cmake.org/download/) 3.3+
 - [flex](https://github.com/westes/flex/releases) 2.6.3
-- Python 3.6
+- Python 3.6+
 - Valgrind
 - Virtualenv
 

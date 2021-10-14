@@ -96,7 +96,7 @@ void PrintUsage(std::ostream* stream) {
  *
  * @code{.sh}
  *   echo -0.5 0.0 0.5 | x2x +ad > delta.win
- *   echo 1.0 2.0 -1.0 | x2x +ad > accel.win
+ *   echo 1.0 -2.0 1.0 | x2x +ad > accel.win
  *   delta -l 15 -D delta.win -D accel.win < data.d > data.delta
  * @endcode
  *
