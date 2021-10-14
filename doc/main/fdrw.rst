@@ -5,4 +5,4 @@ fdrw
 
 .. doxygenfile:: fdrw.py
 
-.. seealso:: :ref:`glogsp`  :ref:`grlogsp`  :ref:`gwave`
+.. seealso:: :ref:`glogsp`  :ref:`grlogsp`  :ref:`gseries`  :ref:`gwave`
