@@ -5,7 +5,7 @@ spec
 
 .. doxygenfile:: spec.cc
 
-.. seealso:: :ref:`fftr`  :ref:`phase`  :ref:`grpdelay`
+.. seealso:: :ref:`fftr`  :ref:`phase`  :ref:`grpdelay`  :ref:`glogsp`  :ref:`grlogsp`
 
 .. doxygenclass:: sptk::WaveformToSpectrum
    :members:

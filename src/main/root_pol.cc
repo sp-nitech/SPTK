@@ -93,7 +93,7 @@ void PrintUsage(std::ostream* stream) {
  * If @c -o is 0, real and imaginary parts of roots are written.
  *
  * @code{.sh}
- *   echo 3 4 5 | roots -m 2 -o 0 | x2x +da -c 2
+ *   echo 3 4 5 | root_pol -m 2 -o 0 | x2x +da -c 2
  *   # -0.666667 1.10554
  *   # -0.666667 -1.10554
  * @endcode
@@ -101,7 +101,7 @@ void PrintUsage(std::ostream* stream) {
  * If @c -o is 1, radius and angle of roots are written.
  *
  * @code{.sh}
- *   echo 3 4 5 | roots -m 2 -o 1 | x2x +da -c 2
+ *   echo 3 4 5 | root_pol -m 2 -o 1 | x2x +da -c 2
  *   # 1.29099 2.11344
  *   # 1.29099 -2.11344
  * @endcode

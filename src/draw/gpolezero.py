@@ -179,8 +179,8 @@ def get_arguments():
 #   H(z) = \frac{2z^2 + 3z + 1}{z^2 + 0.8z + 0.5}.
 # @f]
 # @code{.sh}
-#   echo 2 3 1 | x2x +ad | root_pol > data.z
-#   echo 1 0.8 0.5 | x2x +ad | root_pol > data.p
+#   echo 2 3 1 | x2x +ad | root_pol -m 2 > data.z
+#   echo 1 0.8 0.5 | x2x +ad | root_pol -m 2 > data.p
 #   gpolezero -p data.p -z data.z out.png
 # @endcode
 def main():
