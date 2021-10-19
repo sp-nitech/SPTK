@@ -50,7 +50,7 @@ If you would like to draw figures, please prepare a python environment.
 ```sh
 cd tools; make env; cd ..
 . ./tools/venv/bin/activate
-impulse -l 32 | fdrw -ms 2 impulse.png
+impulse -l 32 | gseries impulse.png
 deactivate
 ```
 
@@ -58,6 +58,7 @@ deactivate
 Changes from SPTK3
 ------------------
 - **Input and output types are changed to double from float**
+- Drawing commands are implemented in Python
 - No memory leaks
 - New features:
   - Provide signal processing classes written in C++
@@ -73,21 +74,20 @@ Changes from SPTK3
   - Subband decomposition (`pqmf` and `ipqmf`)
 - Obsoleted commands:
   - `acep`, `agcep`, and `amcep` -> `amgcep`
-  - `bell` ->
+  - `bell`
   - `c2sp` -> `mgc2sp`
-  - `cat2` and `echo2` ->
-  - `da` ->
+  - `cat2` and `echo2`
+  - `da`
   - `ds`, `us`, `us16`, and `uscd` -> `sox`
-  - `fig` ->
+  - `fig`
   - `gc2gc` -> `mgc2mgc`
   - `gcep`, `mcep`, and `uels` -> `mgcep`
   - `glsadf`, `lmadf`, and `mlsadf` -> `mglsadf`
-  - `ivq` -> `imsvq`
+  - `ivq` and `vq` -> `imsvq` and `msvq`
   - `lsp2sp` -> `mglsp2sp`
-  - `mgc2mgclsp` and `mgclsp2mgc` -> `mgc2mgc`
+  - `mgc2mgclsp` and `mgclsp2mgc`
+  - `psgr` and `xgr`
   - `raw2wav`, `wav2raw`, `wavjoin`, and `wavsplit` -> `sox`
-  - `smcep` ->
-  - `vq` -> `msvq`
 - Separated commands:
   - `dtw` -> `dtw` and `dtw_merge`
   - `mglsadf` -> `mglsadf` and `imglsadf`
