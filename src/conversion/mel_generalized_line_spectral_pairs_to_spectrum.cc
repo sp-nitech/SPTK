@@ -16,20 +16,8 @@
 
 #include "SPTK/conversion/mel_generalized_line_spectral_pairs_to_spectrum.h"
 
-#include <cmath>    // std::atan, std::cos, std::fabs, std::sin
+#include <cmath>    // std::cos, std::fabs, std::sin
 #include <cstddef>  // std::size_t
-
-namespace {
-
-double Warp(double omega, double alpha) {
-  if (0.0 == alpha) return omega;
-
-  return omega +
-         2.0 * std::atan(alpha * std::sin(omega) /
-                         (1.0 - alpha * std::cos(omega)));
-}
-
-}  // namespace
 
 namespace sptk {
 
@@ -80,7 +68,7 @@ bool MelGeneralizedLineSpectralPairsToSpectrum::Run(
     double p(0.0);
     double q(0.0);
 
-    const double warped_omega(Warp(omega, alpha_));
+    const double warped_omega(sptk::Warp(omega, alpha_));
     if (is_odd) {
       p += 2.0 * sptk::FloorLog(std::sin(warped_omega));
     } else {

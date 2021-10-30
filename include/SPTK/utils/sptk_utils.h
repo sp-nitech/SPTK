@@ -245,6 +245,21 @@ double FloorLog10(double num);
 double AddInLogSpace(double log_x, double log_y);
 
 /**
+ * @param[in] omega Angle, @f$\omega@f$.
+ * @param[in] alpha Frequency warping factor, @f$\alpha@f$.
+ * @return Output warped by the 1st order all-pass function.
+ */
+double Warp(double omega, double alpha);
+
+/**
+ * @param[in] omega Angle, @f$\omega@f$.
+ * @param[in] alpha Frequency warping factor, @f$\alpha@f$.
+ * @param[in] theta Frequency emphasis factor, @f$\theta@f$.
+ * @return Output warped by the 2nd order all-pass function.
+ */
+double Warp(double omega, double alpha, double theta);
+
+/**
  * @param[in] symbol A character represents data type.
  * @param[out] stream Stream to be written readable data type.
  */

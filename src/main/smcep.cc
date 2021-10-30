@@ -23,9 +23,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "SPTK/analysis/mel_generalized_cepstral_analysis.h"
-#include "SPTK/conversion/generalized_cepstrum_gain_normalization.h"
-#include "SPTK/conversion/mel_cepstrum_to_mlsa_digital_filter_coefficients.h"
+#include "SPTK/analysis/second_order_all_pass_mel_cepstral_analysis.h"
 #include "SPTK/conversion/spectrum_to_spectrum.h"
 #include "SPTK/conversion/waveform_to_spectrum.h"
 #include "SPTK/utils/sptk_utils.h"
@@ -41,35 +39,26 @@ enum InputFormats {
   kNumInputFormats
 };
 
-enum OutputFormats {
-  kCepstrum = 0,
-  kMlsaFilterCoefficients,
-  kGainNormalizedCepstrum,
-  kGainNormalizedMlsaFilterCoefficients,
-  kNumOutputFormats
-};
-
 const int kDefaultNumOrder(25);
 const double kDefaultAlpha(0.35);
-const double kDefaultGamma(0.0);
+const double kDefaultTheta(0.0);
 const int kDefaultFftLength(256);
 const InputFormats kDefaultInputFormat(kWaveform);
-const OutputFormats kDefaultOutputFormat(kCepstrum);
+const int kDefaultAccuracyFactor(4);
 const int kDefaultNumIteration(30);
 const double kDefaultConvergenceThreshold(1e-3);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " mgcep - mel-generalized cepstral analysis" << std::endl;
+  *stream << " smcep - mel-cepstral analysis based on 2nd order all-pass function" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
-  *stream << "       mgcep [ options ] [ infile ] > stdout" << std::endl;
+  *stream << "       smcep [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of mel-generalized cepstrum   (   int)[" << std::setw(5) << std::right << kDefaultNumOrder             << "][    0 <= m <=     ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of mel-cepstrum               (   int)[" << std::setw(5) << std::right << kDefaultNumOrder             << "][    0 <= m <=     ]" << std::endl;  // NOLINT
   *stream << "       -a a  : all-pass constant                   (double)[" << std::setw(5) << std::right << kDefaultAlpha                << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
-  *stream << "       -g g  : gamma                               (double)[" << std::setw(5) << std::right << kDefaultGamma                << "][ -1.0 <= g <= 0.0 ]" << std::endl;  // NOLINT
-  *stream << "       -c c  : gamma = -1 / c                      (   int)[" << std::setw(5) << std::right << "N/A"                        << "][    1 <= c <=     ]" << std::endl;  // NOLINT
+  *stream << "       -t t  : emphasized frequency                (double)[" << std::setw(5) << std::right << kDefaultTheta                << "][  0.0 <= t <= 1.0 ]" << std::endl;  // NOLINT
   *stream << "       -l l  : frame length (FFT length)           (   int)[" << std::setw(5) << std::right << kDefaultFftLength            << "][    2 <= l <=     ]" << std::endl;  // NOLINT
   *stream << "       -q q  : input format                        (   int)[" << std::setw(5) << std::right << kDefaultInputFormat          << "][    0 <= q <= 4   ]" << std::endl;  // NOLINT
   *stream << "                 0 (20*log|X(z)|)" << std::endl;
@@ -77,12 +66,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 2 (|X(z)|)" << std::endl;
   *stream << "                 3 (|X(z)|^2)" << std::endl;
   *stream << "                 4 (windowed waveform)" << std::endl;
-  *stream << "       -o o  : output format                       (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat         << "][    0 <= o <= 3   ]" << std::endl;  // NOLINT
-  *stream << "                 0 (mel-cepstrum)" << std::endl;
-  *stream << "                 1 (mlsa filter coefficients)" << std::endl;
-  *stream << "                 2 (gain normalized mel-cepstrum)" << std::endl;
-  *stream << "                 3 (gain normalized mlsa filter coefficients)" << std::endl;  // NOLINT
   *stream << "     (level 2)" << std::endl;
+  *stream << "       -f f  : accuracy factor                     (   int)[" << std::setw(5) << std::right << kDefaultAccuracyFactor       << "][    1 <= f <=     ]" << std::endl;  // NOLINT
   *stream << "       -i i  : maximum number of iterations        (   int)[" << std::setw(5) << std::right << kDefaultNumIteration         << "][    0 <= i <=     ]" << std::endl;  // NOLINT
   *stream << "       -d d  : convergence threshold               (double)[" << std::setw(5) << std::right << kDefaultConvergenceThreshold << "][  0.0 <= d <=     ]" << std::endl;  // NOLINT
   *stream << "       -e e  : small value added to power spectrum (double)[" << std::setw(5) << std::right << "N/A"                        << "][  0.0 <  e <=     ]" << std::endl;  // NOLINT
@@ -91,9 +76,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  infile:" << std::endl;
   *stream << "       windowed data sequence or spectrum          (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       mel-generalized cepstrum                    (double)" << std::endl;  // NOLINT
+  *stream << "       mel-cepstrum                                (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
-  *stream << "       value of l must be a power of 2" << std::endl;
+  *stream << "       value of l and f must be a power of 2" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -103,16 +88,14 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a mgcep [ @e option ] [ @e infile ]
+ * @a smcep [ @e option ] [ @e infile ]
  *
  * - @b -m @e int
  *   - order of coefficients @f$(0 \le M)@f$
  * - @b -a @e double
  *   - all-pass constant @f$(|\alpha| < 1)@f$
- * - @b -g @e double
- *   - gamma @f$(|\gamma| \le 1)@f$
- * - @b -c @e int
- *   - gamma @f$\gamma = -1 / C@f$ @f$(1 \le C)@f$
+ * - @b -t @e double
+ *   - theta in @f\pi@f rad @f$(0 \le \theta \le 1.0)@f$
  * - @b -l @e int
  *   - FFT length @f$(2 \le N)@f$
  * - @b -q @e int
@@ -122,12 +105,8 @@ void PrintUsage(std::ostream* stream) {
  *     \arg @c 2 amplitude spectrum
  *     \arg @c 3 power spectrum
  *     \arg @c 4 windowed waveform
- * - @b -o @e int
- *   - output format
- *     \arg @c 0 mel-cepstrum
- *     \arg @c 1 MLSA filter coefficients
- *     \arg @c 2 gain normalized mel-cepstrum
- *     \arg @c 3 gain normalized MLSA filter coefficients.
+ * - @b -f @e int
+ *   - accuracy factor @f$(1 \le F)@f$
  * - @b -i @e int
  *   - number of iterations @f$(0 \le J)@f$
  * - @b -d @e double
@@ -139,18 +118,12 @@ void PrintUsage(std::ostream* stream) {
  * - @b infile @e str
  *   - double-type windowed sequence or spectrum
  * - @b stdout
- *   - double-type mel-generalized cepstral coefficients
+ *   - double-type mel-cepstral coefficients
  *
  * In the example below, mel-cepstral coefficients are extracted from @c data.d.
  *
  * @code{.sh}
- *   frame < data.d | window | mgcep > data.mcep
- * @endcode
- *
- * This is equivalents to the below line.
- *
- * @code{.sh}
- *   frame < data.d | window | fftr -o 3 -H | mgcep -q 3 > data.mcep
+ *   frame < data.d | window | smcep -t 0.12 > data.mcep
  * @endcode
  *
  * @param[in] argc Number of arguments.
@@ -160,10 +133,10 @@ void PrintUsage(std::ostream* stream) {
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   double alpha(kDefaultAlpha);
-  double gamma(kDefaultGamma);
+  double theta(kDefaultTheta);
   int fft_length(kDefaultFftLength);
+  int accuracy_factor(kDefaultAccuracyFactor);
   InputFormats input_format(kDefaultInputFormat);
-  OutputFormats output_format(kDefaultOutputFormat);
   int num_iteration(kDefaultNumIteration);
   double convergence_threshold(kDefaultConvergenceThreshold);
   double epsilon(0.0);
@@ -171,7 +144,7 @@ int main(int argc, char* argv[]) {
 
   for (;;) {
     const int option_char(
-        getopt_long(argc, argv, "m:a:g:c:l:q:o:i:d:e:E:h", NULL, NULL));
+        getopt_long(argc, argv, "m:a:t:l:q:f:i:d:e:E:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -181,7 +154,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -m option must be a "
                         << "non-negative integer";
-          sptk::PrintErrorMessage("mgcep", error_message);
+          sptk::PrintErrorMessage("smcep", error_message);
           return 1;
         }
         break;
@@ -192,39 +165,27 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -a option must be in (-1.0, 1.0)";
-          sptk::PrintErrorMessage("mgcep", error_message);
+          sptk::PrintErrorMessage("smcep", error_message);
           return 1;
         }
         break;
       }
-      case 'g': {
-        if (!sptk::ConvertStringToDouble(optarg, &gamma) ||
-            !sptk::IsValidGamma(gamma)) {
+      case 't': {
+        if (!sptk::ConvertStringToDouble(optarg, &theta) || theta < 0.0 ||
+            1.0 < theta) {
           std::ostringstream error_message;
           error_message
-              << "The argument for the -g option must be in [-1.0, 0.0]";
-          sptk::PrintErrorMessage("mgcep", error_message);
+              << "The argument for the -t option must be in [0.0, 1.0]";
+          sptk::PrintErrorMessage("smcep", error_message);
           return 1;
         }
-        break;
-      }
-      case 'c': {
-        int tmp;
-        if (!sptk::ConvertStringToInteger(optarg, &tmp) || tmp < 1) {
-          std::ostringstream error_message;
-          error_message << "The argument for the -c option must be a "
-                        << "non-negative integer";
-          sptk::PrintErrorMessage("mgcep", error_message);
-          return 1;
-        }
-        gamma = -1.0 / tmp;
         break;
       }
       case 'l': {
         if (!sptk::ConvertStringToInteger(optarg, &fft_length)) {
           std::ostringstream error_message;
           error_message << "The argument for the -l option must be an integer";
-          sptk::PrintErrorMessage("mgcep", error_message);
+          sptk::PrintErrorMessage("smcep", error_message);
           return 1;
         }
         break;
@@ -238,25 +199,21 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -q option must be an integer "
                         << "in the range of " << min << " to " << max;
-          sptk::PrintErrorMessage("mgcep", error_message);
+          sptk::PrintErrorMessage("smcep", error_message);
           return 1;
         }
         input_format = static_cast<InputFormats>(tmp);
         break;
       }
-      case 'o': {
-        const int min(0);
-        const int max(static_cast<int>(kNumOutputFormats) - 1);
-        int tmp;
-        if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
-            !sptk::IsInRange(tmp, min, max)) {
+      case 'f': {
+        if (!sptk::ConvertStringToInteger(optarg, &accuracy_factor) ||
+            !sptk::IsPowerOfTwo(accuracy_factor)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -o option must be an integer "
-                        << "in the range of " << min << " to " << max;
-          sptk::PrintErrorMessage("mgcep", error_message);
+          error_message
+              << "The argument for the -f option must be a powewr of two";
+          sptk::PrintErrorMessage("smcep", error_message);
           return 1;
         }
-        output_format = static_cast<OutputFormats>(tmp);
         break;
       }
       case 'i': {
@@ -265,7 +222,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -i option must be a "
                            "non-negative integer";
-          sptk::PrintErrorMessage("mgcep", error_message);
+          sptk::PrintErrorMessage("smcep", error_message);
           return 1;
         }
         break;
@@ -276,7 +233,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -d option must be a non-negative number";
-          sptk::PrintErrorMessage("mgcep", error_message);
+          sptk::PrintErrorMessage("smcep", error_message);
           return 1;
         }
         break;
@@ -286,7 +243,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -e option must be a positive number";
-          sptk::PrintErrorMessage("mgcep", error_message);
+          sptk::PrintErrorMessage("smcep", error_message);
           return 1;
         }
         break;
@@ -297,7 +254,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -E option must be a negative number";
-          sptk::PrintErrorMessage("mgcep", error_message);
+          sptk::PrintErrorMessage("smcep", error_message);
           return 1;
         }
         break;
@@ -317,7 +274,7 @@ int main(int argc, char* argv[]) {
   if (1 < num_input_files) {
     std::ostringstream error_message;
     error_message << "Too many input files";
-    sptk::PrintErrorMessage("mgcep", error_message);
+    sptk::PrintErrorMessage("smcep", error_message);
     return 1;
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
@@ -327,7 +284,7 @@ int main(int argc, char* argv[]) {
   if (ifs.fail() && NULL != input_file) {
     std::ostringstream error_message;
     error_message << "Cannot open file " << input_file;
-    sptk::PrintErrorMessage("mgcep", error_message);
+    sptk::PrintErrorMessage("smcep", error_message);
     return 1;
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
@@ -340,7 +297,7 @@ int main(int argc, char* argv[]) {
   if (kWaveform != input_format && !spectrum_to_spectrum.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for input formatting";
-    sptk::PrintErrorMessage("mgcep", error_message);
+    sptk::PrintErrorMessage("smcep", error_message);
     return 1;
   }
 
@@ -352,36 +309,19 @@ int main(int argc, char* argv[]) {
   if (kWaveform == input_format && !waveform_to_spectrum.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for spectral analysis";
-    sptk::PrintErrorMessage("mgcep", error_message);
+    sptk::PrintErrorMessage("smcep", error_message);
     return 1;
   }
 
-  sptk::MelGeneralizedCepstralAnalysis analysis(fft_length, num_order, alpha,
-                                                gamma, num_iteration,
-                                                convergence_threshold);
-  sptk::MelGeneralizedCepstralAnalysis::Buffer buffer_for_cepstral_analysis;
+  sptk::SecondOrderAllPassMelCepstralAnalysis analysis(
+      fft_length, num_order, accuracy_factor, alpha, theta * sptk::kPi,
+      num_iteration, convergence_threshold);
+  sptk::SecondOrderAllPassMelCepstralAnalysis::Buffer
+      buffer_for_cepstral_analysis;
   if (!analysis.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for cepstral analysis";
-    sptk::PrintErrorMessage("mgcep", error_message);
-    return 1;
-  }
-
-  sptk::MelCepstrumToMlsaDigitalFilterCoefficients
-      mel_cepstrum_to_mlsa_digital_filter_coefficients(num_order, alpha);
-  if (!mel_cepstrum_to_mlsa_digital_filter_coefficients.IsValid()) {
-    std::ostringstream error_message;
-    error_message << "Failed to set condition for output formatting";
-    sptk::PrintErrorMessage("mgcep", error_message);
-    return 1;
-  }
-
-  sptk::GeneralizedCepstrumGainNormalization
-      generalized_cepstrum_gain_normalization(num_order, gamma);
-  if (!generalized_cepstrum_gain_normalization.IsValid()) {
-    std::ostringstream error_message;
-    error_message << "Failed to set condition for gain normalization";
-    sptk::PrintErrorMessage("mgcep", error_message);
+    sptk::PrintErrorMessage("smcep", error_message);
     return 1;
   }
 
@@ -398,7 +338,7 @@ int main(int argc, char* argv[]) {
       if (!spectrum_to_spectrum.Run(input, &processed_input)) {
         std::ostringstream error_message;
         error_message << "Failed to convert spectrum";
-        sptk::PrintErrorMessage("mgcep", error_message);
+        sptk::PrintErrorMessage("smcep", error_message);
         return 1;
       }
     } else {
@@ -406,7 +346,7 @@ int main(int argc, char* argv[]) {
                                     &buffer_for_spectral_analysis)) {
         std::ostringstream error_message;
         error_message << "Failed to transform waveform to spectrum";
-        sptk::PrintErrorMessage("mgcep", error_message);
+        sptk::PrintErrorMessage("smcep", error_message);
         return 1;
       }
     }
@@ -414,36 +354,15 @@ int main(int argc, char* argv[]) {
     if (!analysis.Run(processed_input, &output,
                       &buffer_for_cepstral_analysis)) {
       std::ostringstream error_message;
-      error_message << "Failed to run mel-generalized cepstral analysis";
-      sptk::PrintErrorMessage("mgcep", error_message);
+      error_message << "Failed to run mel-cepstral analysis";
+      sptk::PrintErrorMessage("smcep", error_message);
       return 1;
-    }
-
-    if (0.0 != alpha &&
-        (kMlsaFilterCoefficients == output_format ||
-         kGainNormalizedMlsaFilterCoefficients == output_format)) {
-      if (!mel_cepstrum_to_mlsa_digital_filter_coefficients.Run(&output)) {
-        std::ostringstream error_message;
-        error_message << "Failed to convert to MLSA filter coefficients";
-        sptk::PrintErrorMessage("mgcep", error_message);
-        return 1;
-      }
-    }
-
-    if (kGainNormalizedCepstrum == output_format ||
-        kGainNormalizedMlsaFilterCoefficients == output_format) {
-      if (!generalized_cepstrum_gain_normalization.Run(&output)) {
-        std::ostringstream error_message;
-        error_message << "Failed to normalize generalized cepstrum";
-        sptk::PrintErrorMessage("mgcep", error_message);
-        return 1;
-      }
     }
 
     if (!sptk::WriteStream(0, output_length, output, &std::cout, NULL)) {
       std::ostringstream error_message;
-      error_message << "Failed to write mel-generalized cepstrum";
-      sptk::PrintErrorMessage("mgcep", error_message);
+      error_message << "Failed to write mel-cepstrum";
+      sptk::PrintErrorMessage("smcep", error_message);
       return 1;
     }
   }

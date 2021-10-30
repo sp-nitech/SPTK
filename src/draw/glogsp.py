@@ -198,7 +198,7 @@ def main():
     )
     if args.sr <= 0:
         fig.update_xaxes(
-            title_text="Normalized frequency [rad]",
+            title_text="Frequency [rad]",
             tickmode="array",
             tickvals=[0, 0.5, 1],
             ticktext=["$0$", r"$\pi/2$", r"$\pi$"],

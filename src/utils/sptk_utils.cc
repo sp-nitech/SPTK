@@ -425,12 +425,26 @@ double FloorLog10(double num) {
 
 double AddInLogSpace(double log_x, double log_y) {
   if (log_x == log_y) return log_x + kLogTwo;
-
   const double smaller((log_x < log_y) ? log_x : log_y);
   const double greater((log_x < log_y) ? log_y : log_x);
   const double diff(smaller - greater);
   if (diff < kThresholdOfInformationLossInLogSpace) return greater;
   return greater + std::log(std::exp(diff) + 1.0);
+}
+
+double Warp(double omega, double alpha) {
+  if (0.0 == alpha) return omega;
+  return (
+      omega +
+      2.0 * std::atan2(alpha * std::sin(omega), 1.0 - alpha * std::cos(omega)));
+}
+
+double Warp(double omega, double alpha, double theta) {
+  if (0.0 == alpha && 0.0 == theta) return omega;
+  const double x(omega - theta);
+  const double y(omega + theta);
+  return (omega + std::atan2(alpha * std::sin(x), 1.0 - alpha * std::cos(x)) +
+          std::atan2(alpha * std::sin(y), 1.0 - alpha * std::cos(y)));
 }
 
 void PrintDataType(const std::string& symbol, std::ostream* stream) {
