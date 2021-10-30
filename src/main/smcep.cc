@@ -95,7 +95,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b -a @e double
  *   - all-pass constant @f$(|\alpha| < 1)@f$
  * - @b -t @e double
- *   - theta in @f\pi@f rad @f$(0 \le \theta \le 1.0)@f$
+ *   - emphasized frequency in @f$\pi@f$ rad @f$(0 \le \theta \le 1.0)@f$
  * - @b -l @e int
  *   - FFT length @f$(2 \le N)@f$
  * - @b -q @e int
