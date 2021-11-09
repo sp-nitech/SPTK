@@ -104,19 +104,43 @@ Relationship at a glance
 ![diagram](asset/diagram.png?raw=true)
 
 
-Authors
--------
+Who we are
+----------
 * **Keiichi Tokuda** - *Produce and Design* - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~tokuda/)
 * **Keiichiro Oura** - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~uratec/)
-* **Takenori Yoshimura** - *Main Maintainer* - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~takenori/)
+* **Takenori Yoshimura** - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~takenori/)
 * **Takato Fujimoto** - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~taka19/)
-* **Yoshihiko Nankaku** - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~nankaku/)
 
 
-Contributors
-------------
-* **Cassia Valentini** - [The University of Edinburgh](http://www.cstr.ed.ac.uk/ssi/people/cvbotinh.html)
-  * Calculated the coefficients of the 6th- and 7th-order modified Pade approximation.
+Acknowledgements
+----------------
+* Akira Tamamori
+* Cassia Valentini
+* Chiyomi Miyajima
+* Fernando Gil Resende Junior
+* Gou Hirabayashi
+* Heiga Zen
+* Junichi Yamagishi
+* Keiichi Tokuda
+* Keiichiro Oura
+* Kenji Chiba
+* Masatsune Tamura
+* Naohiro Isshiki
+* Noboru Miyazaki
+* Tadashi Kitamura
+* Takao Kobayashi
+* Takashi Masuko
+* Takashi Nose
+* Takato Fujimoto
+* Takayoshi Yoshimura
+* Takenori Yoshimura
+* Toru Takahashi
+* Toshiaki Fukada
+* Toshihiko Kato
+* Toshio Kanno
+* Satoshi Imai
+* Shinji Sako
+* Yoshihiko Nankaku
 
 
 License
