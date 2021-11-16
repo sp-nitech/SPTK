@@ -100,14 +100,6 @@ def get_arguments():
         help="distance between graphs in the y-axis",
     )
     parser.add_argument(
-        "-s",
-        metavar="s",
-        dest="scale",
-        default=None,
-        type=float,
-        help="rescaling parameter for the x-axis",
-    )
-    parser.add_argument(
         "-x",
         metavar=("XMIN", "XMAX"),
         dest="xlim",
@@ -148,6 +140,14 @@ def get_arguments():
         default=None,
         type=str,
         help="comma-separated graph names",
+    )
+    parser.add_argument(
+        "-xscale",
+        metavar="XSCALE",
+        dest="xscale",
+        default=None,
+        type=float,
+        help="rescaling parameter for the x-axis",
     )
     parser.add_argument(
         "-ls",
@@ -235,8 +235,6 @@ def get_arguments():
 #   - number of samples per graph
 # - @b -z @e float
 #   - distance between graphs in the y-axis (requires -n option)
-# - @b -s @e float
-#   - scale of x-axis (upper limit value)
 # - @b -x @e float @e float
 #   - x-axis limits
 # - @b -y @e float @e float
@@ -247,6 +245,8 @@ def get_arguments():
 #   - y-axis title
 # - @b -names @e str
 #   - comma-separated graph names
+# - @b -xscale @e float
+#   - scale of x-axis (upper limit value)
 # - @b -ls @e str
 #   - line style (solid, dash, dot, or dashdot)
 # - @b -lc @e str
@@ -304,8 +304,8 @@ def main():
         step = args.num_samples
 
     x = np.arange(step)
-    if args.scale is not None and 2 <= step:
-        x = x * (args.scale / (step - 1))
+    if args.xscale is not None and 2 <= step:
+        x = x * (args.xscale / (step - 1))
 
     fig = go.Figure()
     for i, j in enumerate(range(0, len(data), step)):
