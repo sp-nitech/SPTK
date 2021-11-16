@@ -29,6 +29,11 @@ Then the SPTK commands can be used by adding `SPTK/bin/` directory to the `PATH`
 If you would like to use a part of the SPTK library, please link the static library `SPTK/lib/libsptk.a`.
 
 
+Demonstration
+-------------
+- [Analysis-synthesis](https://colab.research.google.com/drive/1spX1v9mk6Itxa63R4wYwekzduvLeaUmE?usp=sharing) via mel-cepstrum.
+
+
 Examples
 --------
 The SPTK provides some examples.
@@ -112,8 +117,8 @@ Who we are
 * **Takato Fujimoto** - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~taka19/)
 
 
-Acknowledgements
-----------------
+Contributors to former versions of SPTK
+---------------------------------------
 * Akira Tamamori
 * Cassia Valentini
 * Chiyomi Miyajima
