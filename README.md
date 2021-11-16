@@ -2,7 +2,7 @@ SPTK 4.0 (Under Construction)
 =============================
 The Speech Signal Processing Toolkit (SPTK) is a software for speech signal processing tools for UNIX environments.
 
-[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://sp-nitech.github.io/sptk/latest/)
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://sp-nitech.github.io/sptk/4.0/)
 [![](http://img.shields.io/badge/license-Apache%202.0-green.svg)](https://github.com/sp-nitech/SPTK/blob/master/LICENSE)
 [![](https://github.com/sp-nitech/SPTK/workflows/build/badge.svg)](https://github.com/sp-nitech/SPTK/actions)
 
@@ -31,7 +31,7 @@ If you would like to use a part of the SPTK library, please link the static libr
 
 Demonstration
 -------------
-- [Analysis-synthesis](https://colab.research.google.com/drive/1spX1v9mk6Itxa63R4wYwekzduvLeaUmE?usp=sharing) via mel-cepstrum.
+- [Analysis-synthesis](https://colab.research.google.com/drive/1spX1v9mk6Itxa63R4wYwekzduvLeaUmE?usp=sharing) via mel-cepstrum
 
 
 Examples
