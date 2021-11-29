@@ -32,6 +32,7 @@ If you would like to use a part of the SPTK library, please link the static libr
 Demonstration
 -------------
 - [Analysis-synthesis](https://colab.research.google.com/drive/1spX1v9mk6Itxa63R4wYwekzduvLeaUmE?usp=sharing) via mel-cepstrum
+- [Parametric coding](https://colab.research.google.com/drive/1NeZxrWiNeixAWaux_HIBLbtaSeokUNiG?usp=sharing) via line spectral pairs
 
 
 Examples
