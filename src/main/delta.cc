@@ -14,7 +14,7 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <getopt.h>  // getopt_long
+#include <getopt.h>  // getopt_long_only
 
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw

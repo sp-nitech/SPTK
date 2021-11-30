@@ -18,7 +18,7 @@
 
 #include <algorithm>   // std::copy, std::fill, std::transform, etc.
 #include <cfloat>      // DBL_MAX
-#include <cmath>       // std::exp, std::fabs, std::log
+#include <cmath>       // std::cos, std::exp, std::fabs, std::log, std::sin
 #include <cstddef>     // std::size_t
 #include <functional>  // std::minus, std::plus
 #include <numeric>     // std::inner_product

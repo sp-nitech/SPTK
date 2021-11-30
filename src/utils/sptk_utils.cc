@@ -16,7 +16,7 @@
 
 #include "SPTK/utils/sptk_utils.h"
 
-#include <algorithm>  // std::fill_n, std::max, std::min, std::transform
+#include <algorithm>  // std::fill_n, std::transform
 #include <cctype>     // std::tolower
 #include <cerrno>     // errno, ERANGE
 #include <cmath>      // std::ceil, std::exp, std::log, std::sqrt, etc.

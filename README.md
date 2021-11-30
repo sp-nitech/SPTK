@@ -133,6 +133,8 @@ Contributors to former versions of SPTK
 * Masatsune Tamura
 * Naohiro Isshiki
 * Noboru Miyazaki
+* Satoshi Imai
+* Shinji Sako
 * Tadashi Kitamura
 * Takao Kobayashi
 * Takashi Masuko
@@ -144,8 +146,6 @@ Contributors to former versions of SPTK
 * Toshiaki Fukada
 * Toshihiko Kato
 * Toshio Kanno
-* Satoshi Imai
-* Shinji Sako
 * Yoshihiko Nankaku
 
 
