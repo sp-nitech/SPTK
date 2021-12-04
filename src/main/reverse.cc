@@ -14,14 +14,14 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <getopt.h>  // getopt_long
-
 #include <algorithm>  // std::reverse
 #include <fstream>    // std::ifstream
 #include <iomanip>    // std::setw
 #include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>    // std::ostringstream
 #include <vector>     // std::vector
+
+#include "Getopt/getoptwin.h"
 
 #include "SPTK/utils/sptk_utils.h"
 

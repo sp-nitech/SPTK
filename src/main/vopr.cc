@@ -14,8 +14,6 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <getopt.h>  // getopt_long_only
-
 #include <algorithm>   // std::max, std::min, std::transform
 #include <cmath>       // std::atan2, std::sqrt
 #include <fstream>     // std::ifstream
@@ -24,6 +22,8 @@
 #include <iostream>    // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>     // std::ostringstream
 #include <vector>      // std::vector
+
+#include "Getopt/getoptwin.h"
 
 #include "SPTK/utils/sptk_utils.h"
 

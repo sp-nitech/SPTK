@@ -14,8 +14,6 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <getopt.h>  // getopt_long
-
 #include <algorithm>  // std::transform
 #include <cmath>      // std::exp
 #include <fstream>    // std::ifstream
@@ -23,6 +21,8 @@
 #include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>    // std::ostringstream
 #include <vector>     // std::vector
+
+#include "Getopt/getoptwin.h"
 
 #include "SPTK/conversion/mel_generalized_cepstrum_to_spectrum.h"
 #include "SPTK/utils/sptk_utils.h"

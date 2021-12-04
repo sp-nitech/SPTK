@@ -14,14 +14,14 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <getopt.h>  // getopt_long
-
 #include <cfloat>    // DBL_MAX
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
+
+#include "Getopt/getoptwin.h"
 
 #include "SPTK/analysis/mel_generalized_cepstral_analysis.h"
 #include "SPTK/conversion/generalized_cepstrum_gain_normalization.h"

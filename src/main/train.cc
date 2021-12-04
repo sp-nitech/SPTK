@@ -14,12 +14,12 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <getopt.h>  // getopt_long
-
 #include <cmath>     // std::sqrt
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
+
+#include "Getopt/getoptwin.h"
 
 #include "SPTK/utils/sptk_utils.h"
 

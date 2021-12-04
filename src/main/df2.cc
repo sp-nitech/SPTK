@@ -14,8 +14,6 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <getopt.h>  // getopt_long
-
 #include <algorithm>  // std::max
 #include <exception>  // std::exception
 #include <fstream>    // std::ifstream
@@ -23,6 +21,8 @@
 #include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>    // std::ostringstream
 #include <vector>     // std::vector
+
+#include "Getopt/getoptwin.h"
 
 #include "SPTK/filter/second_order_digital_filter.h"
 #include "SPTK/utils/sptk_utils.h"

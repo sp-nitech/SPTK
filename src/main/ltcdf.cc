@@ -14,13 +14,13 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <getopt.h>  // getopt_long
-
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
+
+#include "Getopt/getoptwin.h"
 
 #include "SPTK/filter/all_pole_lattice_digital_filter.h"
 #include "SPTK/input/input_source_from_stream.h"

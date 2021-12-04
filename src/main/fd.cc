@@ -14,8 +14,6 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <getopt.h>  // getopt_long
-
 #include <cctype>    // std::isprint
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setfill, std::setw
@@ -23,6 +21,8 @@
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
 #include <string>    // std::string
+
+#include "Getopt/getoptwin.h"
 
 #include "SPTK/utils/sptk_utils.h"
 

@@ -14,13 +14,13 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <getopt.h>  // getopt_long
-
 #include <fstream>   // std::ifstream, std::ofstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
+
+#include "Getopt/getoptwin.h"
 
 #include "SPTK/compression/linde_buzo_gray_algorithm.h"
 #include "SPTK/math/statistics_accumulation.h"

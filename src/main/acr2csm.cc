@@ -14,13 +14,13 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <getopt.h>  // getopt_long
-
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
+
+#include "Getopt/getoptwin.h"
 
 #include "SPTK/conversion/autocorrelation_to_composite_sinusoidal_modeling.h"
 #include "SPTK/utils/sptk_utils.h"

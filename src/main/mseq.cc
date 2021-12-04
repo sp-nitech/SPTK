@@ -14,11 +14,11 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <getopt.h>  // getopt_long
-
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
+
+#include "Getopt/getoptwin.h"
 
 #include "SPTK/generation/m_sequence_generation.h"
 #include "SPTK/utils/sptk_utils.h"

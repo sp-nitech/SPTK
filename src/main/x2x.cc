@@ -14,8 +14,6 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <getopt.h>  // getopt_long
-
 #include <cfloat>     // DBL_MAX, FLT_MAX
 #include <climits>    // INT_MIN, INT_MAX, SCHAR_MIN, SCHAR_MAX, etc.
 #include <cstdint>    // int8_t, int16_t, int32_t, int64_t, etc.
@@ -26,6 +24,8 @@
 #include <sstream>    // std::ostringstream
 #include <stdexcept>  // std::invalid_argument
 #include <string>     // std::stold, std::string
+
+#include "Getopt/getoptwin.h"
 
 #include "SPTK/utils/int24_t.h"
 #include "SPTK/utils/sptk_utils.h"

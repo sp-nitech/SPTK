@@ -48,7 +48,7 @@ $(BINARIES): $(BINDIR)/%: $(MAINSOURCEDIR)/%.cc $(LIBRARY)
 	@if [ ! -d $(BINDIR) ]; then \
 		mkdir -p $(BINDIR); \
 	fi
-	$(CXX) $(CXXFLAGS) $(INCLUDE) $< $(LIBRARY) -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDE) $< $(THIRDPARTYDIR)/Getopt/getoptwin.cc $(LIBRARY) -o $@
 
 $(LIBRARY): $(OBJECTS)
 	@if [ ! -d $(LIBDIR) ]; then \

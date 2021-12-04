@@ -14,8 +14,6 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <getopt.h>  // getopt_long
-
 #include <algorithm>  // std::copy, std::fill, std::transform
 #include <fstream>    // std::ifstream
 #include <iomanip>    // std::setw
@@ -23,6 +21,8 @@
 #include <numeric>    // std::accumulate
 #include <sstream>    // std::ostringstream
 #include <vector>     // std::vector
+
+#include "Getopt/getoptwin.h"
 
 #include "SPTK/utils/sptk_utils.h"
 

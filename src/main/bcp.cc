@@ -14,8 +14,6 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <getopt.h>  // getopt_long
-
 #include <algorithm>  // std::max
 #include <cstdint>    // int8_t, int16_t, int32_t, int64_t, etc.
 #include <cstring>    // std::strncmp
@@ -27,6 +25,8 @@
 #include <stdexcept>  // std::invalid_argument
 #include <string>     // std::stold, std::string
 #include <vector>     // std::vector
+
+#include "Getopt/getoptwin.h"
 
 #include "SPTK/utils/int24_t.h"
 #include "SPTK/utils/sptk_utils.h"

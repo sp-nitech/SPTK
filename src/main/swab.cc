@@ -14,8 +14,6 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <getopt.h>  // getopt_long
-
 #include <algorithm>  // std::reverse
 #include <climits>    // INT_MAX
 #include <cstdint>    // int16_t, int32_t, int64_t, etc.
@@ -25,6 +23,8 @@
 #include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>    // std::ostringstream
 #include <string>     // std::string
+
+#include "Getopt/getoptwin.h"
 
 #include "SPTK/utils/int24_t.h"
 #include "SPTK/utils/sptk_utils.h"

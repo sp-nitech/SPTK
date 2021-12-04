@@ -14,13 +14,13 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <getopt.h>  // getopt_long
-
 #include <cmath>     // std::sqrt
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
+
+#include "Getopt/getoptwin.h"
 
 #include "SPTK/math/matrix.h"
 #include "SPTK/math/two_dimensional_fast_fourier_transform.h"
