@@ -64,10 +64,10 @@ deactivate
 Changes from SPTK3
 ------------------
 - **Input and output types are changed to double from float**
+- Signal processing classes are written in C++ instead of C
 - Drawing commands are implemented in Python
 - No memory leaks
 - New features:
-  - Provide signal processing classes written in C++
   - Conversion from/to log area ratio (`lar2par` and `par2lar`)
   - Entropy calculation (`entropy`)
   - Huffman coding (`huffman`, `huffman_encode`, and `huffman_decode`)
