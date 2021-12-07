@@ -15,18 +15,49 @@ See [this page](https://sp-nitech.github.io/sptk/4.0/) for a reference manual.
 Requirements
 ------------
 - GCC 4.8+
+- CMake 3.3+
 
 
 Installation
 ------------
-The latest release can be installed through Git:
+
+The latest release can be downloaded through Git:
 ```sh
 git clone https://github.com/sp-nitech/SPTK.git
-cd SPTK
-make -j 4  # Please change the number of jobs depending on your environment.
 ```
-Then the SPTK commands can be used by adding `SPTK/bin/` directory to the `PATH` environment variable.
-If you would like to use a part of the SPTK library, please link the static library `SPTK/lib/libsptk.a`.
+
+### Linux
+
+<details><summary>expand</summary><div>
+
+```sh
+cd SPTK
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=..  # Please change install directory.
+make -j 4 install  # Please change the number of jobs depending on your environment.
+```
+Then the SPTK commands can be used by adding `bin/` directory to the `PATH` environment variable.
+If you would like to use a part of the SPTK functions, please link the static library `lib/libsptk.a`.
+
+</div></details>
+
+### Windows
+
+<details><summary>expand</summary><div>
+
+```sh
+cd SPTK
+mkdir build
+cd build
+cmake ..
+MSBuild -maxcpucount:4 /p:Configuration=Release ALL_BUILD.vcxproj
+```
+You can compile the programs via GUI instead of running MSBuild.
+Then the SPTK commands can be used by adding `build/Release/bin/` directory to the `PATH` environment variable.
+If you would like to use a part of the SPTK functions, please link the static library `build/Release/sptk.lib`.
+
+</div></details>
 
 
 Demonstration

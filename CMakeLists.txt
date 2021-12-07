@@ -318,3 +318,22 @@ foreach(SOURCE ${MAIN_SOURCES})
     RUNTIME DESTINATION bin
     )
 endforeach()
+
+set(PYTHON_SOURCES
+  ${SOURCE_DIR}/draw/fdrw.py
+  ${SOURCE_DIR}/draw/glogsp.py
+  ${SOURCE_DIR}/draw/gpolezero.py
+  ${SOURCE_DIR}/draw/grlogsp.py
+  ${SOURCE_DIR}/draw/gseries.py
+  ${SOURCE_DIR}/draw/gwave.py
+  )
+
+if(NOT WIN32)
+  foreach(SOURCE ${PYTHON_SOURCES})
+    get_filename_component(BIN ${SOURCE} NAME_WE)
+    execute_process(COMMAND ln -snf ${SOURCE} ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${BIN}
+      DESTINATION bin
+      )
+  endforeach()
+endif()
