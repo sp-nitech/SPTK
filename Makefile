@@ -63,7 +63,7 @@ format:
 	./tools/shellcheck/shellcheck -x test/*.bats
 
 	# Python
-	@if [ -f ./tools/venv/bin/activate ]; then \
+	@if [ ! -f ./tools/venv/bin/activate ]; then \
 		echo "Please prepare a Python environment via:"; \
 		echo "cd tools; make test_env"; \
 		exit 1; \
