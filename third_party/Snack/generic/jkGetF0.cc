@@ -1495,6 +1495,14 @@ retrieve_windstat(float *rho, int order, float *err, float *rms)
     else return 0;
 }
 
+#if 1
+float xitakura(int p, float *b, float *c, float *r, float *gain);
+float wind_energy(float *data, int size, int w_type);
+void xa_to_aca(float *a, float *b, float *c, int p);
+int xlpc(int lpc_ord, float lpc_stabl, int wsize, float *data, float *lpca,
+         float *ar, float *lpck, float *normerr, float *rms, float preemp,
+         int type);
+#endif
 
 /*--------------------------------------------------------------------*/
 static float
@@ -1516,13 +1524,6 @@ get_similarity(int order, int size, float *pdata, float *cdata, float *rmsa,
   float xitakura(), wind_energy();
   void xa_to_aca ();
   int xlpc();
-#else
-  float xitakura(int p, float *b, float *c, float *r, float *gain);
-  float wind_energy(float *data, int size, int w_type);
-  void xa_to_aca(float *a, float *b, float *c, int p);
-  int xlpc(int lpc_ord, float lpc_stabl, int wsize, float *data, float *lpca,
-           float *ar, float *lpck, float *normerr, float *rms, float preemp,
-           int type);
 #endif
 
 /* (In the lpc() calls below, size-1 is used, since the windowing and

@@ -347,7 +347,7 @@ class DataTransformWrapper {
     }
 
     // s -> *
-    else if ("s" == input_data_type && "c" == output_data_type) {  // NOLINT
+    if ("s" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
@@ -407,7 +407,7 @@ class DataTransformWrapper {
     }
 
     // h -> *
-    else if ("h" == input_data_type && "c" == output_data_type) {  // NOLINT
+    if ("h" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<sptk::int24_t, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
@@ -467,7 +467,7 @@ class DataTransformWrapper {
     }
 
     // i -> *
-    else if ("i" == input_data_type && "c" == output_data_type) {  // NOLINT
+    if ("i" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
@@ -528,7 +528,7 @@ class DataTransformWrapper {
     }
 
     // l -> *
-    else if ("l" == input_data_type && "c" == output_data_type) {  // NOLINT
+    if ("l" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
@@ -589,7 +589,7 @@ class DataTransformWrapper {
     }
 
     // C -> *
-    else if ("C" == input_data_type && "c" == output_data_type) {  // NOLINT
+    if ("C" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<uint8_t, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
@@ -649,7 +649,7 @@ class DataTransformWrapper {
     }
 
     // S -> *
-    else if ("S" == input_data_type && "c" == output_data_type) {  // NOLINT
+    if ("S" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<uint16_t, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
@@ -709,7 +709,7 @@ class DataTransformWrapper {
     }
 
     // H -> *
-    else if ("H" == input_data_type && "c" == output_data_type) {  // NOLINT
+    if ("H" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
@@ -771,7 +771,7 @@ class DataTransformWrapper {
     }
 
     // I -> *
-    else if ("I" == input_data_type && "c" == output_data_type) {  // NOLINT
+    if ("I" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
@@ -832,7 +832,7 @@ class DataTransformWrapper {
     }
 
     // L -> *
-    else if ("L" == input_data_type && "c" == output_data_type) {  // NOLINT
+    if ("L" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
@@ -893,7 +893,7 @@ class DataTransformWrapper {
     }
 
     // f -> *
-    else if ("f" == input_data_type && "c" == output_data_type) {  // NOLINT
+    if ("f" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<float, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
@@ -954,7 +954,7 @@ class DataTransformWrapper {
     }
 
     // d -> *
-    else if ("d" == input_data_type && "c" == output_data_type) {  // NOLINT
+    if ("d" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<double, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
@@ -1015,7 +1015,7 @@ class DataTransformWrapper {
     }
 
     // e -> *
-    else if ("e" == input_data_type && "c" == output_data_type) {  // NOLINT
+    if ("e" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<long double, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
@@ -1076,7 +1076,7 @@ class DataTransformWrapper {
     }
 
     // a -> *
-    else if ("a" == input_data_type && "c" == output_data_type) {  // NOLINT
+    if ("a" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<long double, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
