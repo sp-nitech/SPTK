@@ -58,7 +58,11 @@ bool WaveData::Equals(const WaveData &wave_data, int threshold) const {
     fprintf(stderr, "Different sample rate");
     return false;
   }
+#if 0
   for (int i = 0; i < size(); ++i) {
+#else
+  for (uint32_t i = 0; i < size(); ++i) {
+#endif
     if (abs(wave_data[i] - (*this)[i]) > threshold) {
       fprintf(stderr, "Sample %d differs", i);
       return false;

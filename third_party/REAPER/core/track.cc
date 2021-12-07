@@ -28,11 +28,13 @@ limitations under the License.
 
 namespace {
 
+#if 0
 int ToInt(const std::string &s) {
   char *p = 0;
   int32_t r = strtol(s.c_str(), &p, 10);
   return static_cast<int>(r);
 }
+#endif
 
 std::string ToString(float n, int p) {
   char buf[1000];
@@ -48,14 +50,18 @@ std::string ToString(uint32_t n) {
   return buf;
 }
 
+#if 0
 double ToDouble(const std::string &s) {
   char *p = 0;
   return strtod(s.c_str(), &p);
 }
+#endif
 
+#if 0
 float ToFloat(const std::string &s) {
   return static_cast<float>(ToDouble(s));
 }
+#endif
 
 //
 // Default size of character I/O buffers:
@@ -64,9 +70,6 @@ const uint32_t kMaxCharBufSize = 8192;  // 8k
 
 #if 0
 std::string GetToken(FileResource *fr) {
-#else
-std::string GetToken(sptk::reaper::FileResource *fr) {
-#endif
   char buff[kMaxCharBufSize];
   uint32_t i = 0;
   bool foundData = false;
@@ -85,12 +88,14 @@ std::string GetToken(sptk::reaper::FileResource *fr) {
   buff[i] = 0;
   return std::string(buff);
 }
+#endif
 
 // Find the first whitespace/newline delimited token in the character
 // array c.  Return the stripped token in s.  return the position of
 // the first character following the token in tok_end.  If the end of
 // c is found during the search, return true, else return false. If no
 // token is found, return 0 in tok_end.
+#if 0
 bool GetTokenFromChars(const char *c, std::string *s, int32_t *tok_end) {
   int32_t i = 0;
   s->clear();
@@ -114,6 +119,7 @@ bool GetTokenFromChars(const char *c, std::string *s, int32_t *tok_end) {
   s->assign(c + start, i - start);
   return c[i] == 0;
 }
+#endif
 
 }  // namespace
 
@@ -307,7 +313,11 @@ void Track::SetTimes(float *times, int length) {
 }
 
 bool Track::SetVoicing(const std::vector<bool> &vuv) {
+#if 0
   if (vuv.size() != num_frames_) {
+#else
+  if (static_cast<int>(vuv.size()) != num_frames_) {
+#endif
     fprintf(stderr, "Track::SetVoicing: input has different number "
             "of frames (%zu != %d)", vuv.size(), num_frames_);
     return false;

@@ -140,7 +140,11 @@ bool WavRiffCodec::ReadHeader(FileResource *fr,
   // If there is a broadcast format extension, skip it.
   if (riff_type == "bext") {
     int32_t bext_length;
+#if 0
     fread(static_cast<void *>(&bext_length), sizeof(bext_length), 1, fr->fp());
+#else
+    if (fread(static_cast<void *>(&bext_length), sizeof(bext_length), 1, fr->fp())) {}
+#endif
     fseek(fr->fp(), bext_length, SEEK_CUR);
     std::string sub_type;
     if (!CheckChunk(fr, "fmt ")) {
@@ -216,7 +220,11 @@ bool WavRiffCodec::ReadAudioData(int32_t wave_start,
     status &= (fseek(fr->fp(),
                      wave_start * sizeof((*samples)[0]), SEEK_CUR) == 0);
     uint32_t read = fread(&(*samples)[0], sizeof(int16_t), num_samples, fr->fp());
+#if 0
     if (read != num_samples) {
+#else
+    if (read != static_cast<uint32_t>(num_samples)) {
+#endif
       fprintf(stderr, "WaveIO::ReadSamples: only %d out of %d values read",
           read, num_samples);
       status = false;
@@ -228,7 +236,11 @@ bool WavRiffCodec::ReadAudioData(int32_t wave_start,
     uint8_t *buffer = new uint8_t[num_samples];
     status &= (fseek(fr->fp(), wave_start * sizeof(*buffer), SEEK_CUR) == 0);
     uint32_t read = fread(buffer, sizeof(uint8_t), num_samples, fr->fp());
+#if 0
     if (read != num_samples) {
+#else
+    if (read != static_cast<uint32_t>(num_samples)) {
+#endif
       fprintf(stderr, "WaveIO::ReadSamples: only %d out of %d values read",
               read, num_samples);
       status = false;

@@ -290,7 +290,11 @@ inline bool Track::Save(const std::string &filename, bool ascii) const {
     return Save(&fr);
   }
   const std::string data = ToString();
+#if 0
   if (fprintf(fr.fp(), "%s", data.c_str()) != data.size()) {
+#else
+  if (fprintf(fr.fp(), "%s", data.c_str()) != static_cast<int>(data.size())) {
+#endif
     return false;
   }
   return true;

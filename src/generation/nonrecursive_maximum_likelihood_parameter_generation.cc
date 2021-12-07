@@ -200,11 +200,11 @@ bool NonrecursiveMaximumLikelihoodParameterGeneration::Run(
         mseq[t][k] = p * mean[k];
         vseq[t][k][k] = p;
         for (int l(0); l < k; ++l) {
-          const double p(precision[k][l]);
-          if (0.0 != p) {
-            mseq[t][k] += p * mean[l];
-            mseq[t][l] += p * mean[k];
-            vseq[t][k][l] = p;
+          const double q(precision[k][l]);
+          if (0.0 != q) {
+            mseq[t][k] += q * mean[l];
+            mseq[t][l] += q * mean[k];
+            vseq[t][k][l] = q;
           }
         }
       }
