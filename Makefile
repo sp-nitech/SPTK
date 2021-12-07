@@ -15,81 +15,69 @@
 # ------------------------------------------------------------------------ #
 
 SOURCEDIR      := src
-MAINSOURCEDIR  := $(SOURCEDIR)/main
-PYTHONDIR      := $(SOURCEDIR)/draw
+PYTHONDIR      := src/draw
 BINDIR         := bin
 BUILDDIR       := build
 DOCDIR         := doc
 INCLUDEDIR     := include
 LIBDIR         := lib
-THIRDPARTYDIR  := third_party
-THIRDPARTYDIRS := $(wildcard $(THIRDPARTYDIR)/*)
-
-LIBRARY        := $(LIBDIR)/libsptk.a
-MAINSOURCES    := $(wildcard $(MAINSOURCEDIR)/*.cc)
-SOURCES        := $(filter-out $(MAINSOURCES), $(wildcard $(SOURCEDIR)/*/*.cc))
-OBJECTS        := $(patsubst $(SOURCEDIR)/%.cc, $(BUILDDIR)/%.o, $(SOURCES))
-BINARIES       := $(patsubst $(MAINSOURCEDIR)/%.cc, $(BINDIR)/%, $(MAINSOURCES))
-PYTHONS        := $(wildcard $(PYTHONDIR)/*.py)
-PYTHONLINKS    := $(patsubst $(PYTHONDIR)/%.py, $(BINDIR)/%, $(PYTHONS))
-
-MAKE           := make
-CXX            := g++
-AR             := ar
-CXXFLAGS       := -Wall -O2 -g -std=c++11
-INCLUDE        := -I $(INCLUDEDIR) -I $(THIRDPARTYDIR)
 
 JOBS           := 4
 
 
-all: $(BINARIES) $(PYTHONLINKS)
+all: build
 
-$(BINARIES): $(BINDIR)/%: $(MAINSOURCEDIR)/%.cc $(LIBRARY)
-	@if [ ! -d $(BINDIR) ]; then \
-		mkdir -p $(BINDIR); \
-	fi
-	$(CXX) $(CXXFLAGS) $(INCLUDE) $< $(THIRDPARTYDIR)/Getopt/getoptwin.cc $(LIBRARY) -o $@
-
-$(LIBRARY): $(OBJECTS)
-	@if [ ! -d $(LIBDIR) ]; then \
-		mkdir -p $(LIBDIR); \
-	fi
-	for dir in $(THIRDPARTYDIRS); do \
-		$(MAKE) -C $$dir; \
-	done
-	$(AR) cru $(LIBRARY) $(OBJECTS) $(THIRDPARTYDIR)/*/build/*/*.o
-
-$(OBJECTS): $(BUILDDIR)/%.o: $(SOURCEDIR)/%.cc
-	@if [ ! -d $(dir $@) ]; then \
-		mkdir -p $(dir $@); \
-	fi
-	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ -c $<
-
-$(PYTHONLINKS):
-	@if [ ! -d $(BINDIR) ]; then \
-		mkdir -p $(BINDIR); \
-	fi
-	ln -snf ../$(PYTHONDIR)/$(notdir $@).py $@
+build:
+	mkdir -p $(BUILDDIR)
+	cd $(BUILDDIR); cmake .. -DCMAKE_INSTALL_PREFIX=..
+	cd $(BUILDDIR); make -j $(JOBS) install
 
 doc:
+	@if [ ! -f ./tools/venv/bin/activate ]; then \
+		echo "Please prepare a Python environment via:"; \
+		echo "cd tools; make test_env"; \
+		exit 1; \
+	fi
+	@if [ ! -x ./tools/doxygen/build/bin/doxygen ]; then \
+		echo "Please install doxygen via:"; \
+		echo "cd tools; make doxygen.done"; \
+		exit 1; \
+	fi
 	cd $(DOCDIR); ../tools/doxygen/build/bin/doxygen
 	. ./tools/venv/bin/activate; cd $(DOCDIR); make html
 
 doc-clean:
 	rm -rf $(DOCDIR)/xml
-	. ./tools/venv/bin/activate; cd $(DOCDIR); make clean
+	@if [ -f ./tools/venv/bin/activate ]; then \
+		. ./tools/venv/bin/activate; cd $(DOCDIR); make clean; \
+	fi
 
 format:
 	# Bash
+	@if [ ! -f ./tools/shellcheck/shellcheck ]; then \
+		echo "Please install shellcheck via:"; \
+		echo "cd tools; make shellcheck.done"; \
+		exit 1; \
+	fi
 	./tools/shellcheck/shellcheck egs/*/*/run.sh
 	./tools/shellcheck/shellcheck -x test/*.bats
 
 	# Python
+	@if [ -f ./tools/venv/bin/activate ]; then \
+		echo "Please prepare a Python environment via:"; \
+		echo "cd tools; make test_env"; \
+		exit 1; \
+	fi
 	./tools/venv/bin/black $(PYTHONDIR)
 	./tools/venv/bin/isort $(PYTHONDIR) --sl --fss --sort-order native --project sptk
 	./tools/venv/bin/flake8 $(PYTHONDIR)
 
 	# C++
+	@if [ ! -f ./tools/cpplint/cpplint.py ]; then \
+		echo "Please install cpplint via:"; \
+		echo "cd tools; make cpplint.done"; \
+		exit 1; \
+	fi
 	clang-format -i $(wildcard $(SOURCEDIR)/*/*.cc)
 	clang-format -i	$(wildcard $(INCLUDEDIR)/SPTK/*/*.h)
 	./tools/cpplint/cpplint.py --filter=-readability/streams $(wildcard $(SOURCEDIR)/*/*.cc)
@@ -97,12 +85,14 @@ format:
 		--root=$(abspath $(INCLUDEDIR)) $(wildcard $(INCLUDEDIR)/SPTK/*/*.h)
 
 test:
+	@if [ ! -f ./tools/bats/bin/bats ]; then \
+		echo "Please install bats via:"; \
+		echo "cd tools; make bats.done"; \
+		exit 1; \
+	fi
 	./tools/bats/bin/bats --jobs $(JOBS) --no-parallelize-within-files test
 
 clean: doc-clean
-	for dir in $(THIRDPARTYDIRS); do \
-		$(MAKE) clean -C $$dir; \
-	done
 	rm -rf $(BUILDDIR) $(LIBDIR) $(BINDIR)
 
-.PHONY: all doc doc-clean format test clean
+.PHONY: all build doc doc-clean format test clean

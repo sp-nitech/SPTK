@@ -19,7 +19,7 @@
 #include <algorithm>  // std::copy, std::fill
 #include <cmath>      // std::ceil
 
-#include "SWIPE/src/swipe.h"
+#include "SWIPE/swipe.h"
 
 namespace sptk {
 

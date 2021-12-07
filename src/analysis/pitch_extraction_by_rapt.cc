@@ -19,7 +19,7 @@
 #include <algorithm>  // std::copy, std::fill
 #include <cmath>      // std::ceil
 
-#include "Snack/generic/jkGetF0.h"
+#include "Snack/jkGetF0.h"
 
 namespace sptk {
 

@@ -40,14 +40,14 @@ set(CC_SOURCES
   ${THIRD_PARTY_DIR}/REAPER/wave/codec_riff.cc
   ${THIRD_PARTY_DIR}/REAPER/wave/wave.cc
   ${THIRD_PARTY_DIR}/REAPER/wave/wave_io.cc
-  ${THIRD_PARTY_DIR}/SWIPE/src/swipe.cc
-  ${THIRD_PARTY_DIR}/SWIPE/src/vector.cc
-  ${THIRD_PARTY_DIR}/Snack/generic/jkGetF0.cc
-  ${THIRD_PARTY_DIR}/Snack/generic/sigproc.cc
-  ${THIRD_PARTY_DIR}/WORLD/src/common.cc
-  ${THIRD_PARTY_DIR}/WORLD/src/dio.cc
-  ${THIRD_PARTY_DIR}/WORLD/src/fft_world.cc
-  ${THIRD_PARTY_DIR}/WORLD/src/matlabfunctions.cc
+  ${THIRD_PARTY_DIR}/SWIPE/swipe.cc
+  ${THIRD_PARTY_DIR}/SWIPE/vector.cc
+  ${THIRD_PARTY_DIR}/Snack/jkGetF0.cc
+  ${THIRD_PARTY_DIR}/Snack/sigproc.cc
+  ${THIRD_PARTY_DIR}/WORLD/common.cc
+  ${THIRD_PARTY_DIR}/WORLD/dio.cc
+  ${THIRD_PARTY_DIR}/WORLD/fft_world.cc
+  ${THIRD_PARTY_DIR}/WORLD/matlabfunctions.cc
   ${SOURCE_DIR}/analysis/adaptive_generalized_cepstral_analysis.cc
   ${SOURCE_DIR}/analysis/adaptive_mel_cepstral_analysis.cc
   ${SOURCE_DIR}/analysis/adaptive_mel_generalized_cepstral_analysis.cc
@@ -178,7 +178,7 @@ target_include_directories(sptk PUBLIC
   ${PROJECT_SOURCE_DIR}/include
   ${THIRD_PARTY_DIR}
   ${THIRD_PARTY_DIR}/REAPER
-  ${THIRD_PARTY_DIR}/WORLD/src
+  ${THIRD_PARTY_DIR}/WORLD
   )
 install(TARGETS sptk
   ARCHIVE DESTINATION lib
