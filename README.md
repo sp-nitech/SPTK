@@ -21,20 +21,18 @@ Requirements
 Installation
 ------------
 
-The latest release can be downloaded through Git:
-```sh
-git clone https://github.com/sp-nitech/SPTK.git
-```
-
 ### Linux
 
 <details><summary>expand</summary><div>
 
+The latest release can be downloaded through Git.
+The install procedure is as follows.
 ```sh
+git clone https://github.com/sp-nitech/SPTK.git
 cd SPTK
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=..  # Please change install directory.
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=..  # Please change install directory.
 make -j 4 install  # Please change the number of jobs depending on your environment.
 ```
 Then the SPTK commands can be used by adding `bin/` directory to the `PATH` environment variable.
@@ -46,16 +44,18 @@ If you would like to use a part of the SPTK functions, please link the static li
 
 <details><summary>expand</summary><div>
 
+You may need to add `cmake` and `MSBuild` to the `PATH` environment variable in advance.
+Open Command Prompt and follow the below procedure:
 ```sh
-cd SPTK
+cd /path/to/SPTK  # Please change here to your appropriate path.
 mkdir build
 cd build
-cmake ..
-MSBuild -maxcpucount:4 /p:Configuration=Release ALL_BUILD.vcxproj
+cmake .. -DCMAKE_INSTALL_PREFIX=..  # Please change install directory.
+MSBuild -maxcpucount:4 /p:Configuration=Release INSTALL.vcxproj
 ```
 You can compile the programs via GUI instead of running MSBuild.
-Then the SPTK commands can be used by adding `build/Release/bin/` directory to the `PATH` environment variable.
-If you would like to use a part of the SPTK functions, please link the static library `build/Release/sptk.lib`.
+Then the SPTK commands can be used by adding `bin/` directory to the `PATH` environment variable.
+If you would like to use a part of the SPTK functions, please link the static library `lib/sptk.lib`.
 
 </div></details>
 

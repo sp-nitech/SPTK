@@ -256,7 +256,6 @@ void rdft(int n, int isgn, double *a, int *ip, double *w) {
   }
 }
 
-
 void makewt(int nw, int *ip, double *w) {
 #if 0
   void makeipt(int nw, int *ip);
