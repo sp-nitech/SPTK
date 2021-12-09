@@ -18,11 +18,17 @@ cmake_minimum_required(VERSION 3.3)
 
 project(SPTK)
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.8)
+    message(FATAL_ERROR "require gcc >= 4.8")
+  endif()
+endif()
+
 set(CMAKE_CXX_STANDARD 11)
 if (MSVC)
   set(CMAKE_CXX_FLAGS "/O2 /W4 /wd4244 /wd4996 /EHsc")
 else()
-  set(CMAKE_CXX_FLAGS "-O2 -Wall")
+  set(CMAKE_CXX_FLAGS "-O2 -Wall -Wno-deprecated-register")
 endif()
 
 set(SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)

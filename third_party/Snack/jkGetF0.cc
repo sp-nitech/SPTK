@@ -1805,10 +1805,11 @@ cGet_f0(const std::vector<double> &waveform, int frame_shift,
   long buff_size, actsize;
 #if 0
   double sf, start_time;
+  F0_params *par, *read_f0_params();
 #else
   double sf;
+  F0_params *par;
 #endif
-  F0_params *par, *read_f0_params();
   float *f0p, *vuvp, *rms_speech, *acpkp;
   int i, vecsize;
 #if 0

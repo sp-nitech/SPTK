@@ -66,9 +66,9 @@ float ToFloat(const std::string &s) {
 //
 // Default size of character I/O buffers:
 //
+#if 0
 const uint32_t kMaxCharBufSize = 8192;  // 8k
 
-#if 0
 std::string GetToken(FileResource *fr) {
   char buff[kMaxCharBufSize];
   uint32_t i = 0;
