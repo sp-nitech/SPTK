@@ -85,7 +85,7 @@ sox -t wav input.wav -c 1 -t s16 -r 16000 - |
 
 If you would like to draw figures, please prepare a python environment.
 ```sh
-cd tools; make env; cd ..
+cd tools; make venv; cd ..
 . ./tools/venv/bin/activate
 impulse -l 32 | gseries impulse.png
 deactivate

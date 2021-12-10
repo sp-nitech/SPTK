@@ -14,22 +14,21 @@
 # limitations under the License.                                           #
 # ------------------------------------------------------------------------ #
 
-PYTHON_VERSION     := 3.8
-SHELLCHECK_VERSION := 0.7.2
+SHELLCHECK_VERSION := 0.8.0
 JOBS               := 4
 
 
-all: action doxygen.done
+all: check doxygen.done
 
-action: test_env bats.done cpplint.done shellcheck.done sptk.done
+check: venv_dev bats.done cpplint.done shellcheck.done sptk.done
 
-env:
-	test -d venv || virtualenv -p python$(PYTHON_VERSION) venv
+venv:
+	python3 -m venv venv
 	. venv/bin/activate; pip install -r requirements.txt --upgrade
 	touch venv/bin/activate
 
-test_env:
-	test -d venv || virtualenv -p python$(PYTHON_VERSION) venv
+venv_dev:
+	python3 -m venv venv
 	. venv/bin/activate; pip install -r requirements.txt -r test_requirements.txt --upgrade
 	touch venv/bin/activate
 
@@ -67,4 +66,4 @@ sptk.done:
 clean:
 	rm -rf venv bats cpplint doxygen shellcheck sptk *.done
 
-.PHONY: all clean
+.PHONY: all check venv venv_dev clean
