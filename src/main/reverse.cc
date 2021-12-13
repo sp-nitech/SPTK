@@ -164,8 +164,9 @@ int main(int argc, char* argv[]) {
       data.push_back(tmp);
     }
     if (!data.empty()) {
+      const int length(static_cast<int>(data.size()));
       std::reverse(data.begin(), data.end());
-      if (!sptk::WriteStream(0, data.size(), data, &std::cout, NULL)) {
+      if (!sptk::WriteStream(0, length, data, &std::cout, NULL)) {
         std::ostringstream error_message;
         error_message << "Failed to write reversed data sequence";
         sptk::PrintErrorMessage("reverse", error_message);

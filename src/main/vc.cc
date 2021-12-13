@@ -355,7 +355,7 @@ int main(int argc, char* argv[]) {
     }
     std::istream& input_stream(ifs);
 
-    const int read_size((window_coefficients.size() + 1) *
+    const int read_size(static_cast<int>(window_coefficients.size() + 1) *
                         (num_source_order + num_target_order + 2));
     for (int k(0); k < num_mixture; ++k) {
       if (!sptk::ReadStream(&(weights[k]), &input_stream)) {
@@ -408,7 +408,7 @@ int main(int argc, char* argv[]) {
     }
     std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-    const int read_size((window_coefficients.size() + 1) *
+    const int read_size(static_cast<int>(window_coefficients.size() + 1) *
                         (num_source_order + 1));
     std::vector<double> tmp;
     while (

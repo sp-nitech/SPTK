@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
   }
   if (probabilities.empty()) return 0;
 
-  const int num_element(probabilities.size());
+  const int num_element(static_cast<int>(probabilities.size()));
   sptk::HuffmanCoding huffman_coding(num_element);
   if (!huffman_coding.IsValid()) {
     std::ostringstream error_message;

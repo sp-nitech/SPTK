@@ -197,8 +197,8 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  const int num_pole_filter(pole_frequencies.size());
-  const int num_zero_filter(zero_frequencies.size());
+  const int num_pole_filter(static_cast<int>(pole_frequencies.size()));
+  const int num_zero_filter(static_cast<int>(zero_frequencies.size()));
   const int num_filter(std::max(num_pole_filter, num_zero_filter));
   std::vector<sptk::SecondOrderDigitalFilter*> filters;
   std::vector<sptk::SecondOrderDigitalFilter::Buffer> buffers(num_filter);

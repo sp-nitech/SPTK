@@ -82,7 +82,7 @@ bool WriteMinMaxValues(
     const sptk::MinMaxAccumulation& minmax_accumulation,
     const std::vector<sptk::MinMaxAccumulation::Buffer>& buffer, int num_best,
     OutputFormats output_format, std::ostream* stream_for_position) {
-  const int vector_length(buffer.size());
+  const int vector_length(static_cast<int>(buffer.size()));
 
   if (kMinimumAndMaximum == output_format || kMinimum == output_format) {
     for (int rank(1); rank <= num_best; ++rank) {

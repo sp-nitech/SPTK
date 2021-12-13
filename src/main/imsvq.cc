@@ -127,7 +127,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  const int num_stage(codebook_vectors_file.size());
+  const int num_stage(static_cast<int>(codebook_vectors_file.size()));
   if (0 == num_stage) {
     std::ostringstream error_message;
     error_message << "One or more -s options are required";

@@ -322,7 +322,8 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  const int output_length(input_length * window_coefficients.size());
+  const int output_length(input_length *
+                          static_cast<int>(window_coefficients.size()));
   std::vector<double> output(output_length);
 
   while (delta_calculation.Get(&output)) {
