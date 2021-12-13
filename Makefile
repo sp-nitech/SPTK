@@ -35,7 +35,7 @@ build:
 doc:
 	@if [ ! -f ./tools/venv/bin/activate ]; then \
 		echo "Please prepare a Python environment via:"; \
-		echo "cd tools; make test_env"; \
+		echo "cd tools; make venv_dev"; \
 		exit 1; \
 	fi
 	@if [ ! -x ./tools/doxygen/build/bin/doxygen ]; then \
@@ -65,7 +65,7 @@ format:
 	# Python
 	@if [ ! -f ./tools/venv/bin/activate ]; then \
 		echo "Please prepare a Python environment via:"; \
-		echo "cd tools; make test_env"; \
+		echo "cd tools; make venv_dev"; \
 		exit 1; \
 	fi
 	./tools/venv/bin/black $(PYTHONDIR)

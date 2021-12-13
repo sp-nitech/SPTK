@@ -24,12 +24,14 @@ check: venv_dev bats.done cpplint.done shellcheck.done sptk.done
 
 venv:
 	python3 -m venv venv
-	. venv/bin/activate; pip install -r requirements.txt --upgrade
+	. venv/bin/activate; pip install pip --upgrade; \
+	 pip install -r requirements.txt --upgrade
 	touch venv/bin/activate
 
 venv_dev:
 	python3 -m venv venv
-	. venv/bin/activate; pip install -r requirements.txt -r test_requirements.txt --upgrade
+	. venv/bin/activate; pip install pip --upgrade; \
+	pip install -r requirements.txt -r test_requirements.txt --upgrade
 	touch venv/bin/activate
 
 bats.done:
