@@ -131,7 +131,8 @@ void PrintUsage(std::ostream* stream) {
  */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
-  std::vector<std::vector<double> > window_coefficients({{1.0}});
+  std::vector<std::vector<double> > window_coefficients(
+      1, std::vector<double>(1, 1.0));
   bool is_regression_specified(false);
   double magic_number(0.0);
   bool is_magic_number_specified(false);
