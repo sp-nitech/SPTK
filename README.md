@@ -14,8 +14,8 @@ See [this page](https://sp-nitech.github.io/sptk/4.0/) for a reference manual.
 
 Requirements
 ------------
-- GCC 4.8+
-- CMake 3.3+
+- GCC 4.8.5+ / Clang 3.5+ / Visual Studio 2015+
+- CMake 3.1+
 
 
 Installation

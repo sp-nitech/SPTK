@@ -14,13 +14,21 @@
 # limitations under the License.                                           #
 # ------------------------------------------------------------------------ #
 
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.1)
 
 project(SPTK)
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.8)
-    message(FATAL_ERROR "require gcc >= 4.8")
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.5)
+    message(FATAL_ERROR "require clang >= 3.5")
+  endif()
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.8.5)
+    message(FATAL_ERROR "require gcc >= 4.8.5")
+  endif()
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0)
+    message(FATAL_ERROR "require msvc >= Visual Studio 2015")
   endif()
 endif()
 
