@@ -94,14 +94,21 @@ limitations under the License.
 namespace sptk {
 namespace reaper {
 
-static const float kMinSampleRate = 6000.0;
-#endif
+static const float kMinSampleRate = 6000.0f;
+static const float kExternalFrameInterval = 0.005f;
+static const float kInternalFrameInterval = 0.002f;
+static const float kMinF0Search = 40.0f;
+static const float kMaxF0Search = 500.0f;
+static const float kUnvoicedPulseInterval = 0.01f;
+static const float kUnvoicedCost = 0.9f;
+#else
 static const float kExternalFrameInterval = 0.005;
 static const float kInternalFrameInterval = 0.002;
 static const float kMinF0Search = 40.0;
 static const float kMaxF0Search = 500.0;
 static const float kUnvoicedPulseInterval = 0.01;
 static const float kUnvoicedCost = 0.9;
+#endif
 static const bool kDoHighpass = true;
 static const bool kDoHilbertTransform = false;
 static const char kDebugName[] = "";

@@ -288,9 +288,9 @@ int main(int argc, char* argv[]) {
     }
     codebook_vectors.push_back(mean);
   } else {
-    std::ifstream ifs;
-    ifs.open(initial_codebook_file, std::ios::in | std::ios::binary);
-    if (ifs.fail()) {
+    std::ifstream ifs2;
+    ifs2.open(initial_codebook_file, std::ios::in | std::ios::binary);
+    if (ifs2.fail()) {
       std::ostringstream error_message;
       error_message << "Cannot open file " << initial_codebook_file;
       sptk::PrintErrorMessage("lbg", error_message);
@@ -298,7 +298,7 @@ int main(int argc, char* argv[]) {
     }
 
     std::vector<double> tmp(length);
-    while (sptk::ReadStream(false, 0, 0, length, &tmp, &ifs, NULL)) {
+    while (sptk::ReadStream(false, 0, 0, length, &tmp, &ifs2, NULL)) {
       codebook_vectors.push_back(tmp);
     }
   }
