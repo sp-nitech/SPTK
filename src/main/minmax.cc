@@ -60,7 +60,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 0 (minimum and maximum)" << std::endl;
   *stream << "                 1 (minimum)" << std::endl;
   *stream << "                 2 (maximum)" << std::endl;
-  *stream << "       -w w  : way to find value           (   int)[" << std::setw(5) << std::right << kDefaultWayToFindValue << "][ 0 <= f <= 1 ]" << std::endl;  // NOLINT
+  *stream << "       -w w  : way to find value           (   int)[" << std::setw(5) << std::right << kDefaultWayToFindValue << "][ 0 <= w <= 1 ]" << std::endl;  // NOLINT
   *stream << "                 0 (find value from a vector)" << std::endl;
   *stream << "                 1 (find value from vector sequence for each dimension)" << std::endl;  // NOLINT
   *stream << "       -p p  : output filename of int type (string)[" << std::setw(5) << std::right << "N/A"                  << "]" << std::endl;  // NOLINT

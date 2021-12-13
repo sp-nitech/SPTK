@@ -68,7 +68,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  notice:" << std::endl;
   *stream << "       if i = 0, don't interpolate filter coefficients" << std::endl;  // NOLINT
   *stream << "       if c = 0, inverse MLSA filter is used" << std::endl;
-  *stream << "       otherwise inverse MGLSA filter is used and P is ignored" << std::endl;  // NOLINT
+  *stream << "       if c > 0, inverse MGLSA filter is used and P is ignored" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;

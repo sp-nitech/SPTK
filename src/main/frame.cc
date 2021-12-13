@@ -56,7 +56,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  infile:" << std::endl;
   *stream << "       data sequence              (double)[stdin]" << std::endl;
   *stream << "  stdout:" << std::endl;
-  *stream << "       extracted data sequence" << std::endl;
+  *stream << "       extracted data sequence    (double)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
