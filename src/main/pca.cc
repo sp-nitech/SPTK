@@ -33,6 +33,8 @@ const int kDefaultVectorLength(25);
 const int kDefaultNumPrincipalComponent(2);
 const int kDefaultNumIteration(10000);
 const double kDefaultConvergenceThreshold(1e-6);
+const sptk::PrincipalComponentAnalysis::CovarianceType kDefaultCovarianceType(
+    sptk::PrincipalComponentAnalysis::CovarianceType::kSampleCovariance);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -47,6 +49,10 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -n n  : number of principal components (   int)[" << std::setw(5) << std::right << kDefaultNumPrincipalComponent << "][   1 <= n <= l ]" << std::endl;  // NOLINT
   *stream << "       -i i  : maximum number of iterations   (   int)[" << std::setw(5) << std::right << kDefaultNumIteration          << "][   1 <= i <=   ]" << std::endl;  // NOLINT
   *stream << "       -d d  : convergence threshold          (double)[" << std::setw(5) << std::right << kDefaultConvergenceThreshold  << "][ 0.0 <= d <=   ]" << std::endl;  // NOLINT
+  *stream << "       -u u  : covariance type                (   int)[" << std::setw(5) << std::right << kDefaultCovarianceType        << "][   0 <= u <= 2 ]" << std::endl;  // NOLINT
+  *stream << "                 0 (sample covariance)" << std::endl;
+  *stream << "                 1 (unbiased covariance)" << std::endl;
+  *stream << "                 2 (correlation)" << std::endl;
   *stream << "       -v v  : output filename of double type (string)[" << std::setw(5) << std::right << "N/A"                         << "]" << std::endl;  // NOLINT
   *stream << "               eigenvalues and proportions" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
@@ -75,6 +81,11 @@ void PrintUsage(std::ostream* stream) {
  *   - number of iterations @f$(1 \le I)@f$
  * - @b -d @e double
  *   - convergence threshold @f$(0 \le \epsilon)@f$
+ * - @b -u @e int
+ *   - covariance type
+ *     @arg @c 0 sample covariance
+ *     @arg @c 1 unbiased covariance
+ *     @arg @c 2 correlation
  * - @b -v @e str
  *   - double-type eigenvalues and proportions
  * - @b infile @e str
@@ -102,10 +113,13 @@ int main(int argc, char* argv[]) {
   int num_principal_component(kDefaultNumPrincipalComponent);
   int num_iteration(kDefaultNumIteration);
   double convergence_threshold(kDefaultConvergenceThreshold);
+  sptk::PrincipalComponentAnalysis::CovarianceType covariance_type(
+      kDefaultCovarianceType);
   const char* eigenvalues_file(NULL);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:m:n:i:d:v:h", NULL, NULL));
+    const int option_char(
+        getopt_long(argc, argv, "l:m:n:i:d:u:v:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -165,6 +179,25 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
+      case 'u': {
+        const int min(0);
+        const int max(
+            static_cast<int>(sptk::PrincipalComponentAnalysis::CovarianceType::
+                                 kNumCovarianceTypes) -
+            1);
+        int tmp;
+        if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
+            !sptk::IsInRange(tmp, min, max)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -u option must be an integer "
+                        << "in the range of " << min << " to " << max;
+          sptk::PrintErrorMessage("pca", error_message);
+          return 1;
+        }
+        covariance_type =
+            static_cast<sptk::PrincipalComponentAnalysis::CovarianceType>(tmp);
+        break;
+      }
       case 'v': {
         eigenvalues_file = optarg;
         break;
@@ -222,7 +255,7 @@ int main(int argc, char* argv[]) {
   std::ostream& output_stream(ofs);
 
   sptk::PrincipalComponentAnalysis principal_component_analysis(
-      vector_length - 1, num_iteration, convergence_threshold);
+      vector_length - 1, num_iteration, convergence_threshold, covariance_type);
   sptk::PrincipalComponentAnalysis::Buffer buffer;
   if (!principal_component_analysis.IsValid()) {
     std::ostringstream error_message;

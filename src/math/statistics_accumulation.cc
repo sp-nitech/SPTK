@@ -157,6 +157,29 @@ bool StatisticsAccumulation::GetFullCovariance(
   return true;
 }
 
+bool StatisticsAccumulation::GetUnbiasedCovariance(
+    const StatisticsAccumulation::Buffer& buffer,
+    SymmetricMatrix* unbiased_covariance) const {
+  if (!is_valid_ || num_statistics_order_ < 2 ||
+      buffer.zeroth_order_statistics_ <= 1 || NULL == unbiased_covariance) {
+    return false;
+  }
+
+  if (!GetFullCovariance(buffer, unbiased_covariance)) {
+    return false;
+  }
+
+  const double z(static_cast<double>(buffer.zeroth_order_statistics_) /
+                 (buffer.zeroth_order_statistics_ - 1));
+  for (int i(0); i <= num_order_; ++i) {
+    for (int j(0); j <= i; ++j) {
+      (*unbiased_covariance)[i][j] *= z;
+    }
+  }
+
+  return true;
+}
+
 bool StatisticsAccumulation::GetCorrelation(
     const StatisticsAccumulation::Buffer& buffer,
     SymmetricMatrix* correlation) const {

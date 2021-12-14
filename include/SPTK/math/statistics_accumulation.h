@@ -152,6 +152,14 @@ class StatisticsAccumulation {
 
   /**
    * @param[in] buffer Buffer.
+   * @param[out] unbiased_covariance Unbiased covariance of accumulated data.
+   * @return True on success, false on failure.
+   */
+  bool GetUnbiasedCovariance(const StatisticsAccumulation::Buffer& buffer,
+                             SymmetricMatrix* unbiased_covariance) const;
+
+  /**
+   * @param[in] buffer Buffer.
    * @param[out] correlation Correlation of accumulated data.
    * @return True on success, false on failure.
    */

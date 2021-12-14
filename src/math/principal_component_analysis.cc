@@ -24,14 +24,16 @@
 namespace sptk {
 
 PrincipalComponentAnalysis::PrincipalComponentAnalysis(
-    int num_order, int num_iteration, double convergence_threshold)
+    int num_order, int num_iteration, double convergence_threshold,
+    CovarianceType covariance_type)
     : num_order_(num_order),
       num_iteration_(num_iteration),
       convergence_threshold_(convergence_threshold),
+      covariance_type_(covariance_type),
       accumulation_(num_order, 2),
       is_valid_(true) {
   if (num_order_ < 0 || num_iteration_ <= 0 || convergence_threshold_ < 0.0 ||
-      !accumulation_.IsValid()) {
+      kNumCovarianceTypes == covariance_type_ || !accumulation_.IsValid()) {
     is_valid_ = false;
     return;
   }
@@ -67,10 +69,32 @@ bool PrincipalComponentAnalysis::Run(
       return false;
     }
   }
-  if (!accumulation_.GetMean(buffer->buffer_for_accumulation, mean_vector) ||
-      !accumulation_.GetFullCovariance(buffer->buffer_for_accumulation,
-                                       &buffer->a_)) {
+  if (!accumulation_.GetMean(buffer->buffer_for_accumulation, mean_vector)) {
     return false;
+  }
+  switch (covariance_type_) {
+    case kSampleCovariance: {
+      if (!accumulation_.GetFullCovariance(buffer->buffer_for_accumulation,
+                                           &buffer->a_)) {
+        return false;
+      }
+      break;
+    }
+    case kUnbiasedCovariance: {
+      if (!accumulation_.GetUnbiasedCovariance(buffer->buffer_for_accumulation,
+                                               &buffer->a_)) {
+        return false;
+      }
+      break;
+    }
+    case kCorrelation: {
+      if (!accumulation_.GetCorrelation(buffer->buffer_for_accumulation,
+                                        &buffer->a_)) {
+        return false;
+      }
+      break;
+    }
+    default: { return false; }
   }
 
   // Initialize eigenvector matrix with identity matrix.

@@ -56,6 +56,16 @@ namespace sptk {
 class PrincipalComponentAnalysis {
  public:
   /**
+   * Type of covariance.
+   */
+  enum CovarianceType {
+    kSampleCovariance = 0,
+    kUnbiasedCovariance,
+    kCorrelation,
+    kNumCovarianceTypes,
+  };
+
+  /**
    * Buffer for PrincipalComponentAnalysis class.
    */
   class Buffer {
@@ -79,9 +89,11 @@ class PrincipalComponentAnalysis {
    * @param[in] num_order Order of vector, @f$M@f$.
    * @param[in] num_iteration Number of iterations.
    * @param[in] convergence_threshold Convergence threshold.
+   * @param[in] covariance_type Type of covariance.
    */
   PrincipalComponentAnalysis(int num_order, int num_iteration,
-                             double convergence_threshold);
+                             double convergence_threshold,
+                             CovarianceType covariance_type);
 
   virtual ~PrincipalComponentAnalysis() {
   }
@@ -105,6 +117,13 @@ class PrincipalComponentAnalysis {
    */
   double GetConvergenceThreshold() const {
     return convergence_threshold_;
+  }
+
+  /**
+   * @return Type of covariance.
+   */
+  CovarianceType GetCovarianceType() const {
+    return covariance_type_;
   }
 
   /**
@@ -133,6 +152,7 @@ class PrincipalComponentAnalysis {
   const int num_order_;
   const int num_iteration_;
   const double convergence_threshold_;
+  const CovarianceType covariance_type_;
 
   const StatisticsAccumulation accumulation_;
 
