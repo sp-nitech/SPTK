@@ -1,5 +1,6 @@
 black
 breathe
+docutils>=0.14,<0.18
 flake8
 isort
 sphinx

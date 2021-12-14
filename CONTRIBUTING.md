@@ -17,7 +17,6 @@ For the development of SPTK, you may need to install the following programs:
 - [flex](https://github.com/westes/flex/releases) 2.6.3
 - Python 3.6+
 - Valgrind
-- Virtualenv
 
 Then you can setup the development environment of SPTK by running
 ```sh
