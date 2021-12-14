@@ -109,7 +109,7 @@ Changes from SPTK3
   - Scalar quantization (`quantize` and `dequantize`)
   - Stability check of LPC coefficients (`lpccheck`)
   - Subband decomposition (`pqmf` and `ipqmf`)
-  - Windows build support (except drawing commands)
+  - Windows build support (**except drawing commands**)
 - Obsoleted commands:
   - `acep`, `agcep`, and `amcep` -> `amgcep`
   - `bell`
@@ -146,7 +146,7 @@ Who we are
 ----------
 * **Keiichi Tokuda** - *Produce and Design* - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~tokuda/)
 * **Keiichiro Oura** - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~uratec/)
-* **Takenori Yoshimura** - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~takenori/)
+* **Takenori Yoshimura** - *Main Maintainer* - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~takenori/)
 * **Takato Fujimoto** - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~taka19/)
 
 
