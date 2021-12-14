@@ -14,15 +14,15 @@
 # limitations under the License.                                           #
 # ------------------------------------------------------------------------ #
 
-SOURCEDIR      := src
-PYTHONDIR      := src/draw
-BINDIR         := bin
-BUILDDIR       := build
-DOCDIR         := doc
-INCLUDEDIR     := include
-LIBDIR         := lib
+SOURCEDIR  := src
+PYTHONDIR  := src/draw
+BINDIR     := bin
+BUILDDIR   := build
+DOCDIR     := doc
+INCLUDEDIR := include
+LIBDIR     := lib
 
-JOBS           := 4
+JOBS       := 4
 
 
 all: build
@@ -35,12 +35,16 @@ build:
 doc:
 	@if [ ! -f ./tools/venv/bin/activate ]; then \
 		echo "Please prepare a Python environment via:"; \
-		echo "cd tools; make venv_dev"; \
+		echo ""; \
+		echo "  cd tools; make venv_dev"; \
+		echo ""; \
 		exit 1; \
 	fi
 	@if [ ! -x ./tools/doxygen/build/bin/doxygen ]; then \
 		echo "Please install doxygen via:"; \
-		echo "cd tools; make doxygen.done"; \
+		echo ""; \
+		echo "  cd tools; make doxygen.done"; \
+		echo ""; \
 		exit 1; \
 	fi
 	cd $(DOCDIR); ../tools/doxygen/build/bin/doxygen
@@ -52,42 +56,51 @@ doc-clean:
 		. ./tools/venv/bin/activate; cd $(DOCDIR); make clean; \
 	fi
 
-format:
-	# Bash
-	@if [ ! -f ./tools/shellcheck/shellcheck ]; then \
+format: format-sh format-py format-cc
+
+format-sh:
+	@if [ ! -x ./tools/shellcheck/shellcheck ]; then \
 		echo "Please install shellcheck via:"; \
-		echo "cd tools; make shellcheck.done"; \
+		echo ""; \
+		echo "  cd tools; make shellcheck.done"; \
+		echo ""; \
 		exit 1; \
 	fi
 	./tools/shellcheck/shellcheck egs/*/*/run.sh
 	./tools/shellcheck/shellcheck -x test/*.bats
 
-	# Python
-	@if [ ! -f ./tools/venv/bin/activate ]; then \
-		echo "Please prepare a Python environment via:"; \
-		echo "cd tools; make venv_dev"; \
+format-py:
+	@if [ ! -x ./tools/venv/bin/black ] || [ ! -x ./tools/venv/bin/isort ] || [ ! -x ./tools/venv/bin/flake8 ]; then \
+		echo "Please install black, isort, and flake8 via:"; \
+		echo ""; \
+		echo "  cd tools; make venv_dev"; \
+		echo ""; \
 		exit 1; \
 	fi
 	./tools/venv/bin/black $(PYTHONDIR)
 	./tools/venv/bin/isort $(PYTHONDIR) --sl --fss --sort-order native --project sptk
 	./tools/venv/bin/flake8 $(PYTHONDIR)
 
-	# C++
-	@if [ ! -f ./tools/cpplint/cpplint.py ]; then \
-		echo "Please install cpplint via:"; \
-		echo "cd tools; make cpplint.done"; \
+format-cc:
+	@if [ ! -x ./tools/venv/bin/clang-format ] || [ ! -x ./tools/venv/bin/cpplint ]; then \
+		echo "Please install clang-format and cpplint via:"; \
+		echo ""; \
+		echo "  cd tools; make venv_dev"; \
+		echo ""; \
 		exit 1; \
 	fi
 	./tools/venv/bin/clang-format -i $(wildcard $(SOURCEDIR)/*/*.cc)
 	./tools/venv/bin/clang-format -i $(wildcard $(INCLUDEDIR)/SPTK/*/*.h)
-	./tools/cpplint/cpplint.py --filter=-readability/streams $(wildcard $(SOURCEDIR)/*/*.cc)
-	./tools/cpplint/cpplint.py --filter=-readability/streams,-build/include_subdir \
+	./tools/venv/bin/cpplint --filter=-readability/streams $(wildcard $(SOURCEDIR)/*/*.cc)
+	./tools/venv/bin/cpplint --filter=-readability/streams,-build/include_subdir \
 		--root=$(abspath $(INCLUDEDIR)) $(wildcard $(INCLUDEDIR)/SPTK/*/*.h)
 
 test:
-	@if [ ! -f ./tools/bats/bin/bats ]; then \
+	@if [ ! -x ./tools/bats/bin/bats ]; then \
 		echo "Please install bats via:"; \
-		echo "cd tools; make bats.done"; \
+		echo ""; \
+		echo "  cd tools; make bats.done"; \
+		echo ""; \
 		exit 1; \
 	fi
 	./tools/bats/bin/bats --jobs $(JOBS) --no-parallelize-within-files test

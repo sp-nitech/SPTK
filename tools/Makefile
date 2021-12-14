@@ -20,7 +20,7 @@ JOBS               := 4
 
 all: check doxygen.done
 
-check: venv_dev bats.done cpplint.done shellcheck.done sptk.done
+check: venv_dev bats.done shellcheck.done sptk.done
 
 venv:
 	python3 -m venv venv
@@ -38,11 +38,6 @@ bats.done:
 	rm -rf bats
 	git clone https://github.com/bats-core/bats-core.git bats --depth 1
 	touch bats.done
-
-cpplint.done:
-	rm -rf cpplint
-	git clone https://github.com/cpplint/cpplint.git --depth 1
-	touch cpplint.done
 
 doxygen.done:
 	rm -rf doxygen
@@ -66,6 +61,6 @@ sptk.done:
 	touch sptk.done
 
 clean:
-	rm -rf venv bats cpplint doxygen shellcheck sptk *.done
+	rm -rf venv bats doxygen shellcheck sptk *.done
 
 .PHONY: all check venv venv_dev clean
