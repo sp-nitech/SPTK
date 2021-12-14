@@ -109,6 +109,7 @@ Changes from SPTK3
   - Scalar quantization (`quantize` and `dequantize`)
   - Stability check of LPC coefficients (`lpccheck`)
   - Subband decomposition (`pqmf` and `ipqmf`)
+  - Windows build support
 - Obsoleted commands:
   - `acep`, `agcep`, and `amcep` -> `amgcep`
   - `bell`
