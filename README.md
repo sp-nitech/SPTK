@@ -1,6 +1,6 @@
 SPTK 4.0 (Under Construction)
 =============================
-The Speech Signal Processing Toolkit (SPTK) is a software for speech signal processing tools for UNIX environments.
+The Speech Signal Processing Toolkit (SPTK) is a software for speech signal processing tools.
 
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://sp-nitech.github.io/sptk/4.0/)
 [![](http://img.shields.io/badge/license-Apache%202.0-green.svg)](https://github.com/sp-nitech/SPTK/blob/master/LICENSE)
@@ -109,7 +109,7 @@ Changes from SPTK3
   - Scalar quantization (`quantize` and `dequantize`)
   - Stability check of LPC coefficients (`lpccheck`)
   - Subband decomposition (`pqmf` and `ipqmf`)
-  - Windows build support
+  - Windows build support (except drawing commands)
 - Obsoleted commands:
   - `acep`, `agcep`, and `amcep` -> `amgcep`
   - `bell`
