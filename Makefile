@@ -78,8 +78,8 @@ format:
 		echo "cd tools; make cpplint.done"; \
 		exit 1; \
 	fi
-	clang-format -i $(wildcard $(SOURCEDIR)/*/*.cc)
-	clang-format -i	$(wildcard $(INCLUDEDIR)/SPTK/*/*.h)
+	./tools/venv/bin/clang-format -i $(wildcard $(SOURCEDIR)/*/*.cc)
+	./tools/venv/bin/clang-format -i $(wildcard $(INCLUDEDIR)/SPTK/*/*.h)
 	./tools/cpplint/cpplint.py --filter=-readability/streams $(wildcard $(SOURCEDIR)/*/*.cc)
 	./tools/cpplint/cpplint.py --filter=-readability/streams,-build/include_subdir \
 		--root=$(abspath $(INCLUDEDIR)) $(wildcard $(INCLUDEDIR)/SPTK/*/*.h)

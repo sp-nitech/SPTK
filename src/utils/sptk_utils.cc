@@ -434,9 +434,8 @@ double AddInLogSpace(double log_x, double log_y) {
 
 double Warp(double omega, double alpha) {
   if (0.0 == alpha) return omega;
-  return (
-      omega +
-      2.0 * std::atan2(alpha * std::sin(omega), 1.0 - alpha * std::cos(omega)));
+  return (omega + 2.0 * std::atan2(alpha * std::sin(omega),
+                                   1.0 - alpha * std::cos(omega)));
 }
 
 double Warp(double omega, double alpha, double theta) {

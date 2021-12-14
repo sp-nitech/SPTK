@@ -21,7 +21,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/conversion/linear_predictive_coefficients_to_cepstrum.h"
 #include "SPTK/utils/sptk_utils.h"
 

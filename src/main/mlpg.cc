@@ -21,7 +21,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/generation/nonrecursive_maximum_likelihood_parameter_generation.h"
 #include "SPTK/generation/recursive_maximum_likelihood_parameter_generation.h"
 #include "SPTK/input/input_source_from_stream.h"
@@ -142,7 +141,9 @@ class InputSourcePreprocessing : public sptk::InputSourceInterface {
         }
         break;
       }
-      default: { break; }
+      default: {
+        break;
+      }
     }
     return true;
   }
@@ -202,7 +203,8 @@ int main(int argc, char* argv[]) {
   Modes mode(kDefaultMode);
 
   const struct option long_options[] = {
-      {"magic", required_argument, NULL, kMagic}, {0, 0, 0, 0},
+      {"magic", required_argument, NULL, kMagic},
+      {0, 0, 0, 0},
   };
 
   for (;;) {

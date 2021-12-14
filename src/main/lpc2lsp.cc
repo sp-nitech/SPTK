@@ -23,7 +23,6 @@
 #include <vector>     // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/conversion/linear_predictive_coefficients_to_line_spectral_pairs.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -311,7 +310,9 @@ int main(int argc, char* argv[]) {
                        });
         break;
       }
-      default: { break; }
+      default: {
+        break;
+      }
     }
 
     switch (output_gain_type) {
@@ -327,7 +328,9 @@ int main(int argc, char* argv[]) {
         // nothing to do
         break;
       }
-      default: { break; }
+      default: {
+        break;
+      }
     }
 
     if (!sptk::WriteStream(begin, write_size, coefficients, &std::cout, NULL)) {

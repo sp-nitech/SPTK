@@ -21,7 +21,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/generation/delta_calculation.h"
 #include "SPTK/input/input_source_from_stream.h"
 #include "SPTK/utils/sptk_utils.h"
@@ -138,7 +137,8 @@ int main(int argc, char* argv[]) {
   bool is_magic_number_specified(false);
 
   const struct option long_options[] = {
-      {"magic", required_argument, NULL, kMagic}, {0, 0, 0, 0},
+      {"magic", required_argument, NULL, kMagic},
+      {0, 0, 0, 0},
   };
 
   for (;;) {

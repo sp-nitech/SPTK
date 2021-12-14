@@ -20,7 +20,6 @@
 #include <sstream>   // std::ostringstream
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {

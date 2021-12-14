@@ -22,7 +22,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/compression/huffman_coding.h"
 #include "SPTK/utils/sptk_utils.h"
 

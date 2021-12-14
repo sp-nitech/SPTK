@@ -80,7 +80,9 @@ bool DistanceCalculation::Run(const std::vector<double>& vector1,
       }
       break;
     }
-    default: { return false; }
+    default: {
+      return false;
+    }
   }
 
   *distance = sum;

@@ -23,7 +23,6 @@
 #include <vector>     // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/conversion/mel_generalized_cepstrum_to_spectrum.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -338,7 +337,9 @@ int main(int argc, char* argv[]) {
                        [](double x) { return x * 180.0 / sptk::kPi; });
         break;
       }
-      default: { break; }
+      default: {
+        break;
+      }
     }
 
     switch (output_format) {
@@ -367,7 +368,9 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      default: { break; }
+      default: {
+        break;
+      }
     }
   }
 

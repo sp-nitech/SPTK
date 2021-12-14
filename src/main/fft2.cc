@@ -21,7 +21,6 @@
 #include <sstream>   // std::ostringstream
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/math/matrix.h"
 #include "SPTK/math/two_dimensional_fast_fourier_transform.h"
 #include "SPTK/utils/sptk_utils.h"

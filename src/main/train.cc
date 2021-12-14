@@ -20,7 +20,6 @@
 #include <sstream>   // std::ostringstream
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -191,7 +190,9 @@ int main(int argc, char* argv[]) {
       pulse = period;
       break;
     }
-    default: { return 1; }
+    default: {
+      return 1;
+    }
   }
 
   const double frequency(1.0 / period);

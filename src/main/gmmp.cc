@@ -21,7 +21,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/math/gaussian_mixture_modeling.h"
 #include "SPTK/utils/sptk_utils.h"
 

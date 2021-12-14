@@ -39,7 +39,9 @@ int CalculateDataLength(int fft_length,
         kSymmetricForPlottingFrequencyResponse: {
       return fft_length + 1;
     }
-    default: { return 0; }
+    default: {
+      return 0;
+    }
   }
 }
 
@@ -110,7 +112,9 @@ bool DataSymmetrizing::Run(
                     symmetrized_data_sequence->begin() + input_length_);
           break;
         }
-        default: { return false; }
+        default: {
+          return false;
+        }
       }
       break;
     }
@@ -146,7 +150,9 @@ bool DataSymmetrizing::Run(
                     symmetrized_data_sequence->begin() + fft_length_ / 2);
           break;
         }
-        default: { return false; }
+        default: {
+          return false;
+        }
       }
       break;
     }
@@ -180,7 +186,9 @@ bool DataSymmetrizing::Run(
           (*symmetrized_data_sequence)[fft_length_] *= 2.0;
           break;
         }
-        default: { return false; }
+        default: {
+          return false;
+        }
       }
       break;
     }
@@ -212,12 +220,16 @@ bool DataSymmetrizing::Run(
                     symmetrized_data_sequence->begin());
           break;
         }
-        default: { return false; }
+        default: {
+          return false;
+        }
       }
       break;
     }
 
-    default: { return false; }
+    default: {
+      return false;
+    }
   }
 
   return true;

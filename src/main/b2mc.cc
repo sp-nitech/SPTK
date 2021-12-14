@@ -21,7 +21,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/conversion/mlsa_digital_filter_coefficients_to_mel_cepstrum.h"
 #include "SPTK/utils/sptk_utils.h"
 

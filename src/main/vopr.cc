@@ -24,7 +24,6 @@
 #include <vector>      // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -381,7 +380,9 @@ int main(int argc, char* argv[]) {
       }
       break;
     }
-    default: { return 0; }
+    default: {
+      return 0;
+    }
   }
 
   std::istream& infile_stream(infile_ifs.fail() ? std::cin : infile_ifs);
@@ -510,7 +511,9 @@ int main(int argc, char* argv[]) {
                        [](double a, double b) { return b <= a; });
         break;
       }
-      default: { break; }
+      default: {
+        break;
+      }
     }
 
     if (!sptk::WriteStream(0, vector_length, result, &std::cout, NULL)) {

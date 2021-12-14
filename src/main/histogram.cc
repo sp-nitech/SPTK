@@ -23,7 +23,6 @@
 #include <vector>     // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/math/histogram_calculation.h"
 #include "SPTK/math/statistics_accumulation.h"
 #include "SPTK/utils/sptk_utils.h"

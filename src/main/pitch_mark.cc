@@ -23,7 +23,6 @@
 #include <vector>     // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/analysis/pitch_extraction.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -314,7 +313,9 @@ int main(int argc, char* argv[]) {
       }
       break;
     }
-    default: { break; }
+    default: {
+      break;
+    }
   }
 
   return 0;

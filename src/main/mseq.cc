@@ -19,7 +19,6 @@
 #include <sstream>   // std::ostringstream
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/generation/m_sequence_generation.h"
 #include "SPTK/utils/sptk_utils.h"
 

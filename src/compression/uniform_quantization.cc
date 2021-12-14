@@ -68,7 +68,9 @@ bool UniformQuantization::Run(double input, int* output) const {
                                (quantization_levels_ - 1) / 2);
       break;
     }
-    default: { return false; }
+    default: {
+      return false;
+    }
   }
 
   // Clip index.

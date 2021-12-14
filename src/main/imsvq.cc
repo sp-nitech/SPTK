@@ -21,7 +21,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/compression/inverse_multistage_vector_quantization.h"
 #include "SPTK/utils/sptk_utils.h"
 

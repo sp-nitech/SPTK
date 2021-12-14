@@ -23,7 +23,6 @@
 #include <string>    // std::string
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -207,7 +206,9 @@ int main(int argc, char* argv[]) {
                     << "  ";
           break;
         }
-        default: { break; }
+        default: {
+          break;
+        }
       }
     }
 

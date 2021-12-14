@@ -22,7 +22,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -266,8 +265,9 @@ int main(int argc, char* argv[]) {
 
   int output_count(0);
   double x(minimum_x);
-  const double interval((1 == output_length) ? 0.0 : ((maximum_x - minimum_x) /
-                                                      (output_length - 1)));
+  const double interval((1 == output_length)
+                            ? 0.0
+                            : ((maximum_x - minimum_x) / (output_length - 1)));
   for (int index(start_index), next_index(index + 1); next_index < input_length;
        index = next_index, ++next_index) {
     if (x <= data_x[next_index]) {

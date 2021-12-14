@@ -59,7 +59,9 @@ bool InputSourcePreprocessingForFilterGain::Get(std::vector<double>* buffer) {
                      [inverse_of_b0](double x) { return x * inverse_of_b0; });
       break;
     }
-    default: { return false; }
+    default: {
+      return false;
+    }
   }
 
   return true;

@@ -21,7 +21,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/analysis/zero_crossing_analysis.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -180,7 +179,9 @@ int main(int argc, char* argv[]) {
         output /= frame_length;
         break;
       }
-      default: { break; }
+      default: {
+        break;
+      }
     }
 
     if (!sptk::WriteStream(output, &std::cout)) {

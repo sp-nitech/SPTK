@@ -21,7 +21,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/filter/inverse_pseudo_quadrature_mirror_filter_banks.h"
 #include "SPTK/utils/sptk_utils.h"
 

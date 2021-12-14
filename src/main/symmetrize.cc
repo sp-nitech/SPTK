@@ -21,7 +21,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/utils/data_symmetrizing.h"
 #include "SPTK/utils/sptk_utils.h"
 

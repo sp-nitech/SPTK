@@ -22,7 +22,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/math/distance_calculation.h"
 #include "SPTK/math/statistics_accumulation.h"
 #include "SPTK/utils/sptk_utils.h"
@@ -302,7 +301,9 @@ int main(int argc, char* argv[]) {
         // nothing to do
         break;
       }
-      default: { break; }
+      default: {
+        break;
+      }
     }
 
     if (output_frame_by_frame) {

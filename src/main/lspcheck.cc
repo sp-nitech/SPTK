@@ -23,7 +23,6 @@
 #include <vector>     // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/check/line_spectral_pairs_stability_check.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -110,7 +109,9 @@ double GetScale(InputOutputFormats format, double sampling_frequency) {
     case kFrequencyInHz: {
       return sptk::kTwoPi * 0.001 / sampling_frequency;
     }
-    default: { return 1.0; }
+    default: {
+      return 1.0;
+    }
   }
 }
 

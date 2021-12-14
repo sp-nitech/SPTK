@@ -23,7 +23,6 @@
 #include <vector>     // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/analysis/pitch_extraction.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -148,8 +147,10 @@ int main(int argc, char* argv[]) {
   double lower_f0(kDefaultLowerF0);
   double upper_f0(kDefaultUpperF0);
   std::vector<double> voicing_thresholds{
-      kDefaultVoicingThresholdForRapt, kDefaultVoicingThresholdForSwipe,
-      kDefaultVoicingThresholdForReaper, kDefaultVoicingThresholdForWorld,
+      kDefaultVoicingThresholdForRapt,
+      kDefaultVoicingThresholdForSwipe,
+      kDefaultVoicingThresholdForReaper,
+      kDefaultVoicingThresholdForWorld,
   };
   OutputFormats output_format(kDefaultOutputFormat);
 
@@ -396,7 +397,9 @@ int main(int argc, char* argv[]) {
       });
       break;
     }
-    default: { break; }
+    default: {
+      break;
+    }
   }
 
   const int f0_length(static_cast<int>(f0.size()));

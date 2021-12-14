@@ -21,7 +21,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/conversion/filter_coefficients_to_phase_spectrum.h"
 #include "SPTK/utils/sptk_utils.h"
 

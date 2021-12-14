@@ -21,7 +21,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/conversion/generalized_cepstrum_gain_normalization.h"
 #include "SPTK/utils/sptk_utils.h"
 

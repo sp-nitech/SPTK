@@ -44,8 +44,9 @@ bool CheckSize(const std::vector<sptk::SymmetricMatrix>& matrices, int size) {
 }
 
 bool CheckRange(int index, int max, const double* array, bool reverse) {
-  return (-max <= index && index <= max && ((reverse && 0.0 != array[-index]) ||
-                                            (!reverse && 0.0 != array[index])))
+  return (-max <= index && index <= max &&
+          ((reverse && 0.0 != array[-index]) ||
+           (!reverse && 0.0 != array[index])))
              ? true
              : false;
 }

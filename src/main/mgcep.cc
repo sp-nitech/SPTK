@@ -22,7 +22,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/analysis/mel_generalized_cepstral_analysis.h"
 #include "SPTK/conversion/generalized_cepstrum_gain_normalization.h"
 #include "SPTK/conversion/mel_cepstrum_to_mlsa_digital_filter_coefficients.h"

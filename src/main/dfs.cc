@@ -21,7 +21,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/filter/infinite_impulse_response_digital_filter.h"
 #include "SPTK/utils/sptk_utils.h"
 

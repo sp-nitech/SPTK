@@ -21,7 +21,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/conversion/parcor_coefficients_to_log_area_ratio.h"
 #include "SPTK/utils/sptk_utils.h"
 

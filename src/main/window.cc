@@ -21,7 +21,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/utils/sptk_utils.h"
 #include "SPTK/window/data_windowing.h"
 #include "SPTK/window/standard_window.h"

@@ -66,7 +66,9 @@ bool InverseUniformQuantization::Run(int input, double* output) const {
       value = (input - (quantization_levels_ - 1) / 2) * step_size_;
       break;
     }
-    default: { return false; }
+    default: {
+      return false;
+    }
   }
 
   // Clip value.

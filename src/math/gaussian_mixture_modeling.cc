@@ -195,7 +195,9 @@ bool GaussianMixtureModeling::Run(
       *covariance_matrices = ubm_covariance_matrices_;
       break;
     }
-    default: { return false; }
+    default: {
+      return false;
+    }
   }
 
   // Prepare memories.
@@ -367,9 +369,8 @@ bool GaussianMixtureModeling::CalculateLogProbability(
   }
 
   // Check size of GMM.
-  if (check_size &&
-      !CheckGmm(num_mixture, length, weights, mean_vectors,
-                covariance_matrices)) {
+  if (check_size && !CheckGmm(num_mixture, length, weights, mean_vectors,
+                              covariance_matrices)) {
     return false;
   }
 

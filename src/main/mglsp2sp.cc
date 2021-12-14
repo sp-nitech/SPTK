@@ -23,7 +23,6 @@
 #include <vector>     // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/conversion/mel_generalized_line_spectral_pairs_to_spectrum.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -339,7 +338,9 @@ int main(int argc, char* argv[]) {
         mel_generalized_line_spectral_pairs[0] = 1.0;
         break;
       }
-      default: { break; }
+      default: {
+        break;
+      }
     }
 
     switch (input_format) {
@@ -372,7 +373,9 @@ int main(int argc, char* argv[]) {
                        });
         break;
       }
-      default: { break; }
+      default: {
+        break;
+      }
     }
 
     if (!mel_generalized_line_spectral_pairs_to_spectrum.Run(
@@ -403,7 +406,9 @@ int main(int argc, char* argv[]) {
                        [](double x) { return std::exp(2.0 * x); });
         break;
       }
-      default: { break; }
+      default: {
+        break;
+      }
     }
 
     if (!sptk::WriteStream(0, output_length, spectrum, &std::cout, NULL)) {

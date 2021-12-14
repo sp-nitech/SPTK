@@ -20,7 +20,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/compression/huffman_encoding.h"
 #include "SPTK/utils/sptk_utils.h"
 

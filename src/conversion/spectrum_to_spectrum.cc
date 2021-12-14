@@ -299,7 +299,9 @@ void SelectOperation(
               new LogAmplitudeSpectrumInDecibelsToPowerSpectrum());
           break;
         }
-        default: { return; }
+        default: {
+          return;
+        }
       }
       break;
     }
@@ -322,7 +324,9 @@ void SelectOperation(
           operations->push_back(new LogAmplitudeSpectrumToPowerSpectrum());
           break;
         }
-        default: { return; }
+        default: {
+          return;
+        }
       }
       break;
     }
@@ -345,7 +349,9 @@ void SelectOperation(
           operations->push_back(new AmplitudeSpectrumToPowerSpectrum());
           break;
         }
-        default: { return; }
+        default: {
+          return;
+        }
       }
       break;
     }
@@ -368,11 +374,15 @@ void SelectOperation(
           // nothing to do
           break;
         }
-        default: { return; }
+        default: {
+          return;
+        }
       }
       break;
     }
-    default: { return; }
+    default: {
+      return;
+    }
   }
 }
 
@@ -429,7 +439,9 @@ SpectrumToSpectrum::SpectrumToSpectrum(int fft_length,
             std::pow(10.0, 0.1 * relative_floor_in_decibels_)));
         break;
       }
-      default: { return; }
+      default: {
+        return;
+      }
     }
   }
 }

@@ -23,7 +23,6 @@
 #include <vector>     // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/math/principal_component_analysis.h"
 #include "SPTK/utils/sptk_utils.h"
 

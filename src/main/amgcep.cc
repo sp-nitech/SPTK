@@ -21,7 +21,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/analysis/adaptive_mel_generalized_cepstral_analysis.h"
 #include "SPTK/utils/sptk_utils.h"
 

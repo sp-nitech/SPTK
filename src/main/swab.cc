@@ -25,7 +25,6 @@
 #include <string>     // std::string
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/utils/int24_t.h"
 #include "SPTK/utils/sptk_utils.h"
 #include "SPTK/utils/uint24_t.h"

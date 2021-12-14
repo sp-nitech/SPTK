@@ -59,7 +59,9 @@ bool EntropyCalculation::Run(const std::vector<double>& probability,
       }
       break;
     }
-    default: { return false; }
+    default: {
+      return false;
+    }
   }
 
   *entropy = -sum;

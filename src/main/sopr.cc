@@ -19,7 +19,6 @@
 #include <sstream>   // std::ostringstream
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/math/scalar_operation.h"
 #include "SPTK/utils/sptk_utils.h"
 

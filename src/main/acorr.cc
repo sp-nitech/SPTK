@@ -22,7 +22,6 @@
 #include <vector>     // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/conversion/waveform_to_autocorrelation.h"
 #include "SPTK/utils/sptk_utils.h"
 

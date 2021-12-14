@@ -21,7 +21,6 @@
 #include <sstream>    // std::ostringstream
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/generation/excitation_generation.h"
 #include "SPTK/generation/m_sequence_generation.h"
 #include "SPTK/generation/normal_distributed_random_value_generation.h"

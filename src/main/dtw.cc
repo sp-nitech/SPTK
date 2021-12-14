@@ -22,7 +22,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/math/distance_calculation.h"
 #include "SPTK/math/dynamic_time_warping.h"
 #include "SPTK/utils/sptk_utils.h"

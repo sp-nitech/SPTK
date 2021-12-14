@@ -21,7 +21,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -254,7 +253,9 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      default: { break; }
+      default: {
+        break;
+      }
     }
 
     if (!sptk::WriteStream(0, output_length, data, &std::cout, NULL)) {

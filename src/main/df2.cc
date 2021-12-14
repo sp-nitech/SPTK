@@ -23,7 +23,6 @@
 #include <vector>     // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/filter/second_order_digital_filter.h"
 #include "SPTK/utils/sptk_utils.h"
 

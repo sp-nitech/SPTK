@@ -23,7 +23,6 @@
 #include <vector>     // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/math/durand_kerner_method.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -235,7 +234,9 @@ int main(int argc, char* argv[]) {
         std::reverse(coefficients.begin(), coefficients.end());
         break;
       }
-      default: { break; }
+      default: {
+        break;
+      }
     }
 
     if (0.0 == coefficients[0]) {
@@ -304,7 +305,9 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      default: { break; }
+      default: {
+        break;
+      }
     }
   }
 

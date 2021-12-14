@@ -94,7 +94,9 @@ bool PrincipalComponentAnalysis::Run(
       }
       break;
     }
-    default: { return false; }
+    default: {
+      return false;
+    }
   }
 
   // Initialize eigenvector matrix with identity matrix.

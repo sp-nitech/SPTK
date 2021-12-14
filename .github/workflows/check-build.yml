@@ -24,7 +24,7 @@ jobs:
     - name: install packages
       run: |
         sudo apt-get update
-        sudo apt-get install csh clang-format parallel valgrind
+        sudo apt-get install csh parallel valgrind
     - name: setup
       run: cd tools; make check -j 4
     - name: make

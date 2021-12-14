@@ -21,7 +21,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/conversion/composite_sinusoidal_modeling_to_autocorrelation.h"
 #include "SPTK/utils/sptk_utils.h"
 

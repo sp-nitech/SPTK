@@ -23,7 +23,6 @@
 #include <vector>     // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/conversion/line_spectral_pairs_to_linear_predictive_coefficients.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -234,7 +233,9 @@ int main(int argc, char* argv[]) {
         coefficients[0] = 1.0;
         break;
       }
-      default: { break; }
+      default: {
+        break;
+      }
     }
 
     switch (input_format) {
@@ -264,7 +265,9 @@ int main(int argc, char* argv[]) {
                        });
         break;
       }
-      default: { break; }
+      default: {
+        break;
+      }
     }
 
     if (!line_spectral_pairs_to_linear_predictive_coefficients.Run(

@@ -22,7 +22,6 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-
 #include "SPTK/math/statistics_accumulation.h"
 #include "SPTK/math/symmetric_matrix.h"
 #include "SPTK/utils/misc_utils.h"
