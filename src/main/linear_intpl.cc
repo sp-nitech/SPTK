@@ -48,8 +48,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       linear interpolated data sequence (double)" << std::endl;
   *stream << "  notice:" << std::endl;
   *stream << "       x-axis values in input data must be in ascending order" << std::endl;  // NOLINT
-  *stream << "       if -s is not given, its value is set to beggning of input data";  // NOLINT
-  *stream << "       if -e is not given, its value is set to end of input data";
+  *stream << "       if -s is not given, its value is set to beggning of input data" << std::endl;  // NOLINT
+  *stream << "       if -e is not given, its value is set to end of input data" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -204,7 +204,7 @@ int main(int argc, char* argv[]) {
   }
 
   // Check x-axis values.
-  const int input_length(data_x.size());
+  const int input_length(static_cast<int>(data_x.size()));
   for (int i(1); i < input_length; ++i) {
     if (data_x[i] <= data_x[i - 1]) {
       std::ostringstream error_message;

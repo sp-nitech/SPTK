@@ -19,7 +19,7 @@
 #include <algorithm>  // std::copy, std::fill
 #include <cmath>      // std::ceil
 
-#include "WORLD/src/world/dio.h"
+#include "WORLD/world/dio.h"
 
 namespace sptk {
 

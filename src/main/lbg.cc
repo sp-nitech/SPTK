@@ -288,9 +288,9 @@ int main(int argc, char* argv[]) {
     }
     codebook_vectors.push_back(mean);
   } else {
-    std::ifstream ifs;
-    ifs.open(initial_codebook_file, std::ios::in | std::ios::binary);
-    if (ifs.fail()) {
+    std::ifstream ifs2;
+    ifs2.open(initial_codebook_file, std::ios::in | std::ios::binary);
+    if (ifs2.fail()) {
       std::ostringstream error_message;
       error_message << "Cannot open file " << initial_codebook_file;
       sptk::PrintErrorMessage("lbg", error_message);
@@ -298,7 +298,7 @@ int main(int argc, char* argv[]) {
     }
 
     std::vector<double> tmp(length);
-    while (sptk::ReadStream(false, 0, 0, length, &tmp, &ifs, NULL)) {
+    while (sptk::ReadStream(false, 0, 0, length, &tmp, &ifs2, NULL)) {
       codebook_vectors.push_back(tmp);
     }
   }
@@ -316,9 +316,9 @@ int main(int argc, char* argv[]) {
   std::ostream& output_stream(ofs);
 
   sptk::LindeBuzoGrayAlgorithm codebook_design(
-      num_order, codebook_vectors.size(), target_codebook_size,
-      min_num_vector_in_cluster, num_iteration, convergence_threshold,
-      splitting_factor, seed);
+      num_order, static_cast<int>(codebook_vectors.size()),
+      target_codebook_size, min_num_vector_in_cluster, num_iteration,
+      convergence_threshold, splitting_factor, seed);
   if (!codebook_design.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to initialize LindeBuzoGrayAlgorithm";
@@ -347,8 +347,8 @@ int main(int argc, char* argv[]) {
   }
 
   if (NULL != codebook_index_file) {
-    if (!sptk::WriteStream(0, codebook_indices.size(), codebook_indices,
-                           &output_stream, NULL)) {
+    if (!sptk::WriteStream(0, static_cast<int>(codebook_indices.size()),
+                           codebook_indices, &output_stream, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write codebook index";
       sptk::PrintErrorMessage("lbg", error_message);

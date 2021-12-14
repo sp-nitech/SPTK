@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    const int output_length(output.size());
+    const int output_length(static_cast<int>(output.size()));
     for (int i(0); i < output_length; ++i) {
       if (!sptk::WriteStream(static_cast<bool>(output[i]), &std::cout)) {
         std::ostringstream error_message;

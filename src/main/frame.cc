@@ -56,7 +56,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  infile:" << std::endl;
   *stream << "       data sequence              (double)[stdin]" << std::endl;
   *stream << "  stdout:" << std::endl;
-  *stream << "       extracted data sequence" << std::endl;
+  *stream << "       extracted data sequence    (double)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -64,20 +64,20 @@ void PrintUsage(std::ostream* stream) {
 }
 
 bool WriteData(const std::vector<double>& data, bool zero_mean) {
+  const int length(static_cast<int>(data.size()));
   if (zero_mean) {
-    std::vector<double> processed_data(data.size());
-    const double mean(std::accumulate(data.begin(), data.end(), 0.0) /
-                      data.size());
+    std::vector<double> processed_data(length);
+    const double mean(std::accumulate(data.begin(), data.end(), 0.0) / length);
     std::transform(data.begin(), data.end(), processed_data.begin(),
                    [mean](double x) { return x - mean; });
-    if (!sptk::WriteStream(0, data.size(), processed_data, &std::cout, NULL)) {
+    if (!sptk::WriteStream(0, length, processed_data, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write data";
       sptk::PrintErrorMessage("frame", error_message);
       return false;
     }
   } else {
-    if (!sptk::WriteStream(0, data.size(), data, &std::cout, NULL)) {
+    if (!sptk::WriteStream(0, length, data, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write data";
       sptk::PrintErrorMessage("frame", error_message);

@@ -417,7 +417,8 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
   const int static_size(num_order + 1);
-  const int read_size(2 * static_size * (window_coefficients.size() + 1));
+  const int read_size(2 * static_size *
+                      static_cast<int>(window_coefficients.size() + 1));
   sptk::InputSourceFromStream input_source(false, read_size, &input_stream);
   InputSourcePreprocessing preprocessed_source(input_format, &input_source);
 

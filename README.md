@@ -14,19 +14,50 @@ See [this page](https://sp-nitech.github.io/sptk/4.0/) for a reference manual.
 
 Requirements
 ------------
-- GCC 4.8+
+- GCC 4.8.5+ / Clang 3.5+ / Visual Studio 2015+
+- CMake 3.1+
 
 
 Installation
 ------------
-The latest release can be installed through Git:
+
+### Linux
+
+<details><summary>expand</summary><div>
+
+The latest release can be downloaded through Git.
+The install procedure is as follows.
 ```sh
 git clone https://github.com/sp-nitech/SPTK.git
 cd SPTK
-make -j 4  # Please change the number of jobs depending on your environment.
+mkdir build
+cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=..  # Please change install directory.
+make -j 4 install  # Please change the number of jobs depending on your environment.
 ```
-Then the SPTK commands can be used by adding `SPTK/bin/` directory to the `PATH` environment variable.
-If you would like to use a part of the SPTK library, please link the static library `SPTK/lib/libsptk.a`.
+Then the SPTK commands can be used by adding `bin/` directory to the `PATH` environment variable.
+If you would like to use a part of the SPTK functions, please link the static library `lib/libsptk.a`.
+
+</div></details>
+
+### Windows
+
+<details><summary>expand</summary><div>
+
+You may need to add `cmake` and `MSBuild` to the `PATH` environment variable in advance.
+Open Command Prompt and follow the below procedure:
+```sh
+cd /path/to/SPTK  # Please change here to your appropriate path.
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=..  # Please change install directory.
+MSBuild -maxcpucount:4 /p:Configuration=Release INSTALL.vcxproj
+```
+You can compile the programs via GUI instead of running MSBuild.
+Then the SPTK commands can be used by adding `bin/` directory to the `PATH` environment variable.
+If you would like to use a part of the SPTK functions, please link the static library `lib/sptk.lib`.
+
+</div></details>
 
 
 Demonstration
@@ -54,7 +85,7 @@ sox -t wav input.wav -c 1 -t s16 -r 16000 - |
 
 If you would like to draw figures, please prepare a python environment.
 ```sh
-cd tools; make env; cd ..
+cd tools; make venv; cd ..
 . ./tools/venv/bin/activate
 impulse -l 32 | gseries impulse.png
 deactivate
@@ -78,6 +109,7 @@ Changes from SPTK3
   - Scalar quantization (`quantize` and `dequantize`)
   - Stability check of LPC coefficients (`lpccheck`)
   - Subband decomposition (`pqmf` and `ipqmf`)
+  - Windows build support
 - Obsoleted commands:
   - `acep`, `agcep`, and `amcep` -> `amgcep`
   - `bell`

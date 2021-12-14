@@ -399,7 +399,8 @@ int main(int argc, char* argv[]) {
     default: { break; }
   }
 
-  if (!sptk::WriteStream(0, f0.size(), f0, &std::cout, NULL)) {
+  const int f0_length(static_cast<int>(f0.size()));
+  if (!sptk::WriteStream(0, f0_length, f0, &std::cout, NULL)) {
     std::ostringstream error_message;
     error_message << "Failed to write pitch";
     sptk::PrintErrorMessage("pitch", error_message);

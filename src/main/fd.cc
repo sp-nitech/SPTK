@@ -57,9 +57,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 3 (octal)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       data sequence                      [stdin]" << std::endl;
+  *stream << "       data sequence              (   any)[stdin]" << std::endl;
   *stream << "  stdout:" << std::endl;
-  *stream << "       dumped data sequence" << std::endl;
+  *stream << "       dumped data sequence       (string)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;

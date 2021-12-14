@@ -41,19 +41,19 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       lpc2par [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of coefficients                   (   int)[" << std::setw(5) << std::right << kDefaultNumOrder    << "][    0 <= m <=     ]" << std::endl;  // NOLINT
-  *stream << "       -g g  : gamma of generalized cepstrum           (double)[" << std::setw(5) << std::right << kDefaultGamma       << "][ -1.0 <= g <= 1.0 ]" << std::endl;  // NOLINT
-  *stream << "       -c c  : gamma of generalized cepstrum = -1 / c  (   int)[" << std::setw(5) << std::right << "N/A"               << "][    1 <= c <=     ]" << std::endl;  // NOLINT
-  *stream << "       -w w  : warning type of unstable index          (   int)[" << std::setw(5) << std::right << kDefaultWarningType << "][    0 <= e <= 2   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of coefficients                  (   int)[" << std::setw(5) << std::right << kDefaultNumOrder    << "][    0 <= m <=     ]" << std::endl;  // NOLINT
+  *stream << "       -g g  : gamma of generalized cepstrum          (double)[" << std::setw(5) << std::right << kDefaultGamma       << "][ -1.0 <= g <= 1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -c c  : gamma of generalized cepstrum = -1 / c (   int)[" << std::setw(5) << std::right << "N/A"               << "][    1 <= c <=     ]" << std::endl;  // NOLINT
+  *stream << "       -w w  : warning type of unstable index         (   int)[" << std::setw(5) << std::right << kDefaultWarningType << "][    0 <= e <= 2   ]" << std::endl;  // NOLINT
   *stream << "                 0 (no warning)" << std::endl;
   *stream << "                 1 (output the index to stderr)" << std::endl;
   *stream << "                 2 (output the index to stderr" << std::endl;
   *stream << "                    and exit immediately)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       linear predictive coefficients                  (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       linear predictive coefficients                 (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       PARCOR coefficients                             (double)" << std::endl;  // NOLINT
+  *stream << "       PARCOR coefficients                            (double)" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;

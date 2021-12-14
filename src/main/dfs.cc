@@ -178,9 +178,9 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    std::ifstream ifs;
-    ifs.open(denominator_coefficients_file, std::ios::in | std::ios::binary);
-    if (ifs.fail()) {
+    std::ifstream ifs2;
+    ifs2.open(denominator_coefficients_file, std::ios::in | std::ios::binary);
+    if (ifs2.fail()) {
       std::ostringstream error_message;
       error_message << "Cannot open file " << denominator_coefficients_file;
       sptk::PrintErrorMessage("dfs", error_message);
@@ -188,7 +188,7 @@ int main(int argc, char* argv[]) {
     }
 
     double coefficient;
-    while (sptk::ReadStream(&coefficient, &ifs)) {
+    while (sptk::ReadStream(&coefficient, &ifs2)) {
       denominator_coefficients.push_back(coefficient);
     }
   }
@@ -204,9 +204,9 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    std::ifstream ifs;
-    ifs.open(numerator_coefficients_file, std::ios::in | std::ios::binary);
-    if (ifs.fail()) {
+    std::ifstream ifs2;
+    ifs2.open(numerator_coefficients_file, std::ios::in | std::ios::binary);
+    if (ifs2.fail()) {
       std::ostringstream error_message;
       error_message << "Cannot open file " << numerator_coefficients_file;
       sptk::PrintErrorMessage("dfs", error_message);
@@ -214,7 +214,7 @@ int main(int argc, char* argv[]) {
     }
 
     double coefficient;
-    while (sptk::ReadStream(&coefficient, &ifs)) {
+    while (sptk::ReadStream(&coefficient, &ifs2)) {
       numerator_coefficients.push_back(coefficient);
     }
   }

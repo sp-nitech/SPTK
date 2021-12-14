@@ -53,9 +53,9 @@ void PrintUsage(std::ostream* stream) {
 }
 
 bool OutputMedian(const std::vector<std::vector<double> >& input_vectors) {
-  const int num_vector(input_vectors.size());
+  const int num_vector(static_cast<int>(input_vectors.size()));
   const int half_num_vector(num_vector / 2);
-  const int vector_length(input_vectors[0].size());
+  const int vector_length(static_cast<int>(input_vectors[0].size()));
 
   std::vector<double> vector_for_sort(num_vector);
   for (int data_index(0); data_index < vector_length; ++data_index) {

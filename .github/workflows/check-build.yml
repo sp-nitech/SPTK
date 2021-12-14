@@ -25,11 +25,10 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install csh clang-format parallel valgrind
-        pip install virtualenv
     - name: setup
-      run: cd tools; make action -j 4
+      run: cd tools; make check -j 4
     - name: make
-      run: make -j 4
+      run: make
     - name: make format
       run: make format
     - name: make test
