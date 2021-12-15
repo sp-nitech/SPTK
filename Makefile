@@ -105,7 +105,10 @@ test:
 	fi
 	./tools/bats/bin/bats --jobs $(JOBS) --no-parallelize-within-files test
 
-clean: doc-clean
+test-clean:
+	rm -rf test_*
+
+clean: doc-clean test-clean
 	rm -rf $(BUILDDIR) $(LIBDIR) $(BINDIR)
 
-.PHONY: all build doc doc-clean format test clean
+.PHONY: all build doc doc-clean format test test-clean clean

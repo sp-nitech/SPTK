@@ -23,13 +23,21 @@ all: check doxygen.done
 check: venv_dev bats.done shellcheck.done sptk.done
 
 venv:
-	python3 -m venv venv
+	@if type virtualenv > /dev/null 2>&1; then \
+		test -d venv || virtualenv -p python3 venv; \
+	else \
+		test -d venv || python3 -m venv venv; \
+	fi
 	. venv/bin/activate; pip install pip --upgrade; \
 	 pip install -r requirements.txt --upgrade
 	touch venv/bin/activate
 
 venv_dev:
-	python3 -m venv venv
+	@if type virtualenv > /dev/null 2>&1; then \
+		test -d venv || virtualenv -p python3 venv; \
+	else \
+		test -d venv || python3 -m venv venv; \
+	fi
 	. venv/bin/activate; pip install pip --upgrade; \
 	pip install -r requirements.txt -r test_requirements.txt --upgrade
 	touch venv/bin/activate
