@@ -126,7 +126,7 @@ SecondOrderAllPassMelCepstralAnalysis::SecondOrderAllPassMelCepstralAnalysis(
     return;
   }
 
-  std::vector<double> seed(1, 1);
+  std::vector<double> seed({1.0});
   std::vector<std::vector<double> > buffer;
   if (!CoefficientsFrequencyTransform(seed, 1, num_order_ + 1,
                                       fft_length_ * accuracy_factor_, alpha_,
