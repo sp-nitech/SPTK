@@ -18,7 +18,6 @@
 
 #include <algorithm>  // std::reverse
 #include <cfloat>     // DBL_MAX
-#include <utility>    // std::make_pair
 
 namespace {
 
@@ -48,43 +47,43 @@ DynamicTimeWarping::DynamicTimeWarping(
 
   switch (local_path_constraint_) {
     case kType0: {
-      local_path_candidates_.push_back(std::make_pair(1, 0));
-      local_path_candidates_.push_back(std::make_pair(0, 1));
+      local_path_candidates_.emplace_back(1, 0);
+      local_path_candidates_.emplace_back(0, 1);
       break;
     }
     case kType1: {
-      local_path_candidates_.push_back(std::make_pair(1, 0));
-      local_path_candidates_.push_back(std::make_pair(0, 1));
-      local_path_candidates_.push_back(std::make_pair(1, 1));
+      local_path_candidates_.emplace_back(1, 0);
+      local_path_candidates_.emplace_back(0, 1);
+      local_path_candidates_.emplace_back(1, 1);
       break;
     }
     case kType2: {
-      local_path_candidates_.push_back(std::make_pair(1, 0));
-      local_path_candidates_.push_back(std::make_pair(1, 1));
+      local_path_candidates_.emplace_back(1, 0);
+      local_path_candidates_.emplace_back(1, 1);
       break;
     }
     case kType3: {
-      local_path_candidates_.push_back(std::make_pair(1, 0));
-      local_path_candidates_.push_back(std::make_pair(1, 1));
-      local_path_candidates_.push_back(std::make_pair(1, 2));
+      local_path_candidates_.emplace_back(1, 0);
+      local_path_candidates_.emplace_back(1, 1);
+      local_path_candidates_.emplace_back(1, 2);
       break;
     }
     case kType4: {
-      local_path_candidates_.push_back(std::make_pair(1, 0));
-      local_path_candidates_.push_back(std::make_pair(0, 1));
-      local_path_candidates_.push_back(std::make_pair(1, 1));
+      local_path_candidates_.emplace_back(1, 0);
+      local_path_candidates_.emplace_back(0, 1);
+      local_path_candidates_.emplace_back(1, 1);
       break;
     }
     case kType5: {
-      local_path_candidates_.push_back(std::make_pair(1, 1));
-      local_path_candidates_.push_back(std::make_pair(1, 2));
-      local_path_candidates_.push_back(std::make_pair(2, 1));
+      local_path_candidates_.emplace_back(1, 1);
+      local_path_candidates_.emplace_back(1, 2);
+      local_path_candidates_.emplace_back(2, 1);
       break;
     }
     case kType6: {
-      local_path_candidates_.push_back(std::make_pair(1, 0));
-      local_path_candidates_.push_back(std::make_pair(1, 1));
-      local_path_candidates_.push_back(std::make_pair(1, 2));
+      local_path_candidates_.emplace_back(1, 0);
+      local_path_candidates_.emplace_back(1, 1);
+      local_path_candidates_.emplace_back(1, 2);
       break;
     }
     default: {
@@ -191,7 +190,7 @@ bool DynamicTimeWarping::Run(
     int i(num_query_vector - 1);
     int j(num_reference_vector - 1);
     viterbi_path->clear();
-    viterbi_path->push_back(std::make_pair(i, j));
+    viterbi_path->emplace_back(i, j);
     while (0 <= i && 0 <= j) {
       const int prev_i(
           (includes_skip_transition_ && skip_transition)
@@ -202,7 +201,7 @@ bool DynamicTimeWarping::Run(
               ? cell_for_skip_transition[i][j].vertical_back_pointer
               : cell[i][j].vertical_back_pointer);
       if (0 <= prev_i && 0 <= prev_j) {
-        viterbi_path->push_back(std::make_pair(prev_i, prev_j));
+        viterbi_path->emplace_back(prev_i, prev_j);
       }
       skip_transition = (prev_i == i || prev_j == j) ? true : false;
       i = prev_i;
