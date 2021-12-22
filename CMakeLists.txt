@@ -19,8 +19,8 @@ cmake_minimum_required(VERSION 3.1)
 project(SPTK)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.5)
-    message(FATAL_ERROR "require clang >= 3.5")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.5.0)
+    message(FATAL_ERROR "require clang >= 3.5.0")
   endif()
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.8.5)
@@ -324,15 +324,6 @@ set(MAIN_SOURCES
   ${SOURCE_DIR}/main/zerodf.cc
   )
 
-foreach(SOURCE ${MAIN_SOURCES})
-  get_filename_component(BIN ${SOURCE} NAME_WE)
-  add_executable(${BIN} ${SOURCE})
-  target_link_libraries(${BIN} sptk)
-  install(TARGETS ${BIN}
-    RUNTIME DESTINATION bin
-    )
-endforeach()
-
 set(PYTHON_SOURCES
   ${SOURCE_DIR}/draw/fdrw.py
   ${SOURCE_DIR}/draw/glogsp.py
@@ -343,6 +334,15 @@ set(PYTHON_SOURCES
   )
 
 if(NOT WIN32)
+  foreach(SOURCE ${MAIN_SOURCES})
+    get_filename_component(BIN ${SOURCE} NAME_WE)
+    add_executable(${BIN} ${SOURCE})
+    target_link_libraries(${BIN} sptk)
+    install(TARGETS ${BIN}
+      RUNTIME DESTINATION bin
+      )
+  endforeach()
+
   foreach(SOURCE ${PYTHON_SOURCES})
     get_filename_component(BIN ${SOURCE} NAME_WE)
     execute_process(COMMAND ln -snf ${SOURCE} ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
