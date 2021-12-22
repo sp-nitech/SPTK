@@ -3,8 +3,7 @@ Contributing guide
 
 Thank you for your interest in contributing to SPTK.
 
-SPTK is currently under construction.
-Any kinds of contributions are not welcome at the moment.
+Any kinds of contributions are welcome.
 
 
 Development

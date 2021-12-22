@@ -1,5 +1,5 @@
-SPTK 4.0 (Under Construction)
-=============================
+SPTK 4.0
+========
 The Speech Signal Processing Toolkit (SPTK) is a software for speech signal processing tools.
 
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://sp-nitech.github.io/sptk/4.0/)
@@ -14,7 +14,7 @@ See [this page](https://sp-nitech.github.io/sptk/4.0/) for a reference manual.
 
 Requirements
 ------------
-- GCC 4.8.5+ / Clang 3.5+ / Visual Studio 2015+
+- GCC 4.8.5+ / Clang 3.5.0+ / Visual Studio 2015+
 - CMake 3.1+
 
 
@@ -51,11 +51,10 @@ cd /path/to/SPTK  # Please change here to your appropriate path.
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=..  # Please change install directory.
-MSBuild -maxcpucount:4 /p:Configuration=Release INSTALL.vcxproj
+MSBuild -maxcpucount:4 /p:Configuration=Release ALL_BUILD.vcxproj
 ```
 You can compile the programs via GUI instead of running MSBuild.
-Then the SPTK commands can be used by adding `bin/` directory to the `PATH` environment variable.
-If you would like to use a part of the SPTK functions, please link the static library `lib/sptk.lib`.
+Then the SPTK functions can be used by linking the static library `lib/sptk.lib`.
 
 </div></details>
 
@@ -109,7 +108,7 @@ Changes from SPTK3
   - Scalar quantization (`quantize` and `dequantize`)
   - Stability check of LPC coefficients (`lpccheck`)
   - Subband decomposition (`pqmf` and `ipqmf`)
-  - Windows build support (**except drawing commands**)
+  - Windows build support (**only static library**)
 - Obsoleted commands:
   - `acep`, `agcep`, and `amcep` -> `amgcep`
   - `bell`
