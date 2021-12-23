@@ -18,7 +18,6 @@ __pycache__/
 # tools related
 tools/*.done
 tools/bats/
-tools/cpplint/
 tools/doxygen/
 tools/shellcheck/
 tools/sptk/
