@@ -21,7 +21,7 @@ Requirements
 Installation
 ------------
 
-### Linux
+### Linux / macOS
 
 <details><summary>expand</summary><div>
 
@@ -51,7 +51,7 @@ cd /path/to/SPTK  # Please change here to your appropriate path.
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=..  # Please change install directory.
-MSBuild -maxcpucount:4 /p:Configuration=Release ALL_BUILD.vcxproj
+MSBuild -maxcpucount:4 /p:Configuration=Release INSTALL.vcxproj
 ```
 You can compile the programs via GUI instead of running MSBuild.
 Then the SPTK functions can be used by linking the static library `lib/sptk.lib`.
@@ -74,7 +74,7 @@ cd egs/analysis_synthesis/mgc
 ./run.sh
 ```
 
-The below is a simple example that decreases the volume of input audio.
+The below is a simple example that decreases the volume of input audio in `input.wav`.
 You may need to install `sox` command on your system.
 ```sh
 sox -t wav input.wav -c 1 -t s16 -r 16000 - |
