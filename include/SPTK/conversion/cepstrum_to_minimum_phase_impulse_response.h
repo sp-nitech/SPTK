@@ -24,7 +24,7 @@
 namespace sptk {
 
 /**
- * Convert minimum phase impulse response to cepstrum.
+ * Convert cepstrum to minimum phase impulse response.
  *
  * The input is the @f$M_1@f$-th order cepstral coefficients:
  * @f[

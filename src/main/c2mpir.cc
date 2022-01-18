@@ -39,7 +39,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  options:" << std::endl;
   *stream << "       -m m  : order of cepstrum                        (   int)[" << std::setw(5) << std::right << kDefaultNumInputOrder      << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -M M  : order of minimum phase impulse response  (   int)[" << std::setw(5) << std::right << kDefaultNumOutputOrder     << "][ 0 <= M <=   ]" << std::endl;  // NOLINT
-  *stream << "       -l l  : length of minimum phase impulse response (   int)[" << std::setw(5) << std::right << kDefaultNumOutputOrder + 1 << "][ 0 <  l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : length of minimum phase impulse response (   int)[" << std::setw(5) << std::right << kDefaultNumOutputOrder + 1 << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       cepstrum                                         (double)[stdin]" << std::endl;  // NOLINT
@@ -60,6 +60,8 @@ void PrintUsage(std::ostream* stream) {
  *   - order of cesptral coefficients @f$(0 \le M_1)@f$
  * - @b -M @e int
  *   - order of impulse response @f$(0 \le M_2)@f$
+ * - @b -l @e int
+ *   - length of impulse response @f$(1 \le M_2 + 1)@f$
  * - @b infile @e str
  *   - double-type cepstral coefficients
  * - @b stdout
