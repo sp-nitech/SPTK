@@ -330,6 +330,7 @@ set(PYTHON_SOURCES
   ${SOURCE_DIR}/draw/gpolezero.py
   ${SOURCE_DIR}/draw/grlogsp.py
   ${SOURCE_DIR}/draw/gseries.py
+  ${SOURCE_DIR}/draw/gspecgram.py
   ${SOURCE_DIR}/draw/gwave.py
   )
 
