@@ -44,13 +44,13 @@ venv_dev:
 
 bats.done:
 	rm -rf bats
-	git clone https://github.com/bats-core/bats-core.git bats --depth 1
+	git clone https://github.com/bats-core/bats-core.git bats -b master --single-branch --depth 1
 	touch bats.done
 
 doxygen.done:
 	rm -rf doxygen
-	git clone https://github.com/doxygen/doxygen.git -b Release_1_9_1 --depth 1
-	cd doxygen; mkdir -p build; cd build; cmake -G "Unix Makefiles" ..; make
+	git clone https://github.com/doxygen/doxygen.git -b Release_1_9_1 --single-branch --depth 1
+	cd doxygen; mkdir -p build; cd build; cmake -G "Unix Makefiles" ..; make -j $(JOBS)
 	touch doxygen.done
 
 shellcheck.done:
