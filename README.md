@@ -2,6 +2,7 @@ SPTK
 ====
 The Speech Signal Processing Toolkit (SPTK) is a software for speech signal processing tools.
 
+[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://sp-nitech.github.io/sptk/latest/)
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://sp-nitech.github.io/sptk/4.0/)
 [![](http://img.shields.io/badge/license-Apache%202.0-green.svg)](https://github.com/sp-nitech/SPTK/blob/master/LICENSE)
 [![](https://github.com/sp-nitech/SPTK/workflows/build/badge.svg)](https://github.com/sp-nitech/SPTK/actions)
@@ -61,6 +62,7 @@ Then the SPTK functions can be used by linking the static library `lib/sptk.lib`
 
 Demonstration
 -------------
+- [Twitter](https://twitter.com/SPTK_DSP)
 - [Analysis-synthesis](https://colab.research.google.com/drive/1spX1v9mk6Itxa63R4wYwekzduvLeaUmE?usp=sharing) via mel-cepstrum
 - [Parametric coding](https://colab.research.google.com/drive/1NeZxrWiNeixAWaux_HIBLbtaSeokUNiG?usp=sharing) via line spectral pairs
 
@@ -105,7 +107,9 @@ Changes from SPTK3
   - Mel-filter-bank extraction (`fbank`)
   - Nonrecursive MLPG (`mlpg -R 1`)
   - Pitch extraction by DIO used in WORLD (`pitch -a 3`)
+  - Pole-zero plot (`gpolezero`)
   - Scalar quantization (`quantize` and `dequantize`)
+  - Spectrogram plot (`gspecgram`)
   - Stability check of LPC coefficients (`lpccheck`)
   - Subband decomposition (`pqmf` and `ipqmf`)
   - Windows build support (**only static library**)
@@ -126,13 +130,13 @@ Changes from SPTK3
   - `psgr` and `xgr`
   - `raw2wav`, `wav2raw`, `wavjoin`, and `wavsplit` -> `sox`
 - Separated commands:
+  - `c2ir` -> `c2mpir` and `mpir2c`
   - `dtw` -> `dtw` and `dtw_merge`
   - `mglsadf` -> `mglsadf` and `imglsadf`
   - `train` -> `train` and `mseq`
   - `ulaw` -> `ulaw` and `iulaw`
   - `vstat` -> `vstat` and `median`
 - Renamed commands:
-  - `c2ir` -> `c2mpir`
   - `mgclsp2sp` -> `mglsp2sp`
 
 
