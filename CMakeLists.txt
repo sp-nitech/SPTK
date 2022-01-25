@@ -112,6 +112,7 @@ set(CC_SOURCES
   ${SOURCE_DIR}/conversion/mel_generalized_cepstrum_to_mel_generalized_cepstrum.cc
   ${SOURCE_DIR}/conversion/mel_generalized_cepstrum_to_spectrum.cc
   ${SOURCE_DIR}/conversion/mel_generalized_line_spectral_pairs_to_spectrum.cc
+  ${SOURCE_DIR}/conversion/minimum_phase_impulse_response_to_cepstrum.cc
   ${SOURCE_DIR}/conversion/mlsa_digital_filter_coefficients_to_mel_cepstrum.cc
   ${SOURCE_DIR}/conversion/negative_derivative_of_phase_spectrum_to_cepstrum.cc
   ${SOURCE_DIR}/conversion/parcor_coefficients_to_linear_predictive_coefficients.cc
@@ -282,6 +283,7 @@ set(MAIN_SOURCES
   ${SOURCE_DIR}/main/minmax.cc
   ${SOURCE_DIR}/main/mlpg.cc
   ${SOURCE_DIR}/main/mlsacheck.cc
+  ${SOURCE_DIR}/main/mpir2c.cc
   ${SOURCE_DIR}/main/mseq.cc
   ${SOURCE_DIR}/main/msvq.cc
   ${SOURCE_DIR}/main/nan.cc

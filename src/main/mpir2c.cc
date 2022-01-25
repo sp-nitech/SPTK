@@ -21,30 +21,30 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-#include "SPTK/conversion/cepstrum_to_minimum_phase_impulse_response.h"
+#include "SPTK/conversion/minimum_phase_impulse_response_to_cepstrum.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
 
-const int kDefaultNumInputOrder(25);
-const int kDefaultNumOutputOrder(255);
+const int kDefaultNumInputOrder(255);
+const int kDefaultNumOutputOrder(25);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " c2mpir - cepstrum to minimum phase impulse response" << std::endl;  // NOLINT
+  *stream << " mpir2c - minimum phase impulse response to cepstrum" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
-  *stream << "       c2mpir [ options ] [ infile ] > stdout" << std::endl;
+  *stream << "       mpir2c [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of cepstrum                        (   int)[" << std::setw(5) << std::right << kDefaultNumInputOrder      << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -M M  : order of minimum phase impulse response  (   int)[" << std::setw(5) << std::right << kDefaultNumOutputOrder     << "][ 0 <= M <=   ]" << std::endl;  // NOLINT
-  *stream << "       -l l  : length of minimum phase impulse response (   int)[" << std::setw(5) << std::right << kDefaultNumOutputOrder + 1 << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of minimum phase impulse response  (   int)[" << std::setw(5) << std::right << kDefaultNumInputOrder     << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : length of minimum phase impulse response (   int)[" << std::setw(5) << std::right << kDefaultNumInputOrder + 1 << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -M M  : order of cepstrum                        (   int)[" << std::setw(5) << std::right << kDefaultNumOutputOrder    << "][ 0 <= M <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       cepstrum                                         (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       minimum phase impulse response                   (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       minimum phase impulse response                   (double)" << std::endl;  // NOLINT
+  *stream << "       cepstrum                                         (double)" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -54,18 +54,18 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a c2mpir [ @e option ] [ @e infile ]
+ * @a mpir2c [ @e option ] [ @e infile ]
  *
  * - @b -m @e int
- *   - order of cesptral coefficients @f$(0 \le M_1)@f$
- * - @b -M @e int
- *   - order of impulse response @f$(0 \le M_2)@f$
+ *   - order of impulse response @f$(0 \le M_1)@f$
  * - @b -l @e int
- *   - length of impulse response @f$(1 \le M_2 + 1)@f$
+ *   - length of impulse response @f$(1 \le M_1 + 1)@f$
+ * - @b -M @e int
+ *   - order of cesptral coefficients @f$(0 \le M_2)@f$
  * - @b infile @e str
- *   - double-type cepstral coefficients
- * - @b stdout
  *   - double-type minimum phase impulse response
+ * - @b stdout
+ *   - double-type cepstral coefficients
  *
  * @param[in] argc Number of arguments.
  * @param[in] argv Argument vector.
@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
   int num_output_order(kDefaultNumOutputOrder);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "m:M:l:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "m:l:M:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -86,9 +86,21 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -m option must be a "
                         << "non-negative integer";
-          sptk::PrintErrorMessage("c2mpir", error_message);
+          sptk::PrintErrorMessage("mpir2c", error_message);
           return 1;
         }
+        break;
+      }
+      case 'l': {
+        if (!sptk::ConvertStringToInteger(optarg, &num_input_order) ||
+            num_input_order <= 0) {
+          std::ostringstream error_message;
+          error_message
+              << "The argument for the -l option must be a positive integer";
+          sptk::PrintErrorMessage("mpir2c", error_message);
+          return 1;
+        }
+        --num_input_order;
         break;
       }
       case 'M': {
@@ -97,21 +109,9 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -M option must be a "
                         << "non-negative integer";
-          sptk::PrintErrorMessage("c2mpir", error_message);
+          sptk::PrintErrorMessage("mpir2c", error_message);
           return 1;
         }
-        break;
-      }
-      case 'l': {
-        if (!sptk::ConvertStringToInteger(optarg, &num_output_order) ||
-            num_output_order <= 0) {
-          std::ostringstream error_message;
-          error_message
-              << "The argument for the -l option must be a positive integer";
-          sptk::PrintErrorMessage("c2mpir", error_message);
-          return 1;
-        }
-        --num_output_order;
         break;
       }
       case 'h': {
@@ -129,7 +129,7 @@ int main(int argc, char* argv[]) {
   if (1 < num_input_files) {
     std::ostringstream error_message;
     error_message << "Too many input files";
-    sptk::PrintErrorMessage("c2mpir", error_message);
+    sptk::PrintErrorMessage("mpir2c", error_message);
     return 1;
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
@@ -139,43 +139,43 @@ int main(int argc, char* argv[]) {
   if (ifs.fail() && NULL != input_file) {
     std::ostringstream error_message;
     error_message << "Cannot open file " << input_file;
-    sptk::PrintErrorMessage("c2mpir", error_message);
+    sptk::PrintErrorMessage("mpir2c", error_message);
     return 1;
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  sptk::CepstrumToMinimumPhaseImpulseResponse
-      cepstrum_to_minimum_phase_impulse_response(num_input_order,
+  sptk::MinimumPhaseImpulseResponseToCepstrum
+      minimum_phase_impulse_response_to_cepstrum(num_input_order,
                                                  num_output_order);
-  if (!cepstrum_to_minimum_phase_impulse_response.IsValid()) {
+  if (!minimum_phase_impulse_response_to_cepstrum.IsValid()) {
     std::ostringstream error_message;
     error_message
-        << "Failed to initialize CepstrumToMinimumPhaseImpulseResponse";
-    sptk::PrintErrorMessage("c2mpir", error_message);
+        << "Failed to initialize MinimumPhaseImpulseResponseToCepstrum";
+    sptk::PrintErrorMessage("mpir2c", error_message);
     return 1;
   }
 
   const int input_length(num_input_order + 1);
   const int output_length(num_output_order + 1);
-  std::vector<double> cepstrum(input_length);
-  std::vector<double> minimum_phase_impulse_response(output_length);
+  std::vector<double> minimum_phase_impulse_response(input_length);
+  std::vector<double> cepstrum(output_length);
 
-  while (sptk::ReadStream(false, 0, 0, input_length, &cepstrum, &input_stream,
+  while (sptk::ReadStream(false, 0, 0, input_length,
+                          &minimum_phase_impulse_response, &input_stream,
                           NULL)) {
-    if (!cepstrum_to_minimum_phase_impulse_response.Run(
-            cepstrum, &minimum_phase_impulse_response)) {
+    if (!minimum_phase_impulse_response_to_cepstrum.Run(
+            minimum_phase_impulse_response, &cepstrum)) {
       std::ostringstream error_message;
       error_message
-          << "Failed to convert cepstrum to minimum phase impulse response";
-      sptk::PrintErrorMessage("c2mpir", error_message);
+          << "Failed to convert minimum phase impulse response to cepstrum";
+      sptk::PrintErrorMessage("mpir2c", error_message);
       return 1;
     }
 
-    if (!sptk::WriteStream(0, output_length, minimum_phase_impulse_response,
-                           &std::cout, NULL)) {
+    if (!sptk::WriteStream(0, output_length, cepstrum, &std::cout, NULL)) {
       std::ostringstream error_message;
-      error_message << "Failed to write minimum phase impulse response";
-      sptk::PrintErrorMessage("c2mpir", error_message);
+      error_message << "Failed to write cepstrum";
+      sptk::PrintErrorMessage("mpir2c", error_message);
       return 1;
     }
   }
