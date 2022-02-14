@@ -203,7 +203,11 @@ def main():
         x *= args.sr * 0.5  # Multiply Nyquist frequency.
     if args.transpose:
         x = np.flip(x)
-    ys = data[args.start_frame_number : args.end_frame_number]
+    ys = data[
+        args.start_frame_number : (
+            None if args.end_frame_number is None else args.end_frame_number + 1
+        )
+    ]
 
     fig = go.Figure()
     for i in range(len(ys)):
