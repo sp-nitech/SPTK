@@ -189,7 +189,7 @@ def main():
             sys.exit(1)
         data = utils.read_binary(args.in_file)
 
-    y = data[args.start_point : args.end_point]
+    y = data[args.start_point : None if args.end_point is None else args.end_point + 1]
 
     if args.num_samples is None:
         n = len(y) // args.num_screens
