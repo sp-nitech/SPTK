@@ -14,6 +14,7 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
+#include <cfloat>    // DBL_MAX
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -21,7 +22,8 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-#include "SPTK/conversion/waveform_to_autocorrelation.h"
+#include "SPTK/analysis/autocorrelation_analysis.h"
+#include "SPTK/conversion/spectrum_to_spectrum.h"
 #include "SPTK/math/levinson_durbin_recursion.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -29,14 +31,24 @@ namespace {
 
 enum WarningType { kIgnore = 0, kWarn, kExit, kNumWarningTypes };
 
+enum InputFormats {
+  kLogAmplitudeSpectrumInDecibels = 0,
+  kLogAmplitudeSpectrum,
+  kAmplitudeSpectrum,
+  kPowerSpectrum,
+  kWaveform,
+  kNumInputFormats
+};
+
 const int kDefaultFrameLength(256);
 const int kDefaultNumOrder(25);
 const WarningType kDefaultWarningType(kIgnore);
+const InputFormats kDefaultInputFormat(kWaveform);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " lpc - linear predictive coding using Levinson-Durbin recursion" << std::endl;  // NOLINT
+  *stream << " lpc - linear predictive coding analysis" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       lpc [ options ] [ infile ] > stdout" << std::endl;
@@ -48,6 +60,14 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 1 (output the index to stderr)" << std::endl;
   *stream << "                 2 (output the index to stderr and" << std::endl;
   *stream << "                    exit immediately)" << std::endl;
+  *stream << "       -q q  : input format                            (   int)[" << std::setw(5) << std::right << kDefaultInputFormat << "][ 0 <= q <= 4 ]" << std::endl;  // NOLINT
+  *stream << "                 0 (20*log|X(z)|)" << std::endl;
+  *stream << "                 1 (ln|X(z)|)" << std::endl;
+  *stream << "                 2 (|X(z)|)" << std::endl;
+  *stream << "                 3 (|X(z)|^2)" << std::endl;
+  *stream << "                 4 (windowed waveform)" << std::endl;
+  *stream << "       -f f  : small value added to power spectrum     (double)[" << std::setw(5) << std::right << "N/A"               << "][ 0 <  e <=   ]" << std::endl;  // NOLINT
+  *stream << "       -E E  : relative floor                          (double)[" << std::setw(5) << std::right << "N/A"               << "][   <= E <  0 ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       windowed data sequence                          (double)[stdin]" << std::endl;  // NOLINT
@@ -73,6 +93,17 @@ void PrintUsage(std::ostream* stream) {
  *     \arg @c 0 no warning
  *     \arg @c 1 output index
  *     \arg @c 2 output index and exit immediately
+ * - @b -q @e int
+ *   - input format
+ *     \arg @c 0 amplitude spectrum in dB
+ *     \arg @c 1 log amplitude spectrum
+ *     \arg @c 2 amplitude spectrum
+ *     \arg @c 3 power spectrum
+ *     \arg @c 4 windowed waveform
+ * - @b -f @e double
+ *   - small value added to power spectrum
+ * - @b -E @e double
+ *   - relative floor in decibels
  * - @b infile @e str
  *   - double-type windowed data sequence
  * - @b stdout
@@ -98,9 +129,12 @@ int main(int argc, char* argv[]) {
   int frame_length(kDefaultFrameLength);
   int num_order(kDefaultNumOrder);
   WarningType warning_type(kDefaultWarningType);
+  InputFormats input_format(kDefaultInputFormat);
+  double epsilon(0.0);
+  double relative_floor_in_decibels(-DBL_MAX);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:m:e:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:e:q:f:E:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -141,6 +175,42 @@ int main(int argc, char* argv[]) {
         warning_type = static_cast<WarningType>(tmp);
         break;
       }
+      case 'q': {
+        const int min(0);
+        const int max(static_cast<int>(kNumInputFormats) - 1);
+        int tmp;
+        if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
+            !sptk::IsInRange(tmp, min, max)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -q option must be an integer "
+                        << "in the range of " << min << " to " << max;
+          sptk::PrintErrorMessage("lpc", error_message);
+          return 1;
+        }
+        input_format = static_cast<InputFormats>(tmp);
+        break;
+      }
+      case 'f': {
+        if (!sptk::ConvertStringToDouble(optarg, &epsilon) || epsilon <= 0.0) {
+          std::ostringstream error_message;
+          error_message
+              << "The argument for the -f option must be a positive number";
+          sptk::PrintErrorMessage("lpc", error_message);
+          return 1;
+        }
+        break;
+      }
+      case 'E': {
+        if (!sptk::ConvertStringToDouble(optarg, &relative_floor_in_decibels) ||
+            0.0 <= relative_floor_in_decibels) {
+          std::ostringstream error_message;
+          error_message
+              << "The argument for the -E option must be a negative number";
+          sptk::PrintErrorMessage("lpc", error_message);
+          return 1;
+        }
+        break;
+      }
       case 'h': {
         PrintUsage(&std::cout);
         return 0;
@@ -171,17 +241,30 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  sptk::WaveformToAutocorrelation waveform_to_autocorrelation(frame_length,
-                                                              num_order);
-  if (!waveform_to_autocorrelation.IsValid()) {
+  sptk::SpectrumToSpectrum spectrum_to_spectrum(
+      frame_length,
+      static_cast<sptk::SpectrumToSpectrum::InputOutputFormats>(input_format),
+      sptk::SpectrumToSpectrum::InputOutputFormats::kPowerSpectrum, epsilon,
+      relative_floor_in_decibels);
+  if (kWaveform != input_format && !spectrum_to_spectrum.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to initialize WaveformToAutocorrelation";
+    error_message << "Failed to initialize SpectrumToSpectrum";
+    sptk::PrintErrorMessage("lpc", error_message);
+    return 1;
+  }
+
+  sptk::AutocorrelationAnalysis autocorrelation_analysis(
+      frame_length, num_order, kWaveform == input_format);
+  sptk::AutocorrelationAnalysis::Buffer buffer_for_analysis;
+  if (!autocorrelation_analysis.IsValid()) {
+    std::ostringstream error_message;
+    error_message << "Failed to initialize AutocorrelationAnalysis";
     sptk::PrintErrorMessage("lpc", error_message);
     return 1;
   }
 
   sptk::LevinsonDurbinRecursion levinson_durbin_recursion(num_order);
-  sptk::LevinsonDurbinRecursion::Buffer buffer;
+  sptk::LevinsonDurbinRecursion::Buffer buffer_for_levinson;
   if (!levinson_durbin_recursion.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to initialize LevinsonDurbinRecursion";
@@ -189,15 +272,27 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  const int input_length(kWaveform == input_format ? frame_length
+                                                   : frame_length / 2 + 1);
   const int output_length(num_order + 1);
-  std::vector<double> windowed_sequence(frame_length);
+  std::vector<double> input(input_length);
   std::vector<double> autocorrelation(output_length);
   std::vector<double> linear_predictive_coefficients(output_length);
 
-  for (int frame_index(0); sptk::ReadStream(
-           false, 0, 0, frame_length, &windowed_sequence, &input_stream, NULL);
+  for (int frame_index(0);
+       sptk::ReadStream(false, 0, 0, input_length, &input, &input_stream, NULL);
        ++frame_index) {
-    if (!waveform_to_autocorrelation.Run(windowed_sequence, &autocorrelation)) {
+    if (kWaveform != input_format) {
+      if (!spectrum_to_spectrum.Run(&input)) {
+        std::ostringstream error_message;
+        error_message << "Failed to convert spectrum";
+        sptk::PrintErrorMessage("lpc", error_message);
+        return 1;
+      }
+    }
+
+    if (!autocorrelation_analysis.Run(input, &autocorrelation,
+                                      &buffer_for_analysis)) {
       std::ostringstream error_message;
       error_message << "Failed to obtain autocorrelation";
       sptk::PrintErrorMessage("lpc", error_message);
@@ -207,7 +302,7 @@ int main(int argc, char* argv[]) {
     bool is_stable(false);
     if (!levinson_durbin_recursion.Run(autocorrelation,
                                        &linear_predictive_coefficients,
-                                       &is_stable, &buffer)) {
+                                       &is_stable, &buffer_for_levinson)) {
       std::ostringstream error_message;
       error_message << "Failed to solve autocorrelation normal equations";
       sptk::PrintErrorMessage("lpc", error_message);
