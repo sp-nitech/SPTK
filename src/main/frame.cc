@@ -253,18 +253,19 @@ int main(int argc, char* argv[]) {
     }
   }
 
+  int center;
+  if (kBegginingOfDataIsCenterOfFirstFrame == framing_type) {
+    center = frame_length / 2;
+  } else if (kBegginingOfDataIsStartOfFirstFrame == framing_type) {
+    center = 0;
+  } else {
+    return 0;
+  }
+
   // Extract the remaining frames.
   const int overlap(frame_length - frame_period);
   if (0 < overlap) {
     bool is_eof(input_stream.peek() == std::ios::traits_type::eof());
-    int center;
-    if (kBegginingOfDataIsCenterOfFirstFrame == framing_type) {
-      center = frame_length / 2;
-    } else if (kBegginingOfDataIsStartOfFirstFrame == framing_type) {
-      center = 0;
-    } else {
-      return 0;
-    }
     int last_data_position_in_frame(center + actual_read_size - 1);
     while (center <= last_data_position_in_frame) {
       if (is_eof) {
@@ -304,7 +305,11 @@ int main(int argc, char* argv[]) {
     }
 
     while (sptk::ReadStream(true, -overlap, 0, frame_length, &data,
-                            &input_stream, NULL)) {
+                            &input_stream, &actual_read_size)) {
+      if (kBegginingOfDataIsCenterOfFirstFrame == framing_type &&
+          actual_read_size <= center) {
+        break;
+      }
       if (!WriteData(data, zero_mean)) {
         return 1;
       }
