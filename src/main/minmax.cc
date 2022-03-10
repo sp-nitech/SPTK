@@ -42,7 +42,8 @@ enum WaysToFindValue {
 const int kDefaultNumOrder(0);
 const int kDefaultNumBest(1);
 const OutputFormats kDefaultOutputFormat(kMinimumAndMaximum);
-const WaysToFindValue kDefaultWayToFindValue(kFindValueFromVector);
+const WaysToFindValue kDefaultWayToFindValue(
+    kFindValueFromVectorSequenceForEachDimension);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -258,7 +259,7 @@ int main(int argc, char* argv[]) {
   }
 
   if (kFindValueFromVector == way_to_find_value &&
-      (0 == num_order || num_order < num_best - 1)) {
+      (0 == num_order || num_order + 1 < num_best)) {
     std::ostringstream error_message;
     error_message << "Length of vector must be greater than max(1, b - 1)";
     sptk::PrintErrorMessage("minmax", error_message);
