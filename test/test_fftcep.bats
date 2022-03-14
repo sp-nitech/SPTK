@@ -27,18 +27,13 @@ teardown() {
     rm -rf $tmp
 }
 
-@test "fftcep: compatibility (j = 0)" {
-    $sptk3/nrand -l 32 | $sptk3/fftcep -l 16 -m 4 -j 0 > $tmp/1
-    $sptk3/nrand -l 32 | $sptk4/fftcep -l 16 -m 4 -i 0 > $tmp/2
-    run $sptk4/aeq $tmp/1 $tmp/2
-    [ "$status" -eq 0 ]
-}
-
-@test "fftcep: compatibility (j > 0)" {
-    $sptk3/nrand -l 32 | $sptk3/fftcep -l 16 -m 4 -j 3 -k 1 > $tmp/1
-    $sptk3/nrand -l 32 | $sptk4/fftcep -l 16 -m 4 -i 3 -a 1 > $tmp/2
-    run $sptk4/aeq $tmp/1 $tmp/2
-    [ "$status" -eq 0 ]
+@test "fftcep: compatibility" {
+    for i in 0 3; do
+        $sptk3/nrand -l 32 | $sptk3/fftcep -l 16 -m 4 -j "$i" -k 1 > $tmp/1
+        $sptk3/nrand -l 32 | $sptk4/fftcep -l 16 -m 4 -i "$i" -a 1 > $tmp/2
+        run $sptk4/aeq $tmp/1 $tmp/2
+        [ "$status" -eq 0 ]
+    done
 }
 
 @test "fftcep: valgrind" {
