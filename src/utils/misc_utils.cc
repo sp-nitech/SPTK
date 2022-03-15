@@ -162,7 +162,7 @@ bool MakePseudoQuadratureMirrorFilterBanks(
   {
     // Make Kaiser window.
     const sptk::KaiserWindow kaiser_window(
-        filter_size, sptk::KaiserWindow::AttenuationToBeta(attenuation), true);
+        filter_size, sptk::KaiserWindow::AttenuationToBeta(attenuation), false);
     const std::vector<double>& window(kaiser_window.Get());
 
     // Prepare FFT.
@@ -221,9 +221,8 @@ bool MakePseudoQuadratureMirrorFilterBanks(
         omega += sign * step_size;
         best_abs_error = abs_error;
       } else {
-        omega += sign * step_size;
         step_size *= 0.5;  // Drop step size by half (heuristic).
-        omega -= sign * step_size;
+        omega += sign * step_size;
       }
     }
   }
