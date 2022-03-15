@@ -43,7 +43,7 @@ bool FastFourierTransformCepstralAnalysis::Run(
     const std::vector<double>& power_spectrum, std::vector<double>* cepstrum,
     FastFourierTransformCepstralAnalysis::Buffer* buffer) const {
   // Check inputs.
-  const int fft_length(fast_fourier_transform_.GetFftLength());
+  const int fft_length(GetFftLength());
   if (!is_valid_ ||
       power_spectrum.size() != static_cast<std::size_t>(fft_length / 2 + 1) ||
       NULL == cepstrum || NULL == buffer) {

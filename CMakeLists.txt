@@ -65,6 +65,7 @@ set(CC_SOURCES
   ${SOURCE_DIR}/analysis/adaptive_generalized_cepstral_analysis.cc
   ${SOURCE_DIR}/analysis/adaptive_mel_cepstral_analysis.cc
   ${SOURCE_DIR}/analysis/adaptive_mel_generalized_cepstral_analysis.cc
+  ${SOURCE_DIR}/analysis/autocorrelation_analysis.cc
   ${SOURCE_DIR}/analysis/fast_fourier_transform_cepstral_analysis.cc
   ${SOURCE_DIR}/analysis/mel_cepstral_analysis.cc
   ${SOURCE_DIR}/analysis/mel_filter_bank_analysis.cc
@@ -117,6 +118,7 @@ set(CC_SOURCES
   ${SOURCE_DIR}/conversion/negative_derivative_of_phase_spectrum_to_cepstrum.cc
   ${SOURCE_DIR}/conversion/parcor_coefficients_to_linear_predictive_coefficients.cc
   ${SOURCE_DIR}/conversion/parcor_coefficients_to_log_area_ratio.cc
+  ${SOURCE_DIR}/conversion/spectrum_to_autocorrelation.cc
   ${SOURCE_DIR}/conversion/spectrum_to_spectrum.cc
   ${SOURCE_DIR}/conversion/waveform_to_autocorrelation.cc
   ${SOURCE_DIR}/conversion/waveform_to_spectrum.cc

@@ -393,18 +393,18 @@ int main(int argc, char* argv[]) {
 
   while (sptk::ReadStream(false, 0, 0, input_length, &input, &input_stream,
                           NULL)) {
-    if (kWaveform != input_format) {
-      if (!spectrum_to_spectrum.Run(input, &processed_input)) {
-        std::ostringstream error_message;
-        error_message << "Failed to convert spectrum";
-        sptk::PrintErrorMessage("mgcep", error_message);
-        return 1;
-      }
-    } else {
+    if (kWaveform == input_format) {
       if (!waveform_to_spectrum.Run(input, &processed_input,
                                     &buffer_for_spectral_analysis)) {
         std::ostringstream error_message;
         error_message << "Failed to transform waveform to spectrum";
+        sptk::PrintErrorMessage("mgcep", error_message);
+        return 1;
+      }
+    } else {
+      if (!spectrum_to_spectrum.Run(input, &processed_input)) {
+        std::ostringstream error_message;
+        error_message << "Failed to convert spectrum";
         sptk::PrintErrorMessage("mgcep", error_message);
         return 1;
       }
