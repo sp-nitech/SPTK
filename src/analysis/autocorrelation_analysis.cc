@@ -47,7 +47,7 @@ AutocorrelationAnalysis::~AutocorrelationAnalysis() {
 bool AutocorrelationAnalysis::Run(
     const std::vector<double>& input, std::vector<double>* autocorrelation,
     AutocorrelationAnalysis::Buffer* buffer) const {
-  if (!is_valid_ || NULL == buffer) {
+  if (!is_valid_ || NULL == autocorrelation || NULL == buffer) {
     return false;
   }
 
