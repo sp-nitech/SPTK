@@ -30,20 +30,18 @@ teardown() {
 
 @test "pqmf: reversibility" {
     k=4
-    m=50
+    for m in 49 50; do
+        $sptk3/x2x +sd $data > $tmp/1
+        $sptk4/pqmf -k $k -m $m $tmp/1 |
+            $sptk4/ipqmf -k $k -m $m > $tmp/2
 
-    $sptk3/x2x +sd $data > $tmp/1
-    $sptk4/pqmf -k $k -m $m $tmp/1 |
-        $sptk4/ipqmf -k $k -m $m |
-        $sptk4/delay -s -$m > $tmp/2
+        $sptk3/vopr -s $tmp/1 $tmp/2 |
+            $sptk3/sopr -ABS |
+            $sptk3/average > $tmp/3
 
-    $sptk3/vopr -s $tmp/1 $tmp/2 |
-        $sptk3/sopr -ABS |
-        $sptk3/average |
-        $sptk3/sopr -FIX > $tmp/3
-
-    err=$($sptk3/x2x +da $tmp/3)
-    [ "$err" -lt 5 ]
+        err=$($sptk3/sopr -FIX $tmp/3 | $sptk3/x2x +da)
+        [ "$err" -lt 5 ]
+    done
 }
 
 @test "pqmf: valgrind" {

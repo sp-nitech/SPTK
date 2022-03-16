@@ -214,7 +214,10 @@ int main(int argc, char* argv[]) {
 
   double input;
   std::vector<double> output(num_subband);
+  int delay(sptk::IsEven(num_filter_order) ? num_filter_order / 2
+                                           : (num_filter_order - 1) / 2);
 
+  int n(0);
   while (sptk::ReadStream(&input, &input_stream)) {
     if (!analysis.Run(input, &output, &buffer)) {
       std::ostringstream error_message;
@@ -222,11 +225,31 @@ int main(int argc, char* argv[]) {
       sptk::PrintErrorMessage("pqmf", error_message);
       return 1;
     }
-    if (!sptk::WriteStream(0, num_subband, output, &std::cout, NULL)) {
+    if (delay <= n) {
+      if (!sptk::WriteStream(0, num_subband, output, &std::cout, NULL)) {
+        std::ostringstream error_message;
+        error_message << "Failed to write subband signals";
+        sptk::PrintErrorMessage("pqmf", error_message);
+        return 1;
+      }
+    }
+    ++n;
+  }
+
+  for (int i(delay - 1); 0 <= i; --i) {
+    if (!analysis.Run(input, &output, &buffer)) {
       std::ostringstream error_message;
-      error_message << "Failed to write subband signals";
+      error_message << "Failed to perform PQMF analysis";
       sptk::PrintErrorMessage("pqmf", error_message);
       return 1;
+    }
+    if (i < n) {
+      if (!sptk::WriteStream(0, num_subband, output, &std::cout, NULL)) {
+        std::ostringstream error_message;
+        error_message << "Failed to write subband signals";
+        sptk::PrintErrorMessage("pqmf", error_message);
+        return 1;
+      }
     }
   }
 
