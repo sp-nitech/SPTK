@@ -216,8 +216,8 @@ int main(int argc, char* argv[]) {
 
   std::vector<double> input(num_subband);
   double output;
-  int delay(sptk::IsEven(num_filter_order) ? num_filter_order / 2
-                                           : (num_filter_order + 1) / 2);
+  const int delay(sptk::IsEven(num_filter_order) ? num_filter_order / 2
+                                                 : (num_filter_order + 1) / 2);
 
   int n(0);
   while (

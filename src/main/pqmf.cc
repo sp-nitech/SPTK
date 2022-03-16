@@ -214,8 +214,8 @@ int main(int argc, char* argv[]) {
 
   double input;
   std::vector<double> output(num_subband);
-  int delay(sptk::IsEven(num_filter_order) ? num_filter_order / 2
-                                           : (num_filter_order - 1) / 2);
+  const int delay(sptk::IsEven(num_filter_order) ? num_filter_order / 2
+                                                 : (num_filter_order - 1) / 2);
 
   int n(0);
   while (sptk::ReadStream(&input, &input_stream)) {
