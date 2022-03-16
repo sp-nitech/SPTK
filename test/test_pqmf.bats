@@ -30,8 +30,8 @@ teardown() {
 
 @test "pqmf: reversibility" {
     k=4
+    $sptk3/x2x +sd $data > $tmp/1
     for m in 49 50; do
-        $sptk3/x2x +sd $data > $tmp/1
         $sptk4/pqmf -k $k -m $m $tmp/1 |
             $sptk4/ipqmf -k $k -m $m > $tmp/2
 
