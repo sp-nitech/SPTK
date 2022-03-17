@@ -66,8 +66,6 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 2 (|X(z)|)" << std::endl;
   *stream << "                 3 (|X(z)|^2)" << std::endl;
   *stream << "                 4 (windowed waveform)" << std::endl;
-  *stream << "       -f f  : small value added to power spectrum     (double)[" << std::setw(5) << std::right << "N/A"               << "][ 0 <  e <=   ]" << std::endl;  // NOLINT
-  *stream << "       -E E  : relative floor                          (double)[" << std::setw(5) << std::right << "N/A"               << "][   <= E <  0 ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       windowed data sequence                          (double)[stdin]" << std::endl;  // NOLINT
@@ -100,10 +98,6 @@ void PrintUsage(std::ostream* stream) {
  *     \arg @c 2 amplitude spectrum
  *     \arg @c 3 power spectrum
  *     \arg @c 4 windowed waveform
- * - @b -f @e double
- *   - small value added to power spectrum
- * - @b -E @e double
- *   - relative floor in decibels
  * - @b infile @e str
  *   - double-type windowed data sequence
  * - @b stdout
@@ -130,11 +124,9 @@ int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   WarningType warning_type(kDefaultWarningType);
   InputFormats input_format(kDefaultInputFormat);
-  double epsilon(0.0);
-  double relative_floor_in_decibels(-DBL_MAX);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:m:e:q:f:E:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:e:q:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -190,27 +182,6 @@ int main(int argc, char* argv[]) {
         input_format = static_cast<InputFormats>(tmp);
         break;
       }
-      case 'f': {
-        if (!sptk::ConvertStringToDouble(optarg, &epsilon) || epsilon <= 0.0) {
-          std::ostringstream error_message;
-          error_message
-              << "The argument for the -f option must be a positive number";
-          sptk::PrintErrorMessage("lpc", error_message);
-          return 1;
-        }
-        break;
-      }
-      case 'E': {
-        if (!sptk::ConvertStringToDouble(optarg, &relative_floor_in_decibels) ||
-            0.0 <= relative_floor_in_decibels) {
-          std::ostringstream error_message;
-          error_message
-              << "The argument for the -E option must be a negative number";
-          sptk::PrintErrorMessage("lpc", error_message);
-          return 1;
-        }
-        break;
-      }
       case 'h': {
         PrintUsage(&std::cout);
         return 0;
@@ -244,8 +215,8 @@ int main(int argc, char* argv[]) {
   sptk::SpectrumToSpectrum spectrum_to_spectrum(
       frame_length,
       static_cast<sptk::SpectrumToSpectrum::InputOutputFormats>(input_format),
-      sptk::SpectrumToSpectrum::InputOutputFormats::kPowerSpectrum, epsilon,
-      relative_floor_in_decibels);
+      sptk::SpectrumToSpectrum::InputOutputFormats::kPowerSpectrum, 0.0,
+      -DBL_MAX);
   if (kWaveform != input_format && !spectrum_to_spectrum.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to initialize SpectrumToSpectrum";

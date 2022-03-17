@@ -70,9 +70,6 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 0 (autocorrelation)" << std::endl;
   *stream << "                 1 (biased autocorrelation)" << std::endl;
   *stream << "                 2 (normalized autocorrelation)" << std::endl;
-  *stream << "       -e e  : small value added to      (double)[" << std::setw(5) << std::right << "N/A"                << "][ 0 <  e <=   ]" << std::endl;  // NOLINT
-  *stream << "               power spectrum" << std::endl;
-  *stream << "       -E E  : relative floor            (double)[" << std::setw(5) << std::right << "N/A"                << "][   <= E <  0 ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       data sequence                     (double)[stdin]" << std::endl;  // NOLINT
@@ -105,10 +102,6 @@ void PrintUsage(std::ostream* stream) {
  *     \arg @c 0 autocorrelation
  *     \arg @c 1 biased autocorrelation
  *     \arg @c 2 normalized autocorrelation
- * - @b -e @e double
- *   - small value added to power spectrum
- * - @b -E @e double
- *   - relative floor in decibels
  * - @b infile @e str
  *   - double-type data sequence
  * - @b stdout
@@ -144,11 +137,9 @@ int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   InputFormats input_format(kDefaultInputFormat);
   OutputFormats output_format(kDefaultOutputFormat);
-  double epsilon(0.0);
-  double relative_floor_in_decibels(-DBL_MAX);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:m:q:o:e:E:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:q:o:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -204,27 +195,6 @@ int main(int argc, char* argv[]) {
         output_format = static_cast<OutputFormats>(tmp);
         break;
       }
-      case 'e': {
-        if (!sptk::ConvertStringToDouble(optarg, &epsilon) || epsilon <= 0.0) {
-          std::ostringstream error_message;
-          error_message
-              << "The argument for the -e option must be a positive number";
-          sptk::PrintErrorMessage("acorr", error_message);
-          return 1;
-        }
-        break;
-      }
-      case 'E': {
-        if (!sptk::ConvertStringToDouble(optarg, &relative_floor_in_decibels) ||
-            0.0 <= relative_floor_in_decibels) {
-          std::ostringstream error_message;
-          error_message
-              << "The argument for the -E option must be a negative number";
-          sptk::PrintErrorMessage("acorr", error_message);
-          return 1;
-        }
-        break;
-      }
       case 'h': {
         PrintUsage(&std::cout);
         return 0;
@@ -258,8 +228,8 @@ int main(int argc, char* argv[]) {
   sptk::SpectrumToSpectrum spectrum_to_spectrum(
       frame_length,
       static_cast<sptk::SpectrumToSpectrum::InputOutputFormats>(input_format),
-      sptk::SpectrumToSpectrum::InputOutputFormats::kPowerSpectrum, epsilon,
-      relative_floor_in_decibels);
+      sptk::SpectrumToSpectrum::InputOutputFormats::kPowerSpectrum, 0.0,
+      -DBL_MAX);
   if (kWaveform != input_format && !spectrum_to_spectrum.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to initialize SpectrumToSpectrum";
