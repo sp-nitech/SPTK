@@ -29,7 +29,7 @@ venv:
 		test -d venv || python3 -m venv venv; \
 	fi
 	. venv/bin/activate; pip install pip --upgrade; \
-	 pip install -r requirements.txt --upgrade
+	pip install -r requirements.txt --upgrade
 	touch venv/bin/activate
 
 venv_dev:
