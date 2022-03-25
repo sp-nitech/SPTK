@@ -40,8 +40,9 @@ enum InputFormats {
 
 enum OutputFormats {
   kAutocorrelation = 0,
-  kBiasedAutocorrelation,
   kNormalizedAutocorrelation,
+  kBiasedAutocorrelation,
+  kUnbiasedAutocorrelation,
   kNumOutputFormats
 };
 
@@ -66,10 +67,11 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 2 (|X(z)|)" << std::endl;
   *stream << "                 3 (|X(z)|^2)" << std::endl;
   *stream << "                 4 (windowed waveform)" << std::endl;
-  *stream << "       -o o  : output format             (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 2 ]" << std::endl;  // NOLINT
+  *stream << "       -o o  : output format             (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][ 0 <= o <= 3 ]" << std::endl;  // NOLINT
   *stream << "                 0 (autocorrelation)" << std::endl;
-  *stream << "                 1 (biased autocorrelation)" << std::endl;
-  *stream << "                 2 (normalized autocorrelation)" << std::endl;
+  *stream << "                 1 (normalized autocorrelation)" << std::endl;
+  *stream << "                 2 (biased autocorrelation)" << std::endl;
+  *stream << "                 3 (unbiased autocorrelation)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       data sequence                     (double)[stdin]" << std::endl;  // NOLINT
@@ -100,24 +102,31 @@ void PrintUsage(std::ostream* stream) {
  * - @b -o @e double
  *   - output format
  *     \arg @c 0 autocorrelation
- *     \arg @c 1 biased autocorrelation
- *     \arg @c 2 normalized autocorrelation
+ *     \arg @c 1 normalized autocorrelation
+ *     \arg @c 2 biased autocorrelation
+ *     \arg @c 3 unbiased autocorrelation
  * - @b infile @e str
  *   - double-type data sequence
  * - @b stdout
  *   - double-type autocorrelation sequence.
  *
- * If `-o 1`, output the biased autocorrelation:
+ * If `-o 1`, output the normalized autocorrelation:
  * @f[
  *   \begin{array}{cccc}
- *     r(0)/L, & r(1)/L, & \ldots, & r(M)/L,
+ *     1, & r(1)/r(0), & \ldots, & r(M)/r(0),
  *   \end{array}
  * @f]
  * where @f$r(m)@f$ is the @f$m@f$-th autocorrelation coefficient.
- * If `-o 2`, output the normalized autocorrelation:
+ * If `-o 2`, output the biased autocorrelation function:
  * @f[
  *   \begin{array}{cccc}
- *     1, & r(1)/r(0), & \ldots, & r(M)/r(0).
+ *     r(0)/L, & r(1)/L, & \ldots, & r(M)/L.
+ *   \end{array}
+ * @f]
+ * If `-o 3`, output the unbiased autocorrelation function:
+ * @f[
+ *   \begin{array}{cccc}
+ *     r(0)/L, & r(1)/(L-1), & \ldots, & r(M)/(L-M).
  *   \end{array}
  * @f]
  *
@@ -236,6 +245,14 @@ int main(int argc, char* argv[]) {
     sptk::PrintErrorMessage("acorr", error_message);
     return 1;
   }
+  if (kWaveform != input_format &&
+      (kBiasedAutocorrelation == output_format ||
+       kUnbiasedAutocorrelation == output_format)) {
+    std::ostringstream error_message;
+    error_message << "If -q is not 4, only -o 0 and -o 1 are supported";
+    sptk::PrintErrorMessage("acorr", error_message);
+    return 1;
+  }
 
   sptk::AutocorrelationAnalysis analysis(frame_length, num_order,
                                          kWaveform == input_format);
@@ -271,21 +288,34 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    if (kBiasedAutocorrelation == output_format) {
-      const double z(1.0 / frame_length);
-      std::transform(autocorrelation.begin(), autocorrelation.end(),
-                     autocorrelation.begin(), [z](double r) { return r * z; });
-    } else if (kNormalizedAutocorrelation == output_format) {
-      if (0.0 == autocorrelation[0]) {
-        std::ostringstream error_message;
-        error_message << "Failed to normalize autocorrelation";
-        sptk::PrintErrorMessage("acorr", error_message);
-        return 1;
+    switch (output_format) {
+      case kAutocorrelation: {
+        // nothing to do
+        break;
       }
-
-      const double z(1.0 / autocorrelation[0]);
-      std::transform(autocorrelation.begin(), autocorrelation.end(),
-                     autocorrelation.begin(), [z](double r) { return r * z; });
+      case kNormalizedAutocorrelation: {
+        const double z(1.0 / autocorrelation[0]);
+        std::transform(autocorrelation.begin(), autocorrelation.end(),
+                       autocorrelation.begin(),
+                       [z](double r) { return r * z; });
+        break;
+      }
+      case kBiasedAutocorrelation: {
+        const double z(1.0 / frame_length);
+        std::transform(autocorrelation.begin(), autocorrelation.end(),
+                       autocorrelation.begin(),
+                       [z](double r) { return r * z; });
+        break;
+      }
+      case kUnbiasedAutocorrelation: {
+        for (int m(0); m <= num_order; ++m) {
+          autocorrelation[m] /= frame_length - m;
+        }
+        break;
+      }
+      default: {
+        break;
+      }
     }
 
     if (!sptk::WriteStream(0, output_length, autocorrelation, &std::cout,
