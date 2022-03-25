@@ -38,9 +38,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       c2acr [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of cepstrum        (   int)[" << std::setw(5) << std::right << kDefaultNumInputOrder  << "][ 0 <= m <  l ]" << std::endl;  // NOLINT
-  *stream << "       -M M  : order of autocorrelation (   int)[" << std::setw(5) << std::right << kDefaultNumOutputOrder << "][ 0 <= M <  l ]" << std::endl;  // NOLINT
-  *stream << "       -l l  : FFT length               (   int)[" << std::setw(5) << std::right << kDefaultFftLength      << "][ 2 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of cepstrum        (   int)[" << std::setw(5) << std::right << kDefaultNumInputOrder  << "][ 0 <= m <= l/2 ]" << std::endl;  // NOLINT
+  *stream << "       -M M  : order of autocorrelation (   int)[" << std::setw(5) << std::right << kDefaultNumOutputOrder << "][ 0 <= M <= l/2 ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length               (   int)[" << std::setw(5) << std::right << kDefaultFftLength      << "][ 2 <= l <=     ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       cepstrum                         (double)[stdin]" << std::endl;  // NOLINT
@@ -58,9 +58,9 @@ void PrintUsage(std::ostream* stream) {
  * @a c2acr [ @e option ] [ @e infile ]
  *
  * - @b -m @e int
- *   - order of cepstral coefficients @f$(0 \le M_1 < L)@f$
+ *   - order of cepstral coefficients @f$(0 \le M_1 \le L/2)@f$
  * - @b -M @e int
- *   - order of autocorrelation coefficients @f$(0 \le M_2 < L)@f$
+ *   - order of autocorrelation coefficients @f$(0 \le M_2 \le L/2)@f$
  * - @b -l @e int
  *   - FFT length @f$(2 \le L)@f$
  * - @b infile @e str
@@ -131,11 +131,11 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // Check arguments.
-  if (fft_length <= num_input_order || fft_length <= num_output_order) {
+  const int half_fft_length(fft_length / 2);
+  if (half_fft_length < num_input_order || half_fft_length < num_output_order) {
     std::ostringstream error_message;
-    error_message
-        << "The number of input/output orders must be less than FFT length";
+    error_message << "The number of input/output orders must be equal to or "
+                  << "less than half of FFT length " << half_fft_length;
     sptk::PrintErrorMessage("c2acr", error_message);
     return 1;
   }

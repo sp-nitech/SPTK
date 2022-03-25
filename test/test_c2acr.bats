@@ -28,14 +28,14 @@ teardown() {
 }
 
 @test "c2acr: compatibility" {
-    $sptk3/nrand -l 20 | $sptk3/c2acr -m 9 -M 4 -l 16 > $tmp/1
-    $sptk3/nrand -l 20 | $sptk4/c2acr -m 9 -M 4 -l 16 > $tmp/2
+    $sptk3/nrand -l 20 | $sptk3/c2acr -m 9 -M 4 -l 32 > $tmp/1
+    $sptk3/nrand -l 20 | $sptk4/c2acr -m 9 -M 4 -l 32 > $tmp/2
     run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "c2acr: valgrind" {
     $sptk3/nrand -l 20 > $tmp/1
-    run valgrind $sptk4/c2acr -m 9 -M 4 -l 16 $tmp/1
+    run valgrind $sptk4/c2acr -m 9 -M 4 -l 32 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }
