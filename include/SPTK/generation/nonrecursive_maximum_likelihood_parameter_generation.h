@@ -95,9 +95,9 @@ class NonrecursiveMaximumLikelihoodParameterGeneration {
   }
 
   /**
-   * @param[in] mean_vectors Mean vector sequence. The shape is @f$[T, DM]$@f$.
+   * @param[in] mean_vectors Mean vector sequence. The shape is @f$[T, DM]@f$.
    * @param[in] variance_vectors Variance vector sequence.
-   *            The shape is @f$[T, DM]$@f$.
+   *            The shape is @f$[T, DM]@f$.
    * @param[out] smoothed_static_parameters Smoothed static parameters.
    * @return True on success, false on failure.
    */
@@ -106,9 +106,9 @@ class NonrecursiveMaximumLikelihoodParameterGeneration {
            std::vector<std::vector<double> >* smoothed_static_parameters) const;
 
   /**
-   * @param[in] mean_vectors Mean vector sequence. The shape is @f$[T, DM]$@f$.
+   * @param[in] mean_vectors Mean vector sequence. The shape is @f$[T, DM]@f$.
    * @param[in] covariance_matrices Covariance matrix sequence.
-   *            The shape is @f$[T, DM, DM]$@f$.
+   *            The shape is @f$[T, DM, DM]@f$.
    * @param[out] smoothed_static_parameters Smoothed static parameters.
    * @return True on success, false on failure.
    */
