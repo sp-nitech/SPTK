@@ -98,7 +98,7 @@ bool RecursiveMaximumLikelihoodParameterGeneration::Get(
         buffer_.static_and_dynamic_parameters.begin(),
         buffer_.static_and_dynamic_parameters.begin() + static_and_dynamic_size,
         0.0);
-    // Unobserved variance is inifinite.
+    // Unobserved variance is infinite.
     std::fill(
         buffer_.static_and_dynamic_parameters.begin() + static_and_dynamic_size,
         buffer_.static_and_dynamic_parameters.end(), DBL_MAX);
