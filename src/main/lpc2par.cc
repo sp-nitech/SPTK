@@ -43,7 +43,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -m m  : order of coefficients                  (   int)[" << std::setw(5) << std::right << kDefaultNumOrder    << "][    0 <= m <=     ]" << std::endl;  // NOLINT
   *stream << "       -g g  : gamma of generalized cepstrum          (double)[" << std::setw(5) << std::right << kDefaultGamma       << "][ -1.0 <= g <= 1.0 ]" << std::endl;  // NOLINT
   *stream << "       -c c  : gamma of generalized cepstrum = -1 / c (   int)[" << std::setw(5) << std::right << "N/A"               << "][    1 <= c <=     ]" << std::endl;  // NOLINT
-  *stream << "       -w w  : warning type of unstable index         (   int)[" << std::setw(5) << std::right << kDefaultWarningType << "][    0 <= e <= 2   ]" << std::endl;  // NOLINT
+  *stream << "       -e e  : warning type of unstable index         (   int)[" << std::setw(5) << std::right << kDefaultWarningType << "][    0 <= e <= 2   ]" << std::endl;  // NOLINT
   *stream << "                 0 (no warning)" << std::endl;
   *stream << "                 1 (output the index to stderr)" << std::endl;
   *stream << "                 2 (output the index to stderr" << std::endl;
@@ -70,7 +70,7 @@ void PrintUsage(std::ostream* stream) {
  *   - gamma @f$(|\gamma| \le 1)@f$
  * - @b -c @e double
  *   - gamma @f$\gamma = -1 / C@f$ @f$(1 \le C)@f$
- * - @b -w @e int
+ * - @b -e @e int
  *   - type of warning of unstable coefficients
  *     \arg @c 0 no warning
  *     \arg @c 1 output the index to stderr
@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
   WarningType warning_type(kDefaultWarningType);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "m:g:c:w:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "m:g:c:e:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -134,14 +134,14 @@ int main(int argc, char* argv[]) {
         gamma = -1.0 / tmp;
         break;
       }
-      case 'w': {
+      case 'e': {
         const int min(0);
         const int max(static_cast<int>(kNumWarningTypes) - 1);
         int tmp;
         if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
             !sptk::IsInRange(tmp, min, max)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -w option must be an integer "
+          error_message << "The argument for the -e option must be an integer "
                         << "in the range of " << min << " to " << max;
           sptk::PrintErrorMessage("lpc2par", error_message);
           return 1;
