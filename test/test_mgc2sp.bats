@@ -28,7 +28,7 @@ teardown() {
 }
 
 @test "mgc2sp: compatibility" {
-    $sptk3/nrand -l 32 > $tmp/0
+    $sptk3/step -v 0.1 -l 16 > $tmp/0
     ary=("-o 0" "-o 1" "-o 2" "-o 3" "-p -o 0" "-p -o 1" "-p -o 2")
     for nu in "" "-n" "-u" "-n -u"; do
         for o in $(seq 0 6); do
