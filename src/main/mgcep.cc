@@ -68,7 +68,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -m m  : order of mel-generalized cepstrum   (   int)[" << std::setw(5) << std::right << kDefaultNumOrder             << "][    0 <= m <=     ]" << std::endl;  // NOLINT
   *stream << "       -a a  : all-pass constant                   (double)[" << std::setw(5) << std::right << kDefaultAlpha                << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
   *stream << "       -g g  : gamma                               (double)[" << std::setw(5) << std::right << kDefaultGamma                << "][ -1.0 <= g <= 0.0 ]" << std::endl;  // NOLINT
-  *stream << "       -c c  : gamma = -1 / c                      (   int)[" << std::setw(5) << std::right << "N/A"                        << "][    1 <= c <=     ]" << std::endl;  // NOLINT
+  *stream << "       -c c  : gamma = -1 / c                      (   int)[" << std::setw(5) << std::right << "N/A"                        << "][    0 <= c <=     ]" << std::endl;  // NOLINT
   *stream << "       -l l  : frame length (FFT length)           (   int)[" << std::setw(5) << std::right << kDefaultFftLength            << "][    2 <= l <=     ]" << std::endl;  // NOLINT
   *stream << "       -q q  : input format                        (   int)[" << std::setw(5) << std::right << kDefaultInputFormat          << "][    0 <= q <= 4   ]" << std::endl;  // NOLINT
   *stream << "                 0 (20*log|X(z)|)" << std::endl;
@@ -93,6 +93,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       mel-generalized cepstrum                    (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
   *stream << "       value of l must be a power of 2" << std::endl;
+  *stream << "       if c = 0 or g = 0, standard mel-cepstral analyzer is used" << std::endl;  // NOLINT
+  *stream << "       if c > 0 or g != 0, mel-generalized cepstral analyzer is used" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -209,14 +211,14 @@ int main(int argc, char* argv[]) {
       }
       case 'c': {
         int tmp;
-        if (!sptk::ConvertStringToInteger(optarg, &tmp) || tmp < 1) {
+        if (!sptk::ConvertStringToInteger(optarg, &tmp) || tmp < 0) {
           std::ostringstream error_message;
           error_message << "The argument for the -c option must be a "
                         << "non-negative integer";
           sptk::PrintErrorMessage("mgcep", error_message);
           return 1;
         }
-        gamma = -1.0 / tmp;
+        gamma = (0 == tmp) ? 0.0 : -1.0 / tmp;
         break;
       }
       case 'l': {
