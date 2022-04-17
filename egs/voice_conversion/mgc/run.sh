@@ -60,7 +60,7 @@ $sptk4/x2x +sd $data |
 
 # Perform DTW.
 dl=$((2*(order+1)))
-$sptk4/dtw -l $dl -p 5 -S $dump/dtw.score $dump/data.mgc.target.delta \
+$sptk4/dtw -l $dl -p 1 -S $dump/dtw.score $dump/data.mgc.target.delta \
            < $dump/data.mgc.source.delta > $dump/data.mgc.joint
 
 # Train joint GMMs.

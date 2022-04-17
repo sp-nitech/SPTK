@@ -35,7 +35,6 @@ $sptk4/x2x +sd $data |
 $sptk4/interpolate -l $nband -p $nband < $dump/data.ana.raw |
     $sptk4/sopr -m $nband |
     $sptk4/ipqmf -k $nband -m $order |
-    $sptk4/delay -s -$order |
     $sptk4/x2x +ds -r > $dump/data.syn.raw
 
 echo "run.sh: successfully finished"

@@ -49,8 +49,7 @@ $sptk4/pqmf -k $nband -m $fo $dump/data.res |
 # Synthesis.
 $sptk4/interpolate -l $nband -p $nband < $dump/data.ana.res |
     $sptk4/sopr -m $nband |
-    $sptk4/ipqmf -k $nband -m $fo |
-    $sptk4/delay -s -$fo > $dump/data.syn.res
+    $sptk4/ipqmf -k $nband -m $fo > $dump/data.syn.res
 
 # Filtering.
 $sptk4/mglsadf -p $fp -m $order -a $alpha -P 7 $dump/data.mgc < $dump/data.syn.res |
