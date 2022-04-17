@@ -36,9 +36,10 @@ teardown() {
     $sptk3/merge +d -l 10 -L 10 $tmp/1 $tmp/2 > $tmp/3
 
     # Perform MLPG.
-    $sptk3/mlpg -l 5 -r 1 1 -s 15 $tmp/3 > $tmp/4
-    $sptk4/mlpg -l 5 -r 1 -s 15 $tmp/3 > $tmp/5
-    run $sptk4/aeq $tmp/4 $tmp/5
+    $sptk3/mlpg -l 5 -r 2 2 3 $tmp/3 | $sptk3/x2x +da | grep -v ^0$ |
+        $sptk3/x2x +ad > $tmp/4
+    $sptk4/mlpg -l 5 -r 2 3 $tmp/3 > $tmp/5
+    run $sptk4/aeq -L $tmp/4 $tmp/5
     [ "$status" -eq 0 ]
 
     # Remove zeros because SPTK3 does not consider delay.
