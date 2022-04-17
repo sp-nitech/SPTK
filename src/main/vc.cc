@@ -200,7 +200,8 @@ int main(int argc, char* argv[]) {
       case 'd': {
         if (is_regression_specified) {
           std::ostringstream error_message;
-          error_message << "-d and -r options cannot be specified at the same";
+          error_message
+              << "-d and -r options cannot be specified at the same time";
           sptk::PrintErrorMessage("vc", error_message);
           return 1;
         }
@@ -225,7 +226,8 @@ int main(int argc, char* argv[]) {
       case 'D': {
         if (is_regression_specified) {
           std::ostringstream error_message;
-          error_message << "-D and -r options cannot be specified at the same";
+          error_message
+              << "-D and -r options cannot be specified at the same time";
           sptk::PrintErrorMessage("vc", error_message);
           return 1;
         }

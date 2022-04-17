@@ -78,7 +78,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       static parameter sequence               (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
   *stream << "       -d and -D options can be given multiple times" << std::endl;  // NOLINT
-  *stream << "       -s option is valid with R=0" << std::endl;
+  *stream << "       -s option is valid only with R=0" << std::endl;
   *stream << "       -magic option is not supported with R=0" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
@@ -265,7 +265,8 @@ int main(int argc, char* argv[]) {
       case 'd': {
         if (is_regression_specified) {
           std::ostringstream error_message;
-          error_message << "-d and -r options cannot be specified at the same";
+          error_message
+              << "-d and -r options cannot be specified at the same time";
           sptk::PrintErrorMessage("mlpg", error_message);
           return 1;
         }
@@ -290,7 +291,8 @@ int main(int argc, char* argv[]) {
       case 'D': {
         if (is_regression_specified) {
           std::ostringstream error_message;
-          error_message << "-D and -r options cannot be specified at the same";
+          error_message
+              << "-D and -r options cannot be specified at the same time";
           sptk::PrintErrorMessage("mlpg", error_message);
           return 1;
         }
