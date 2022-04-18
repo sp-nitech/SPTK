@@ -53,7 +53,8 @@ SecondOrderAllPassFrequencyTransform::SecondOrderAllPassFrequencyTransform(
       theta_(theta),
       is_valid_(true) {
   if (num_input_order_ < 0 || num_output_order_ < 0 ||
-      !sptk::IsValidAlpha(alpha_) || !sptk::IsInRange(theta_, 0.0, sptk::kPi)) {
+      fft_length <= num_input_order_ || !sptk::IsValidAlpha(alpha_) ||
+      !sptk::IsInRange(theta_, 0.0, sptk::kPi)) {
     is_valid_ = false;
     return;
   }

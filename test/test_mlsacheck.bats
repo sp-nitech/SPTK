@@ -35,7 +35,7 @@ teardown() {
     ary1=("-c 2" "-c 3" "-c 4")
     ary2=("-t 0" "-t 1" "-f")
     for i in $(seq 0 2); do
-        for r in $(seq 1 1); do
+        for r in $(seq 0 1); do
             for p in $(seq 4 7); do
                 # shellcheck disable=SC2086
                 $sptk3/mlsacheck -m 4 -a 0.1 ${ary1[$i]} -r "$r" -P "$p" \
