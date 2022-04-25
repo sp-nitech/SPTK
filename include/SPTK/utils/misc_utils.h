@@ -108,6 +108,26 @@ bool Perform1DConvolution(const std::vector<double>& f,
                           const std::vector<double>& g,
                           std::vector<double>* result);
 
+/**
+ * Compute 1st order regression coefficients.
+ *
+ * @param[in] n Width of regression coefficients.
+ * @param[out] coefficients Regression coefficients.
+ * @return True on success, false on failure.
+ */
+bool ComputeFirstOrderRegressionCoefficients(int n,
+                                             std::vector<double>* coefficients);
+
+/**
+ * Compute 2nd order regression coefficients.
+ *
+ * @param[in] n Width of regression coefficients.
+ * @param[out] coefficients Regression coefficients.
+ * @return True on success, false on failure.
+ */
+bool ComputeSecondOrderRegressionCoefficients(
+    int n, std::vector<double>* coefficients);
+
 }  // namespace sptk
 
 #endif  // SPTK_UTILS_MISC_UTILS_H_

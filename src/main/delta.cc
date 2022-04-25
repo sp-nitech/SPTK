@@ -23,6 +23,7 @@
 #include "Getopt/getoptwin.h"
 #include "SPTK/generation/delta_calculation.h"
 #include "SPTK/input/input_source_from_stream.h"
+#include "SPTK/utils/misc_utils.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -114,8 +115,8 @@ void PrintUsage(std::ostream* stream) {
  *          {\displaystyle\sum_{\tau=-L^{(1)}}^{L^{(1)}} \tau^2}, \\
  *   \Delta^{(2)} x_t &=&
  *     \frac{\displaystyle\sum_{\tau=-L^{(2)}}^{L^{(2)}}
- *           2 (a_0 \tau^2 - a_1) x_{t+\tau}}
- *          {a_2 a_0 - a_1^2},
+ *           (a_0 \tau^2 - a_1) x_{t+\tau}}
+ *          {2 \cdot (a_2 a_0 - a_1^2)},
  * @f}
  * where
  * @f{eqnarray}{
@@ -232,39 +233,29 @@ int main(int argc, char* argv[]) {
         int n;
         // Set first order coefficients.
         {
-          if (!sptk::ConvertStringToInteger(optarg, &n) || n <= 0) {
+          std::vector<double> coefficients;
+          if (!sptk::ConvertStringToInteger(optarg, &n) ||
+              !sptk::ComputeFirstOrderRegressionCoefficients(n,
+                                                             &coefficients)) {
             std::ostringstream error_message;
             error_message
                 << "The argument for the -r option must be positive integer(s)";
             sptk::PrintErrorMessage("delta", error_message);
             return 1;
-          }
-
-          std::vector<double> coefficients(2 * n + 1);
-          const int a1(n * (n + 1) * (2 * n + 1) / 3);
-          const double norm(1.0 / a1);
-          for (int j(-n), i(0); j <= n; ++j, ++i) {
-            coefficients[i] = j * norm;
           }
           window_coefficients.push_back(coefficients);
         }
 
         // Set second order coefficients.
         if (optind < argc && sptk::ConvertStringToInteger(argv[optind], &n)) {
-          if (n <= 0) {
+          std::vector<double> coefficients;
+          if (!sptk::ComputeSecondOrderRegressionCoefficients(n,
+                                                              &coefficients)) {
             std::ostringstream error_message;
             error_message
                 << "The argument for the -r option must be positive integer(s)";
             sptk::PrintErrorMessage("delta", error_message);
             return 1;
-          }
-          std::vector<double> coefficients(2 * n + 1);
-          const int a0(2 * n + 1);
-          const int a1(a0 * n * (n + 1) / 3);
-          const int a2(a1 * (3 * n * n + 3 * n - 1) / 5);
-          const double norm(2.0 / (a2 * a0 - a1 * a1));
-          for (int j(-n), i(0); j <= n; ++j, ++i) {
-            coefficients[i] = (a0 * j * j - a1) * norm;
           }
           window_coefficients.push_back(coefficients);
           ++optind;

@@ -274,4 +274,41 @@ bool Perform1DConvolution(const std::vector<double>& f,
   return true;
 }
 
+bool ComputeFirstOrderRegressionCoefficients(
+    int n, std::vector<double>* coefficients) {
+  if (n <= 0 || NULL == coefficients) {
+    return false;
+  }
+
+  const int a0(2 * n + 1);
+  if (coefficients->size() != static_cast<std::size_t>(a0)) {
+    coefficients->resize(a0);
+  }
+  const int a1(a0 * n * (n + 1) / 3);
+  const double norm(1.0 / a1);
+  for (int j(-n), i(0); j <= n; ++j, ++i) {
+    (*coefficients)[i] = j * norm;
+  }
+  return true;
+}
+
+bool ComputeSecondOrderRegressionCoefficients(
+    int n, std::vector<double>* coefficients) {
+  if (n <= 0 || NULL == coefficients) {
+    return false;
+  }
+
+  const int a0(2 * n + 1);
+  if (coefficients->size() != static_cast<std::size_t>(a0)) {
+    coefficients->resize(a0);
+  }
+  const int a1(a0 * n * (n + 1) / 3);
+  const int a2(a1 * (3 * n * n + 3 * n - 1) / 5);
+  const double norm(0.5 / (a2 * a0 - a1 * a1));
+  for (int j(-n), i(0); j <= n; ++j, ++i) {
+    (*coefficients)[i] = (a0 * j * j - a1) * norm;
+  }
+  return true;
+}
+
 }  // namespace sptk

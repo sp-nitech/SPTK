@@ -25,6 +25,7 @@
 #include "SPTK/generation/recursive_maximum_likelihood_parameter_generation.h"
 #include "SPTK/input/input_source_from_stream.h"
 #include "SPTK/input/input_source_interface.h"
+#include "SPTK/utils/misc_utils.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -324,39 +325,29 @@ int main(int argc, char* argv[]) {
         int n;
         // Set first order coefficients.
         {
-          if (!sptk::ConvertStringToInteger(optarg, &n) || n <= 0) {
+          std::vector<double> coefficients;
+          if (!sptk::ConvertStringToInteger(optarg, &n) ||
+              !sptk::ComputeFirstOrderRegressionCoefficients(n,
+                                                             &coefficients)) {
             std::ostringstream error_message;
             error_message
                 << "The argument for the -r option must be positive integer(s)";
             sptk::PrintErrorMessage("mlpg", error_message);
             return 1;
-          }
-
-          std::vector<double> coefficients(2 * n + 1);
-          const int a1(n * (n + 1) * (2 * n + 1) / 3);
-          const double norm(1.0 / a1);
-          for (int j(-n), i(0); j <= n; ++j, ++i) {
-            coefficients[i] = j * norm;
           }
           window_coefficients.push_back(coefficients);
         }
 
         // Set second order coefficients.
         if (optind < argc && sptk::ConvertStringToInteger(argv[optind], &n)) {
-          if (n <= 0) {
+          std::vector<double> coefficients;
+          if (!sptk::ComputeSecondOrderRegressionCoefficients(n,
+                                                              &coefficients)) {
             std::ostringstream error_message;
             error_message
                 << "The argument for the -r option must be positive integer(s)";
             sptk::PrintErrorMessage("mlpg", error_message);
             return 1;
-          }
-          std::vector<double> coefficients(2 * n + 1);
-          const int a0(2 * n + 1);
-          const int a1(a0 * n * (n + 1) / 3);
-          const int a2(a1 * (3 * n * n + 3 * n - 1) / 5);
-          const double norm(2.0 / (a2 * a0 - a1 * a1));
-          for (int j(-n), i(0); j <= n; ++j, ++i) {
-            coefficients[i] = (a0 * j * j - a1) * norm;
           }
           window_coefficients.push_back(coefficients);
           ++optind;
