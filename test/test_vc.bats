@@ -52,6 +52,13 @@ teardown() {
         $sptk4/vc $tmp/2 -l 3 -L 2 -k 4 -d -0.5 0 0.5 > $tmp/5
     run $sptk4/aeq $tmp/4 $tmp/5
     [ "$status" -eq 0 ]
+
+    # Make target.
+    $sptk3/vc $tmp/1 -l 3 -L 2 -m 4 -r 1 1 < $tmp/3 > $tmp/6
+    $sptk3/delta -r 1 1 -l 3 $tmp/3 |
+        $sptk4/vc $tmp/2 -l 3 -L 2 -k 4 -r 1 > $tmp/7
+    run $sptk4/aeq $tmp/6 $tmp/7
+    [ "$status" -eq 0 ]
 }
 
 @test "vc: block covariance" {
