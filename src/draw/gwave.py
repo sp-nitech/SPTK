@@ -114,6 +114,14 @@ def get_arguments():
         help="y-axis limits",
     )
     parser.add_argument(
+        "-xname",
+        metavar="XNAME",
+        dest="xname",
+        default="Time [sample]",
+        type=str,
+        help="x-axis title",
+    )
+    parser.add_argument(
         "-ls",
         dest="line_style",
         choices=utils.line_styles,
@@ -223,7 +231,7 @@ def main():
             col=1,
         )
         fig.update_xaxes(
-            title_text="Time [sample]" if last else "",
+            title_text=args.xname if last else "",
             showgrid=args.grid,
             row=i + 1,
             col=1,
