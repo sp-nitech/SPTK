@@ -329,10 +329,11 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'r': {
-        int divisor;
-        if (!sptk::ConvertStringToInteger(optarg, &divisor)) {
+        double divisor;
+        if (!sptk::ConvertSpecialStringToDouble(optarg, &divisor) &&
+            !sptk::ConvertStringToDouble(optarg, &divisor)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -r option must be an integer";
+          error_message << "The argument for the -r option must be numeric";
           sptk::PrintErrorMessage("sopr", error_message);
           return 1;
         }

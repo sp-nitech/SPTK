@@ -92,7 +92,7 @@ class ScalarOperation {
    * @param[in] divisor Divisor, @f$n@f$.
    * @return True on success, false on failure.
    */
-  bool AddModuloOperation(int divisor);
+  bool AddModuloOperation(double divisor);
 
   /**
    * @f$x^n@f$

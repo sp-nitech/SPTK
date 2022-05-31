@@ -116,16 +116,16 @@ class Division : public OperationInterface {
 
 class Modulo : public OperationInterface {
  public:
-  explicit Modulo(int divisor) : divisor_(divisor) {
+  explicit Modulo(double divisor) : divisor_(divisor) {
   }
 
   virtual bool Run(double* number) const {
-    *number = static_cast<int>(*number) % divisor_;
+    *number = std::fmod(*number, divisor_);
     return true;
   }
 
  private:
-  const int divisor_;
+  const double divisor_;
   DISALLOW_COPY_AND_ASSIGN(Modulo);
 };
 
@@ -535,7 +535,7 @@ bool ScalarOperation::AddDivisionOperation(double divisor) {
   return true;
 }
 
-bool ScalarOperation::AddModuloOperation(int divisor) {
+bool ScalarOperation::AddModuloOperation(double divisor) {
   if (0 == divisor) return false;
   modules_.push_back(new OperationPerformer(new Modulo(divisor)));
   return true;
