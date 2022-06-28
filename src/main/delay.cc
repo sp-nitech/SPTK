@@ -17,14 +17,17 @@
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
-#include <queue>     // std::queue
 #include <sstream>   // std::ostringstream
+#include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
+#include "SPTK/input/input_source_delay.h"
+#include "SPTK/input/input_source_from_stream.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
 
+const int kDefaultVectorLength(1);
 const int kDefaultStartIndex(0);
 const bool kDefaultKeepSequenceLengthFlag(false);
 
@@ -36,7 +39,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       delay [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -s s  : start index          (   int)[" << std::setw(5) << std::right << kDefaultStartIndex << "][   <= s <=   ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : length of vector     (   int)[" << std::setw(5) << std::right << kDefaultVectorLength << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of vector      (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : start index          (   int)[" << std::setw(5) << std::right << kDefaultStartIndex   << "][   <= s <=   ]" << std::endl;  // NOLINT
   *stream << "       -k    : keep sequence length (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultKeepSequenceLengthFlag) << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
@@ -56,6 +61,10 @@ void PrintUsage(std::ostream* stream) {
 /**
  * @a delay [ @e option ] [ @e infile ]
  *
+ * - @b -l @e int
+ *   - length of vector @f$(1 \le L)@f$
+ * - @b -m @e int
+ *   - order of vector @f$(0 \le M)@f$
  * - @b -s @e int
  *   - start index @f$(S)@f$
  * - @b -k @e double
@@ -109,14 +118,38 @@ void PrintUsage(std::ostream* stream) {
  * @return 0 on success, 1 on failure.
  */
 int main(int argc, char* argv[]) {
+  int vector_length(kDefaultVectorLength);
   int start_index(kDefaultStartIndex);
   bool keep_sequence_length_flag(kDefaultKeepSequenceLengthFlag);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "s:kh", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:s:kh", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
+      case 'l': {
+        if (!sptk::ConvertStringToInteger(optarg, &vector_length) ||
+            vector_length <= 0) {
+          std::ostringstream error_message;
+          error_message
+              << "The argument for the -l option must be a positive integer";
+          sptk::PrintErrorMessage("delay", error_message);
+          return 1;
+        }
+        break;
+      }
+      case 'm': {
+        if (!sptk::ConvertStringToInteger(optarg, &vector_length) ||
+            vector_length < 0) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -m option must be a "
+                        << "non-negative integer";
+          sptk::PrintErrorMessage("delay", error_message);
+          return 1;
+        }
+        ++vector_length;
+        break;
+      }
       case 's': {
         if (!sptk::ConvertStringToInteger(optarg, &start_index)) {
           std::ostringstream error_message;
@@ -160,75 +193,30 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  if (start_index <= 0) {
-    // Advance.
-    double data;
-    int num_zeros(-start_index);
-    for (int i(0); i < -start_index; ++i) {
-      if (!sptk::ReadStream(&data, &input_stream)) {
-        num_zeros = i;
-        break;
-      }
-    }
+  sptk::InputSourceFromStream input_source(false, vector_length, &input_stream);
+  if (!input_source.IsValid()) {
+    std::ostringstream error_message;
+    error_message << "Failed to initialize InputSourceFromStream";
+    sptk::PrintErrorMessage("delay", error_message);
+    return 1;
+  }
 
-    while (sptk::ReadStream(&data, &input_stream)) {
-      if (!sptk::WriteStream(data, &std::cout)) {
-        std::ostringstream error_message;
-        error_message << "Failed to write data";
-        sptk::PrintErrorMessage("delay", error_message);
-        return 1;
-      }
-    }
+  sptk::InputSourceDelay input_source_delay(
+      start_index, keep_sequence_length_flag, &input_source);
+  if (!input_source_delay.IsValid()) {
+    std::ostringstream error_message;
+    error_message << "Failed to initialize InputSourceDelay";
+    sptk::PrintErrorMessage("delay", error_message);
+    return 1;
+  }
 
-    if (keep_sequence_length_flag) {
-      for (int i(0); i < num_zeros; ++i) {
-        if (!sptk::WriteStream(0.0, &std::cout)) {
-          std::ostringstream error_message;
-          error_message << "Failed to write data";
-          sptk::PrintErrorMessage("delay", error_message);
-          return 1;
-        }
-      }
-    }
-  } else {
-    // Delay.
-    double data;
-    std::queue<double> stored_data;
-    for (int i(0); i < start_index; ++i) {
-      if (sptk::ReadStream(&data, &input_stream)) {
-        stored_data.push(data);
-      } else if (keep_sequence_length_flag) {
-        return 0;
-      }
-      if (!sptk::WriteStream(0.0, &std::cout)) {
-        std::ostringstream error_message;
-        error_message << "Failed to write data";
-        sptk::PrintErrorMessage("delay", error_message);
-        return 1;
-      }
-    }
-
-    while (sptk::ReadStream(&data, &input_stream)) {
-      if (!sptk::WriteStream(stored_data.front(), &std::cout)) {
-        std::ostringstream error_message;
-        error_message << "Failed to write data";
-        sptk::PrintErrorMessage("delay", error_message);
-        return 1;
-      }
-      stored_data.pop();
-      stored_data.push(data);
-    }
-
-    if (!keep_sequence_length_flag) {
-      while (!stored_data.empty()) {
-        if (!sptk::WriteStream(stored_data.front(), &std::cout)) {
-          std::ostringstream error_message;
-          error_message << "Failed to write data";
-          sptk::PrintErrorMessage("delay", error_message);
-          return 1;
-        }
-        stored_data.pop();
-      }
+  std::vector<double> data;
+  while (input_source_delay.Get(&data)) {
+    if (!sptk::WriteStream(0, vector_length, data, &std::cout, NULL)) {
+      std::ostringstream error_message;
+      error_message << "Failed to write delayed data";
+      sptk::PrintErrorMessage("delay", error_message);
+      return 1;
     }
   }
 

@@ -28,15 +28,17 @@ teardown() {
 }
 
 @test "delay: compatibility" {
-    $sptk3/nrand -l 20 | $sptk3/delay -s 3 > $tmp/1
-    $sptk3/nrand -l 20 | $sptk4/delay -s 3 > $tmp/2
-    run $sptk4/aeq $tmp/1 $tmp/2
-    [ "$status" -eq 0 ]
+    for s in 3 13; do
+        $sptk3/nrand -l 10 | $sptk3/delay -s $s > $tmp/1
+        $sptk3/nrand -l 10 | $sptk4/delay -s $s > $tmp/2
+        run $sptk4/aeq $tmp/1 $tmp/2
+        [ "$status" -eq 0 ]
 
-    $sptk3/nrand -l 20 | $sptk3/delay -s 3 -f > $tmp/3
-    $sptk3/nrand -l 20 | $sptk4/delay -s 3 -k > $tmp/4
-    run $sptk4/aeq $tmp/3 $tmp/4
-    [ "$status" -eq 0 ]
+        $sptk3/nrand -l 10 | $sptk3/delay -s $s -f > $tmp/3
+        $sptk3/nrand -l 10 | $sptk4/delay -s $s -k > $tmp/4
+        run $sptk4/aeq $tmp/3 $tmp/4
+        [ "$status" -eq 0 ]
+    done
 }
 
 @test "delay: identity" {
