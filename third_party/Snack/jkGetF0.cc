@@ -346,12 +346,11 @@ static void get_cand(Cross *cross, float *peak, int *loc, int nlags, int *ncand,
 static void peak(float *y, float *xp, float *yp);
 static void do_ffir(float *buf, int in_samps, float *bufo, int *out_samps,
                     int idx, int ncoef, float *fc, int invert, int skip,
-                    int init);
+                    int init, float **co, float **mem, float *state, int *fsize);
 static int lc_lin_fir(float fc, int *nf, float *coef);
 static int downsamp(float *in, float *out, int samples, int *outsamps,
                     int state_idx, int decimate, int ncoef, float fc[],
-                    int init);
-static float *foutput = NULL, *co = NULL, *mem2 = NULL;
+                    int init, float **co, float **mem, float *state, int *fsize);
 #endif
 
 /* ----------------------------------------------------------------------- */
@@ -452,15 +451,23 @@ float *downsample(input,samsin,state_idx,freq,samsout,decimate, first_time, last
       int samsin, *samsout, decimate, state_idx, first_time, last_time;
 #else
 float *downsample(float *input, int samsin, int state_idx, double freq,
-                  int *samsout, int decimate, int first_time, int last_time)
+                  int *samsout, int decimate, int first_time, int last_time,
+                  int *ncoeffp, int *ncoefftp, float *b, float **foutputp,
+                  float **co, float **mem, float *state, int *fsize)
 #endif
 {
-  static float	b[2048];
 #if 0
+  static float	b[2048];
   static float *foutput = NULL;
+#else
+  float* foutput = *foutputp;
 #endif
   float	beta = 0.0f;
+#if 0
   static int	ncoeff = 127, ncoefft = 0;
+#else
+  int ncoeff = *ncoeffp, ncoefft = *ncoefftp;
+#endif
   int init;
 
   if(input && (samsin > 0) && (decimate > 0) && *samsout) {
@@ -484,14 +491,25 @@ float *downsample(float *input, int samsin, int state_idx, double freq,
 	return(NULL);
       }
       ncoefft = (ncoeff/2) + 1;
+#if 1
+      *ncoeffp = ncoeff;
+      *ncoefftp = ncoefft;
+      *foutputp = foutput;
+#endif
     }		    /*  endif new coefficients need to be computed */
 
     if(first_time) init = 1;
     else if (last_time) init = 2;
     else init = 0;
     
+#if 0
     if(downsamp(input,foutput,samsin,samsout,state_idx,decimate,ncoefft,b,init)) {
       return(foutput);
+#else
+    if(downsamp(input,*foutputp,samsin,samsout,state_idx,decimate,ncoefft,b,init,
+                co,mem,state,fsize)) {
+      return(*foutputp);
+#endif
     } else
       Fprintf(stderr,"Problems in downsamp() in downsample()\n");
 #if 0
@@ -572,14 +590,23 @@ static int downsamp(in, out, samples, outsamps, state_idx, decimate, ncoef, fc, 
 #else
 static int downsamp(float *in, float *out, int samples, int *outsamps,
                     int state_idx, int decimate, int ncoef, float fc[],
-                    int init)
+                    int init, float **co, float **mem, float *state, int *fsize)
 #endif
 {
   if(in && out) {
+#if 0
     do_ffir(in, samples, out, outsamps, state_idx, ncoef, fc, 0, decimate, init);
+#else
+    do_ffir(in, samples, out, outsamps, state_idx, ncoef, fc, 0, decimate, init,
+            co, mem, state, fsize);
+#endif
     return(TRUE);
   } else
+#if 0
     printf("Bad signal(s) passed to downsamp()\n");
+#else
+    Fprintf(stderr, "Bad signal(s) passed to downsamp()\n");
+#endif
   return(FALSE);
 }
 
@@ -599,17 +626,18 @@ int idx;
 #else
 static void do_ffir(float *buf, int in_samps, float *bufo, int *out_samps,
                     int idx, int ncoef, float *fc, int invert, int skip,
-                    int init)
+                    int init, float **cop, float **memp, float *state, int *fsizep)
 #endif
 {
   register float *dp1, *dp2, *dp3, sum, integral;
 #if 0
   static float *co=NULL, *mem=NULL;
-#else
-  static float *mem=NULL;
-#endif
   static float state[1000];
   static int fsize=0, resid=0;
+#else
+  float *co = *cop, *mem = *memp;
+  int fsize = *fsizep, resid;
+#endif
   register int i, j, k, l;
   register float *sp;
   register float *buf1;
@@ -624,7 +652,9 @@ static void do_ffir(float *buf, int in_samps, float *bufo, int *out_samps,
     }
     fsize = ncoef;
 #if 1
-    mem2 = mem;
+    *fsizep = fsize;
+    *cop = co;
+    *memp = mem;
 #endif
   }
 
@@ -833,6 +863,7 @@ static void peak(float *y, float *xp, float *yp)
  * cmpthF points to starting frame of converged path to backtrack
  */
 
+#if 0
 static Frame *headF = NULL, *tailF = NULL, *cmpthF = NULL;
 
 static  int *pcands = NULL;	/* array for backtracking in convergence check */
@@ -858,6 +889,28 @@ static Windstat *windstat = NULL;
 static float *f0p = NULL, *vuvp = NULL, *rms_speech = NULL, 
              *acpkp = NULL, *peaks = NULL;
 static int first_time = 1, pad;
+#else
+typedef struct buffer_rec {
+  Frame *headF, *tailF, *cmpthF;
+  int *pcands;
+  int cir_buff_growth_count;
+  int size_cir_buffer, size_frame_hist, size_frame_out, num_active_frames, output_buf_size;
+  float tcost, tfact_a, tfact_s, frame_int, vbias, fdouble, wdur, ln2, freqwt, lagwt;
+  int step, size, nlags, start, stop, ncomp, *locs;
+  short maxpeaks;
+  int wReuse;
+  Windstat *windstat;
+  float *f0p, *vuvp, *rms_speech, *acpkp, *peaks;
+  int first_time, pad;
+  Stat *stat;
+  float *mem, *foutput, *co;
+  float b[2048];
+  float state[1000];
+  int fsize;
+  int nframes_old, memsize;
+  int ncoeff, ncoefft;
+} Buffer;
+#endif
 
 
 /*--------------------------------------------------------------------*/
@@ -884,9 +937,6 @@ init_dp_f0(freq, par, buffsize, sdstep)
     double	freq;
     F0_params	*par;
     long	*buffsize, *sdstep;
-#else
-init_dp_f0(double freq, F0_params *par, long *buffsize, long *sdstep)
-#endif
 {
   int nframes;
   int i;
@@ -1031,12 +1081,163 @@ init_dp_f0(double freq, F0_params *par, long *buffsize, long *sdstep)
 
   return(0);
 }
+#else
+init_dp_f0(double freq, F0_params *par, long *buffsize, long *sdstep,
+           Buffer *buffer)
+{
+  int nframes;
+  int i;
+  int stat_wsize, agap, ind, downpatch;
+/*
+ * reassigning some constants 
+ */
+
+  buffer->tcost = par->trans_cost;
+  buffer->tfact_a = par->trans_amp;
+  buffer->tfact_s = par->trans_spec;
+  buffer->vbias = par->voice_bias;
+  buffer->fdouble = par->double_cost;
+  buffer->frame_int = par->frame_step;
+  
+  buffer->step = eround(buffer->frame_int * freq);
+  buffer->size = eround(par->wind_dur * freq);
+  buffer->frame_int = (float)(((float)buffer->step)/freq);
+  buffer->wdur = (float)(((float)buffer->size)/freq);
+  buffer->start = eround(freq / par->max_f0);
+  buffer->stop = eround(freq / par->min_f0);
+  buffer->nlags = buffer->stop - buffer->start + 1;
+  buffer->ncomp = buffer->size + buffer->stop + 1; /* # of samples required by xcorr
+			      comp. per fr. */
+  buffer->maxpeaks = 2 + (buffer->nlags/2);	/* maximum number of "peaks" findable in ccf */
+  buffer->ln2 = (float)log(2.0);
+  buffer->size_frame_hist = (int) (DP_HIST / buffer->frame_int);
+  buffer->size_frame_out = (int) (DP_LIMIT / buffer->frame_int);
+
+/*
+ * SET UP THE D.P. WEIGHTING FACTORS:
+ *      The intent is to make the effectiveness of the various fudge factors
+ *      independent of frame rate or sampling frequency.                
+ */
+  
+  /* Lag-dependent weighting factor to emphasize early peaks (higher freqs)*/
+  buffer->lagwt = par->lag_weight/buffer->stop;
+  
+  /* Penalty for a frequency skip in F0 per frame */
+  buffer->freqwt = par->freq_weight/buffer->frame_int;
+  
+  i = (int) (READ_SIZE *freq);
+  if(buffer->ncomp >= buffer->step) nframes = ((i-buffer->ncomp)/buffer->step ) + 1;
+  else nframes = i / buffer->step;
+
+  /* *buffsize is the number of samples needed to make F0 computation
+     of nframes DP frames possible.  The last DP frame is patched with
+     enough points so that F0 computation on it can be carried.  F0
+     computaion on each frame needs enough points to do
+
+     1) xcross or cross correlation measure:
+           enough points to do xcross - ncomp
+
+     2) stationarity measure:
+           enough to make 30 msec windowing possible - ind
+
+     3) downsampling:
+           enough to make filtering possible -- downpatch
+ 
+     So there are nframes whole DP frames, padded with pad points
+     to make the last frame F0 computation ok.
+
+  */
+
+  /* last point in data frame needs points of 1/2 downsampler filter length 
+     long, 0.005 is the filter length used in downsampler */
+  downpatch = (((int) (freq * 0.005))+1) / 2;
+
+  stat_wsize = (int) (STAT_WSIZE * freq);
+  agap = (int) (STAT_AINT * freq);
+  ind = ( agap - stat_wsize ) / 2;
+  i = stat_wsize + ind;
+  buffer->pad = downpatch + ((i>buffer->ncomp) ? i:buffer->ncomp);
+  *buffsize = nframes * buffer->step + buffer->pad;
+  *sdstep = nframes * buffer->step;
+  
+  /* Allocate space for the DP storage circularly linked data structure */
+
+  buffer->size_cir_buffer = (int) (DP_CIRCULAR / buffer->frame_int);
+
+  /* creating circularly linked data structures */
+  buffer->tailF = alloc_frame(buffer->nlags, par->n_cands);
+  buffer->headF = buffer->tailF;
+
+  /* link them up */
+  for(i=1; i<buffer->size_cir_buffer; i++){
+    buffer->headF->next = alloc_frame(buffer->nlags, par->n_cands);
+    buffer->headF->next->prev = buffer->headF;
+    buffer->headF = buffer->headF->next;
+  }
+  buffer->headF->next = buffer->tailF;
+  buffer->tailF->prev = buffer->headF;
+
+  buffer->headF = buffer->tailF;
+
+  /* Allocate sscratch array to use during backtrack convergence test. */
+  if( ! buffer->pcands ) {
+    buffer->pcands = (int *) ckalloc( par->n_cands * sizeof(int));
+    /*    spsassert(pcands,"can't allocate pathcands");*/
+  }
+
+  /* Allocate arrays to return F0 and related signals. */
+
+  /* Note: remember to compare *vecsize with size_frame_out, because
+     size_cir_buffer is not constant */
+  buffer->output_buf_size = buffer->size_cir_buffer;
+  buffer->rms_speech = (float*)ckalloc(sizeof(float) * buffer->output_buf_size);
+  /*  spsassert(rms_speech,"rms_speech ckalloc failed");*/
+  buffer->f0p = (float*)ckalloc(sizeof(float) * buffer->output_buf_size);
+  /*  spsassert(f0p,"f0p ckalloc failed");*/
+  buffer->vuvp = (float*)ckalloc(sizeof(float)* buffer->output_buf_size);
+  /*  spsassert(vuvp,"vuvp ckalloc failed");*/
+  buffer->acpkp = (float*)ckalloc(sizeof(float) * buffer->output_buf_size);
+  /*  spsassert(acpkp,"acpkp ckalloc failed");*/
+
+  /* Allocate space for peak location and amplitude scratch arrays. */
+  buffer->peaks = (float*)ckalloc(sizeof(float) * buffer->maxpeaks);
+  /*  spsassert(peaks,"peaks ckalloc failed");*/
+  buffer->locs = (int*)ckalloc(sizeof(int) * buffer->maxpeaks);
+  /*  spsassert(locs, "locs ckalloc failed");*/
+  
+  /* Initialise the retrieval/saving scheme of window statistic measures */
+  buffer->wReuse = agap / buffer->step;
+  if (buffer->wReuse){
+      buffer->windstat = (Windstat *) ckalloc( buffer->wReuse * sizeof(Windstat));
+      /*      spsassert(windstat, "windstat ckalloc failed");*/
+      for(i=0; i<buffer->wReuse; i++){
+	  buffer->windstat[i].err = 0;
+	  buffer->windstat[i].rms = 0;
+      }
+  }
+
+  if(debug_level){
+    Fprintf(stderr, "done with initialization:\n");
+    Fprintf(stderr,
+	    " size_cir_buffer:%d  xcorr frame size:%d start lag:%d nlags:%d\n",
+	    buffer->size_cir_buffer, buffer->size, buffer->start, buffer->nlags);
+  }
+
+  buffer->num_active_frames = 0;
+  buffer->first_time = 1;
+
+  return(0);
+}
+#endif
 
 #if 0
 static Stat *get_stationarity();
 #else
 static Stat *get_stationarity(float *fdata, double freq, int buff_size,
-                              int nframes, int frame_step, int first_time);
+                              int nframes, int frame_step, int first_time,
+                              int *nframes_old, int *memsize,
+                              Stat **stat, float **mem,
+                              int wReuse, Windstat *windstat);
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -1050,19 +1251,8 @@ dp_f0(fdata, buff_size, sdstep, freq,
     F0_params	*par;		/* analysis control parameters */
     float	**f0p_pt, **vuvp_pt, **rms_speech_pt, **acpkp_pt;
     int		*vecsize, last_time;
-#else
-dp_f0(float *fdata, int buff_size, int sdstep, double freq, F0_params *par,
-      float **f0p_pt, float **vuvp_pt, float **rms_speech_pt, float **acpkp_pt,
-      int *vecsize, int last_time)
-#endif
 {
-#if 0
   float  maxval, engref, *sta, *rms_ratio, *dsdata, *downsample();
-#else
-  float  maxval, engref, *sta, *rms_ratio, *dsdata;
-  float  *downsample(float *input, int samsin, int state_idx, double freq,
-                     int *samsout, int decimate, int first_time, int last_time);
-#endif
   register float ttemp, ftemp, ft1, ferr, err, errmin;
   register int  i, j, k, loc1, loc2;
   int   nframes, maxloc, ncand, ncandp, minloc,
@@ -1083,10 +1273,6 @@ dp_f0(float *fdata, int buff_size, int sdstep, double freq, F0_params *par,
     dsdata = fdata;
   else {
     samsds = ((nframes-1) * step + ncomp) / decimate;
-#if 1
-    if (samsds < 1)
-      return 1;                     /* skip final frame if it is too small */
-#endif
     dsdata = downsample(fdata, buff_size, sdstep, freq, &samsds, decimate, 
 			first_time, last_time);
     if (!dsdata) {
@@ -1392,7 +1578,348 @@ num_active_frames);
   if(first_time) first_time = 0;
   return(0);
 }
+#else
+dp_f0(float *fdata, int buff_size, int sdstep, double freq, F0_params *par,
+      float **f0p_pt, float **vuvp_pt, float **rms_speech_pt, float **acpkp_pt,
+      int *vecsize, int last_time, Buffer *buffer)
+{
+  float  maxval, engref, *sta, *rms_ratio, *dsdata;
+  float  *downsample(float *input, int samsin, int state_idx, double freq,
+                     int *samsout, int decimate, int first_time, int last_time,
+                     int *ncoeff, int *ncoefft, float *b, float **foutput,
+                     float **co, float **mem, float *state, int *fsize);
+  register float ttemp, ftemp, ft1, ferr, err, errmin;
+  register int  i, j, k, loc1, loc2;
+  int   nframes, maxloc, ncand, ncandp, minloc,
+        decimate, samsds;
 
+  Stat *stat = NULL;
+
+  nframes = get_Nframes((long) buff_size, buffer->pad, buffer->step); /* # of whole frames */
+
+  if(debug_level)
+    Fprintf(stderr,
+	    "******* Computing %d dp frames ******** from %d points\n", nframes, buff_size);
+
+  /* Now downsample the signal for coarse peak estimates. */
+
+  decimate = (int)(freq/2000.0);    /* downsample to about 2kHz */
+  if (decimate <= 1)
+    dsdata = fdata;
+  else {
+    samsds = ((nframes-1) * buffer->step + buffer->ncomp) / decimate;
+    if (samsds < 1)
+      return 1;                     /* skip final frame if it is too small */
+    dsdata = downsample(fdata, buff_size, sdstep, freq, &samsds, decimate, 
+			buffer->first_time, last_time, &buffer->ncoeff,
+                        &buffer->ncoefft, buffer->b, &buffer->foutput,
+                        &buffer->co, &buffer->mem, buffer->state, &buffer->fsize);
+    if (!dsdata) {
+      Fprintf(stderr, "can't get downsampled data.\n");
+      return 1;
+    }
+  }
+
+  /* Get a function of the "stationarity" of the speech signal. */
+
+  stat = get_stationarity(fdata, freq, buff_size, nframes, buffer->step, buffer->first_time,
+                          &buffer->nframes_old, &buffer->memsize,
+                          &buffer->stat, &buffer->mem, buffer->wReuse, buffer->windstat);
+  if (!stat) { 
+    Fprintf(stderr, "can't get stationarity\n");
+    return(1);
+  }
+  sta = stat->stat;
+  rms_ratio = stat->rms_ratio;
+
+  /***********************************************************************/
+  /* MAIN FUNDAMENTAL FREQUENCY ESTIMATION LOOP */
+  /***********************************************************************/
+  if(!buffer->first_time && nframes > 0) buffer->headF = buffer->headF->next;
+
+  for(i = 0; i < nframes; i++) {
+ 
+    /* NOTE: This buffer growth provision is probably not necessary.
+       It was put in (with errors) by Derek Lin and apparently never
+       tested.  My tests and analysis suggest it is completely
+       superfluous. DT 9/5/96 */
+    /* Dynamically allocating more space for the circular buffer */
+    if(buffer->headF == buffer->tailF->prev){
+      Frame *frm;
+
+      if(buffer->cir_buff_growth_count > 5){
+	Fprintf(stderr,
+		"too many requests (%d) for dynamically allocating space.\n   There may be a problem in finding converged path.\n",buffer->cir_buff_growth_count);
+	return(1);
+      }
+      if(debug_level) 
+	Fprintf(stderr, "allocating %d more frames for DP circ. buffer.\n", buffer->size_cir_buffer);
+      frm = alloc_frame(buffer->nlags, par->n_cands);
+      buffer->headF->next = frm;
+      frm->prev = buffer->headF;
+      for(k=1; k<buffer->size_cir_buffer; k++){
+	frm->next = alloc_frame(buffer->nlags, par->n_cands);
+	frm->next->prev = frm;
+	frm = frm->next;
+      }
+      frm->next = buffer->tailF;
+      buffer->tailF->prev = frm;
+      buffer->cir_buff_growth_count++;
+    }
+
+    buffer->headF->rms = stat->rms[i];
+    get_fast_cands(fdata, dsdata, i, buffer->step, buffer->size, decimate, buffer->start,
+		   buffer->nlags, &engref, &maxloc,
+		   &maxval, buffer->headF->cp, buffer->peaks, buffer->locs, &ncand, par);
+    
+    /*    Move the peak value and location arrays into the dp structure */
+    {
+      register float *ftp1, *ftp2;
+      register short *sp1;
+      register int *sp2;
+      
+      for(ftp1 = buffer->headF->dp->pvals, ftp2 = buffer->peaks,
+	  sp1 = buffer->headF->dp->locs, sp2 = buffer->locs, j=ncand; j--; ) {
+	*ftp1++ = *ftp2++;
+	*sp1++ = *sp2++;
+      }
+      *sp1 = -1;		/* distinguish the UNVOICED candidate */
+      *ftp1 = maxval;
+      buffer->headF->dp->mpvals[ncand] = buffer->vbias+maxval; /* (high cost if cor. is high)*/
+    }
+
+    /* Apply a lag-dependent weight to the peaks to encourage the selection
+       of the first major peak.  Translate the modified peak values into
+       costs (high peak ==> low cost). */
+    for(j=0; j < ncand; j++){
+      ftemp = 1.0f - ((float)buffer->locs[j] * buffer->lagwt);
+      buffer->headF->dp->mpvals[j] = 1.0f - (buffer->peaks[j] * ftemp);
+    }
+    ncand++;			/* include the unvoiced candidate */
+    buffer->headF->dp->ncands = ncand;
+
+    /*********************************************************************/
+    /*    COMPUTE THE DISTANCE MEASURES AND ACCUMULATE THE COSTS.       */
+    /*********************************************************************/
+
+    ncandp = buffer->headF->prev->dp->ncands;
+    for(k=0; k<ncand; k++){	/* for each of the current candidates... */
+      minloc = 0;
+      errmin = FLT_MAX;
+      if((loc2 = buffer->headF->dp->locs[k]) > 0) { /* current cand. is voiced */
+	for(j=0; j<ncandp; j++){ /* for each PREVIOUS candidate... */
+	  /*    Get cost due to inter-frame period change. */
+	  loc1 = buffer->headF->prev->dp->locs[j];
+	  if (loc1 > 0) { /* prev. was voiced */
+	    ftemp = (float) log(((double) loc2) / loc1);
+	    ttemp = (float) fabs(ftemp);
+	    ft1 = (float) (buffer->fdouble + fabs(ftemp + buffer->ln2));
+	    if (ttemp > ft1)
+	      ttemp = ft1;
+	    ft1 = (float) (buffer->fdouble + fabs(ftemp - buffer->ln2));
+	    if (ttemp > ft1)
+	      ttemp = ft1;
+	    ferr = ttemp * buffer->freqwt;
+	  } else {		/* prev. was unvoiced */
+	    ferr = buffer->tcost + (buffer->tfact_s * sta[i]) + (buffer->tfact_a / rms_ratio[i]);
+	  }
+	  /*    Add in cumulative cost associated with previous peak. */
+	  err = ferr + buffer->headF->prev->dp->dpvals[j];
+	  if(err < errmin){	/* find min. cost */
+	    errmin = err;
+	    minloc = j;
+	  }
+	}
+      } else {			/* this is the unvoiced candidate */
+	for(j=0; j<ncandp; j++){ /* for each PREVIOUS candidate... */
+	  
+	  /*    Get voicing transition cost. */
+	  if (buffer->headF->prev->dp->locs[j] > 0) { /* previous was voiced */
+	    ferr = buffer->tcost + (buffer->tfact_s * sta[i]) + (buffer->tfact_a * rms_ratio[i]);
+	  }
+	  else
+	    ferr = 0.0;
+	  /*    Add in cumulative cost associated with previous peak. */
+	  err = ferr + buffer->headF->prev->dp->dpvals[j];
+	  if(err < errmin){	/* find min. cost */
+	    errmin = err;
+	    minloc = j;
+	  }
+	}
+      }
+      /* Now have found the best path from this cand. to prev. frame */
+      if (buffer->first_time && i==0) {		/* this is the first frame */
+	buffer->headF->dp->dpvals[k] = buffer->headF->dp->mpvals[k];
+	buffer->headF->dp->prept[k] = 0;
+      } else {
+	buffer->headF->dp->dpvals[k] = errmin + buffer->headF->dp->mpvals[k];
+	buffer->headF->dp->prept[k] = minloc;
+      }
+    } /*    END OF THIS DP FRAME */
+
+    if (i < nframes - 1)
+      buffer->headF = buffer->headF->next;
+    
+    if (debug_level >= 2) {
+      Fprintf(stderr,"%d engref:%10.0f max:%7.5f loc:%4d\n",
+	      i,engref,maxval,maxloc);
+    }
+    
+  } /* end for (i ...) */
+
+  /***************************************************************/
+  /* DONE WITH FILLING DP STRUCTURES FOR THE SET OF SAMPLED DATA */
+  /*    NOW FIND A CONVERGED DP PATH                             */
+  /***************************************************************/
+
+  *vecsize = 0;			/* # of output frames returned */
+
+  buffer->num_active_frames += nframes;
+
+  if( buffer->num_active_frames >= buffer->size_frame_hist  || last_time ){
+    Frame *frm;
+    int  num_paths, best_cand, frmcnt, checkpath_done = 1;
+    float patherrmin;
+      
+    if(debug_level)
+      Fprintf(stderr, "available frames for backtracking: %d\n",
+buffer->num_active_frames);
+      
+    patherrmin = FLT_MAX;
+    best_cand = 0;
+    num_paths = buffer->headF->dp->ncands;
+
+    /* Get the best candidate for the final frame and initialize the
+       paths' backpointers. */
+    frm = buffer->headF;
+    for(k=0; k < num_paths; k++) {
+      if (patherrmin > buffer->headF->dp->dpvals[k]){
+	patherrmin = buffer->headF->dp->dpvals[k];
+	best_cand = k;	/* index indicating the best candidate at a path */
+      }
+      buffer->pcands[k] = frm->dp->prept[k];
+    }
+
+    if(last_time){     /* Input data was exhausted. force final outputs. */
+      buffer->cmpthF = buffer->headF;		/* Use the current frame as starting point. */
+    } else {
+      /* Starting from the most recent frame, trace back each candidate's
+	 best path until reaching a common candidate at some past frame. */
+      frmcnt = 0;
+      while (1) {
+	frm = frm->prev;
+	frmcnt++;
+	checkpath_done = 1;
+	for(k=1; k < num_paths; k++){ /* Check for convergence. */
+	  if(buffer->pcands[0] != buffer->pcands[k])
+	    checkpath_done = 0;
+	}
+	if( ! checkpath_done) { /* Prepare for checking at prev. frame. */
+	  for(k=0; k < num_paths; k++){
+	    buffer->pcands[k] = frm->dp->prept[buffer->pcands[k]];
+	  }
+	} else {	/* All paths have converged. */
+	  buffer->cmpthF = frm;
+	  best_cand = buffer->pcands[0];
+	  if(debug_level)
+	    Fprintf(stderr,
+		    "paths went back %d frames before converging\n",frmcnt);
+	  break;
+	}
+	if(frm == buffer->tailF){	/* Used all available data? */
+	  if( buffer->num_active_frames < buffer->size_frame_out) { /* Delay some more? */
+	    checkpath_done = 0; /* Yes, don't backtrack at this time. */
+	    buffer->cmpthF = NULL;
+	  } else {		/* No more delay! Force best-guess output. */
+	    checkpath_done = 1;
+	    buffer->cmpthF = buffer->headF;
+	    /*	    Fprintf(stderr,
+		    "WARNING: no converging path found after going back %d frames, will use the lowest cost path\n",num_active_frames);*/
+	  }
+	  break;
+	} /* end if (frm ...) */
+      }	/* end while (1) */
+    } /* end if (last_time) ... else */
+
+    /*************************************************************/
+    /* BACKTRACKING FROM cmpthF (best_cand) ALL THE WAY TO tailF    */
+    /*************************************************************/
+    i = 0;
+    frm = buffer->cmpthF;	/* Start where convergence was found (or faked). */
+    while( frm != buffer->tailF->prev && checkpath_done){
+      if( i == buffer->output_buf_size ){ /* Need more room for outputs? */
+	buffer->output_buf_size *= 2;
+	if(debug_level)
+	  Fprintf(stderr,
+		  "reallocating space for output frames: %d\n",
+		  buffer->output_buf_size);
+	buffer->rms_speech = (float *) ckrealloc((void *) buffer->rms_speech,
+				       sizeof(float) * buffer->output_buf_size);
+	/*	spsassert(rms_speech, "rms_speech realloc failed in dp_f0()");*/
+	buffer->f0p = (float *) ckrealloc((void *) buffer->f0p,
+				sizeof(float) * buffer->output_buf_size);
+	/*	spsassert(f0p, "f0p realloc failed in dp_f0()");*/
+	buffer->vuvp = (float *) ckrealloc((void *) buffer->vuvp, sizeof(float) * buffer->output_buf_size);
+	/*	spsassert(vuvp, "vuvp realloc failed in dp_f0()");*/
+	buffer->acpkp = (float *) ckrealloc((void *) buffer->acpkp, sizeof(float) * buffer->output_buf_size);
+	/*	spsassert(acpkp, "acpkp realloc failed in dp_f0()");*/
+      }
+      buffer->rms_speech[i] = frm->rms;
+      buffer->acpkp[i] =  frm->dp->pvals[best_cand];
+      loc1 = frm->dp->locs[best_cand];
+      buffer->vuvp[i] = 1.0;
+      best_cand = frm->dp->prept[best_cand];
+      ftemp = (float) loc1;
+      if(loc1 > 0) {		/* Was f0 actually estimated for this frame? */
+	if (loc1 > buffer->start && loc1 < buffer->stop) { /* loc1 must be a local maximum. */
+	  float cormax, cprev, cnext, den;
+		  
+	  j = loc1 - buffer->start;
+	  cormax = frm->cp->correl[j];
+	  cprev = frm->cp->correl[j+1];
+	  cnext = frm->cp->correl[j-1];
+	  den = (float) (2.0 * ( cprev + cnext - (2.0 * cormax) ));
+	  /*
+	   * Only parabolic interpolate if cormax is indeed a local 
+	   * turning point. Find peak of curve that goes though the 3 points
+	   */
+		  
+	  if (fabs(den) > 0.000001)
+	    ftemp += 2.0f - ((((5.0f*cprev)+(3.0f*cnext)-(8.0f*cormax))/den));
+	}
+	buffer->f0p[i] = (float) (freq/ftemp);
+      } else {		/* No valid estimate; just fake some arbitrary F0. */
+	buffer->f0p[i] = 0;
+	buffer->vuvp[i] = 0.0;
+      }
+      frm = frm->prev;
+	  
+      if (debug_level >= 2)
+	Fprintf(stderr," i:%4d%8.1f%8.1f\n",i,buffer->f0p[i],buffer->vuvp[i]);
+      /* f0p[i] starts from the most recent one */ 
+      /* Need to reverse the order in the calling function */
+      i++;
+    } /* end while() */
+    if (checkpath_done){
+      *vecsize = i;
+      buffer->tailF = buffer->cmpthF->next;
+      buffer->num_active_frames -= *vecsize;
+    }
+  } /* end if() */
+
+  if (debug_level)
+    Fprintf(stderr, "writing out %d frames.\n", *vecsize);
+  
+  *f0p_pt = buffer->f0p;
+  *vuvp_pt = buffer->vuvp;
+  *acpkp_pt = buffer->acpkp;
+  *rms_speech_pt = buffer->rms_speech;
+  /*  *acpkp_pt = acpkp;*/
+  
+  if(buffer->first_time) buffer->first_time = 0;
+  return(0);
+}
+#endif
 
 /*--------------------------------------------------------------------*/
 Frame *
@@ -1445,7 +1972,7 @@ save_windstat(rho, order, err, rms)
     float   err;
     float   rms;
 #else
-save_windstat(float *rho, int order, float err, float rms)
+save_windstat(float *rho, int order, float err, float rms, int wReuse, Windstat *windstat)
 #endif
 {
     int i,j;
@@ -1479,7 +2006,7 @@ retrieve_windstat(rho, order, err, rms)
     float   *err;
     float   *rms;
 #else
-retrieve_windstat(float *rho, int order, float *err, float *rms)
+retrieve_windstat(float *rho, int order, float *err, float *rms, int wReuse, Windstat *windstat)
 #endif
 {
     Windstat wstat;
@@ -1515,7 +2042,8 @@ get_similarity(order, size, pdata, cdata,
     int     w_type, init;
 #else
 get_similarity(int order, int size, float *pdata, float *cdata, float *rmsa,
-	       float *rms_ratio, float pre, float stab, int w_type, int init)
+	       float *rms_ratio, float pre, float stab, int w_type, int init,
+	       int wReuse, Windstat *windstat)
 #endif
 {
   float rho3[BIGSORD+1], err3, rms3, rmsd3, b0, t, a2[BIGSORD+1], 
@@ -1538,7 +2066,11 @@ get_similarity(int order, int size, float *pdata, float *cdata, float *rmsa,
   
   if(!init) {
       /* get previous window stat */
+#if 0
       if( !retrieve_windstat(rho1, order, &err1, &rms1)){
+#else
+      if( !retrieve_windstat(rho1, order, &err1, &rms1, wReuse, windstat)){
+#endif
 	  xlpc(order, stab, size-1, pdata,
 	      a1, rho1, (float *) NULL, &err1, &rmsd1, pre, w_type);
 	  rms1 = wind_energy(pdata, size, w_type);
@@ -1557,7 +2089,11 @@ get_similarity(int order, int size, float *pdata, float *cdata, float *rmsa,
       t = 10.0;
   }
   *rmsa = rms3;
+#if 0
   save_windstat( rho3, order, err3, rms3);
+#else
+  save_windstat( rho3, order, err3, rms3, wReuse, windstat);
+#endif
   return((float)(0.2/t));
 }
 
@@ -1593,8 +2129,10 @@ get_similarity(int order, int size, float *pdata, float *cdata, float *rmsa,
    
 */
 
+#if 0
 static Stat *stat = NULL;
 static float *mem = NULL;
+#endif
 
 static Stat*
 #if 0
@@ -1604,10 +2142,18 @@ get_stationarity(fdata, freq, buff_size, nframes, frame_step, first_time)
     int     buff_size, nframes, frame_step, first_time;
 #else
 get_stationarity(float *fdata, double freq, int buff_size, int nframes,
-                 int frame_step, int first_time)
+                 int frame_step, int first_time, int *nframes_oldp, int *memsizep,
+                 Stat **statp, float **memp, int wReuse, Windstat *windstat)
 #endif
 {
+#if 0
   static int nframes_old = 0, memsize;
+#else
+  Stat *stat = *statp;
+  float *mem = *memp;
+  int nframes_old = *nframes_oldp;
+  int memsize = *memsizep;
+#endif
   float preemp = 0.4f, stab = 30.0f;
   float *p, *q, *r, *datend;
   int ind, i, j, m, size, order, agap, w_type = 3;
@@ -1638,6 +2184,12 @@ get_stationarity(float *fdata, double freq, int buff_size, int nframes,
     mem = (float *) ckalloc( sizeof(float) * memsize);
     /*    spsassert(mem, "mem ckalloc failed in get_stationarity()");*/
     for(j=0; j<memsize; j++) mem[j] = 0;
+#if 1
+    *nframes_oldp = nframes_old;
+    *memsizep = memsize;
+    *statp = stat;
+    *memp = mem;
+#endif
   }
   
   if(nframes == 0) return(stat);
@@ -1661,14 +2213,24 @@ get_stationarity(float *fdata, double freq, int buff_size, int nframes,
 	  stat->stat[j] = get_similarity(order,size, p, q, 
 					     &(stat->rms[j]),
 					     &(stat->rms_ratio[j]),preemp,
+#if 0
 					     stab,w_type, 0);
+#else
+					     stab,w_type, 0,
+					     wReuse, windstat);
+#endif
       else {
 	  if(first_time) {
 	      if( (p < fdata) && (q >= fdata) && (q+size <=datend) )
 		  stat->stat[j] = get_similarity(order,size, NULL, q,
 						     &(stat->rms[j]),
 						     &(stat->rms_ratio[j]),
+#if 0
 						     preemp,stab,w_type, 1);
+#else
+						     preemp,stab,w_type, 1,
+						     wReuse, windstat);
+#endif
 	      else{
 		  stat->rms[j] = 0.0;
 		  stat->stat[j] = 0.01f * 0.2f;   /* a big transition */
@@ -1680,7 +2242,12 @@ get_stationarity(float *fdata, double freq, int buff_size, int nframes,
 						     mem + (memsize/2) + ind,
 						     &(stat->rms[j]),
 						     &(stat->rms_ratio[j]),
+#if 0
 						     preemp, stab,w_type, 0);
+#else
+						     preemp, stab,w_type, 0,
+						     wReuse, windstat);
+#endif
 		  /* prepare for the next frame_step if needed */
 		  if(p + frame_step < fdata ){
 		      for( m=0; m<(memsize-frame_step); m++) 
@@ -1720,21 +2287,11 @@ eround(double flnum)
 }
 #endif
 
+#if 0
 void free_dp_f0()
 {
   int i;
   Frame *frm, *next;
-
-#if 1
-  ckfree((void *)foutput);
-  foutput = NULL;
-
-  ckfree((void *)co);
-  co = NULL;
-
-  ckfree((void *)mem2);
-  mem2 = NULL;
-#endif
   
   ckfree((void *)pcands);
   pcands = NULL;
@@ -1790,6 +2347,73 @@ void free_dp_f0()
   ckfree((void *)mem);
   mem = NULL;
 }
+#else
+void free_dp_f0(Buffer *buffer)
+{
+  int i;
+  Frame *frm, *next;
+  
+  ckfree((void *)buffer->pcands);
+  buffer->pcands = NULL;
+  
+  ckfree((void *)buffer->rms_speech);
+  buffer->rms_speech = NULL;
+  
+  ckfree((void *)buffer->f0p);
+  buffer->f0p = NULL;
+  
+  ckfree((void *)buffer->vuvp);
+  buffer->vuvp = NULL;
+  
+  ckfree((void *)buffer->acpkp);
+  buffer->acpkp = NULL;
+  
+  ckfree((void *)buffer->peaks);
+  buffer->peaks = NULL;
+  
+  ckfree((void *)buffer->locs);
+  buffer->locs = NULL;
+  
+  if (buffer->wReuse) {
+    ckfree((void *)buffer->windstat);
+    buffer->windstat = NULL;
+  }
+  
+  frm = buffer->headF;
+  
+  for(i = 0; i < buffer->size_cir_buffer; i++) {
+    next = frm->next;
+    ckfree((void *)frm->cp->correl);
+    ckfree((void *)frm->dp->locs);
+    ckfree((void *)frm->dp->pvals);
+    ckfree((void *)frm->dp->mpvals);
+    ckfree((void *)frm->dp->prept);
+    ckfree((void *)frm->dp->dpvals);
+    ckfree((void *)frm->cp);
+    ckfree((void *)frm->dp);
+    ckfree((void *)frm);
+    frm = next;
+  }
+  buffer->headF = NULL;
+  buffer->tailF = NULL;
+  
+  ckfree((void *)buffer->stat->stat);
+  ckfree((void *)buffer->stat->rms);
+  ckfree((void *)buffer->stat->rms_ratio);
+
+  ckfree((void *)buffer->stat);
+  buffer->stat = NULL;
+
+  ckfree((void *)buffer->mem);
+  buffer->mem = NULL;
+
+  ckfree((void *)buffer->foutput);
+  buffer->foutput = NULL;
+
+  ckfree((void *)buffer->co);
+  buffer->co = NULL;
+}
+#endif
 
 int
 #if 0
@@ -1815,10 +2439,10 @@ cGet_f0(const std::vector<double> &waveform, int frame_shift,
 #if 0
   int init_dp_f0(), dp_f0();
 #else
-  int init_dp_f0(double freq, F0_params *par, long *buffsize, long *sdstep);
+  int init_dp_f0(double freq, F0_params *par, long *buffsize, long *sdstep, Buffer *buffer);
   int dp_f0(float *fdata, int buff_size, int sdstep, double freq, F0_params *par,
             float **f0p_pt, float **vuvp_pt, float **rms_speech_pt, float **acpkp_pt,
-            int *vecsize, int last_time);
+            int *vecsize, int last_time, Buffer *buffer);
 #endif
   static int framestep = -1;
   long sdstep = 0, total_samps;
@@ -1832,6 +2456,9 @@ cGet_f0(const std::vector<double> &waveform, int frame_shift,
   float *buf;
   double fsp, noise, noise_sdev = 50.0;
   int alpha, beta, pad_length, total_length;
+  Buffer buffer = {0};
+  buffer.first_time = 1;
+  buffer.ncoeff = 127;
 #endif
   int count = 0;
   int startpos = 0, endpos = -1;
@@ -1936,7 +2563,11 @@ cGet_f0(const std::vector<double> &waveform, int frame_shift,
   /* Initialize variables in get_f0.c; allocate data structures;
    * determine length and overlap of input frames to read.
    */
+#if 0
   if (init_dp_f0(sf, par, &buff_size, &sdstep)
+#else
+  if (init_dp_f0(sf, par, &buff_size, &sdstep, &buffer)
+#endif
       || buff_size > INT_MAX || sdstep > INT_MAX)
   {
 #if 0
@@ -1974,13 +2605,15 @@ cGet_f0(const std::vector<double> &waveform, int frame_shift,
     }
 #endif
     /*if (sound->debug > 0) Snack_WriteLog("dp_f0...\n");*/
+#if 0
     if (dp_f0(fdata, (int) actsize, (int) sdstep, sf, par,
 	      &f0p, &vuvp, &rms_speech, &acpkp, &vecsize, done)) {
-#if 0
       Tcl_AppendResult(interp, "problem in dp_f0().", NULL);
       return TCL_ERROR;
 #else
-      break;
+    if (dp_f0(fdata, (int) actsize, (int) sdstep, sf, par,
+	      &f0p, &vuvp, &rms_speech, &acpkp, &vecsize, done, &buffer)) {
+      return 1;
 #endif
     }
     /*if (sound->debug > 0) Snack_WriteLogInt("done dp_f0",vecsize);*/
@@ -2017,8 +2650,10 @@ cGet_f0(const std::vector<double> &waveform, int frame_shift,
   ckfree((void *)par);
 #if 1
   ckfree((void *)buf);
-#endif
+  free_dp_f0(&buffer);
+#else
   free_dp_f0();
+#endif
 
   *outlist = tmp;
   *length = count;  
