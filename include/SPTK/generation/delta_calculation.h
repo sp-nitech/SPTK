@@ -49,7 +49,7 @@ namespace sptk {
  * where @f$w^{(d)}@f$ is the @f$d@f$-th window coefficients and @f$L^{(d)}@f$
  * is half the width of the window.
  */
-class DeltaCalculation {
+class DeltaCalculation : public InputSourceInterface {
  public:
   /**
    * @param[in] num_order Order of coefficients, @f$M@f$.
@@ -82,9 +82,16 @@ class DeltaCalculation {
   }
 
   /**
+   * @return Output size.
+   */
+  virtual int GetSize() const {
+    return (num_order_ + 1) * num_delta_;
+  }
+
+  /**
    * @return True if this object is valid.
    */
-  bool IsValid() const {
+  virtual bool IsValid() const {
     return is_valid_;
   }
 
@@ -92,7 +99,7 @@ class DeltaCalculation {
    * @param[out] delta Delta components.
    * @return True on success, false on failure.
    */
-  bool Get(std::vector<double>* delta);
+  virtual bool Get(std::vector<double>* delta);
 
  private:
   struct Buffer {
@@ -102,7 +109,7 @@ class DeltaCalculation {
     bool first;
   };
 
-  bool Lookahead();
+  bool Forward();
 
   int GetPointerIndex(int move);
 

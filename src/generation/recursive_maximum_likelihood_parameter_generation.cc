@@ -110,7 +110,7 @@ bool RecursiveMaximumLikelihoodParameterGeneration::Get(
     return false;
   }
 
-  const int static_size(num_order_ + 1);
+  const int static_size(GetSize());
   if (smoothed_static_parameters->size() !=
       static_cast<std::size_t>(static_size)) {
     smoothed_static_parameters->resize(static_size);

@@ -69,7 +69,7 @@ DeltaCalculation::DeltaCalculation(
   const int right_window_width((max_window_width_ - 1) / 2);
   buffer_.count_down = right_window_width;
   for (int j(0); j < right_window_width; ++j) {
-    if (!Lookahead()) {
+    if (!Forward()) {
       is_valid_ = false;
       return;
     }
@@ -81,13 +81,13 @@ bool DeltaCalculation::Get(std::vector<double>* dynamics) {
     return false;
   }
 
-  if (!Lookahead()) {
+  if (!Forward()) {
     return false;
   }
 
   // Prepare memories.
   const int input_length(num_order_ + 1);
-  const int output_length(input_length * num_delta_);
+  const int output_length(GetSize());
   if (dynamics->size() != static_cast<std::size_t>(output_length)) {
     dynamics->resize(output_length);
   }
@@ -118,7 +118,7 @@ bool DeltaCalculation::Get(std::vector<double>* dynamics) {
   return true;
 }
 
-bool DeltaCalculation::Lookahead() {
+bool DeltaCalculation::Forward() {
   // Get and store static components.
   if (!input_source_->Get(&buffer_.statics[buffer_.pointer])) {
     if (buffer_.count_down-- <= 0) {
