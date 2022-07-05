@@ -14,7 +14,6 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <algorithm>  // std::fill
 #include <fstream>    // std::ifstream
 #include <iomanip>    // std::setw
 #include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.

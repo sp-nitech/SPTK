@@ -140,6 +140,7 @@ set(CC_SOURCES
   ${SOURCE_DIR}/generation/normal_distributed_random_value_generation.cc
   ${SOURCE_DIR}/generation/recursive_maximum_likelihood_parameter_generation.cc
   ${SOURCE_DIR}/input/input_source_delay.cc
+  ${SOURCE_DIR}/input/input_source_filling_magic_number.cc
   ${SOURCE_DIR}/input/input_source_from_array.cc
   ${SOURCE_DIR}/input/input_source_from_matrix.cc
   ${SOURCE_DIR}/input/input_source_from_stream.cc
@@ -273,6 +274,7 @@ set(MAIN_SOURCES
   ${SOURCE_DIR}/main/lspcheck.cc
   ${SOURCE_DIR}/main/lspdf.cc
   ${SOURCE_DIR}/main/ltcdf.cc
+  ${SOURCE_DIR}/main/magic_intpl.cc
   ${SOURCE_DIR}/main/mc2b.cc
   ${SOURCE_DIR}/main/mcpf.cc
   ${SOURCE_DIR}/main/median.cc
