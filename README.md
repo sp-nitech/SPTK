@@ -102,10 +102,13 @@ Changes from SPTK3
 - Signal processing classes are written in C++ instead of C
 - Drawing commands are implemented in Python
 - No memory leaks
+- Thread-safe
 - New features:
   - Conversion from/to log area ratio (`lar2par` and `par2lar`)
   - Entropy calculation (`entropy`)
   - Huffman coding (`huffman`, `huffman_encode`, and `huffman_decode`)
+  - Magic number interpolation (`magic_intpl`)
+  - Median filter (`medfilt`)
   - Mel-cepstrum postfilter (`mcpf`)
   - Mel-filter-bank extraction (`fbank`)
   - Nonrecursive MLPG (`mlpg -R 1`)
