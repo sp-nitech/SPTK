@@ -311,7 +311,7 @@ int main(int argc, char* argv[]) {
       magic_number);
   if (!delta_calculation.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to initialze DeltaCalculation";
+    error_message << "Failed to initialize DeltaCalculation";
     sptk::PrintErrorMessage("delta", error_message);
     return 1;
   }

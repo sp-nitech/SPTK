@@ -121,9 +121,10 @@ bool DeltaCalculation::Get(std::vector<double>* dynamics) {
 bool DeltaCalculation::Forward() {
   // Get and store static components.
   if (!input_source_->Get(&buffer_.statics[buffer_.pointer])) {
-    if (buffer_.count_down-- <= 0) {
+    if (buffer_.count_down <= 0) {
       return false;
     }
+    --buffer_.count_down;
     // Assume that unobserved future data is same as the last data.
     const int prev(GetPointerIndex(-1));
     std::copy(buffer_.statics[prev].begin(), buffer_.statics[prev].end(),

@@ -27,6 +27,16 @@ teardown() {
     rm -rf $tmp
 }
 
+@test "entropy: compatibility" {
+    cmd="from scipy.stats import entropy; "
+    cmd+="h = entropy([0.1, 0.2, 0.3, 0.4], base=2); "
+    cmd+="print(h)"
+    tools/venv/bin/python -c "${cmd}" | $sptk3/x2x +ad > $tmp/1
+    $sptk3/ramp -s 0.1 -t 0.1 -l 4 | $sptk4/entropy -l 4 -o 0 > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
+    [ "$status" -eq 0 ]
+}
+
 @test "entropy: valgrind" {
     $sptk3/step -l 10 | $sptk3/window -l 10 -L 20 -n 2 -w 0 > $tmp/1
     run valgrind $sptk4/entropy -l 10 -f $tmp/1
