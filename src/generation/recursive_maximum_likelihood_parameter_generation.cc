@@ -102,15 +102,16 @@ bool RecursiveMaximumLikelihoodParameterGeneration::Get(
     std::fill(
         buffer_.static_and_dynamic_parameters.begin() + static_and_dynamic_size,
         buffer_.static_and_dynamic_parameters.end(), DBL_MAX);
-    if (--num_remaining_frame_ <= 0) {
+    if (num_remaining_frame_ <= 1) {
       return false;
     }
+    --num_remaining_frame_;
   }
   if (!Forward()) {
     return false;
   }
 
-  const int static_size(num_order_ + 1);
+  const int static_size(GetSize());
   if (smoothed_static_parameters->size() !=
       static_cast<std::size_t>(static_size)) {
     smoothed_static_parameters->resize(static_size);

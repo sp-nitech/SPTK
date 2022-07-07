@@ -129,6 +129,7 @@ set(CC_SOURCES
   ${SOURCE_DIR}/filter/inverse_mglsa_digital_filter.cc
   ${SOURCE_DIR}/filter/inverse_pseudo_quadrature_mirror_filter_banks.cc
   ${SOURCE_DIR}/filter/line_spectral_pairs_digital_filter.cc
+  ${SOURCE_DIR}/filter/median_filter.cc
   ${SOURCE_DIR}/filter/mglsa_digital_filter.cc
   ${SOURCE_DIR}/filter/mlsa_digital_filter.cc
   ${SOURCE_DIR}/filter/pseudo_quadrature_mirror_filter_banks.cc
@@ -277,6 +278,7 @@ set(MAIN_SOURCES
   ${SOURCE_DIR}/main/magic_intpl.cc
   ${SOURCE_DIR}/main/mc2b.cc
   ${SOURCE_DIR}/main/mcpf.cc
+  ${SOURCE_DIR}/main/medfilt.cc
   ${SOURCE_DIR}/main/median.cc
   ${SOURCE_DIR}/main/merge.cc
   ${SOURCE_DIR}/main/mfcc.cc

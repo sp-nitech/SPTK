@@ -17,7 +17,7 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
-tmp=test_entropy
+tmp=test_medfilt
 
 setup() {
     mkdir -p $tmp
@@ -27,18 +27,19 @@ teardown() {
     rm -rf $tmp
 }
 
-@test "entropy: compatibility" {
-    cmd="from scipy.stats import entropy; "
-    cmd+="h = entropy([0.1, 0.2, 0.3, 0.4], base=2); "
-    cmd+="print(h)"
+@test "medfilt: compatibility" {
+    cmd="from scipy.signal import medfilt; "
+    cmd+="y = medfilt([0, 1, -2, 7, 4, 8, -5, -6, 3], kernel_size=3); "
+    cmd+="print(' '.join(map(str, y[1:-1])))"
     tools/venv/bin/python -c "${cmd}" | $sptk3/x2x +ad > $tmp/1
-    $sptk3/ramp -s 0.1 -t 0.1 -l 4 | $sptk4/entropy -l 4 -o 0 > $tmp/2
+    echo "0 1 -2 7 4 8 -5 -6 3" | $sptk3/x2x +ad | \
+        $sptk4/medfilt -m 0 -k 2 | $sptk3/bcut +d -s 1 -e 7 > $tmp/2
     run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
-@test "entropy: valgrind" {
-    $sptk3/step -l 10 | $sptk3/window -l 10 -L 20 -n 2 -w 0 > $tmp/1
-    run valgrind $sptk4/entropy -l 10 -f $tmp/1
+@test "medfilt: valgrind" {
+    $sptk3/nrand -l 20 > $tmp/1
+    run valgrind $sptk4/histogram -l 2 -k 2 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

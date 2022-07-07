@@ -1,4 +1,4 @@
-#!/usr/bin/env bats
+#!/bin/bash
 # ------------------------------------------------------------------------ #
 # Copyright 2021 SPTK Working Group                                        #
 #                                                                          #
@@ -15,30 +15,38 @@
 # limitations under the License.                                           #
 # ------------------------------------------------------------------------ #
 
-sptk3=tools/sptk/bin
-sptk4=bin
-tmp=test_entropy
+set -euo pipefail
 
-setup() {
-    mkdir -p $tmp
-}
+sptk4=../../../bin
+data=../../../asset/data.short
+dump=dump
 
-teardown() {
-    rm -rf $tmp
-}
+sr=16         # Sample rate in kHz
+fp=$((sr*5))  # Frame shift  (16kHz x 5ms)
 
-@test "entropy: compatibility" {
-    cmd="from scipy.stats import entropy; "
-    cmd+="h = entropy([0.1, 0.2, 0.3, 0.4], base=2); "
-    cmd+="print(h)"
-    tools/venv/bin/python -c "${cmd}" | $sptk3/x2x +ad > $tmp/1
-    $sptk3/ramp -s 0.1 -t 0.1 -l 4 | $sptk4/entropy -l 4 -o 0 > $tmp/2
-    run $sptk4/aeq $tmp/1 $tmp/2
-    [ "$status" -eq 0 ]
-}
+mkdir -p $dump
 
-@test "entropy: valgrind" {
-    $sptk3/step -l 10 | $sptk3/window -l 10 -L 20 -n 2 -w 0 > $tmp/1
-    run valgrind $sptk4/entropy -l 10 -f $tmp/1
-    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
-}
+# Extract pitch.
+for a in $(seq 0 3); do
+    $sptk4/x2x +sd $data |
+        $sptk4/pitch -s $sr -p $fp -o 2 -a "$a" > $dump/data.lf0."$a"
+done
+
+# Perform voting.
+$sptk4/merge -l 1 -L 1 $dump/data.lf0.1 < $dump/data.lf0.0 |
+    $sptk4/merge -l 2 -L 1 $dump/data.lf0.2 |
+    $sptk4/merge -l 3 -L 1 $dump/data.lf0.3 |
+    $sptk4/medfilt -l 4 -k 2 -magic -1e+10 -w 1 > $dump/data.lf0
+
+# Draw pitch contours.
+# shellcheck disable=SC1091
+. ../../../tools/venv/bin/activate
+n=$($sptk4/x2x +da $dump/data.lf0 | wc -l)
+cat $dump/data.lf0.? $dump/data.lf0 |
+    $sptk4/sopr -magic -1e+10 -EXP -MAGIC 0 |
+    $sptk4/fdrw -n "$n" -g $dump/contour.png \
+                -xname "Time [frame]" \
+                -yname "Fundamental frequency [Hz]" \
+                -names "RAPT,SWIPE,REAPER,WORLD,Voting"
+
+echo "run.sh: successfully finished"

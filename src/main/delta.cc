@@ -311,13 +311,12 @@ int main(int argc, char* argv[]) {
       magic_number);
   if (!delta_calculation.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to initialze DeltaCalculation";
+    error_message << "Failed to initialize DeltaCalculation";
     sptk::PrintErrorMessage("delta", error_message);
     return 1;
   }
 
-  const int output_length(input_length *
-                          static_cast<int>(window_coefficients.size()));
+  const int output_length(delta_calculation.GetSize());
   std::vector<double> output(output_length);
 
   while (delta_calculation.Get(&output)) {

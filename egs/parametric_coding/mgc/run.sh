@@ -39,7 +39,7 @@ $sptk4/x2x +sd $data |
 
 # Extract log f0.
 $sptk4/x2x +sd $data |
-    $sptk4/pitch -p $fp -o 2 > $dump/data.lf0
+    $sptk4/pitch -s $sr -p $fp -o 2 > $dump/data.lf0
 
 # Make codebook of mel-cepstrum.
 $sptk4/lbg -m $order -e $size $dump/data.mgc > $dump/mgc.cb

@@ -61,7 +61,8 @@ namespace sptk {
  * sequence, but intorduces approximation error. The amount of approximation
  * error is controlled by a parameter, @f$S@f$.
  */
-class RecursiveMaximumLikelihoodParameterGeneration {
+class RecursiveMaximumLikelihoodParameterGeneration
+    : public InputSourceInterface {
  public:
   /**
    * @param[in] num_order Order of coefficients, @f$M@f$.
@@ -93,9 +94,16 @@ class RecursiveMaximumLikelihoodParameterGeneration {
   }
 
   /**
+   * @return Output size.
+   */
+  virtual int GetSize() const {
+    return num_order_ + 1;
+  }
+
+  /**
    * @return True if this object is valid.
    */
-  bool IsValid() const {
+  virtual bool IsValid() const {
     return is_valid_;
   }
 
@@ -103,7 +111,7 @@ class RecursiveMaximumLikelihoodParameterGeneration {
    * @param[out] smoothed_static_parameters Smoothed static parameters.
    * @return True on success, false on failure.
    */
-  bool Get(std::vector<double>* smoothed_static_parameters);
+  virtual bool Get(std::vector<double>* smoothed_static_parameters);
 
  private:
   struct Buffer {
