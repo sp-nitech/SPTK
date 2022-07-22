@@ -124,8 +124,8 @@ def get_arguments():
         "-lw",
         metavar="lw",
         dest="line_width",
-        default=1,
-        type=int,
+        default=None,
+        type=float,
         help="line width",
     )
     return parser.parse_args()
@@ -154,7 +154,7 @@ def get_arguments():
 #   - line style (solid, dash, dot, or dashdot)
 # - @b -lc @e str
 #   - line color
-# - @b -lw @e int
+# - @b -lw @e float
 #   - line width
 # - @b infile @e str
 #   - double-type log spectrum

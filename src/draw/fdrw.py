@@ -142,6 +142,14 @@ def get_arguments():
         help="comma-separated graph names",
     )
     parser.add_argument(
+        "-xbias",
+        metavar="XBIAS",
+        dest="xbias",
+        default=None,
+        type=float,
+        help="bias parameter for the x-axis",
+    )
+    parser.add_argument(
         "-xscale",
         metavar="XSCALE",
         dest="xscale",
@@ -169,8 +177,8 @@ def get_arguments():
         "-lw",
         metavar="lw",
         dest="line_width",
-        default=1,
-        type=int,
+        default=None,
+        type=float,
         help="line width",
     )
     parser.add_argument(
@@ -194,7 +202,7 @@ def get_arguments():
         metavar="mw",
         dest="marker_size",
         default=None,
-        type=int,
+        type=float,
         help="marker size",
     )
     parser.add_argument(
@@ -209,8 +217,8 @@ def get_arguments():
         "-mlw",
         metavar="mlw",
         dest="marker_line_width",
-        default=1,
-        type=int,
+        default=None,
+        type=float,
         help="marker line width",
     )
     return parser.parse_args()
@@ -245,23 +253,25 @@ def get_arguments():
 #   - y-axis title
 # - @b -names @e str
 #   - comma-separated graph names
+# - @b -xbias @e float
+#   - bias of x-axis
 # - @b -xscale @e float
-#   - scale of x-axis (upper limit value)
+#   - scale of x-axis
 # - @b -ls @e str
 #   - line style (solid, dash, dot, or dashdot)
 # - @b -lc @e str
 #   - line color
-# - @b -lw @e int
+# - @b -lw @e float
 #   - line width
 # - @b -ms @e int
 #   - marker symbol
 # - @b -mc @e str
 #   - marker color
-# - @b -mw @e int
+# - @b -mw @e float
 #   - marker size
 # - @b -mlc @e str
 #   - marker line color
-# - @b -mlw @e int
+# - @b -mlw @e float
 #   - marker line width
 # - @b infile @e str
 #   - double-type data sequence
@@ -306,6 +316,8 @@ def main():
     x = np.arange(step)
     if args.xscale is not None and 2 <= step:
         x = x * (args.xscale / (step - 1))
+    if args.xbias is not None:
+        x = x + args.xbias
 
     fig = go.Figure()
     for i, j in enumerate(range(0, len(data), step)):
@@ -318,6 +330,7 @@ def main():
                     y=x if args.transpose else y,
                     name=None if names is None else names[i],
                     orientation="h" if args.transpose else "v",
+                    width=args.line_width,
                     marker=dict(
                         color=args.marker_color,
                         line_color=args.marker_line_color,

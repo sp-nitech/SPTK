@@ -158,7 +158,7 @@ def get_arguments():
         metavar="mw",
         dest="marker_size",
         default=None,
-        type=int,
+        type=float,
         help="marker size",
     )
     parser.add_argument(
@@ -173,8 +173,8 @@ def get_arguments():
         "-mlw",
         metavar="mlw",
         dest="marker_line_width",
-        default=1,
-        type=int,
+        default=None,
+        type=float,
         help="marker line width",
     )
     return parser.parse_args()
@@ -209,11 +209,11 @@ def get_arguments():
 #   - marker symbol
 # - @b -mc @e str
 #   - marker color
-# - @b -mw @e int
+# - @b -mw @e float
 #   - marker size
 # - @b -mlc @e str
 #   - marker line color
-# - @b -mlw @e int
+# - @b -mlw @e float
 #   - marker line width
 # - @b infile @e str
 #   - double-type discrete series

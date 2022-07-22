@@ -117,8 +117,8 @@ def get_arguments():
         "-mw",
         metavar="mw",
         dest="marker_size",
-        default=10,
-        type=int,
+        default=10.0,
+        type=float,
         help="marker size",
     )
     parser.add_argument(
@@ -133,8 +133,8 @@ def get_arguments():
         "-mlw",
         metavar="mlw",
         dest="marker_line_width",
-        default=1,
-        type=int,
+        default=None,
+        type=float,
         help="marker line width",
     )
     return parser.parse_args()
@@ -163,11 +163,11 @@ def get_arguments():
 #   - y-axis limits
 # - @b -mc @e str
 #   - marker color
-# - @b -mw @e int
+# - @b -mw @e float
 #   - marker size
 # - @b -mlc @e str
 #   - marker line color
-# - @b -mlw @e int
+# - @b -mlw @e float
 #   - marker line width
 # - @b infile @e str
 #   - double-type roots
