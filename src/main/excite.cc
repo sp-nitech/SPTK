@@ -25,6 +25,7 @@
 #include "SPTK/generation/m_sequence_generation.h"
 #include "SPTK/generation/normal_distributed_random_value_generation.h"
 #include "SPTK/input/input_source_from_stream.h"
+#include "SPTK/input/input_source_interpolation_with_magic_number.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
