@@ -468,7 +468,7 @@ float *downsample(float *input, int samsin, int state_idx, double freq,
   static float	b[2048];
   static float *foutput = NULL;
 #else
-  float* foutput = *foutputp;
+  float *foutput = *foutputp;
 #endif
   float	beta = 0.0f;
 #if 0
@@ -1092,8 +1092,7 @@ init_dp_f0(freq, par, buffsize, sdstep)
   return(0);
 }
 #else
-init_dp_f0(double freq, F0_params *par, long *buffsize, long *sdstep,
-           Buffer *buffer)
+init_dp_f0(double freq, F0_params *par, long *buffsize, long *sdstep, Buffer *buffer)
 {
   int nframes;
   int i;
@@ -2015,7 +2014,8 @@ retrieve_windstat(rho, order, err, rms)
     float   *err;
     float   *rms;
 #else
-retrieve_windstat(float *rho, int order, float *err, float *rms, int wReuse, Windstat *windstat)
+retrieve_windstat(float *rho, int order, float *err, float *rms,
+                  int wReuse, Windstat *windstat)
 #endif
 {
     Windstat wstat;
@@ -2642,13 +2642,12 @@ cGet_f0(const std::vector<double> &waveform, int frame_shift,
     }
 #endif
     /*if (sound->debug > 0) Snack_WriteLog("dp_f0...\n");*/
-#if 0
     if (dp_f0(fdata, (int) actsize, (int) sdstep, sf, par,
+#if 0
 	      &f0p, &vuvp, &rms_speech, &acpkp, &vecsize, done)) {
       Tcl_AppendResult(interp, "problem in dp_f0().", NULL);
       return TCL_ERROR;
 #else
-    if (dp_f0(fdata, (int) actsize, (int) sdstep, sf, par,
 	      &f0p, &vuvp, &rms_speech, &acpkp, &vecsize, done, &buffer)) {
       return 1;
 #endif

@@ -49,6 +49,7 @@ int   n_cands,		/* max. # of F0 cands. to consider at each frame */
       conditioning;     /* Specify optional signal pre-conditioning. */
 } F0_params;
 
+#if 0
 /* Possible values returned by the function f0(). */
 #define F0_OK		0
 #define F0_NO_RETURNS	1
@@ -68,7 +69,6 @@ int   n_cands,		/* max. # of F0 cands. to consider at each frame */
 #define F0_PC_AR	0x08		/* inf_order-order LPC inverse filter */
 #define F0_PC_DIFF	0x010		/* 1st-order difference */
 
-#if 0
 extern F0_params *new_f0_params();
 extern int atoi(), eround(), lpc(), window(), get_window();
 extern void get_fast_cands(), a_to_aca(), cross(), crossf(), crossfi(),
