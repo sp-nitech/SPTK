@@ -357,7 +357,7 @@ int main(int argc, char* argv[]) {
       voicing_thresholds[algorithm], algorithm);
   if (!pitch_extraction.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to initialize set PitchExtraction";
+    error_message << "Failed to initialize PitchExtraction";
     sptk::PrintErrorMessage("pitch", error_message);
     return 1;
   }
