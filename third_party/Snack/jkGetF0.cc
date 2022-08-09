@@ -364,7 +364,7 @@ void get_fast_cands(fdata, fdsdata, ind, step, size, dec, start, nlags, engref, 
 void get_fast_cands(float *fdata, float *fdsdata, int ind, int step, int size,
                     int dec, int start, int nlags, float *engref, int *maxloc,
                     float *maxval, Cross *cp, float *peaks, int *locs,
-                    int *ncand, F0_params *par)
+                    int *ncand, F0_params *par, int *dbsize, float **dbdata)
 #endif
 {
   int decind, decstart, decnlags, decsize, i, j, *lp;
@@ -379,7 +379,11 @@ void get_fast_cands(float *fdata, float *fdsdata, int ind, int step, int size,
   corp = cp->correl;
     
   crossf(fdsdata + decind, decsize, decstart, decnlags, engref, maxloc,
+#if 0
 	maxval, corp);
+#else
+	maxval, corp, dbsize, dbdata);
+#endif
   cp->maxloc = *maxloc;	/* location of maximum in correlation */
   cp->maxval = *maxval;	/* max. correlation value (found at maxloc) */
   cp->rms = (float) sqrt(*engref/size); /* rms in reference window */
@@ -415,7 +419,11 @@ void get_fast_cands(float *fdata, float *fdsdata, int ind, int step, int size,
     *ncand = par->n_cands-1;  /* leave room for the unvoiced hypothesis */
   }
   crossfi(fdata + (ind * step), size, start, nlags, 7, engref, maxloc,
+#if 0
 	  maxval, corp, locs, *ncand);
+#else
+	  maxval, corp, locs, *ncand, dbsize, dbdata);
+#endif
 
   cp->maxloc = *maxloc;	/* location of maximum in correlation */
   cp->maxval = *maxval;	/* max. correlation value (found at maxloc) */
@@ -909,6 +917,8 @@ typedef struct buffer_rec {
   int fsize;
   int nframes_old, memsize;
   int ncoeff, ncoefft;
+  float *dwind, *dwind2, *wind, *wind2, *din, *dbdata;
+  int nwind, nwind2, wsize, wsize2, n0, dbsize;
 } Buffer;
 #endif
 
@@ -1235,9 +1245,7 @@ static Stat *get_stationarity();
 #else
 static Stat *get_stationarity(float *fdata, double freq, int buff_size,
                               int nframes, int frame_step, int first_time,
-                              int *nframes_old, int *memsize,
-                              Stat **stat, float **mem,
-                              int wReuse, Windstat *windstat);
+                              Buffer *buffer);
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -1623,8 +1631,7 @@ dp_f0(float *fdata, int buff_size, int sdstep, double freq, F0_params *par,
   /* Get a function of the "stationarity" of the speech signal. */
 
   stat = get_stationarity(fdata, freq, buff_size, nframes, buffer->step, buffer->first_time,
-                          &buffer->nframes_old, &buffer->memsize,
-                          &buffer->stat, &buffer->mem, buffer->wReuse, buffer->windstat);
+                          buffer);
   if (!stat) { 
     Fprintf(stderr, "can't get stationarity\n");
     return(1);
@@ -1670,7 +1677,8 @@ dp_f0(float *fdata, int buff_size, int sdstep, double freq, F0_params *par,
     buffer->headF->rms = stat->rms[i];
     get_fast_cands(fdata, dsdata, i, buffer->step, buffer->size, decimate, buffer->start,
 		   buffer->nlags, &engref, &maxloc,
-		   &maxval, buffer->headF->cp, buffer->peaks, buffer->locs, &ncand, par);
+		   &maxval, buffer->headF->cp, buffer->peaks, buffer->locs, &ncand, par,
+		   &buffer->dbsize, &buffer->dbdata);
     
     /*    Move the peak value and location arrays into the dp structure */
     {
@@ -2025,11 +2033,12 @@ retrieve_windstat(float *rho, int order, float *err, float *rms, int wReuse, Win
 
 #if 1
 float xitakura(int p, float *b, float *c, float *r, float *gain);
-float wind_energy(float *data, int size, int w_type);
+float wind_energy(float *data, int size, int w_type, int *nwindp, float **dwindp,
+                  int *n0p, float **dinp, int *wsizep, float **windp);
 void xa_to_aca(float *a, float *b, float *c, int p);
 int xlpc(int lpc_ord, float lpc_stabl, int wsize, float *data, float *lpca,
          float *ar, float *lpck, float *normerr, float *rms, float preemp,
-         int type);
+         int type, int *nwindp, float **dwindp, int *wsizep, float **windp);
 #endif
 
 /*--------------------------------------------------------------------*/
@@ -2044,7 +2053,7 @@ get_similarity(order, size, pdata, cdata,
 #else
 get_similarity(int order, int size, float *pdata, float *cdata, float *rmsa,
 	       float *rms_ratio, float pre, float stab, int w_type, int init,
-	       int wReuse, Windstat *windstat)
+	       Buffer *buffer)
 #endif
 {
   float rho3[BIGSORD+1], err3, rms3, rmsd3, b0, t, a2[BIGSORD+1], 
@@ -2062,19 +2071,32 @@ get_similarity(int order, int size, float *pdata, float *cdata, float *rmsa,
 
   /* get current window stat */
   xlpc(order, stab, size-1, cdata,
+#if 0
       a2, rho3, (float *) NULL, &err3, &rmsd3, pre, w_type);
   rms3 = wind_energy(cdata, size, w_type);
+#else
+      a2, rho3, (float *) NULL, &err3, &rmsd3, pre, w_type,
+      &buffer->nwind, &buffer->dwind, &buffer->wsize, &buffer->wind);
+  rms3 = wind_energy(cdata, size, w_type, &buffer->nwind2, &buffer->dwind2,
+                     &buffer->n0, &buffer->din, &buffer->wsize2, &buffer->wind2);
+#endif
   
   if(!init) {
       /* get previous window stat */
 #if 0
       if( !retrieve_windstat(rho1, order, &err1, &rms1)){
-#else
-      if( !retrieve_windstat(rho1, order, &err1, &rms1, wReuse, windstat)){
-#endif
 	  xlpc(order, stab, size-1, pdata,
 	      a1, rho1, (float *) NULL, &err1, &rmsd1, pre, w_type);
 	  rms1 = wind_energy(pdata, size, w_type);
+#else
+      if( !retrieve_windstat(rho1, order, &err1, &rms1, buffer->wReuse,
+                             buffer->windstat)){
+	  xlpc(order, stab, size-1, pdata,
+	      a1, rho1, (float *) NULL, &err1, &rmsd1, pre, w_type,
+	      &buffer->nwind, &buffer->dwind, &buffer->wsize, &buffer->wind);
+	  rms1 = wind_energy(pdata, size, w_type, &buffer->nwind2, &buffer->dwind2,
+                             &buffer->n0, &buffer->din, &buffer->wsize2, &buffer->wind2);
+#endif
       }
       xa_to_aca(a2+1,b,&b0,order);
       t = xitakura(order,b,&b0,rho1+1,&err1) - .8f;
@@ -2093,7 +2115,7 @@ get_similarity(int order, int size, float *pdata, float *cdata, float *rmsa,
 #if 0
   save_windstat( rho3, order, err3, rms3);
 #else
-  save_windstat( rho3, order, err3, rms3, wReuse, windstat);
+  save_windstat( rho3, order, err3, rms3, buffer->wReuse, buffer->windstat);
 #endif
   return((float)(0.2/t));
 }
@@ -2143,17 +2165,16 @@ get_stationarity(fdata, freq, buff_size, nframes, frame_step, first_time)
     int     buff_size, nframes, frame_step, first_time;
 #else
 get_stationarity(float *fdata, double freq, int buff_size, int nframes,
-                 int frame_step, int first_time, int *nframes_oldp, int *memsizep,
-                 Stat **statp, float **memp, int wReuse, Windstat *windstat)
+                 int frame_step, int first_time, Buffer *buffer)
 #endif
 {
 #if 0
   static int nframes_old = 0, memsize;
 #else
-  Stat *stat = *statp;
-  float *mem = *memp;
-  int nframes_old = *nframes_oldp;
-  int memsize = *memsizep;
+  Stat *stat = buffer->stat;
+  float *mem = buffer->mem;
+  int nframes_old = buffer->nframes_old;
+  int memsize = buffer->memsize;
 #endif
   float preemp = 0.4f, stab = 30.0f;
   float *p, *q, *r, *datend;
@@ -2186,10 +2207,10 @@ get_stationarity(float *fdata, double freq, int buff_size, int nframes,
     /*    spsassert(mem, "mem ckalloc failed in get_stationarity()");*/
     for(j=0; j<memsize; j++) mem[j] = 0;
 #if 1
-    *nframes_oldp = nframes_old;
-    *memsizep = memsize;
-    *statp = stat;
-    *memp = mem;
+    buffer->nframes_old = nframes_old;
+    buffer->memsize = memsize;
+    buffer->stat = stat;
+    buffer->mem = mem;
 #endif
   }
   
@@ -2217,8 +2238,7 @@ get_stationarity(float *fdata, double freq, int buff_size, int nframes,
 #if 0
 					     stab,w_type, 0);
 #else
-					     stab,w_type, 0,
-					     wReuse, windstat);
+					     stab,w_type, 0, buffer);
 #endif
       else {
 	  if(first_time) {
@@ -2229,8 +2249,7 @@ get_stationarity(float *fdata, double freq, int buff_size, int nframes,
 #if 0
 						     preemp,stab,w_type, 1);
 #else
-						     preemp,stab,w_type, 1,
-						     wReuse, windstat);
+						     preemp,stab,w_type, 1, buffer);
 #endif
 	      else{
 		  stat->rms[j] = 0.0;
@@ -2246,8 +2265,7 @@ get_stationarity(float *fdata, double freq, int buff_size, int nframes,
 #if 0
 						     preemp, stab,w_type, 0);
 #else
-						     preemp, stab,w_type, 0,
-						     wReuse, windstat);
+						     preemp, stab,w_type, 0, buffer);
 #endif
 		  /* prepare for the next frame_step if needed */
 		  if(p + frame_step < fdata ){
@@ -2413,6 +2431,24 @@ void free_dp_f0(Buffer *buffer)
 
   ckfree((void *)buffer->co);
   buffer->co = NULL;
+
+  ckfree((void *)buffer->dwind);
+  buffer->dwind = NULL;
+
+  ckfree((void *)buffer->dwind2);
+  buffer->dwind2 = NULL;
+
+  ckfree((void *)buffer->wind);
+  buffer->wind = NULL;
+
+  ckfree((void *)buffer->wind2);
+  buffer->wind2 = NULL;
+
+  ckfree((void *)buffer->din);
+  buffer->din = NULL;
+
+  ckfree((void *)buffer->dbdata);
+  buffer->dbdata = NULL;
 }
 #endif
 

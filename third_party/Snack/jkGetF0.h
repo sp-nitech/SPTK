@@ -75,12 +75,14 @@ extern void get_fast_cands(), a_to_aca(), cross(), crossf(), crossfi(),
            autoc(), durbin();
 #else
 int eround(double flnum);
-int window(float *din, float *dout, int n, float preemp, int type);
+int window(float *din, float *dout, int n, float preemp, int type,
+           int *wsizep, float **windp);
 void crossf(float *data, int size, int start, int nlags, float *engref,
-            int *maxloc, float *maxval, float *correl);
+            int *maxloc, float *maxval, float *correl, int *dbsizep,
+            float **dbdatap);
 void crossfi(float *data, int size, int start0, int nlags0, int nlags,
              float *engref, int *maxloc, float *maxval, float *correl,
-             int *locs, int nlocs);
+             int *locs, int nlocs, int *dbsizep, float **dbdatap);
 #endif
 
 #define Fprintf (void)fprintf

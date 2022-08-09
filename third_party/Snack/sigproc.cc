@@ -43,11 +43,17 @@ int xget_window(dout, n, type)
      register float *dout;
      register int n, type;
 #else
-int xget_window(float *dout, int n, int type)
+int xget_window(float *dout, int n, int type, int *n0p, float **dinp,
+                int *wsizep, float **windp)
 #endif
 {
+#if 0
   static float *din = NULL;
   static int n0 = 0;
+#else
+  float *din = *dinp;
+  int n0 = *n0p;
+#endif
   float preemp = 0.0;
 
   if(n > n0) {
@@ -62,15 +68,15 @@ int xget_window(float *dout, int n, int type)
     }
     for(i=0, p=din; i++ < n; ) *p++ = 1;
     n0 = n;
+#if 1
+    *dinp = din;
+    *n0p = n0;
+#endif
   }
 #if 0
   return(window(din, dout, n, preemp, type));
 #else
-  int result = window(din, dout, n, preemp, type);
-  ckfree((void *)din);
-  din = NULL;
-  n0 = 0;
-  return result;
+  return(window(din, dout, n, preemp, type, wsizep, windp));
 #endif
 }
   
@@ -106,13 +112,19 @@ void xcwindow(din, dout, n, preemp)
      register float *dout, preemp;
      register int n;
 #else
-void xcwindow(float *din, float *dout, int n, float preemp)
+void xcwindow(float *din, float *dout, int n, float preemp, int* wsizep,
+              float **windp)
 #endif
 {
   register int i;
   register float *p;
+#if 0
   static int wsize = 0;
   static float *wind=NULL;
+#else
+  int wsize = *wsizep;
+  float *wind = *windp;
+#endif
   register float *q, co;
  
   if(wsize != n) {		/* Need to create a new cos**4 window? */
@@ -125,6 +137,10 @@ void xcwindow(float *din, float *dout, int n, float preemp)
       co = (float) (half*(1.0 - cos((half + (double)i++) * arg)));
       *q++ = co * co * co * co;
     }
+#if 1
+    *wsizep = wsize;
+    *windp = wind;
+#endif
   }
 /* If preemphasis is to be performed,  this assumes that there are n+1 valid
    samples in the input buffer (din). */
@@ -135,11 +151,6 @@ void xcwindow(float *din, float *dout, int n, float preemp)
     for(i=n, q=wind; i--; )
       *dout++ = *q++ * *din++;
   }
-#if 1
-  ckfree((void *)wind);
-  wind = NULL;
-  wsize = 0;
-#endif
 }
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
@@ -150,13 +161,19 @@ void xhwindow(din, dout, n, preemp)
      register float *dout, preemp;
      register int n;
 #else
-void xhwindow(float *din, float *dout, int n, float preemp)
+void xhwindow(float *din, float *dout, int n, float preemp, int *wsizep,
+              float **windp)
 #endif
 {
   register int i;
   register float *p;
+#if 0
   static int wsize = 0;
   static float *wind=NULL;
+#else
+  int wsize = *wsizep;
+  float *wind = *windp;
+#endif
   register float *q;
 
   if(wsize != n) {		/* Need to create a new Hamming window? */
@@ -167,6 +184,10 @@ void xhwindow(float *din, float *dout, int n, float preemp)
     wsize = n;
     for(i=0, arg=3.1415927*2.0/(wsize), q=wind; i < n; )
       *q++ = (float) (.54 - .46 * cos((half + (double)i++) * arg));
+#if 1
+    *wsizep = wsize;
+    *windp = wind;
+#endif
   }
 /* If preemphasis is to be performed,  this assumes that there are n+1 valid
    samples in the input buffer (din). */
@@ -177,11 +198,6 @@ void xhwindow(float *din, float *dout, int n, float preemp)
     for(i=n, q=wind; i--; )
       *dout++ = *q++ * *din++;
   }
-#if 1
-  ckfree((void *)wind);
-  wind = NULL;
-  wsize = 0;
-#endif
 }
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
@@ -192,13 +208,19 @@ void xhnwindow(din, dout, n, preemp)
      register float *dout, preemp;
      register int n;
 #else
-void xhnwindow(float *din, float *dout, int n, float preemp)
+void xhnwindow(float *din, float *dout, int n, float preemp, int* wsizep,
+               float **windp)
 #endif
 {
   register int i;
   register float *p;
+#if 0
   static int wsize = 0;
   static float *wind=NULL;
+#else
+  int wsize = *wsizep;
+  float *wind = *windp;
+#endif
   register float *q;
 
   if(wsize != n) {		/* Need to create a new Hanning window? */
@@ -209,6 +231,10 @@ void xhnwindow(float *din, float *dout, int n, float preemp)
     wsize = n;
     for(i=0, arg=3.1415927*2.0/(wsize), q=wind; i < n; )
       *q++ = (float) (half - half * cos((half + (double)i++) * arg));
+#if 1
+    *wsizep = wsize;
+    *windp = wind;
+#endif
   }
 /* If preemphasis is to be performed,  this assumes that there are n+1 valid
    samples in the input buffer (din). */
@@ -219,11 +245,6 @@ void xhnwindow(float *din, float *dout, int n, float preemp)
     for(i=n, q=wind; i--; )
       *dout++ = *q++ * *din++;
   }
-#if 1
-  ckfree((void *)wind);
-  wind = NULL;
-  wsize = 0;
-#endif
 }
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
@@ -238,7 +259,8 @@ int window(din, dout, n, preemp, type)
      register int n;
      int type;
 #else
-int window(float *din, float *dout, int n, float preemp, int type)
+int window(float *din, float *dout, int n, float preemp, int type,
+           int *wsizep, float **windp)
 #endif
 {
   switch(type) {
@@ -246,13 +268,25 @@ int window(float *din, float *dout, int n, float preemp, int type)
     xrwindow(din, dout, n, preemp);
     break;
   case 1:			/* Hamming */
+#if 0
     xhwindow(din, dout, n, preemp);
+#else
+    xhwindow(din, dout, n, preemp, wsizep, windp);
+#endif
     break;
   case 2:			/* cos^4 */
+#if 0
     xcwindow(din, dout, n, preemp);
+#else
+    xcwindow(din, dout, n, preemp, wsizep, windp);
+#endif
     break;
   case 3:			/* Hanning */
+#if 0
     xhnwindow(din, dout, n, preemp);
+#else
+    xhnwindow(din, dout, n, preemp, wsizep, windp);
+#endif
     break;
   default:
     Fprintf(stderr,"Unknown window type (%d) requested in window()\n",type);
@@ -406,11 +440,18 @@ float wind_energy(data,size,w_type)
      register int size,		/* size of window */
        w_type;			/* window type */
 #else
-float wind_energy(float *data, int size, int w_type)
+float wind_energy(float *data, int size, int w_type, int *nwindp,
+                  float **dwindp, int *n0p, float **dinp, int *wsizep,
+                  float **windp)
 #endif
 {
+#if 0
   static int nwind = 0;
   static float *dwind = NULL;
+#else
+  int nwind = *nwindp;
+  float *dwind = *dwindp;
+#endif
   register float *dp, sum, f;
   register int i;
 
@@ -421,20 +462,23 @@ float wind_energy(float *data, int size, int w_type)
       Fprintf(stderr,"Can't allocate scratch memory in wind_energy()\n");
       return(0.0);
     }
+#if 1
+    *dwindp = dwind;
+#endif
   }
   if(nwind != size) {
+#if 0
     xget_window(dwind, size, w_type);
     nwind = size;
+#else
+    xget_window(dwind, size, w_type, n0p, dinp, wsizep, windp);
+    *nwindp = size;
+#endif
   }
   for(i=size, dp = dwind, sum = 0.0; i-- > 0; ) {
     f = *dp++ * (float)(*data++);
     sum += f*f;
   }
-#if 1
-  ckfree((void *)dwind);
-  dwind = NULL;
-  nwind = 0;
-#endif
   return((float)sqrt((double)(sum/size)));
 }
 
@@ -458,11 +502,16 @@ int xlpc(lpc_ord,lpc_stabl,wsize,data,lpca,ar,lpck,normerr,rms,preemp,type)
 #else
 int xlpc(int lpc_ord, float lpc_stabl, int wsize, float *data, float *lpca,
          float *ar, float *lpck, float *normerr, float *rms, float preemp,
-         int type)
+         int type, int *nwindp, float **dwindp, int *wsizep, float **windp)
 #endif
 {
+#if 0
   static float *dwind=NULL;
   static int nwind=0;
+#else
+  float *dwind=*dwindp;
+  int nwind=*nwindp;
+#endif
   float rho[BIGSORD+1], k[BIGSORD], a[BIGSORD+1],*r,*kp,*ap,en,er,wfact=1.0;
 
   if((wsize <= 0) || (!data) || (lpc_ord > BIGSORD)) return(FALSE);
@@ -475,9 +524,17 @@ int xlpc(int lpc_ord, float lpc_stabl, int wsize, float *data, float *lpca,
       return(FALSE);
     }
     nwind = wsize;
+#if 1
+    *nwindp = nwind;
+    *dwindp = dwind;
+#endif
   }
   
+#if 0
   window(data, dwind, wsize, preemp, type);
+#else
+  window(data, dwind, wsize, preemp, type, wsizep, windp);
+#endif
   if(!(r = ar)) r = rho;	/* Permit optional return of the various */
   if(!(kp = lpck)) kp = k;	/* coefficients and intermediate results. */
   if(!(ap = lpca)) ap = a;
@@ -510,11 +567,6 @@ int xlpc(int lpc_ord, float lpc_stabl, int wsize, float *data, float *lpca,
   *ap = 1.0;
   if(rms) *rms = en/wfact;
   if(normerr) *normerr = er;
-#if 1
-  ckfree((void *)dwind);
-  dwind = NULL;
-  nwind = 0;
-#endif
   return(TRUE);
 }
 
@@ -540,11 +592,17 @@ void crossf(data, size, start, nlags, engref, maxloc, maxval, correl)
      int size, start, nlags;
 #else
 void crossf(float *data, int size, int start, int nlags, float *engref,
-            int *maxloc, float *maxval, float *correl)
+            int *maxloc, float *maxval, float *correl, int *dbsizep,
+            float **dbdatap)
 #endif
 {
+#if 0
   static float *dbdata=NULL;
   static int dbsize = 0;
+#else
+  float *dbdata=*dbdatap;
+  int dbsize = *dbsizep;
+#endif
   register float *dp, *ds, sum, st;
   register int j;
   register  float *dq, t, *p, engr, *dds, amax;
@@ -568,6 +626,10 @@ void crossf(float *data, int size, int start, int nlags, float *engref,
       return;/*exit(-1);*/
     }
     dbsize = total;
+#if 1
+    *dbdatap = dbdata;
+    *dbsizep = dbsize;
+#endif
   }
   for(engr=0.0, j=size, p=data; j--; ) engr += *p++;
   engr /= size;
@@ -615,11 +677,6 @@ void crossf(float *data, int size, int start, int nlags, float *engref,
     for(p=correl,i=nlags; i-- > 0; )
       *p++ = 0.0;
   }
-#if 1
-  ckfree((void *)dbdata);
-  dbdata = NULL;
-  dbsize = 0;
-#endif
 }
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
@@ -652,11 +709,16 @@ void crossfi(data, size, start0, nlags0, nlags, engref, maxloc, maxval, correl, 
 #else
 void crossfi(float *data, int size, int start0, int nlags0, int nlags,
              float *engref, int *maxloc, float *maxval, float *correl,
-             int *locs, int nlocs)
+             int *locs, int nlocs, int *dbsizep, float **dbdatap)
 #endif
 {
+#if 0
   static float *dbdata=NULL;
   static int dbsize = 0;
+#else
+  float *dbdata=*dbdatap;
+  int dbsize = *dbsizep;
+#endif
   register float *dp, *ds, sum, st;
   register int j;
   register  float *dq, t, *p, engr, *dds, amax;
@@ -675,6 +737,10 @@ void crossfi(float *data, int size, int start0, int nlags0, int nlags,
       return;/*exit(-1);*/
     }
     dbsize = total;
+#if 1
+    *dbdatap = dbdata;
+    *dbsizep = dbsize;
+#endif
   }
   for(engr=0.0, j=size, p=data; j--; ) engr += *p++;
   engr /= size;
@@ -735,11 +801,6 @@ void crossfi(float *data, int size, int start0, int nlags0, int nlags,
     *maxloc = 0;
     *maxval = 0.0;
   }
-#if 1
-  ckfree((void *)dbdata);
-  dbdata = NULL;
-  dbsize = 0;
-#endif
 }
 
 #if 1
