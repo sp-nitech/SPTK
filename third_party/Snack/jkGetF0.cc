@@ -2488,7 +2488,7 @@ cGet_f0(const std::vector<double> &waveform, int frame_shift,
   Tcl_Obj *list;
   float *tmp = (float *)ckalloc(sizeof(float) * (5 + sound->length / 80));
 #else
-  long sound_length = waveform.size();
+  long sound_length = static_cast<long>(waveform.size());
   float *tmp = (float *)ckalloc(sizeof(float) * (5 + sound_length / frame_shift));
   float *buf;
   double fsp, noise, noise_sdev = 50.0;

@@ -93,22 +93,15 @@ limitations under the License.
 #if 1
 namespace sptk {
 namespace reaper {
+#endif
 
-static const float kMinSampleRate = 6000.0f;
-static const float kExternalFrameInterval = 0.005f;
-static const float kInternalFrameInterval = 0.002f;
-static const float kMinF0Search = 40.0f;
-static const float kMaxF0Search = 500.0f;
-static const float kUnvoicedPulseInterval = 0.01f;
-static const float kUnvoicedCost = 0.9f;
-#else
+static const float kMinSampleRate = 6000.0;
 static const float kExternalFrameInterval = 0.005;
 static const float kInternalFrameInterval = 0.002;
 static const float kMinF0Search = 40.0;
 static const float kMaxF0Search = 500.0;
 static const float kUnvoicedPulseInterval = 0.01;
 static const float kUnvoicedCost = 0.9;
-#endif
 static const bool kDoHighpass = true;
 static const bool kDoHilbertTransform = false;
 static const char kDebugName[] = "";
@@ -211,7 +204,7 @@ class EpochTracker {
   // Apply a Hann weighting to the signal in input starting at
   // sample index offset.  The window will contain size samples, and
   // the windowed signal is placed in output.
-  void Window(const std::vector<float> input, int32_t offset, size_t size,
+  void Window(const std::vector<float>& input, int32_t offset, size_t size,
               float* output);
 
   // Computes signal polarity (-1 for negative, +1 for
@@ -246,6 +239,24 @@ class EpochTracker {
   // assignments over the entire signal.  The results are left in
   // internal storage, pending retrieval by other methods.
   bool TrackEpochs(void);
+  
+  // Create a lattice of glottal period hypotheses in preparation for
+  // dynamic programming.  This fills out most of the data fields in
+  // resid_peaks_. This must be called after ComputeFeatures.
+  void CreatePeriodLattice(void);
+
+  // Apply the Viterbi dynamic programming algorithm to find the best
+  // path through the period hypothesis lattice created by
+  // CreatePeriodLattice.  The backpointers and cumulative scores are
+  // left in the relevant fields in resid_peaks_.
+  void DoDynamicProgramming(void);
+
+  // Backtrack through the best pointers in the period hypothesis
+  // lattice created by CreatePeriodLattice and processed by
+  // DoDynamicProgramming.  The estimated GCI locations
+  // (epochs) and the corresponding F0 and voicing-states are placed
+  // in the output_ array pending retrieval using other methods.
+  bool BacktrackAndSaveOutput(void);
 
   // Resample the per-period F0 and correlation data that results from
   // the tracker to a periodic signal at an interval of
@@ -299,13 +310,8 @@ class EpochTracker {
   void GetRmsVoicingModulator(void);
 
   // Free memory, and prepare the instance for a new signal.
-#if 0
   void CleanUp(void);
-#else
- public:
-  void CleanUp(void);
- private:
-#endif
+
   // Scan the signal in input searching for all local maxima that
   // exceed thresh.  The indices corresponding to the location of the
   // peaks are placed in output.  The first entry in output is always
@@ -321,24 +327,6 @@ class EpochTracker {
   // locations and the full NCCF are saved in the corresponding
   // elements of the resid_peaks_ array of structures.
   void GetPulseCorrelations(float window_dur, float peak_thresh);
-
-  // Create a lattice of glottal period hypotheses in preparation for
-  // dynamic programming.  This fills out most of the data fields in
-  // resid_peaks_. This must be called after ComputeFeatures.
-  void CreatePeriodLattice(void);
-
-  // Apply the Viterbi dynamic programming algorithm to find the best
-  // path through the period hypothesis lattice created by
-  // CreatePeriodLattice.  The backpointers and cumulative scores are
-  // left in the relevant fields in resid_peaks_.
-  void DoDynamicProgramming(void);
-
-  // Backtrack through the best pointers in the period hypothesis
-  // lattice created by CreatePeriodLattice and processed by
-  // DoDynamicProgramming.  The estimated GCI locations
-  // (epochs) and the corresponding F0 and voicing-states are placed
-  // in the output_ array pending retrieval using other methods.
-  bool BacktrackAndSaveOutput(void);
 
 
  private:
