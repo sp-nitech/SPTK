@@ -126,8 +126,6 @@ bool PitchExtractionByReaper::Get(
     }
   }
 
-  epoch_tracker.CleanUp();
-
   return true;
 }
 

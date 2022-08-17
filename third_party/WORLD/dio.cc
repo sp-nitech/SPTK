@@ -90,8 +90,8 @@ static void GetSpectrumForEstimation(const double *x, int x_length,
     fft_plan_dft_r2c_1d(fft_size, y, y_spectrum, FFT_ESTIMATE);
   fft_execute(forwardFFT);
 
-  // Low cut filtering (from 0.1.4)
-  int cutoff_in_sample = matlab_round(actual_fs / 50.0);  // Cutoff is 50.0 Hz
+  // Low cut filtering (from 0.1.4). Cut off frequency is 50.
+  int cutoff_in_sample = matlab_round(actual_fs / world::kCutOff);
   DesignLowCutFilter(cutoff_in_sample * 2 + 1, fft_size, y);
 
   fft_complex *filter_spectrum = new fft_complex[fft_size];

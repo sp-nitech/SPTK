@@ -456,7 +456,7 @@ vector swipe(const std::vector<double>& waveform, double samplerate, double min,
     sf_close(source); // takes wavf with it, too
 #else
     double n = 1. / 32768.;
-    int frames = waveform.size();
+    int frames = static_cast<int>(waveform.size());
     vector x = makev(frames);
     for (i = 0; i < frames; i++)
         x.v[i] = waveform[i] * n;
