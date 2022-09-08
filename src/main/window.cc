@@ -27,11 +27,20 @@
 
 namespace {
 
+enum LocalWindowType {
+  kBlackman = 0,
+  kHamming,
+  kHanning,
+  kBartlett,
+  kTrapezoidal,
+  kRectangular,
+  kNumWindowTypes
+};
+
 const int kDefaultFrameLength(256);
 const sptk::DataWindowing::NormalizationType kDefaultNormalizationType(
     sptk::DataWindowing::NormalizationType::kPower);
-const sptk::StandardWindow::WindowType kDefaultWindowType(
-    sptk::StandardWindow::WindowType::kBlackman);
+const LocalWindowType kDefaultLocalWindowType(kBlackman);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -47,7 +56,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 0 (none)" << std::endl;
   *stream << "                 1 (power)" << std::endl;
   *stream << "                 2 (magnitude)" << std::endl;
-  *stream << "       -w w  : window type            (   int)[" << std::setw(5) << std::right << kDefaultWindowType        << "][ 0 <= w <= 5 ]" << std::endl;  // NOLINT
+  *stream << "       -w w  : window type            (   int)[" << std::setw(5) << std::right << kDefaultLocalWindowType   << "][ 0 <= w <= 5 ]" << std::endl;  // NOLINT
   *stream << "                 0 (Blackman)" << std::endl;
   *stream << "                 1 (Hamming)" << std::endl;
   *stream << "                 2 (Hanning)" << std::endl;
@@ -108,7 +117,7 @@ int main(int argc, char* argv[]) {
   bool is_output_length_specified(false);
   sptk::DataWindowing::NormalizationType normalization_type(
       kDefaultNormalizationType);
-  sptk::StandardWindow::WindowType window_type(kDefaultWindowType);
+  LocalWindowType local_window_type(kDefaultLocalWindowType);
 
   for (;;) {
     const int option_char(getopt_long(argc, argv, "l:L:n:w:h", NULL, NULL));
@@ -158,7 +167,7 @@ int main(int argc, char* argv[]) {
       }
       case 'w': {
         const int min(0);
-        const int max(5);
+        const int max(static_cast<int>(kNumWindowTypes) - 1);
         int tmp;
         if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
             !sptk::IsInRange(tmp, min, max)) {
@@ -168,19 +177,7 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("window", error_message);
           return 1;
         }
-        if (0 == tmp) {
-          window_type = sptk::StandardWindow::kBlackman;
-        } else if (1 == tmp) {
-          window_type = sptk::StandardWindow::kHamming;
-        } else if (2 == tmp) {
-          window_type = sptk::StandardWindow::kHanning;
-        } else if (3 == tmp) {
-          window_type = sptk::StandardWindow::kBartlett;
-        } else if (4 == tmp) {
-          window_type = sptk::StandardWindow::kTrapezoidal;
-        } else if (5 == tmp) {
-          window_type = sptk::StandardWindow::kRectangular;
-        }
+        local_window_type = static_cast<LocalWindowType>(tmp);
         break;
       }
       case 'h': {
@@ -223,6 +220,37 @@ int main(int argc, char* argv[]) {
     return 1;
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
+
+  sptk::StandardWindow::WindowType window_type;
+  switch (local_window_type) {
+    case kBlackman: {
+      window_type = sptk::StandardWindow::kBlackman;
+      break;
+    }
+    case kHamming: {
+      window_type = sptk::StandardWindow::kHamming;
+      break;
+    }
+    case kHanning: {
+      window_type = sptk::StandardWindow::kHanning;
+      break;
+    }
+    case kBartlett: {
+      window_type = sptk::StandardWindow::kBartlett;
+      break;
+    }
+    case kTrapezoidal: {
+      window_type = sptk::StandardWindow::kTrapezoidal;
+      break;
+    }
+    case kRectangular: {
+      window_type = sptk::StandardWindow::kRectangular;
+      break;
+    }
+    default: {
+      return 1;
+    }
+  }
 
   sptk::StandardWindow standard_window(input_length, window_type, false);
   sptk::DataWindowing data_windowing(&standard_window, output_length,
