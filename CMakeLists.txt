@@ -182,8 +182,8 @@ set(CC_SOURCES
   ${SOURCE_DIR}/math/two_dimensional_inverse_fast_fourier_transform.cc
   ${SOURCE_DIR}/math/two_dimensional_real_valued_fast_fourier_transform.cc
   ${SOURCE_DIR}/math/vandermonde_system_solver.cc
+  ${SOURCE_DIR}/postfilter/mel_cepstrum_postfilter.cc
   ${SOURCE_DIR}/utils/data_symmetrizing.cc
-  ${SOURCE_DIR}/utils/mel_cepstrum_postfiltering.cc
   ${SOURCE_DIR}/utils/misc_utils.cc
   ${SOURCE_DIR}/utils/sptk_utils.cc
   ${SOURCE_DIR}/window/chebyshev_window.cc

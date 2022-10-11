@@ -21,7 +21,7 @@
 #include <vector>    // std::vector
 
 #include "Getopt/getoptwin.h"
-#include "SPTK/utils/mel_cepstrum_postfiltering.h"
+#include "SPTK/postfilter/mel_cepstrum_postfilter.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -190,10 +190,10 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
-  sptk::MelCepstrumPostfiltering mel_cepstrum_postfiltering(
+  sptk::MelCepstrumPostfilter mel_cepstrum_postfilter(
       num_order, impulse_response_length, onset_index, alpha, beta);
-  sptk::MelCepstrumPostfiltering::Buffer buffer;
-  if (!mel_cepstrum_postfiltering.IsValid()) {
+  sptk::MelCepstrumPostfilter::Buffer buffer;
+  if (!mel_cepstrum_postfilter.IsValid()) {
     std::ostringstream error_message;
     error_message << "FFT length must be a power of 2 and greater than 1";
     sptk::PrintErrorMessage("mcpf", error_message);
@@ -205,7 +205,7 @@ int main(int argc, char* argv[]) {
 
   while (sptk::ReadStream(false, 0, 0, length, &mel_cepstrum, &input_stream,
                           NULL)) {
-    if (!mel_cepstrum_postfiltering.Run(&mel_cepstrum, &buffer)) {
+    if (!mel_cepstrum_postfilter.Run(&mel_cepstrum, &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to apply postfilter for mel-cepstrum";
       sptk::PrintErrorMessage("mcpf", error_message);

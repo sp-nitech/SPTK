@@ -14,7 +14,7 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include "SPTK/utils/mel_cepstrum_postfiltering.h"
+#include "SPTK/postfilter/mel_cepstrum_postfilter.h"
 
 #include <algorithm>  // std::copy, std::transform
 #include <cmath>      // std::log
@@ -22,10 +22,10 @@
 
 namespace sptk {
 
-MelCepstrumPostfiltering::MelCepstrumPostfiltering(int num_order,
-                                                   int impulse_response_length,
-                                                   int onset_index,
-                                                   double alpha, double beta)
+MelCepstrumPostfilter::MelCepstrumPostfilter(int num_order,
+                                             int impulse_response_length,
+                                             int onset_index, double alpha,
+                                             double beta)
     : onset_index_(onset_index),
       beta_(beta),
       frequency_transform_(num_order, impulse_response_length - 1, -alpha),
@@ -45,10 +45,9 @@ MelCepstrumPostfiltering::MelCepstrumPostfiltering(int num_order,
   }
 }
 
-bool MelCepstrumPostfiltering::Run(
-    const std::vector<double>& mel_cepstrum,
-    std::vector<double>* postfiltered_mel_cepstrum,
-    MelCepstrumPostfiltering::Buffer* buffer) const {
+bool MelCepstrumPostfilter::Run(const std::vector<double>& mel_cepstrum,
+                                std::vector<double>* postfiltered_mel_cepstrum,
+                                MelCepstrumPostfilter::Buffer* buffer) const {
   // Check inputs.
   const int length(GetNumOrder() + 1);
   if (!is_valid_ || mel_cepstrum.size() != static_cast<std::size_t>(length) ||
@@ -127,9 +126,8 @@ bool MelCepstrumPostfiltering::Run(
   return true;
 }
 
-bool MelCepstrumPostfiltering::Run(
-    std::vector<double>* input_and_output,
-    MelCepstrumPostfiltering::Buffer* buffer) const {
+bool MelCepstrumPostfilter::Run(std::vector<double>* input_and_output,
+                                MelCepstrumPostfilter::Buffer* buffer) const {
   if (NULL == input_and_output) return false;
   return Run(*input_and_output, input_and_output, buffer);
 }

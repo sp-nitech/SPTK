@@ -14,8 +14,8 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#ifndef SPTK_UTILS_MEL_CEPSTRUM_POSTFILTERING_H_
-#define SPTK_UTILS_MEL_CEPSTRUM_POSTFILTERING_H_
+#ifndef SPTK_POSTFILTER_MEL_CEPSTRUM_POSTFILTER_H_
+#define SPTK_POSTFILTER_MEL_CEPSTRUM_POSTFILTER_H_
 
 #include <vector>  // std::vector
 
@@ -50,10 +50,10 @@ namespace sptk {
  *     synthesis,&quot; Systems and Computers in Japan, vol. 36, no. 12,
  *     pp. 43-50, 2005.
  */
-class MelCepstrumPostfiltering {
+class MelCepstrumPostfilter {
  public:
   /**
-   * Buffer for MelCepstrumPostfiltering class.
+   * Buffer for MelCepstrumPostfilter class.
    */
   class Buffer {
    public:
@@ -72,7 +72,7 @@ class MelCepstrumPostfiltering {
     FrequencyTransform::Buffer buffer_for_frequency_transform_;
     CepstrumToAutocorrelation::Buffer buffer_for_cepstrum_to_autocorrelation_;
 
-    friend class MelCepstrumPostfiltering;
+    friend class MelCepstrumPostfilter;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
 
@@ -84,10 +84,10 @@ class MelCepstrumPostfiltering {
    * @param[in] alpha All-pass constant, @f$\alpha@f$.
    * @param[in] beta Intensity of postfiltering, @f$\beta@f$.
    */
-  MelCepstrumPostfiltering(int num_order, int impulse_response_length,
-                           int onset_index, double alpha, double beta);
+  MelCepstrumPostfilter(int num_order, int impulse_response_length,
+                        int onset_index, double alpha, double beta);
 
-  virtual ~MelCepstrumPostfiltering() {
+  virtual ~MelCepstrumPostfilter() {
   }
 
   /**
@@ -140,7 +140,7 @@ class MelCepstrumPostfiltering {
    */
   bool Run(const std::vector<double>& mel_cepstrum,
            std::vector<double>* postfiltered_mel_cepstrum,
-           MelCepstrumPostfiltering::Buffer* buffer) const;
+           MelCepstrumPostfilter::Buffer* buffer) const;
 
   /**
    * @param[in,out] input_and_output @f$M@f$-th order mel-cepstral coefficients.
@@ -148,7 +148,7 @@ class MelCepstrumPostfiltering {
    * @return True on success, false on failure.
    */
   bool Run(std::vector<double>* input_and_output,
-           MelCepstrumPostfiltering::Buffer* buffer) const;
+           MelCepstrumPostfilter::Buffer* buffer) const;
 
  private:
   const int onset_index_;
@@ -163,9 +163,9 @@ class MelCepstrumPostfiltering {
 
   bool is_valid_;
 
-  DISALLOW_COPY_AND_ASSIGN(MelCepstrumPostfiltering);
+  DISALLOW_COPY_AND_ASSIGN(MelCepstrumPostfilter);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_UTILS_MEL_CEPSTRUM_POSTFILTERING_H_
+#endif  // SPTK_POSTFILTER_MEL_CEPSTRUM_POSTFILTER_H_
