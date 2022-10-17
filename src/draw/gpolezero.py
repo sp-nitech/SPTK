@@ -137,6 +137,14 @@ def get_arguments():
         type=float,
         help="marker line width",
     )
+    parser.add_argument(
+        "-fs",
+        metavar="fs",
+        dest="font_size",
+        default=None,
+        type=int,
+        help="font size",
+    )
     return parser.parse_args()
 
 
@@ -169,6 +177,8 @@ def get_arguments():
 #   - marker line color
 # - @b -mlw @e float
 #   - marker line width
+# - @b -fs @e int
+#   - font size
 # - @b infile @e str
 #   - double-type roots
 # - @b outfile @e str
@@ -266,6 +276,10 @@ def main():
             zeroline=True,
             scaleanchor="x",
             scaleratio=1,
+        ),
+        font=dict(
+            family="Times New Roman",
+            size=args.font_size,
         ),
         showlegend=False,
     )

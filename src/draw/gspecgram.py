@@ -100,6 +100,18 @@ def get_arguments():
         help="number of screens",
     )
     parser.add_argument(
+        "-T",
+        dest="transpose",
+        action="store_true",
+        help="align screens horizontally instead of vertically (valid with -i)",
+    )
+    parser.add_argument(
+        "-r",
+        dest="reset",
+        action="store_true",
+        help="does not succeed time across screens (valid with -i)",
+    )
+    parser.add_argument(
         "-y",
         metavar="y",
         dest="sr",
@@ -139,6 +151,14 @@ def get_arguments():
         type=float,
         help="power parameter",
     )
+    parser.add_argument(
+        "-fs",
+        metavar="fs",
+        dest="font_size",
+        default=None,
+        type=int,
+        help="font size",
+    )
     return parser.parse_args()
 
 
@@ -159,6 +179,10 @@ def get_arguments():
 #   - number of samples per screen
 # - @b -i @e int
 #   - number of screens
+# - @b -T @e bool
+#   - align figures horizontally instead of vertically
+# - @b -r @e bool
+#   - does not succeed time across screens
 # - @b -y @e int
 #   - sampling rate in kHz
 # - @b -w @e str
@@ -169,6 +193,8 @@ def get_arguments():
 #   - color scale
 # - @b -p @e float
 #   - a parameter to control visibility
+# - @b -fs @e int
+#   - font size
 # - @b infile @e str
 #   - double-type waveform
 # - @b outfile @e str
@@ -196,10 +222,14 @@ def main():
     else:
         n = args.num_samples
 
-    fig = make_subplots(rows=args.num_screens, cols=1)
+    fig = make_subplots(
+        rows=1 if args.transpose else args.num_screens,
+        cols=args.num_screens if args.transpose else 1,
+    )
     s = 0
     bias = 0
     for i in range(args.num_screens):
+        first = i == 0
         last = i == args.num_screens - 1
         if args.num_samples is None and last:
             e = len(y)
@@ -220,21 +250,29 @@ def main():
                 z=spec,
                 colorscale=args.color_scale,
             ),
-            row=i + 1,
-            col=1,
+            row=1 if args.transpose else i + 1,
+            col=i + 1 if args.transpose else 1,
         )
         fig.update_xaxes(
-            title_text="Time [sec]" if last else "",
-            row=i + 1,
-            col=1,
+            title_text="Time [sec]" if last or args.transpose else "",
+            row=1 if args.transpose else i + 1,
+            col=i + 1 if args.transpose else 1,
         ),
         fig.update_yaxes(
-            title_text="Frequency [kHz]",
-            row=i + 1,
-            col=1,
+            title_text="Frequency [kHz]" if first or not args.transpose else "",
+            row=1 if args.transpose else i + 1,
+            col=i + 1 if args.transpose else 1,
         )
         s = e
-        bias = time[-1]
+        if not args.reset:
+            bias = time[-1]
+
+    fig.update_layout(
+        font=dict(
+            family="Times New Roman",
+            size=args.font_size,
+        )
+    )
 
     # Hide reference color bar.
     fig.update_traces(showscale=False)
