@@ -14,6 +14,7 @@
 # limitations under the License.                                           #
 # ------------------------------------------------------------------------ #
 
+PYTHON_VERSION     := 3.8
 SHELLCHECK_VERSION := 0.8.0
 JOBS               := 4
 
@@ -24,9 +25,9 @@ check: venv_dev bats.done shellcheck.done sptk.done
 
 venv:
 	@if type virtualenv > /dev/null 2>&1; then \
-		test -d venv || virtualenv -p python3 venv; \
+		test -d venv || virtualenv -p python$(PYTHON_VERSION) venv; \
 	else \
-		test -d venv || python3 -m venv venv; \
+		test -d venv || python$(PYTHON_VERSION) -m venv venv; \
 	fi
 	. venv/bin/activate; pip install pip --upgrade; \
 	pip install -r requirements.txt --upgrade
@@ -34,9 +35,9 @@ venv:
 
 venv_dev:
 	@if type virtualenv > /dev/null 2>&1; then \
-		test -d venv || virtualenv -p python3 venv; \
+		test -d venv || virtualenv -p python$(PYTHON_VERSION) venv; \
 	else \
-		test -d venv || python3 -m venv venv; \
+		test -d venv || python$(PYTHON_VERSION) -m venv venv; \
 	fi
 	. venv/bin/activate; pip install pip --upgrade; \
 	pip install -r requirements.txt -r test_requirements.txt --upgrade

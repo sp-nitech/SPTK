@@ -7,5 +7,5 @@ mcpf
 
 .. seealso:: :ref:`mgcep`  :ref:`amgcep`
 
-.. doxygenclass:: sptk::MelCepstrumPostfiltering
+.. doxygenclass:: sptk::MelCepstrumPostfilter
    :members:
