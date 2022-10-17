@@ -267,7 +267,7 @@ def main():
             title_text="Time [sec]" if last or args.transpose else "",
             row=1 if args.transpose else i + 1,
             col=i + 1 if args.transpose else 1,
-        ),
+        )
         fig.update_yaxes(
             title_text="Frequency [kHz]" if first or not args.transpose else "",
             row=1 if args.transpose else i + 1,

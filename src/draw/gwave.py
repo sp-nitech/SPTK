@@ -255,7 +255,7 @@ def main():
             showgrid=args.grid,
             row=i + 1,
             col=1,
-        ),
+        )
         fig.update_yaxes(
             range=ylim,
             showgrid=args.grid,
