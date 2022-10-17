@@ -288,10 +288,7 @@ def main():
     fig.update_traces(showscale=False)
 
     fig.write_image(
-        args.out_file,
-        width=args.width,
-        height=args.height,
-        scale=args.factor,
+        args.out_file, width=args.width, height=args.height, scale=args.factor
     )
 
 
