@@ -146,6 +146,14 @@ def get_arguments():
         help="line width",
     )
     parser.add_argument(
+        "-ff",
+        metavar="ff",
+        dest="font_family",
+        default=None,
+        type=str,
+        help="font family",
+    )
+    parser.add_argument(
         "-fs",
         metavar="fs",
         dest="font_size",
@@ -183,6 +191,8 @@ def get_arguments():
 #   - line color
 # - @b -lw @e float
 #   - line width
+# - @b -ff @e str
+#   - font family
 # - @b -fs @e int
 #   - font size
 # - @b infile @e str
@@ -256,7 +266,7 @@ def main():
 
     fig.update_layout(
         font=dict(
-            family="Times New Roman",
+            family=args.font_family,
             size=args.font_size,
         ),
         showlegend=False,
