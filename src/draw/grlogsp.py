@@ -15,7 +15,6 @@
 # limitations under the License.                                           #
 # ------------------------------------------------------------------------ #
 
-import argparse
 import os
 import sys
 
@@ -26,44 +25,8 @@ import sptk.draw_utils as utils
 
 
 def get_arguments():
-    parser = argparse.ArgumentParser(description="draw a running log spectrum graph")
-    parser.add_argument(
-        metavar="infile",
-        dest="in_file",
-        default=None,
-        nargs="?",
-        type=str,
-        help="log spectrum (double)",
-    )
-    parser.add_argument(
-        metavar="outfile",
-        dest="out_file",
-        type=str,
-        help="figure",
-    )
-    parser.add_argument(
-        "-F",
-        metavar="F",
-        dest="factor",
-        default=1.0,
-        type=float,
-        help="scale of figure",
-    )
-    parser.add_argument(
-        "-W",
-        metavar="W",
-        dest="width",
-        default=None,
-        type=int,
-        help="width of figure [px]",
-    )
-    parser.add_argument(
-        "-H",
-        metavar="H",
-        dest="height",
-        default=None,
-        type=int,
-        help="height of figure [px]",
+    parser = utils.get_default_parser(
+        "draw a running log spectrum", input_name="log spectrum", allow_dtype=False
     )
     parser.add_argument(
         "-g",
@@ -140,22 +103,6 @@ def get_arguments():
         default=None,
         type=float,
         help="line width",
-    )
-    parser.add_argument(
-        "-ff",
-        metavar="ff",
-        dest="font_family",
-        default=None,
-        type=str,
-        help="font family",
-    )
-    parser.add_argument(
-        "-fs",
-        metavar="fs",
-        dest="font_size",
-        default=None,
-        type=int,
-        help="font size",
     )
     return parser.parse_args()
 

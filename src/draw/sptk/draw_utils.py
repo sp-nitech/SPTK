@@ -14,8 +14,10 @@
 # limitations under the License.                                           #
 # ------------------------------------------------------------------------ #
 
+import argparse
 import struct
 import sys
+import warnings
 
 import numpy as np
 
@@ -113,5 +115,148 @@ def read_stdin(dim=1, dtype="d"):
     return asarray(data, dim=dim, dtype=dtype)
 
 
+def print_warn_message(name, message):
+    warnings.warn(f"{name}: {message}", RuntimeWarning)
+
+
 def print_error_message(name, message):
     print(f"{name}: {message}!", file=sys.stderr)
+
+
+def get_default_parser(description, input_name=None, allow_dtype=True):
+    parser = argparse.ArgumentParser(description=description, prefix_chars="-+")
+    if input_name is not None:
+        parser.add_argument(
+            metavar="infile",
+            dest="in_file",
+            default=None,
+            nargs="?",
+            type=str,
+            help=input_name,
+        )
+    parser.add_argument(
+        metavar="outfile",
+        dest="out_file",
+        type=str,
+        help="figure",
+    )
+    parser.add_argument(
+        "-F",
+        metavar="F",
+        dest="factor",
+        default=1,
+        type=float,
+        help="scale of figure",
+    )
+    parser.add_argument(
+        "-W",
+        metavar="W",
+        dest="width",
+        default=None,
+        type=int,
+        help="width of figure [px]",
+    )
+    parser.add_argument(
+        "-H",
+        metavar="H",
+        dest="height",
+        default=None,
+        type=int,
+        help="height of figure [px]",
+    )
+    parser.add_argument(
+        "-ff",
+        metavar="ff",
+        dest="font_family",
+        default=None,
+        type=str,
+        help="font family",
+    )
+    parser.add_argument(
+        "-fs",
+        metavar="fs",
+        dest="font_size",
+        default=None,
+        type=int,
+        help="font size",
+    )
+    if allow_dtype:
+        parser.add_argument(
+            "+c",
+            dest="dtype",
+            action="store_const",
+            const="c",
+            help="(data type) char, 1byte",
+        )
+        parser.add_argument(
+            "+C",
+            dest="dtype",
+            action="store_const",
+            const="C",
+            help="(data type) unsigned char, 1byte",
+        )
+        parser.add_argument(
+            "+s",
+            dest="dtype",
+            action="store_const",
+            const="s",
+            help="(data type) short, 2byte",
+        )
+        parser.add_argument(
+            "+S",
+            dest="dtype",
+            action="store_const",
+            const="S",
+            help="(data type) unsigned short, 2byte",
+        )
+        parser.add_argument(
+            "+i",
+            dest="dtype",
+            action="store_const",
+            const="i",
+            help="(data type) int, 4byte",
+        )
+        parser.add_argument(
+            "+I",
+            dest="dtype",
+            action="store_const",
+            const="I",
+            help="(data type) unsigned int, 4byte",
+        )
+        parser.add_argument(
+            "+l",
+            dest="dtype",
+            action="store_const",
+            const="l",
+            help="(data type) long, 8byte",
+        )
+        parser.add_argument(
+            "+L",
+            dest="dtype",
+            action="store_const",
+            const="L",
+            help="(data type) unsigned long, 8byte",
+        )
+        parser.add_argument(
+            "+f",
+            dest="dtype",
+            action="store_const",
+            const="f",
+            help="(data type) float, 4byte",
+        )
+        parser.add_argument(
+            "+d",
+            dest="dtype",
+            action="store_const",
+            const="d",
+            help="(data type) double, 8byte",
+        )
+        parser.add_argument(
+            "+e",
+            dest="dtype",
+            action="store_const",
+            const="d",
+            help="(data type) long double, 16byte",
+        )
+    parser.set_defaults(dtype="d")
+    return parser
