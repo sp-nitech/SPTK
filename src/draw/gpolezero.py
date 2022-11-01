@@ -25,10 +25,7 @@ import sptk.draw_utils as utils
 
 
 def get_arguments():
-    parser = utils.get_default_parser(
-        "draw poles and zeros",
-        allow_dtype=False,
-    )
+    parser = utils.get_default_parser("draw poles and zeros", allow_dtype=False)
     parser.add_argument(
         "-g",
         dest="grid",
