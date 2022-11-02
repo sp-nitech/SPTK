@@ -112,6 +112,14 @@ def get_arguments():
         type=float,
         help="power parameter",
     )
+    parser.add_argument(
+        "-a",
+        metavar="a",
+        dest="eps",
+        default=1e-8,
+        type=float,
+        help="small value added to power spectrum",
+    )
     return parser.parse_args()
 
 
@@ -146,6 +154,8 @@ def get_arguments():
 #   - color scale
 # - @b -p @e float
 #   - a parameter to control visibility
+# - @b -a @e float
+#   - small value added to power spectrum
 # - @b -ff @e str
 #   - font family
 # - @b -fs @e int
@@ -198,7 +208,7 @@ def main():
         freq, time, spec = signal.spectrogram(
             y[s:e], fs=args.sr, window=args.window_type, nperseg=args.window_length
         )
-        spec = 10.0 * np.log10(spec)
+        spec = 10.0 * np.log10(spec + args.eps)
         if args.power != 1.0:
             spec = (spec - np.min(spec)) ** args.power
 
