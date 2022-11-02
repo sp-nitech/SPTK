@@ -38,3 +38,5 @@ cmake .. -DCMAKE_INSTALL_PREFIX=..
 MSBuild -maxcpucount:%JOBS% /p:Configuration=Release INSTALL.vcxproj
 
 popd
+
+pause
