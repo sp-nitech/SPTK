@@ -7,7 +7,7 @@ The Speech Signal Processing Toolkit (SPTK) is a software for speech signal proc
 
 [![](https://img.shields.io/badge/docs-latest-blue.svg)](https://sp-nitech.github.io/sptk/latest/)
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://sp-nitech.github.io/sptk/4.0/)
-[![](http://img.shields.io/badge/license-Apache%202.0-green.svg)](https://github.com/sp-nitech/SPTK/blob/master/LICENSE)
+[![](https://img.shields.io/badge/license-Apache%202.0-green.svg)](https://github.com/sp-nitech/SPTK/blob/master/LICENSE)
 [![](https://github.com/sp-nitech/SPTK/workflows/build/badge.svg)](https://github.com/sp-nitech/SPTK/actions)
 
 
@@ -168,6 +168,7 @@ Contributors to former versions of SPTK
 * Gou Hirabayashi
 * Heiga Zen
 * Junichi Yamagishi
+* Kazuhito Koishida
 * Keiichi Tokuda
 * Keiichiro Oura
 * Kenji Chiba
