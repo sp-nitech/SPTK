@@ -68,7 +68,7 @@ void PrintUsage(std::ostream* stream) {
  *   - order of coefficients @f$(0 \le M)@f$
  * - @b -g @e double
  *   - gamma @f$(|\gamma| \le 1)@f$
- * - @b -c @e double
+ * - @b -c @e int
  *   - gamma @f$\gamma = -1 / C@f$ @f$(1 \le C)@f$
  * - @b -e @e int
  *   - type of warning of unstable coefficients

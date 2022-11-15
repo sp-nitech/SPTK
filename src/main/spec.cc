@@ -81,9 +81,9 @@ void PrintUsage(std::ostream* stream) {
  *   - order of numerator coefficients @f$(0 \le M < L)@f$
  * - @b -n @e int
  *   - order of denominator coefficients @f$(0 \le N < L)@f$
- * - @b -z @e string
+ * - @b -z @e str
  *   - filename of double-type numerator coefficients
- * - @b -p @e string
+ * - @b -p @e str
  *   - filename of double-type denominator coefficients
  * - @b -e @e double
  *   - small value added to power spectrum

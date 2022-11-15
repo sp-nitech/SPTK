@@ -74,9 +74,9 @@ void PrintUsage(std::ostream* stream) {
  *   - frame period @f$(1 \le P)@f$
  * - @b -i @e int
  *   - interpolation period @f$(0 \le I \le P/2)@f$
- * - @b -t @e bool
+ * - @b -t
  *   - transpose filter
- * - @b -k @e bool
+ * - @b -k
  *   - filtering without gain
  * - @b bfile @e str
  *   - double-type FIR filter coefficients

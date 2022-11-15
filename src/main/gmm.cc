@@ -96,9 +96,9 @@ void PrintUsage(std::ostream* stream) {
  *   - MAP smoothing parameter @f$(0 \le \alpha \le 1)@f$
  * - @b -U @e str
  *   - double-type initial GMM parameters
- * - @b -f @e bool
+ * - @b -f
  *   - use full covariance
- * - @b -V @e bool
+ * - @b -V
  *   - show log likelihood at each iteration
  * - @b -B @e int+
  *   - block size of covariance matrix

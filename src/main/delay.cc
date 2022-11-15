@@ -67,7 +67,7 @@ void PrintUsage(std::ostream* stream) {
  *   - order of vector @f$(0 \le M)@f$
  * - @b -s @e int
  *   - start index @f$(S)@f$
- * - @b -k @e double
+ * - @b -k
  *   - keep sequence length
  * - @b infile @e str
  *   - double-type data sequence

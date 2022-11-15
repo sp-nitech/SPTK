@@ -74,8 +74,8 @@ void PrintUsage(std::ostream* stream) {
  *   - start index length @f$(0 \le S)@f$
  * - @b -c @e int
  *   - number of columns @f$(1 \le N)@f$
- * - @b -o @e address format
- *   - data type
+ * - @b -o @e int
+ *   - address format
  *     \arg @c 0 none
  *     \arg @c 1 hexadecimal
  *     \arg @c 2 decimal

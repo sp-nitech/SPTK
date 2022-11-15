@@ -64,7 +64,7 @@ void PrintUsage(std::ostream* stream) {
  *   - period @f$(0 < P)@f$
  * - @b -a @e double
  *   - amplitude @f$(A)@f$
- * - @b -C @e bool
+ * - @b -C
  *   - generate cosine wave
  * - @b stdout
  *   - double-type sinusoidal sequence

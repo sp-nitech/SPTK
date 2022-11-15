@@ -105,6 +105,7 @@ Changes from SPTK3
 - Thread-safe
 - New features:
   - Conversion from/to log area ratio (`lar2par` and `par2lar`)
+  - Dynamic range compression (`drc`)
   - Entropy calculation (`entropy`)
   - Huffman coding (`huffman`, `huffman_encode`, and `huffman_decode`)
   - Magic number interpolation (`magic_intpl`)

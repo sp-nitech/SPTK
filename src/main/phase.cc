@@ -75,7 +75,7 @@ void PrintUsage(std::ostream* stream) {
  *   - name of file containing numerator coefficients
  * - @b -p @e str
  *   - name of file containing denominator coefficients
- * - @b -u @e bool
+ * - @b -u
  *   - perform phase unwrapping
  * - @b infile @e str
  *   - double-type real sequence

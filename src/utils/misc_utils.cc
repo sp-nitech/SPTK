@@ -209,7 +209,7 @@ bool MakePseudoQuadratureMirrorFilterBanks(
       // Calculate error.
       const double error(real[index] * real[index] + imag[index] * imag[index] -
                          0.5);
-      const double abs_error(std::abs(error));
+      const double abs_error(std::fabs(error));
       if (abs_error < convergence_threshold) {
         if (is_converged) *is_converged = true;
         break;

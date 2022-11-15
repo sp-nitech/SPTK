@@ -1175,7 +1175,7 @@ class DataTransformWrapper {
  *     \arg @c d double (8byte)
  *     \arg @c e long double (16byte)
  *     \arg @c a ascii
- * - @b -r @e bool
+ * - @b -r
  *   - rounding
  * - @b -e @e int
  *   - warning type for out-of-range value

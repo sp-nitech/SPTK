@@ -72,9 +72,9 @@ void PrintUsage(std::ostream* stream) {
  * - @b -l @e int
  *   - FFT length @f$(2 \le L)@f$
  * - @b -q @e int
- *   - input format
+ *   - input format @f$(0 \le Q \le 3)@f$
  * - @b -o @e int
- *   - output format
+ *   - output format @f$(0 \le O \le 3)@f$
  * - @b infile @e str
  *   - double-type data sequence
  * - @b stdout

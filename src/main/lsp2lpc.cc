@@ -44,7 +44,7 @@ enum InputFormats {
 };
 
 const int kDefaultNumOrder(25);
-const double kDefaultSamplingFrequency(10.0);
+const double kDefaultSamplingRate(10.0);
 const InputGainType kDefaultInputGainType(kLinearGain);
 const InputFormats kDefaultInputFormat(kFrequencyInRadians);
 
@@ -56,13 +56,13 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       lsp2lpc [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of line spectral pairs (   int)[" << std::setw(5) << std::right << kDefaultNumOrder          << "][   0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -s s  : sampling frequency           (double)[" << std::setw(5) << std::right << kDefaultSamplingFrequency << "][ 0.0 <  s <=   ]" << std::endl;  // NOLINT
-  *stream << "       -k k  : input gain type              (   int)[" << std::setw(5) << std::right << kDefaultInputGainType     << "][   0 <= k <= 2 ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of line spectral pairs (   int)[" << std::setw(5) << std::right << kDefaultNumOrder      << "][   0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : sampling rate                (double)[" << std::setw(5) << std::right << kDefaultSamplingRate  << "][ 0.0 <  s <=   ]" << std::endl;  // NOLINT
+  *stream << "       -k k  : input gain type              (   int)[" << std::setw(5) << std::right << kDefaultInputGainType << "][   0 <= k <= 2 ]" << std::endl;  // NOLINT
   *stream << "                 0 (linear gain)" << std::endl;
   *stream << "                 1 (log gain)" << std::endl;
   *stream << "                 2 (without gain)" << std::endl;
-  *stream << "       -q q  : input format                 (   int)[" << std::setw(5) << std::right << kDefaultInputFormat       << "][   0 <= q <= 3 ]" << std::endl;  // NOLINT
+  *stream << "       -q q  : input format                 (   int)[" << std::setw(5) << std::right << kDefaultInputFormat   << "][   0 <= q <= 3 ]" << std::endl;  // NOLINT
   *stream << "                 0 (frequency [rad])" << std::endl;
   *stream << "                 1 (frequency [cyc])" << std::endl;
   *stream << "                 2 (frequency [kHz])" << std::endl;
@@ -111,7 +111,7 @@ void PrintUsage(std::ostream* stream) {
  */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
-  double sampling_frequency(kDefaultSamplingFrequency);
+  double sampling_rate(kDefaultSamplingRate);
   InputGainType input_gain_type(kDefaultInputGainType);
   InputFormats input_format(kDefaultInputFormat);
 
@@ -132,8 +132,8 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 's': {
-        if (!sptk::ConvertStringToDouble(optarg, &sampling_frequency) ||
-            sampling_frequency <= 0.0) {
+        if (!sptk::ConvertStringToDouble(optarg, &sampling_rate) ||
+            sampling_rate <= 0.0) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -s option must be a positive number";
@@ -251,17 +251,15 @@ int main(int argc, char* argv[]) {
       }
       case kFrequencyInkHz: {
         std::transform(coefficients.begin() + 1, coefficients.end(),
-                       coefficients.begin() + 1,
-                       [sampling_frequency](double w) {
-                         return w * sptk::kTwoPi / sampling_frequency;
+                       coefficients.begin() + 1, [sampling_rate](double w) {
+                         return w * sptk::kTwoPi / sampling_rate;
                        });
         break;
       }
       case kFrequencyInHz: {
         std::transform(coefficients.begin() + 1, coefficients.end(),
-                       coefficients.begin() + 1,
-                       [sampling_frequency](double w) {
-                         return w * sptk::kTwoPi * 0.001 / sampling_frequency;
+                       coefficients.begin() + 1, [sampling_rate](double w) {
+                         return w * sptk::kTwoPi * 0.001 / sampling_rate;
                        });
         break;
       }

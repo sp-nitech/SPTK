@@ -182,9 +182,9 @@ class InputSourcePreprocessingForMelCepstrum
  *   - interpolation period @f$(0 \le I \le P/2)@f$
  * - @b -P @e int
  *   - order of Pade approximation @f$(4 \le L \le 7)@f$
- * - @b -t @e bool
+ * - @b -t
  *   - transpose filter
- * - @b -k @e bool
+ * - @b -k
  *   - filtering without gain
  * - @b mgcfile @e str
  *   - double-type mel-generalized cepstral coefficients

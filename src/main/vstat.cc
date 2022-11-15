@@ -237,7 +237,7 @@ bool OutputStatistics(const sptk::StatisticsAccumulation& accumulation,
  *     \arg @c 4 correlation
  *     \arg @c 5 precision
  *     \arg @c 6 mean and lower/upper bounds
- * - @b -d @e bool
+ * - @b -d
  *   - output only diagonal elements
  * - @b infile @e str
  *   - double-type vectors

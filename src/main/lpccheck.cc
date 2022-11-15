@@ -74,7 +74,7 @@ void PrintUsage(std::ostream* stream) {
  *     \arg @c 2 output index and exit immediately
  * - @b -r @e double
  *   - margin @f$(0 < \delta < 1)@f$
- * - @b -x @e bool
+ * - @b -x
  *   - perform modification
  * - @b infile @e str
  *   - double-type LPC coefficients

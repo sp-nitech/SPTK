@@ -174,9 +174,9 @@ def get_arguments():
 #   - number of samples per screen
 # - @b -i @e int
 #   - number of screens
-# - @b -t @e bool
+# - @b -t
 #   - align figures horizontally instead of vertically
-# - @b -r @e bool
+# - @b -r
 #   - does not succeed time across screens
 # - @b -x @e float
 #   - sampling rate in kHz
