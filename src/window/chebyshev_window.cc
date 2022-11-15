@@ -16,7 +16,7 @@
 
 #include "SPTK/window/chebyshev_window.h"
 
-#include <cmath>  // std::abs, std::acos, std::acosh, std::cos, std::cosh, std::pow
+#include <cmath>  // std::acos, std::acosh, std::cos, std::cosh, std::fabs, std::pow
 
 namespace {
 
@@ -25,7 +25,7 @@ namespace {
  */
 double T(double x, int n) {
   double t;
-  if (std::abs(x) <= 1.0) {
+  if (std::fabs(x) <= 1.0) {
     t = std::cos(n * std::acos(x));
   } else if (1.0 < x) {
     t = std::cosh(n * std::acosh(x));
