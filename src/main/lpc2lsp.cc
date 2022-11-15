@@ -44,7 +44,7 @@ enum OutputFormats {
 };
 
 const int kDefaultNumOrder(25);
-const double kDefaultSamplingFrequency(10.0);
+const double kDefaultSamplingRate(10.0);
 const OutputGainType kDefaultOutputGainType(kLinearGain);
 const OutputFormats kDefaultOutputFormat(kFrequencyInRadians);
 const int kDefaultNumSplit(256);
@@ -60,7 +60,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       lpc2lsp [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -m m  : order of linear predictive coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumOrder             << "][   0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -s s  : sampling frequency                      (double)[" << std::setw(5) << std::right << kDefaultSamplingFrequency    << "][ 0.0 <  s <=   ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : sampling rate                           (double)[" << std::setw(5) << std::right << kDefaultSamplingRate         << "][ 0.0 <  s <=   ]" << std::endl;  // NOLINT
   *stream << "       -k k  : output gain type                        (   int)[" << std::setw(5) << std::right << kDefaultOutputGainType       << "][   0 <= k <= 2 ]" << std::endl;  // NOLINT
   *stream << "                 0 (linear gain)" << std::endl;
   *stream << "                 1 (log gain)" << std::endl;
@@ -128,7 +128,7 @@ void PrintUsage(std::ostream* stream) {
  */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
-  double sampling_frequency(kDefaultSamplingFrequency);
+  double sampling_rate(kDefaultSamplingRate);
   OutputGainType output_gain_type(kDefaultOutputGainType);
   OutputFormats output_format(kDefaultOutputFormat);
   int num_split(kDefaultNumSplit);
@@ -153,8 +153,8 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 's': {
-        if (!sptk::ConvertStringToDouble(optarg, &sampling_frequency) ||
-            sampling_frequency <= 0.0) {
+        if (!sptk::ConvertStringToDouble(optarg, &sampling_rate) ||
+            sampling_rate <= 0.0) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -s option must be a positive number";
@@ -296,17 +296,15 @@ int main(int argc, char* argv[]) {
         break;
       }
       case kFrequecnyInkHz: {
-        std::transform(
-            coefficients.begin() + 1, coefficients.end(),
-            coefficients.begin() + 1,
-            [sampling_frequency](double w) { return w * sampling_frequency; });
+        std::transform(coefficients.begin() + 1, coefficients.end(),
+                       coefficients.begin() + 1,
+                       [sampling_rate](double w) { return w * sampling_rate; });
         break;
       }
       case kFrequecnyInHz: {
         std::transform(coefficients.begin() + 1, coefficients.end(),
-                       coefficients.begin() + 1,
-                       [sampling_frequency](double w) {
-                         return w * 1000.0 * sampling_frequency;
+                       coefficients.begin() + 1, [sampling_rate](double w) {
+                         return w * 1000.0 * sampling_rate;
                        });
         break;
       }

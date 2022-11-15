@@ -41,7 +41,7 @@ enum InputOutputFormats {
 enum WarningType { kIgnore = 0, kWarn, kExit, kNumWarningTypes };
 
 const int kDefaultNumOrder(25);
-const double kDefaultSamplingFrequency(10.0);
+const double kDefaultSamplingRate(10.0);
 const GainType kDefaultGainType(kLinearGain);
 const InputOutputFormats kDefaultInputFormat(kFrequencyInRadians);
 const WarningType kDefaultWarningType(kWarn);
@@ -57,30 +57,30 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       lspcheck [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of line spectral pairs          (   int)[" << std::setw(5) << std::right << kDefaultNumOrder          << "][   0 <= m <=     ]" << std::endl;  // NOLINT
-  *stream << "       -s s  : sampling frequency                    (double)[" << std::setw(5) << std::right << kDefaultSamplingFrequency << "][ 0.0 <  s <=     ]" << std::endl;  // NOLINT
-  *stream << "       -k k  : gain type                             (   int)[" << std::setw(5) << std::right << kDefaultGainType          << "][   0 <= k <= 2   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of line spectral pairs          (   int)[" << std::setw(5) << std::right << kDefaultNumOrder     << "][   0 <= m <=     ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : sampling rate                         (double)[" << std::setw(5) << std::right << kDefaultSamplingRate << "][ 0.0 <  s <=     ]" << std::endl;  // NOLINT
+  *stream << "       -k k  : gain type                             (   int)[" << std::setw(5) << std::right << kDefaultGainType     << "][   0 <= k <= 2   ]" << std::endl;  // NOLINT
   *stream << "                 0 (linear gain)" << std::endl;
   *stream << "                 1 (log gain)" << std::endl;
   *stream << "                 2 (without gain)" << std::endl;
-  *stream << "       -q q  : input format                          (   int)[" << std::setw(5) << std::right << kDefaultInputFormat       << "][   0 <= q <= 3   ]" << std::endl;  // NOLINT
+  *stream << "       -q q  : input format                          (   int)[" << std::setw(5) << std::right << kDefaultInputFormat  << "][   0 <= q <= 3   ]" << std::endl;  // NOLINT
   *stream << "                 0 (frequency [rad])" << std::endl;
   *stream << "                 1 (frequency [cyc])" << std::endl;
   *stream << "                 2 (frequency [kHz])" << std::endl;
   *stream << "                 3 (frequency [Hz])" << std::endl;
-  *stream << "       -o o  : output format                         (   int)[" << std::setw(5) << std::right << "q"                       << "][   0 <= o <= 3   ]" << std::endl;  // NOLINT
+  *stream << "       -o o  : output format                         (   int)[" << std::setw(5) << std::right << "q"                  << "][   0 <= o <= 3   ]" << std::endl;  // NOLINT
   *stream << "                 0 (frequency [rad])" << std::endl;
   *stream << "                 1 (frequency [cyc])" << std::endl;
   *stream << "                 2 (frequency [kHz])" << std::endl;
   *stream << "                 3 (frequency [Hz])" << std::endl;
-  *stream << "       -e e  : warning type of unstable index        (   int)[" << std::setw(5) << std::right << kDefaultWarningType       << "][   0 <= e <= 2   ]" << std::endl;  // NOLINT
+  *stream << "       -e e  : warning type of unstable index        (   int)[" << std::setw(5) << std::right << kDefaultWarningType  << "][   0 <= e <= 2   ]" << std::endl;  // NOLINT
   *stream << "                 0 (no warning)" << std::endl;
   *stream << "                 1 (output the index to stderr)" << std::endl;
   *stream << "                 2 (output the index to stderr and" << std::endl;
   *stream << "                    exit immediately)" << std::endl;
-  *stream << "       -r r  : rate of distance between two adjacent (double)[" << std::setw(5) << std::right << kDefaultDistanceRate      << "][ 0.0 <= r <= 1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -r r  : rate of distance between two adjacent (double)[" << std::setw(5) << std::right << kDefaultDistanceRate << "][ 0.0 <= r <= 1.0 ]" << std::endl;  // NOLINT
   *stream << "               line spectral frequencies" << std::endl;
-  *stream << "       -g g  : minimum gain on linear scale          (double)[" << std::setw(5) << std::right << kDefaultMinimumGain       << "][ 0.0 <  g <=     ]" << std::endl;  // NOLINT
+  *stream << "       -g g  : minimum gain on linear scale          (double)[" << std::setw(5) << std::right << kDefaultMinimumGain  << "][ 0.0 <  g <=     ]" << std::endl;  // NOLINT
   *stream << "       -x    : perform modification                  (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultModificationFlag) << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
@@ -95,7 +95,7 @@ void PrintUsage(std::ostream* stream) {
   // clang-format on
 }
 
-double GetScale(InputOutputFormats format, double sampling_frequency) {
+double GetScale(InputOutputFormats format, double sampling_rate) {
   switch (format) {
     case kFrequencyInRadians: {
       return 1.0;
@@ -104,10 +104,10 @@ double GetScale(InputOutputFormats format, double sampling_frequency) {
       return sptk::kTwoPi;
     }
     case kFrequencyInkHz: {
-      return sptk::kTwoPi / sampling_frequency;
+      return sptk::kTwoPi / sampling_rate;
     }
     case kFrequencyInHz: {
-      return sptk::kTwoPi * 0.001 / sampling_frequency;
+      return sptk::kTwoPi * 0.001 / sampling_rate;
     }
     default: {
       return 1.0;
@@ -171,7 +171,7 @@ double GetScale(InputOutputFormats format, double sampling_frequency) {
  */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
-  double sampling_frequency(kDefaultSamplingFrequency);
+  double sampling_rate(kDefaultSamplingRate);
   GainType gain_type(kDefaultGainType);
   InputOutputFormats input_format(kDefaultInputFormat);
   InputOutputFormats output_format(kDefaultInputFormat);
@@ -199,8 +199,8 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 's': {
-        if (!sptk::ConvertStringToDouble(optarg, &sampling_frequency) ||
-            sampling_frequency <= 0.0) {
+        if (!sptk::ConvertStringToDouble(optarg, &sampling_rate) ||
+            sampling_rate <= 0.0) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -s option must be a positive number";
@@ -350,8 +350,8 @@ int main(int argc, char* argv[]) {
   const int read_write_size(kWithoutGain == gain_type ? num_order : length);
   const int read_write_point(kWithoutGain == gain_type ? 1 : 0);
   std::vector<double> line_spectral_pairs(length);
-  const double input_scale(GetScale(input_format, sampling_frequency));
-  const double output_scale(1.0 / GetScale(output_format, sampling_frequency));
+  const double input_scale(GetScale(input_format, sampling_rate));
+  const double output_scale(1.0 / GetScale(output_format, sampling_rate));
 
   for (int frame_index(0);
        sptk::ReadStream(false, 0, read_write_point, read_write_size,
