@@ -81,6 +81,7 @@ set(CC_SOURCES
   ${SOURCE_DIR}/check/line_spectral_pairs_stability_check.cc
   ${SOURCE_DIR}/check/linear_predictive_coefficients_stability_check.cc
   ${SOURCE_DIR}/check/mlsa_digital_filter_stability_check.cc
+  ${SOURCE_DIR}/compression/dynamic_range_compression.cc
   ${SOURCE_DIR}/compression/huffman_coding.cc
   ${SOURCE_DIR}/compression/huffman_decoding.cc
   ${SOURCE_DIR}/compression/huffman_encoding.cc
@@ -230,6 +231,7 @@ set(MAIN_SOURCES
   ${SOURCE_DIR}/main/df2.cc
   ${SOURCE_DIR}/main/dfs.cc
   ${SOURCE_DIR}/main/dmp.cc
+  ${SOURCE_DIR}/main/drc.cc
   ${SOURCE_DIR}/main/dtw.cc
   ${SOURCE_DIR}/main/dtw_merge.cc
   ${SOURCE_DIR}/main/entropy.cc
