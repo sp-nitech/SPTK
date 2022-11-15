@@ -33,7 +33,7 @@ enum OutputFormats { kRectangular = 0, kPolar, kNumOutputFormats };
 
 const int kDefaultNumOrder(32);
 const int kDefaultNumIteration(1000);
-const double kDefaultConvergenceThreshold(1.0e-14);
+const double kDefaultConvergenceThreshold(1e-14);
 const InputFormats kDefaultInputFormat(kForwardOrder);
 const OutputFormats kDefaultOutputFormat(kRectangular);
 

@@ -47,7 +47,7 @@ static const double kOctave(1.442695040888963);
 //! @f$\ln(2)@f$
 static const double kLogTwo(0.693147180559945);
 //! @f$\ln(0)@f$
-static const double kLogZero(-1.0e+10);
+static const double kLogZero(-1e+10);
 
 /**
  * @param[out] data_to_read Scalar.
