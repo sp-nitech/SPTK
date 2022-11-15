@@ -116,9 +116,9 @@ void PrintUsage(std::ostream* stream) {
  *   - modification type
  *     \arg @c 0 clipping
  *     \arg @c 1 scaling
- * - @b -f @e bool
+ * - @b -f
  *   - fast mode
- * - @b -x @e bool
+ * - @b -x
  *   - perform modification
  * - @b infile @e str
  *   - double-type mel-cepstrum

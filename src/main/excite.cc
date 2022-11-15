@@ -72,9 +72,9 @@ void PrintUsage(std::ostream* stream) {
  *   - frame_period @f$(1 \le P)@f$
  * - @b -i @e int
  *   - interpolation period @f$(0 \le I \le P/2)@f$
- * - @b -n @e bool
+ * - @b -n
  *   - use gaussian noise instead of M-sequence for unvoiced frame
- * - @b -s @e double
+ * - @b -s @e int
  *   - seed for random number generation
  * - @b infile @e str
  *   - pitch period

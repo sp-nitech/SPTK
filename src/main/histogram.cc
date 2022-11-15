@@ -72,7 +72,7 @@ void PrintUsage(std::ostream* stream) {
  *   - lower bound @f$(y_L < y_U)@f$
  * - @b -u @e double
  *   - upper bound @f$(y_L < y_U)@f$
- * - @b -n @e bool
+ * - @b -n
  *   - perform normalization
  * - @b infile @e str
  *   - double-type data sequence

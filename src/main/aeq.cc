@@ -68,7 +68,7 @@ void PrintUsage(std::ostream* stream) {
  *   - error type
  *     \arg @c 0 absolute error
  *     \arg @c 1 relative error
- * - @b -L @e bool
+ * - @b -L
  *   - disable to check length
  * - @b exfile @e str
  *   - double-type expected values

@@ -78,9 +78,9 @@ void PrintUsage(std::ostream* stream) {
  * - @b -p @e str
  *   - name of file containing denominator coefficients
  * - @b -a @e double
- *   - alpha
+ *   - alpha @f$(0 < \alpha)@f$
  * - @b -g @e double
- *   - gamma
+ *   - gamma @f$(0 < \gamma)@f$
  * - @b infile @e str
  *   - double-type real sequence
  * - @b stdout

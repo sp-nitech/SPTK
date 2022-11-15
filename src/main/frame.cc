@@ -93,13 +93,13 @@ bool WriteData(const std::vector<double>& data, bool zero_mean) {
  *
  * - @b -l @e int
  *   - frame length @f$(1 \le L)@f$
- * - @b -p @e double
+ * - @b -p @e int
  *   - frame period @f$(1 \le P)@f$
  * - @b -n @e int
  *   - framing type
  *     \arg @c 0 the beginning of data is the center of the first frame
  *     \arg @c 1 the beginning of data is the start of the first frame
- * - @b -z @e bool
+ * - @b -z
  *   - perform mean subtraction in a frame
  * - @b infile @e str
  *   - double-type data sequence

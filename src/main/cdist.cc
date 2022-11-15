@@ -80,7 +80,7 @@ void PrintUsage(std::ostream* stream) {
  *     \arg @c 0 Euclidean [dB]
  *     \arg @c 1 Euclidean
  *     \arg @c 2 squared Euclidean
- * - @b -f @e bool
+ * - @b -f
  *   - output distance frame-by-frame
  * - @b cfile @e str
  *   - double-type minimum phase cepstrum

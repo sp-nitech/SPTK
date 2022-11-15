@@ -99,7 +99,7 @@ void PrintUsage(std::ostream* stream) {
  *     \arg @c 2 amplitude spectrum
  *     \arg @c 3 power spectrum
  *     \arg @c 4 windowed waveform
- * - @b -o @e double
+ * - @b -o @e int
  *   - output format
  *     \arg @c 0 autocorrelation
  *     \arg @c 1 normalized autocorrelation

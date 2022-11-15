@@ -71,7 +71,7 @@ void PrintUsage(std::ostream* stream) {
  *   - order of vector @f$(0 \le L - 1)@f$
  * - @b -magic @e double
  *   - remove magic number
- * - @b -f @e bool
+ * - @b -f
  *   - output RMSE frame-by-frame
  * - @b file1 @e str
  *   - double-type data sequence

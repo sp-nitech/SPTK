@@ -54,7 +54,7 @@ void PrintUsage(std::ostream* stream) {
 /**
  * @a iulaw [ @e option ] [ @e infile ]
  *
- * - @b -v @e int
+ * - @b -v @e double
  *   - absolute maximum value of input @f$(0 < V)@f$
  * - @b -u @e double
  *   - compression factor @f$(0 < \mu)@f$

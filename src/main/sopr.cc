@@ -140,7 +140,7 @@ void PrintUsage(std::ostream* stream) {
  *   - multiplication
  * - @b -d @e double
  *   - division
- * - @b -r @e int
+ * - @b -r @e double
  *   - modulo
  * - @b -p @e double
  *   - power

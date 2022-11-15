@@ -98,9 +98,9 @@ void PrintUsage(std::ostream* stream) {
  *   - gamma @f$(|\gamma| \le 1)@f$
  * - @b -c @e int
  *   - gamma @f$\gamma = -1 / C@f$ @f$(1 \le C)@f$
- * - @b -n @e bool
+ * - @b -n
  *   - regard as normalized mel-generalized cepstrum
- * - @b -u @e bool
+ * - @b -u
  *   - regard as multiplied by gamma
  * - @b -l @e int
  *   - FFT length @f$(2 \le N)@f$

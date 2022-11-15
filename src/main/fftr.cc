@@ -86,7 +86,7 @@ void PrintUsage(std::ostream* stream) {
  *     \arg @c 2 imaginary part
  *     \arg @c 3 amplitude spectrum
  *     \arg @c 4 power spectrum
- * - @b -H @e bool
+ * - @b -H
  *   - output only half part
  * - @b infile @e str
  *   - double-type data sequence

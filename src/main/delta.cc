@@ -74,7 +74,7 @@ void PrintUsage(std::ostream* stream) {
  *   - order of vector @f$(0 \le M)@f$
  * - @b -d @e double+
  *   - delta coefficients
- * - @b -D @e string
+ * - @b -D @e str
  *   - filename of double-type delta coefficients
  * - @b -r @e int+
  *   - width of 1st (and 2nd) regression coefficients

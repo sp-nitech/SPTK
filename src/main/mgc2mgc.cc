@@ -84,9 +84,9 @@ void PrintUsage(std::ostream* stream) {
  *   - input gamma @f$(|\gamma_1| \le 1)@f$
  * - @b -c @e int
  *   - input gamma @f$\gamma_1 = -1 / C_1@f$ @f$(1 \le C_1)@f$
- * - @b -n @e bool
+ * - @b -n
  *   - regard input as normalized mel-generalized cepstrum
- * - @b -u @e bool
+ * - @b -u
  *   - regard input as multiplied by gamma
  * - @b -M @e int
  *   - order of output coefficients @f$(0 \le M_2)@f$
@@ -96,9 +96,9 @@ void PrintUsage(std::ostream* stream) {
  *   - output gamma @f$(|\gamma_2| \le 1)@f$
  * - @b -C @e int
  *   - output gamma @f$\gamma_2 = -1 / C_2@f$ @f$(1 \le C_2)@f$
- * - @b -N @e bool
+ * - @b -N
  *   - regard output as normalized mel-generalized cepstrum
- * - @b -U @e bool
+ * - @b -U
  *   - regard output as multiplied by gamma
  * - @b infile @e str
  *   - double-type mel-generalized cepstral coefficients

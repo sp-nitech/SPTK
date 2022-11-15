@@ -65,11 +65,11 @@ void PrintUsage(std::ostream* stream) {
  * - @b -l @e int
  *   - number of elements @f$(1 \le N)@f$
  * - @b -o @e int
- *   - output format @f$O@f$
+ *   - output format @f$(0 \le O \le 2)@f$
  *     \arg @c 0 bit
  *     \arg @c 1 nat
  *     \arg @c 2 dit
- * - @b -f @e bool
+ * - @b -f
  *   - output entropy frame by frame
  * - @b infile @e str
  *   - double-type probability sequence

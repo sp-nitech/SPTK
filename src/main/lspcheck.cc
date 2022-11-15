@@ -150,7 +150,7 @@ double GetScale(InputOutputFormats format, double sampling_rate) {
  *   - rate of distance between adjacent LSPs @f$(0 \le R \le 1)@f$
  * - @b -g @e double
  *   - minimum gain on linear scale @f$(0 < G)@f$
- * - @b -x @e bool
+ * - @b -x
  *   - perform modification
  * - @b infile @e str
  *   - double-type LSP coefficients

@@ -84,11 +84,11 @@ void PrintUsage(std::ostream* stream) {
  *   - order of target vector @f$(0 \le M_2)@f$
  * - @b -k @e int
  *   - number of mixtures @f$(1 \le K)@f$
- * - @b -f @e bool
+ * - @b -f
  *   - use full or block covariance instead of diagonal one
  * - @b -d @e double+
  *   - delta coefficients
- * - @b -D @e string
+ * - @b -D @e str
  *   - filename of double-type delta coefficients
  * - @b -r @e int+
  *   - width of 1st (and 2nd) regression coefficients

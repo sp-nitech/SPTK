@@ -69,7 +69,7 @@ void PrintUsage(std::ostream* stream) {
  *   - order of vector @f$(0 \le L - 1)@f$
  * - @b -k @e int
  *   - number of mixtures @f$(1 \le K)@f$
- * - @b -f @e bool
+ * - @b -f
  *   - use full or block covariance instead of diagonal one
  * - @b gmmfile @e str
  *   - double-type GMM parameters

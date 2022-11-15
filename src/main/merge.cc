@@ -211,7 +211,7 @@ class VectorMergeWrapper {
 }  // namespace
 
 /**
- * @a merge [ @e option ] [ @e infile ]
+ * @a merge [ @e option ] @e file1 [ @e infile ]
  *
  * - @b -s @e int
  *   - insert point @f$(0 \le S \le L_1)@f$
@@ -223,7 +223,7 @@ class VectorMergeWrapper {
  *   - frame length of output data @f$(1 \le L_2)@f$
  * - @b -M @e int
  *   - order of output data @f$(0 \le L_2 - 1)@f$
- * - @b -w @e bool
+ * - @b -w
  *   - overwrite mode
  * - @b +type @e char
  *   - data type
