@@ -20,7 +20,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install csh parallel valgrind
     - name: setup
-      run: cd tools; make check -j 4
+      run: cd tools; make check -j 4 PYTHON_VERSION=3
     - name: make
       run: make debug
     - name: make format
