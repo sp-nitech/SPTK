@@ -36,9 +36,8 @@ PitchExtractionByReaper::PitchExtractionByReaper(int frame_shift,
       voicing_threshold_(voicing_threshold),
       is_valid_(true) {
   if (frame_shift_ <= 0 || sampling_rate_ / 2 <= upper_f0_ ||
-      (sampling_rate_ <= reaper::kMinSampleRate || 98000.0 <= sampling_rate_) ||
-      (lower_f0_ <= 10.0 || upper_f0_ <= lower_f0_) ||
-      (voicing_threshold_ < -0.5 || 1.6 < voicing_threshold_)) {
+      (sampling_rate_ <= reaper::kMinSampleRate || 98000.0 < sampling_rate_) ||
+      (lower_f0_ <= 10.0 || upper_f0_ <= lower_f0_)) {
     is_valid_ = false;
     return;
   }

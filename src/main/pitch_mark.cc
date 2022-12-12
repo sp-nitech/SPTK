@@ -44,7 +44,7 @@ const OutputFormats kDefaultOutputFormat(kBinarySequence);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " pitch mark extraction" << std::endl;
+  *stream << " pitch_mark - pitch mark extraction" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
   *stream << "       pitch_mark [ options ] [ infile ] > stdout" << std::endl;
@@ -66,6 +66,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       pitch mark                            (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
   *stream << "       if t is raised, the number of pitch marks increase" << std::endl;  // NOLINT
+  *stream << "       the value of t should be in the recommended range but values outside the range can be given" << std::endl;  // NOLINT
   *stream << "       if o = 0, value 1 or -1 indicating pitch mark is outputted considering polarity" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
@@ -156,13 +157,9 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 't': {
-        const double min(-0.5);
-        const double max(1.6);
-        if (!sptk::ConvertStringToDouble(optarg, &voicing_threshold) ||
-            !sptk::IsInRange(voicing_threshold, min, max)) {
+        if (!sptk::ConvertStringToDouble(optarg, &voicing_threshold)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -t option must be a number "
-                        << "in the range of " << min << " to " << max;
+          error_message << "The argument for the -t option must be numeric";
           sptk::PrintErrorMessage("pitch_mark", error_message);
           return 1;
         }
