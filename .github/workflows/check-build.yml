@@ -14,13 +14,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: install packages
       run: |
         sudo apt-get update
         sudo apt-get install csh parallel valgrind
     - name: setup
-      run: cd tools; make check -j 4
+      run: cd tools; make check -j 4 PYTHON_VERSION=3
     - name: make
       run: make
     - name: make format
