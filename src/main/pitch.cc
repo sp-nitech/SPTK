@@ -63,8 +63,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 1 (SWIPE')" << std::endl;
   *stream << "                 2 (REAPER)" << std::endl;
   *stream << "                 3 (WORLD)" << std::endl;
-  *stream << "       -p p  : frame shift [point]           (   int)[" << std::setw(5) << std::right << kDefaultFrameShift                << "][    0 <  p <=       ]" << std::endl;  // NOLINT
-  *stream << "       -s s  : sampling rate [kHz]           (double)[" << std::setw(5) << std::right << kDefaultSamplingRate              << "][  6.0 <  s <  98.0  ]" << std::endl;  // NOLINT
+  *stream << "       -p p  : frame shift [point]           (   int)[" << std::setw(5) << std::right << kDefaultFrameShift                << "][    1 <= p <=       ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : sampling rate [kHz]           (double)[" << std::setw(5) << std::right << kDefaultSamplingRate              << "][  6.0 <  s <= 98.0  ]" << std::endl;  // NOLINT
   *stream << "       -L L  : minimum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultLowerF0                   << "][ 10.0 <  L <  H     ]" << std::endl;  // NOLINT
   *stream << "               to search for [Hz]" << std::endl;
   *stream << "       -H H  : maximum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultUpperF0                   << "][    L <  H <  500*s ]" << std::endl;  // NOLINT
@@ -85,6 +85,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  notice:" << std::endl;
   *stream << "       if t is raised, the number of voiced frames increase in RAPT, REAPER, and WORLD" << std::endl;  // NOLINT
   *stream << "       if t is dropped, the number of voiced frames increase in SWIPE'" << std::endl;  // NOLINT
+  *stream << "       the value of t should be in the recommended range but values outside the range can be given" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -232,14 +233,10 @@ int main(int argc, char* argv[]) {
         break;
       }
       case kT0: {
-        const double min(-0.6);
-        const double max(0.7);
         double tmp;
-        if (!sptk::ConvertStringToDouble(optarg, &tmp) ||
-            !sptk::IsInRange(tmp, min, max)) {
+        if (!sptk::ConvertStringToDouble(optarg, &tmp)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -t0 option must be a number "
-                        << "in the range of " << min << " to " << max;
+          error_message << "The argument for the -t0 option must be numeric";
           sptk::PrintErrorMessage("pitch", error_message);
           return 1;
         }
@@ -247,14 +244,10 @@ int main(int argc, char* argv[]) {
         break;
       }
       case kT1: {
-        const double min(0.2);
-        const double max(0.5);
         double tmp;
-        if (!sptk::ConvertStringToDouble(optarg, &tmp) ||
-            !sptk::IsInRange(tmp, min, max)) {
+        if (!sptk::ConvertStringToDouble(optarg, &tmp)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -t1 option must be a number "
-                        << "in the range of " << min << " to " << max;
+          error_message << "The argument for the -t1 option must be numeric";
           sptk::PrintErrorMessage("pitch", error_message);
           return 1;
         }
@@ -262,14 +255,10 @@ int main(int argc, char* argv[]) {
         break;
       }
       case kT2: {
-        const double min(-0.5);
-        const double max(1.6);
         double tmp;
-        if (!sptk::ConvertStringToDouble(optarg, &tmp) ||
-            !sptk::IsInRange(tmp, min, max)) {
+        if (!sptk::ConvertStringToDouble(optarg, &tmp)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -t2 option must be a number "
-                        << "in the range of " << min << " to " << max;
+          error_message << "The argument for the -t2 option must be numeric";
           sptk::PrintErrorMessage("pitch", error_message);
           return 1;
         }
@@ -277,14 +266,10 @@ int main(int argc, char* argv[]) {
         break;
       }
       case kT3: {
-        const double min(0.02);
-        const double max(0.2);
         double tmp;
-        if (!sptk::ConvertStringToDouble(optarg, &tmp) ||
-            !sptk::IsInRange(tmp, min, max)) {
+        if (!sptk::ConvertStringToDouble(optarg, &tmp)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -t3 option must be a number "
-                        << "in the range of " << min << " to " << max;
+          error_message << "The argument for the -t3 option must be numeric";
           sptk::PrintErrorMessage("pitch", error_message);
           return 1;
         }
