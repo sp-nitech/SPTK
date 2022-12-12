@@ -80,12 +80,12 @@ void PrintUsage(std::ostream* stream) {
  * @a pitch_mark [ @e option ] [ @e infile ]
  *
  * - @b -s @e double
- *   - sampling rate [kHz] @f$(6 < F_s < 98)@f$
- * - @b -L @e dobule
+ *   - sampling rate [kHz] @f$(6 < F_s \le 98)@f$
+ * - @b -L @e double
  *   - minimum F0 to search for [Hz] @f$(10 < F_l < F_h)@f$
- * - @b -H @e dobule
+ * - @b -H @e double
  *   - maximum F0 to search for [Hz] @f$(F_l < F_h < 500F_s)@f$
- * - @b -t @e dobule
+ * - @b -t @e double
  *   - voicing threshold @f$(-0.5 \le T \le 1.6)@f$
  * - @b -o @e int
  *   - output format

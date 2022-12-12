@@ -106,18 +106,18 @@ void PrintUsage(std::ostream* stream) {
  * - @b -p @e int
  *   - frame shift [point] @f$(1 \le P)@f$
  * - @b -s @e double
- *   - sampling rate [kHz] @f$(6 < F_s < 98)@f$
- * - @b -L @e dobule
+ *   - sampling rate [kHz] @f$(6 < F_s \le 98)@f$
+ * - @b -L @e double
  *   - minimum F0 to search for [Hz] @f$(10 < F_l < F_h)@f$
- * - @b -H @e dobule
+ * - @b -H @e double
  *   - maximum F0 to search for [Hz] @f$(F_l < F_h < 500F_s)@f$
- * - @b -t0 @e dobule
+ * - @b -t0 @e double
  *   - voicing threshold for RAPT @f$(-0.6 \le T \le 0.7)@f$
- * - @b -t1 @e dobule
+ * - @b -t1 @e double
  *   - voicing threshold for SWIPE' @f$(0.2 \le T \le 0.5)@f$
- * - @b -t2 @e dobule
+ * - @b -t2 @e double
  *   - voicing threshold for REAPER @f$(-0.5 \le T \le 1.6)@f$
- * - @b -t3 @e dobule
+ * - @b -t3 @e double
  *   - voicing threshold for WORLD @f$(0.02 \le T \le 0.2)@f$
  * - @b -o @e int
  *   - output format
