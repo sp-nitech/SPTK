@@ -27,7 +27,7 @@ namespace sptk {
  * Generate exication sequence.
  *
  * The input is a sequence of pitch value which can be either a continuous value
- * of a magic number. The output is the excitation signal given the input
+ * or a magic number. The output is the excitation signal given the input
  * sequence.
  */
 class ExcitationGeneration {
