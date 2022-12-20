@@ -213,7 +213,7 @@ def get_arguments():
 # - @b -yname @e str
 #   - y-axis title
 # - @b -names @e str
-#   - comma-separated graph names
+#   - comma-separated graph names (if empty, hide legends)
 # - @b -xbias @e float
 #   - bias of x-axis
 # - @b -xscale @e float
@@ -268,7 +268,7 @@ def main():
     else:
         mode = "lines+markers"
 
-    if args.names is None:
+    if args.names is None or len(args.names) == 0:
         names = None
     else:
         names = args.names.split(",")
@@ -339,6 +339,7 @@ def main():
             family=args.font_family,
             size=args.font_size,
         ),
+        showlegend=args.names is None or 0 < len(args.names),
     )
     fig.write_image(
         args.out_file, width=args.width, height=args.height, scale=args.factor
