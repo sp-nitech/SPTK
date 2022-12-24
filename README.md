@@ -6,14 +6,14 @@ The Speech Signal Processing Toolkit (SPTK) is a software for speech signal proc
 - PyTorch version: [diffsptk](https://github.com/sp-nitech/diffsptk)
 
 [![](https://img.shields.io/badge/docs-latest-blue.svg)](https://sp-nitech.github.io/sptk/latest/)
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://sp-nitech.github.io/sptk/4.0/)
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://sp-nitech.github.io/sptk/4.1/)
 [![](https://img.shields.io/badge/license-Apache%202.0-green.svg)](https://github.com/sp-nitech/SPTK/blob/master/LICENSE)
 [![](https://github.com/sp-nitech/SPTK/workflows/build/badge.svg)](https://github.com/sp-nitech/SPTK/actions)
 
 
 Documentation
 -------------
-See [this page](https://sp-nitech.github.io/sptk/4.0/) for a reference manual.
+See [this page](https://sp-nitech.github.io/sptk/latest/) for a reference manual.
 
 
 Requirements

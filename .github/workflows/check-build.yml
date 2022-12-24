@@ -22,7 +22,7 @@ jobs:
     - name: setup
       run: cd tools; make check -j 4 PYTHON_VERSION=3
     - name: make
-      run: make
+      run: make debug
     - name: make format
       run: make format
     - name: make test

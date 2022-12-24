@@ -43,7 +43,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       magic_intpl [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -l l          : length of vector   (   int)[" << std::setw(5) << std::right << kDefaultVectorLength << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -m m          : output order       (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m          : order of vector    (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -magic magic  : magic number       (double)[" << std::setw(5) << std::right << kDefaultMagicNumber  << "]" << std::endl;  // NOLINT
   *stream << "       -h            : print this message" << std::endl;
   *stream << "  infile:" << std::endl;

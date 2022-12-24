@@ -47,7 +47,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -a a  : stopband attenuation in dB (double)[" << std::setw(5) << std::right << kDefaultAttenuation          << "][   0 <  a <=   ]" << std::endl;  // NOLINT
   *stream << "       -i i  : number of iterations       (   int)[" << std::setw(5) << std::right << kDefaultNumIteration         << "][   0 <  i <=   ]" << std::endl;  // NOLINT
   *stream << "       -d d  : convergence threshold      (double)[" << std::setw(5) << std::right << kDefaultConvergenceThreshold << "][ 0.0 <= d <=   ]" << std::endl;  // NOLINT
-  *stream << "       -s s  : initial step size          (dobule)[" << std::setw(5) << std::right << kDefaultInitialStepSize      << "][   0 <  s <=   ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : initial step size          (double)[" << std::setw(5) << std::right << kDefaultInitialStepSize      << "][   0 <  s <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       filter-bank input                  (double)[stdin]" << std::endl;  // NOLINT

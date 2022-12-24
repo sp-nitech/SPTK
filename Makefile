@@ -25,11 +25,16 @@ LIBDIR     := lib
 JOBS       := 4
 
 
-all: build
+all: release
 
-build:
+release:
 	mkdir -p $(BUILDDIR)
-	cd $(BUILDDIR); cmake .. -DCMAKE_INSTALL_PREFIX=..
+	cd $(BUILDDIR); cmake .. -DCMAKE_INSTALL_PREFIX=.. -DCMAKE_BUILD_TYPE=Release
+	cd $(BUILDDIR); make -j $(JOBS) install
+
+debug:
+	mkdir -p $(BUILDDIR)
+	cd $(BUILDDIR); cmake .. -DCMAKE_INSTALL_PREFIX=.. -DCMAKE_BUILD_TYPE=Debug
 	cd $(BUILDDIR); make -j $(JOBS) install
 
 doc:
