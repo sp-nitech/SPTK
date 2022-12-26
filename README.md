@@ -11,6 +11,27 @@ The Speech Signal Processing Toolkit (SPTK) is a software for speech signal proc
 [![](https://github.com/sp-nitech/SPTK/workflows/build/badge.svg)](https://github.com/sp-nitech/SPTK/actions)
 
 
+What is SPTK?
+-------------
+- SPTK consists of over 100 commands for speech signal processing.
+- The data format used in SPTK is raw header-less, e.g., there is no specific structure.
+  Thanks to the data format, we can check file contents immediately on CUI.
+  ```sh
+  data.raw | dmp +s
+  ```
+- The data used in the commands is passed through standard input/output.
+  We can chain multiple processes using pipes.
+  ```sh
+  data.raw | x2x +sd | clip | x2x +da | less
+  ```
+- The data type is basically little-endian double 16 bytes.
+- The commands do not require interactive user inputs.
+  Parameters are set via command line options beforehand.
+  ```sh
+  impulse -l 4 | sopr -m 10 | x2x +da
+  ```
+
+
 Documentation
 -------------
 See [this page](https://sp-nitech.github.io/sptk/latest/) for a reference manual.
