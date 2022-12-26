@@ -17,12 +17,12 @@ What is SPTK?
 - The data format used in SPTK is raw header-less, e.g., there is no specific structure.
   Thanks to the data format, we can check file contents immediately on CUI.
   ```sh
-  data.raw | dmp +s
+  dmp +s data.raw
   ```
 - The data used in the commands is passed through standard input/output.
   We can chain multiple processes using pipes.
   ```sh
-  data.raw | x2x +sd | clip | x2x +da | less
+  x2x +sd < data.raw | clip | x2x +da | less
   ```
 - The data type is basically little-endian double 16 bytes.
 - The commands do not require interactive user inputs.
@@ -30,6 +30,11 @@ What is SPTK?
   ```sh
   impulse -l 4 | sopr -m 10 | x2x +da
   ```
+
+
+Overview
+--------
+![diagram](asset/diagram.png?raw=true)
 
 
 Documentation
@@ -166,11 +171,6 @@ Changes from SPTK3
   - `vstat` -> `vstat` and `median`
 - Renamed commands:
   - `mgclsp2sp` -> `mglsp2sp`
-
-
-Overview
---------
-![diagram](asset/diagram.png?raw=true)
 
 
 Who we are
