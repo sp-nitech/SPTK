@@ -70,7 +70,7 @@ def get_arguments():
         "-r",
         dest="reset",
         action="store_true",
-        help="does not succeed time across screens (valid with -i)",
+        help="do not succeed time across screens (valid with -i)",
     )
     parser.add_argument(
         "-y",
@@ -143,7 +143,7 @@ def get_arguments():
 # - @b -t
 #   - align figures horizontally instead of vertically
 # - @b -r
-#   - does not succeed time across screens
+#   - do not succeed time across screens
 # - @b -y @e int
 #   - sampling rate in kHz
 # - @b -w @e str

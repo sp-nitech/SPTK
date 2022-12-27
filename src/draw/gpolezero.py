@@ -86,7 +86,7 @@ def get_arguments():
         "-mw",
         metavar="mw",
         dest="marker_size",
-        default=10.0,
+        default=10,
         type=float,
         help="marker size",
     )
