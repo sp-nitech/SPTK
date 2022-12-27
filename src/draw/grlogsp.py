@@ -68,7 +68,7 @@ def get_arguments():
         "-z",
         metavar="z",
         dest="bias",
-        default=20.0,
+        default=20,
         type=float,
         help="distance between spectra",
     )
@@ -79,6 +79,14 @@ def get_arguments():
         default=1,
         type=float,
         help="sampling rate [kHz]",
+    )
+    parser.add_argument(
+        "-y",
+        metavar="y",
+        dest="margin_factor",
+        default=2,
+        type=float,
+        help="margin factor",
     )
     parser.add_argument(
         "-ls",
@@ -130,8 +138,8 @@ def get_arguments():
 #   - distance between spectra in decibels
 # - @b -x @e float
 #   - sampling rate in kHz
-# - @b -y @e float @e float
-#   - y-axis limits
+# - @b -y @e float
+#   - margin factor
 # - @b -ls @e str
 #   - line style (solid, dash, dot, or dashdot)
 # - @b -lc @e str
@@ -177,12 +185,16 @@ def main():
     ]
 
     fig = go.Figure()
+    y_min = np.inf
+    y_max = -np.inf
     for i in range(len(ys)):
         y = ys[i] + (args.bias * i)
+        y_min = np.minimum(y_min, np.min(y))
+        y_max = np.maximum(y_max, np.max(y))
 
         fig.add_trace(
             go.Scatter(
-                x=y if args.transpose else x,
+                x=np.flip(y) if args.transpose else x,
                 y=x if args.transpose else y,
                 line=dict(
                     color=args.line_color,
@@ -196,6 +208,10 @@ def main():
         showgrid=args.grid,
     )
     yaxis = dict(
+        range=(
+            y_min - args.margin_factor * args.bias,
+            y_max + args.margin_factor * args.bias,
+        ),
         showticklabels=False,
         showgrid=False,
         zeroline=False,
