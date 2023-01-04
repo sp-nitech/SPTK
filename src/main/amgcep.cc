@@ -35,6 +35,7 @@ const double kDefaultForgettingFactor(0.98);
 const double kDefaultStepSizeFactor(0.1);
 const int kDefaultOutputPeriod(1);
 const int kDefaultNumPadeOrder(4);
+const bool kDefaultGainFlag(false);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -50,9 +51,10 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -e e  : minimum value for epsilon    (double)[" << std::setw(5) << std::right << kDefaultMinEpsilon       << "][  0.0 <  e <=     ]" << std::endl;  // NOLINT
   *stream << "       -t t  : momentum constant            (double)[" << std::setw(5) << std::right << kDefaultMomentum         << "][  0.0 <= t <  1.0 ]" << std::endl;  // NOLINT
   *stream << "       -l l  : forgetting factor            (double)[" << std::setw(5) << std::right << kDefaultForgettingFactor << "][  0.0 <= l <  1.0 ]" << std::endl;  // NOLINT
-  *stream << "       -k k  : step-size factor             (double)[" << std::setw(5) << std::right << kDefaultStepSizeFactor   << "][  0.0 <  s <  1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -k k  : step-size factor             (double)[" << std::setw(5) << std::right << kDefaultStepSizeFactor   << "][  0.0 <  k <  1.0 ]" << std::endl;  // NOLINT
   *stream << "       -p p  : output period                (   int)[" << std::setw(5) << std::right << kDefaultOutputPeriod     << "][    1 <= p <=     ]" << std::endl;  // NOLINT
   *stream << "       -P P  : order of Pade approximation  (   int)[" << std::setw(5) << std::right << kDefaultNumPadeOrder     << "][    4 <= P <= 7   ]" << std::endl;  // NOLINT
+  *stream << "       -K    : filtering with gain          (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultGainFlag)      << "]" << std::endl;  // NOLINT
   *stream << "       -E E  : output filename of double    (string)[" << std::setw(5) << std::right << "N/A"                    << "]" << std::endl;  // NOLINT
   *stream << "               type prediction error" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
@@ -91,6 +93,8 @@ void PrintUsage(std::ostream* stream) {
  *   - output period @f$(1 \le p)@f$
  * - @b -P @e int
  *   - order of Pade approximation @f$(4 \le P \le 7)@f$
+ * - @b -K
+ *   - filtering with gain
  * - @b -E @e str
  *   - double-type prediction errors
  * - @b infile @e str
@@ -131,11 +135,12 @@ int main(int argc, char* argv[]) {
   double step_size_factor(kDefaultStepSizeFactor);
   int output_period(kDefaultOutputPeriod);
   int num_pade_order(kDefaultNumPadeOrder);
+  bool gain_flag(kDefaultGainFlag);
   const char* prediction_error_file(NULL);
 
   for (;;) {
     const int option_char(
-        getopt_long(argc, argv, "m:a:c:e:t:l:k:p:P:E:h", NULL, NULL));
+        getopt_long(argc, argv, "m:a:c:e:t:l:k:p:P:KE:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -240,6 +245,10 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
+      case 'K': {
+        gain_flag = true;
+        break;
+      }
       case 'E': {
         prediction_error_file = optarg;
         break;
@@ -296,7 +305,7 @@ int main(int argc, char* argv[]) {
 
   sptk::AdaptiveMelGeneralizedCepstralAnalysis analysis(
       num_order, num_pade_order, num_stage, alpha, min_epsilon, momentum,
-      forgetting_factor, step_size_factor);
+      forgetting_factor, step_size_factor, gain_flag);
   sptk::AdaptiveMelGeneralizedCepstralAnalysis::Buffer buffer;
   if (!analysis.IsValid()) {
     std::ostringstream error_message;

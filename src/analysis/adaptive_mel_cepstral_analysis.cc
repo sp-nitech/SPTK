@@ -17,18 +17,20 @@
 #include "SPTK/analysis/adaptive_mel_cepstral_analysis.h"
 
 #include <algorithm>  // std::fill, std::transform
-#include <cmath>      // std::log
+#include <cmath>      // std::log, std::sqrt
 #include <cstddef>    // std::size_t
 
 namespace sptk {
 
 AdaptiveMelCepstralAnalysis::AdaptiveMelCepstralAnalysis(
     int num_order, int num_pade_order, double alpha, double min_epsilon,
-    double momentum, double forgetting_factor, double step_size_factor)
+    double momentum, double forgetting_factor, double step_size_factor,
+    bool gain_flag)
     : min_epsilon_(min_epsilon),
       momentum_(momentum),
       forgetting_factor_(forgetting_factor),
       step_size_factor_(step_size_factor),
+      gain_flag_(gain_flag),
       mlsa_digital_filter_(num_order, num_pade_order, alpha, false),
       mlsa_digital_filter_coefficients_to_mel_cepstrum_(num_order, alpha),
       is_valid_(true) {
@@ -122,10 +124,16 @@ bool AdaptiveMelCepstralAnalysis::Run(
       b[i] -= mu * gradient[i];
     }
   }
+
+  // Update gain.
   buffer->mlsa_digital_filter_coefficients_[0] = 0.5 * std::log(curr_epsilon);
 
   // Store outputs.
-  *prediction_error = curr_prediction_error;
+  if (gain_flag_) {
+    *prediction_error = curr_prediction_error / std::sqrt(curr_epsilon);
+  } else {
+    *prediction_error = curr_prediction_error;
+  }
   buffer->prev_prediction_error_ = curr_prediction_error;
   buffer->prev_epsilon_ = curr_epsilon;
 
