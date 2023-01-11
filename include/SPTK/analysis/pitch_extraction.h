@@ -80,6 +80,7 @@ class PitchExtraction {
    * @param[out] f0 Extracted pitch in Hz.
    * @param[out] epochs Pitchmark (valid only for REAPER).
    * @param[out] polarity Polarity (valid only for REAPER).
+   * @return True on success, false on failure.
    */
   bool Run(const std::vector<double>& waveform, std::vector<double>* f0,
            std::vector<double>* epochs,

@@ -90,6 +90,7 @@ class PitchExtractionByReaper : public PitchExtractionInterface {
    * @param[out] f0 Extracted pitch in Hz.
    * @param[out] epochs Pitchmark.
    * @param[out] polarity Polarity.
+   * @return True on success, false on failure.
    */
   virtual bool Get(const std::vector<double>& waveform, std::vector<double>* f0,
                    std::vector<double>* epochs,
