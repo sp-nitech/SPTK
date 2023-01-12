@@ -37,7 +37,7 @@ teardown() {
     [ "$status" -eq 0 ]
 
     $sptk3/excite -n -p 4 $tmp/1 > $tmp/2
-    $sptk4/excite -n -p 4 $tmp/1 > $tmp/3
+    $sptk4/excite -n 1 -p 4 $tmp/1 > $tmp/3
     run $sptk4/aeq -L $tmp/2 $tmp/3
     [ "$status" -eq 0 ]
 }

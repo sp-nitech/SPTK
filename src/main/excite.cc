@@ -30,9 +30,11 @@
 
 namespace {
 
+enum NoiseType { kZero = 0, kGaussian, kMSequence, kNumNoiseTypes };
+
 const int kDefaultFramePeriod(100);
 const int kDefaultInterpolationPeriod(1);
-const bool kDefaultFlagToUseNormalDistributedRandomValue(false);
+const NoiseType kDefaultNoiseType(NoiseType::kMSequence);
 const int kDefaultSeed(1);
 const double kMagicNumberForUnvoicedFrame(0.0);
 
@@ -44,18 +46,21 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       excite [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -p p  : frame period                       (   int)[" << std::setw(5) << std::right << kDefaultFramePeriod         << "][ 1 <= p <=     ]" << std::endl;  // NOLINT
-  *stream << "       -i i  : interpolation period               (   int)[" << std::setw(5) << std::right << kDefaultInterpolationPeriod << "][ 0 <= i <= p/2 ]" << std::endl;  // NOLINT
-  *stream << "       -n    : use gauss noise for unvoiced frame (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultFlagToUseNormalDistributedRandomValue) << "]" << std::endl;  // NOLINT
-  *stream << "               default is M-sequence" << std::endl;
-  *stream << "       -s s  : seed for random generation         (   int)[" << std::setw(5) << std::right << kDefaultSeed                << "][   <= s <=     ]" << std::endl;  // NOLINT
+  *stream << "       -p p  : frame period               (   int)[" << std::setw(5) << std::right << kDefaultFramePeriod         << "][ 1 <= p <=     ]" << std::endl;  // NOLINT
+  *stream << "       -i i  : interpolation period       (   int)[" << std::setw(5) << std::right << kDefaultInterpolationPeriod << "][ 0 <= i <= p/2 ]" << std::endl;  // NOLINT
+  *stream << "       -n n  : noise type                 (   int)[" << std::setw(5) << std::right << kDefaultNoiseType           << "][ 0 <= n <= 2   ]" << std::endl;  // NOLINT
+  *stream << "                 0 (none)" << std::endl;
+  *stream << "                 1 (Gaussian)" << std::endl;
+  *stream << "                 2 (M-sequence)" << std::endl;
+  *stream << "       -s s  : seed for random generation (   int)[" << std::setw(5) << std::right << kDefaultSeed                << "][   <= s <=     ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       pitch period                               (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       pitch period                       (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       excitation                                 (double)" << std::endl;  // NOLINT
+  *stream << "       excitation                         (double)" << std::endl;
   *stream << "  notice:" << std::endl;
   *stream << "       if i = 0, don't interpolate pitch" << std::endl;
+  *stream << "       s is valid only if n = 1" << std::endl;
   *stream << "       magic number for unvoiced frame is " << kMagicNumberForUnvoicedFrame << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
@@ -72,8 +77,11 @@ void PrintUsage(std::ostream* stream) {
  *   - frame_period @f$(1 \le P)@f$
  * - @b -i @e int
  *   - interpolation period @f$(0 \le I \le P/2)@f$
- * - @b -n
- *   - use gaussian noise instead of M-sequence for unvoiced frame
+ * - @b -n @e int
+ *   - noise type
+ *     \arg @c 0 none
+ *     \arg @c 1 Gaussian
+ *     \arg @c 2 M-sequence
  * - @b -s @e int
  *   - seed for random number generation
  * - @b infile @e str
@@ -102,12 +110,11 @@ void PrintUsage(std::ostream* stream) {
 int main(int argc, char* argv[]) {
   int frame_period(kDefaultFramePeriod);
   int interpolation_period(kDefaultInterpolationPeriod);
-  bool use_normal_distributed_random_value(
-      kDefaultFlagToUseNormalDistributedRandomValue);
+  NoiseType noise_type(kDefaultNoiseType);
   int seed(kDefaultSeed);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "p:i:ns:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "p:i:n:s:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -134,7 +141,18 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'n': {
-        use_normal_distributed_random_value = true;
+        const int min(0);
+        const int max(static_cast<int>(kNumNoiseTypes) - 1);
+        int tmp;
+        if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
+            !sptk::IsInRange(tmp, min, max)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -n option must be an integer "
+                        << "in the range of " << min << " to " << max;
+          sptk::PrintErrorMessage("excite", error_message);
+          return 1;
+        }
+        noise_type = static_cast<NoiseType>(tmp);
         break;
       }
       case 's': {
@@ -202,11 +220,22 @@ int main(int argc, char* argv[]) {
   // Run excitation generation.
   sptk::RandomGenerationInterface* random_generation(NULL);
   try {
-    if (use_normal_distributed_random_value) {
-      random_generation =
-          new sptk::NormalDistributedRandomValueGeneration(seed);
-    } else {
-      random_generation = new sptk::MSequenceGeneration();
+    switch (noise_type) {
+      case kZero: {
+        break;
+      }
+      case kGaussian: {
+        random_generation =
+            new sptk::NormalDistributedRandomValueGeneration(seed);
+        break;
+      }
+      case kMSequence: {
+        random_generation = new sptk::MSequenceGeneration();
+        break;
+      }
+      default: {
+        return 1;
+      }
     }
     sptk::ExcitationGeneration excitation_generation(
         &input_source_interpolation_with_magic_number, random_generation);
