@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------ #
 
 PYTHON_VERSION     := 3.8
-SHELLCHECK_VERSION := 0.8.0
+SHELLCHECK_VERSION := 0.9.0
 JOBS               := 4
 
 

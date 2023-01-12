@@ -28,8 +28,7 @@ ExcitationGeneration::ExcitationGeneration(
       random_generation_(random_generation),
       is_valid_(true),
       phase_(1.0) {
-  if (NULL == input_source_ || NULL == random_generation_ ||
-      !input_source_->IsValid()) {
+  if (NULL == input_source_ || !input_source_->IsValid()) {
     is_valid_ = false;
     return;
   }
@@ -52,8 +51,8 @@ bool ExcitationGeneration::Get(double* excitation, double* pulse, double* noise,
   }
 
   // Get noise.
-  double noise_in_current_point;
-  if (!random_generation_->Get(&noise_in_current_point)) {
+  double noise_in_current_point(0.0);
+  if (random_generation_ && !random_generation_->Get(&noise_in_current_point)) {
     return false;
   }
 
