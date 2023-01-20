@@ -42,8 +42,8 @@ namespace sptk {
  *
  * [4] M. Morise, H. Kawahara and H. Katayose, &quot;Fast and reliable F0
  *     estimation method based on the period extraction of vocal fold vibration
- *     of singing voice and speech, Proc. of AES 35th International Conference,
- *     2009.
+ *     of singing voice and speech,&quot; Proc. of AES 35th International
+ *     Conference, 2009.
  */
 class PitchExtraction {
  public:
