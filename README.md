@@ -14,7 +14,7 @@ The Speech Signal Processing Toolkit (SPTK) is a software for speech signal proc
 What is SPTK?
 -------------
 - SPTK consists of over 100 commands for speech signal processing.
-- The data format used in SPTK is raw header-less, e.g., there is no specific structure.
+- The data format used in SPTK is raw header-less, i.e., there is no specific structure.
   Thanks to the data format, we can check file contents immediately on CUI.
   ```sh
   dmp +s data.raw
