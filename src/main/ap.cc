@@ -77,7 +77,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  infile:" << std::endl;
   *stream << "       waveform                        (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  f0file:" << std::endl;
-  *stream << "       f0                              (double)" << std::endl;
+  *stream << "       pitch                           (double)" << std::endl;
   *stream << "  stdout:" << std::endl;
   *stream << "       aperiodicity                    (double)" << std::endl;
   *stream << std::endl;
