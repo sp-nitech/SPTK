@@ -115,11 +115,11 @@ void PrintUsage(std::ostream* stream) {
  *     @arg @c 0 Ha
  *     @arg @c 1 Hp
  *     @arg @c 2 Ha/HP
- *     @arg @c 2 Hp/Ha
+ *     @arg @c 3 Hp/Ha
  * - @b infile @e str
  *   - double-type waveform
  * - @b f0file @e str
- *   - double-type f0
+ *   - double-type pitch
  * - @b stdout
  *   - double-type aperiodicity
  *
