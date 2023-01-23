@@ -43,7 +43,7 @@ const sptk::AperiodicityExtraction::Algorithms kDefaultAlgorithm(
 const int kDefaultFftLength(256);
 const int kDefaultFrameShift(80);
 const double kDefaultSamplingRate(16.0);
-const double kDefaultLowerLimit(1e-6);
+const double kDefaultLowerBound(1e-6);
 const InputFormats kDefaultInputFormat(kPitch);
 const OutputFormats kDefaultOutputFormat(kAperiodicity);
 const double kDefaultF0(150.0);
@@ -62,17 +62,17 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -l l  : FFT length              (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][   1 <= l <=      ]" << std::endl;  // NOLINT
   *stream << "       -p p  : frame shift [point]     (   int)[" << std::setw(5) << std::right << kDefaultFrameShift   << "][   1 <= p <=      ]" << std::endl;  // NOLINT
   *stream << "       -s s  : sampling rate [kHz]     (double)[" << std::setw(5) << std::right << kDefaultSamplingRate << "][ 8.0 <= s <= 98.0 ]" << std::endl;  // NOLINT
-  *stream << "       -L L  : lower limit             (double)[" << std::setw(5) << std::right << kDefaultLowerLimit   << "][ 0.0 <= L <  H    ]" << std::endl;  // NOLINT
-  *stream << "       -H H  : upper limit             (double)[" << std::setw(5) << std::right << "1-L"                << "][   L <  H <= 1.0  ]" << std::endl;  // NOLINT
+  *stream << "       -L L  : lower bound of Ha       (double)[" << std::setw(5) << std::right << kDefaultLowerBound   << "][ 0.0 <= L <  H    ]" << std::endl;  // NOLINT
+  *stream << "       -H H  : upper bound of Ha       (double)[" << std::setw(5) << std::right << "1-L"                << "][   L <  H <= 1.0  ]" << std::endl;  // NOLINT
   *stream << "       -q q  : f0 input format         (   int)[" << std::setw(5) << std::right << kDefaultInputFormat  << "][   0 <= q <= 2    ]" << std::endl;  // NOLINT
   *stream << "                 0 (Fs/F0)" << std::endl;
   *stream << "                 1 (F0)" << std::endl;
   *stream << "                 2 (log F0)" << std::endl;
   *stream << "       -o o  : output format           (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][   0 <= o <= 3    ]" << std::endl;  // NOLINT
-  *stream << "                 0 (A)" << std::endl;
-  *stream << "                 1 (P)" << std::endl;
-  *stream << "                 2 (A/P)" << std::endl;
-  *stream << "                 3 (P/A)" << std::endl;
+  *stream << "                 0 (Ha)" << std::endl;
+  *stream << "                 1 (Hp)" << std::endl;
+  *stream << "                 2 (Ha/Hp)" << std::endl;
+  *stream << "                 3 (Hp/Ha)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       waveform                        (double)[stdin]" << std::endl;  // NOLINT
@@ -102,9 +102,9 @@ void PrintUsage(std::ostream* stream) {
  * - @b -s @e double
  *   - sampling rate [kHz] @f$(8 \le F_s \le 98)@f$
  * - @b -L @e double
- *   - lower limit of aperiodicity @f$(0 \le L < H)@f$
+ *   - lower bound of aperiodicity @f$(0 \le L < H)@f$
  * - @b -H @e double
- *   - upper limit of aperiodicity @f$(L < H \le 1)@f$
+ *   - upper bound of aperiodicity @f$(L < H \le 1)@f$
  * - @b -q @e int
  *   - f0 input format
  *     @arg @c 0 pitch @f$(F_s / F_0)@f$
@@ -112,10 +112,10 @@ void PrintUsage(std::ostream* stream) {
  *     @arg @c 2 log F0
  * - @b -o @e int
  *   - output format
- *     @arg @c 0 A
- *     @arg @c 1 P
- *     @arg @c 2 A/P
- *     @arg @c 2 P/A
+ *     @arg @c 0 Ha
+ *     @arg @c 1 Hp
+ *     @arg @c 2 Ha/HP
+ *     @arg @c 2 Hp/Ha
  * - @b infile @e str
  *   - double-type waveform
  * - @b f0file @e str
@@ -132,11 +132,11 @@ int main(int argc, char* argv[]) {
   int fft_length(kDefaultFftLength);
   int frame_shift(kDefaultFrameShift);
   double sampling_rate(kDefaultSamplingRate);
-  double lower_limit(kDefaultLowerLimit);
-  double upper_limit(1.0);
+  double lower_bound(kDefaultLowerBound);
+  double upper_bound(1.0);
   InputFormats input_format(kDefaultInputFormat);
   OutputFormats output_format(kDefaultOutputFormat);
-  bool is_upper_limit_specified(false);
+  bool is_upper_bound_specified(false);
 
   for (;;) {
     const int option_char(
@@ -198,8 +198,8 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'L': {
-        if (!sptk::ConvertStringToDouble(optarg, &lower_limit) ||
-            !sptk::IsInRange(lower_limit, 0.0, 1.0)) {
+        if (!sptk::ConvertStringToDouble(optarg, &lower_bound) ||
+            !sptk::IsInRange(lower_bound, 0.0, 1.0)) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -L option must be in [0.0, 1.0]";
@@ -209,15 +209,15 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'H': {
-        if (!sptk::ConvertStringToDouble(optarg, &upper_limit) ||
-            !sptk::IsInRange(upper_limit, 0.0, 1.0)) {
+        if (!sptk::ConvertStringToDouble(optarg, &upper_bound) ||
+            !sptk::IsInRange(upper_bound, 0.0, 1.0)) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -H option must be in [0.0, 1.0]";
           sptk::PrintErrorMessage("ap", error_message);
           return 1;
         }
-        is_upper_limit_specified = true;
+        is_upper_bound_specified = true;
         break;
       }
       case 'q': {
@@ -261,13 +261,13 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  if (!is_upper_limit_specified) {
-    upper_limit = 1.0 - lower_limit;
+  if (!is_upper_bound_specified) {
+    upper_bound = 1.0 - lower_bound;
   }
 
-  if (upper_limit <= lower_limit) {
+  if (upper_bound <= lower_bound) {
     std::ostringstream error_message;
-    error_message << "Lower limit must be less than upper one";
+    error_message << "Lower bound must be less than upper one";
     sptk::PrintErrorMessage("ap", error_message);
     return 1;
   }
@@ -306,6 +306,7 @@ int main(int argc, char* argv[]) {
     while (sptk::ReadStream(&tmp, &input_stream)) {
       f0.push_back(tmp);
     }
+    if (f0.empty()) return 0;
 
     switch (input_format) {
       case kPitch: {
@@ -317,7 +318,7 @@ int main(int argc, char* argv[]) {
       }
       case kF0: {
         std::transform(f0.begin(), f0.end(), f0.begin(),
-                       [](double x) { return (0 == x) ? kDefaultF0 : x; });
+                       [](double x) { return (0.0 == x) ? kDefaultF0 : x; });
         break;
       }
       case kLogF0: {
@@ -373,8 +374,8 @@ int main(int argc, char* argv[]) {
 
   for (const std::vector<double>& tmp : aperiodicity) {
     std::transform(tmp.begin(), tmp.end(), output.begin(),
-                   [lower_limit, upper_limit](double a) {
-                     return std::min(upper_limit, std::max(lower_limit, a));
+                   [lower_bound, upper_bound](double a) {
+                     return std::min(upper_bound, std::max(lower_bound, a));
                    });
 
     switch (output_format) {
