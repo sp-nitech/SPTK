@@ -17,7 +17,6 @@
 #include "SPTK/conversion/spectrum_to_spectrum.h"
 
 #include <algorithm>  // std::copy, std::max, std::max_element, std::transform
-#include <cfloat>     // DBL_MAX
 #include <cmath>      // std::exp, std::log, std::log10, std::pow, std::sqrt
 #include <cstddef>    // std::size_t
 

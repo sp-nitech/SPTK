@@ -327,6 +327,7 @@ set(MAIN_SOURCES
   ${SOURCE_DIR}/main/smcep.cc
   ${SOURCE_DIR}/main/snr.cc
   ${SOURCE_DIR}/main/sopr.cc
+  ${SOURCE_DIR}/main/sp.cc
   ${SOURCE_DIR}/main/spec.cc
   ${SOURCE_DIR}/main/step.cc
   ${SOURCE_DIR}/main/swab.cc
