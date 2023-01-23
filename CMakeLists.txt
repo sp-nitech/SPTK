@@ -59,6 +59,7 @@ set(CC_SOURCES
   ${THIRD_PARTY_DIR}/Snack/jkGetF0.cc
   ${THIRD_PARTY_DIR}/Snack/sigproc.cc
   ${THIRD_PARTY_DIR}/WORLD/aperiodicity.cc
+  ${THIRD_PARTY_DIR}/WORLD/cheaptrick.cc
   ${THIRD_PARTY_DIR}/WORLD/common.cc
   ${THIRD_PARTY_DIR}/WORLD/d4c.cc
   ${THIRD_PARTY_DIR}/WORLD/dio.cc
@@ -82,6 +83,8 @@ set(CC_SOURCES
   ${SOURCE_DIR}/analysis/pitch_extraction_by_swipe.cc
   ${SOURCE_DIR}/analysis/pitch_extraction_by_world.cc
   ${SOURCE_DIR}/analysis/second_order_all_pass_mel_cepstral_analysis.cc
+  ${SOURCE_DIR}/analysis/spectrum_extraction.cc
+  ${SOURCE_DIR}/analysis/spectrum_extraction_by_world.cc
   ${SOURCE_DIR}/analysis/zero_crossing_analysis.cc
   ${SOURCE_DIR}/check/line_spectral_pairs_stability_check.cc
   ${SOURCE_DIR}/check/linear_predictive_coefficients_stability_check.cc
