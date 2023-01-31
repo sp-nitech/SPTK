@@ -35,7 +35,7 @@ const double kDefaultForgettingFactor(0.98);
 const double kDefaultStepSizeFactor(0.1);
 const int kDefaultOutputPeriod(1);
 const int kDefaultNumPadeOrder(4);
-const bool kDefaultGainFlag(false);
+const bool kDefaultGainFlag(true);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -45,23 +45,23 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       amgcep [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of mel-cepstrum        (   int)[" << std::setw(5) << std::right << kDefaultNumOrder         << "][    0 <= m <=     ]" << std::endl;  // NOLINT
-  *stream << "       -a a  : all-pass constant            (double)[" << std::setw(5) << std::right << kDefaultAlpha            << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
-  *stream << "       -c c  : gamma = -1 / c               (   int)[" << std::setw(5) << std::right << kDefaultNumStage         << "][    0 <= c <=     ]" << std::endl;  // NOLINT
-  *stream << "       -e e  : minimum value for epsilon    (double)[" << std::setw(5) << std::right << kDefaultMinEpsilon       << "][  0.0 <  e <=     ]" << std::endl;  // NOLINT
-  *stream << "       -t t  : momentum constant            (double)[" << std::setw(5) << std::right << kDefaultMomentum         << "][  0.0 <= t <  1.0 ]" << std::endl;  // NOLINT
-  *stream << "       -l l  : forgetting factor            (double)[" << std::setw(5) << std::right << kDefaultForgettingFactor << "][  0.0 <= l <  1.0 ]" << std::endl;  // NOLINT
-  *stream << "       -k k  : step-size factor             (double)[" << std::setw(5) << std::right << kDefaultStepSizeFactor   << "][  0.0 <  k <  1.0 ]" << std::endl;  // NOLINT
-  *stream << "       -p p  : output period                (   int)[" << std::setw(5) << std::right << kDefaultOutputPeriod     << "][    1 <= p <=     ]" << std::endl;  // NOLINT
-  *stream << "       -P P  : order of Pade approximation  (   int)[" << std::setw(5) << std::right << kDefaultNumPadeOrder     << "][    4 <= P <= 7   ]" << std::endl;  // NOLINT
-  *stream << "       -K    : filtering with gain          (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultGainFlag)      << "]" << std::endl;  // NOLINT
-  *stream << "       -E E  : output filename of double    (string)[" << std::setw(5) << std::right << "N/A"                    << "]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of mel-cepstrum       (   int)[" << std::setw(5) << std::right << kDefaultNumOrder         << "][    0 <= m <=     ]" << std::endl;  // NOLINT
+  *stream << "       -a a  : all-pass constant           (double)[" << std::setw(5) << std::right << kDefaultAlpha            << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -c c  : gamma = -1 / c              (   int)[" << std::setw(5) << std::right << kDefaultNumStage         << "][    0 <= c <=     ]" << std::endl;  // NOLINT
+  *stream << "       -e e  : minimum value for epsilon   (double)[" << std::setw(5) << std::right << kDefaultMinEpsilon       << "][  0.0 <  e <=     ]" << std::endl;  // NOLINT
+  *stream << "       -t t  : momentum constant           (double)[" << std::setw(5) << std::right << kDefaultMomentum         << "][  0.0 <= t <  1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : forgetting factor           (double)[" << std::setw(5) << std::right << kDefaultForgettingFactor << "][  0.0 <= l <  1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : step-size factor            (double)[" << std::setw(5) << std::right << kDefaultStepSizeFactor   << "][  0.0 <  s <  1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -p p  : output period               (   int)[" << std::setw(5) << std::right << kDefaultOutputPeriod     << "][    1 <= p <=     ]" << std::endl;  // NOLINT
+  *stream << "       -P P  : order of Pade approximation (   int)[" << std::setw(5) << std::right << kDefaultNumPadeOrder     << "][    4 <= P <= 7   ]" << std::endl;  // NOLINT
+  *stream << "       -E E  : output filename of double   (string)[" << std::setw(5) << std::right << "N/A"                    << "]" << std::endl;  // NOLINT
   *stream << "               type prediction error" << std::endl;
+  *stream << "       -k    : filtering without gain      (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(!kDefaultGainFlag) << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       data sequence                        (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       data sequence                       (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       mel-generalized cepstrum             (double)" << std::endl;  // NOLINT
+  *stream << "       mel-generalized cepstrum            (double)" << std::endl;
   *stream << "  notice:" << std::endl;
   *stream << "       a != 0 and c != 0 is not supported currently" << std::endl;
   *stream << std::endl;
@@ -87,16 +87,16 @@ void PrintUsage(std::ostream* stream) {
  *   - momentum @f$(0 \le \tau < 1)@f$
  * - @b -l @e double
  *   - forgetting factor @f$(0 \le \lambda < 1)@f$
- * - @b -k @e double
+ * - @b -s @e double
  *   - step-size factor @f$(0 < a < 1)@f$
  * - @b -p @e int
  *   - output period @f$(1 \le p)@f$
  * - @b -P @e int
  *   - order of Pade approximation @f$(4 \le P \le 7)@f$
- * - @b -K
- *   - filtering with gain
  * - @b -E @e str
  *   - double-type prediction errors
+ * - @b -k
+ *   - filtering without gain (valid with -E)
  * - @b infile @e str
  *   - double-type input signals
  * - @b stdout
@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
 
   for (;;) {
     const int option_char(
-        getopt_long(argc, argv, "m:a:c:e:t:l:k:p:P:KE:h", NULL, NULL));
+        getopt_long(argc, argv, "m:a:c:e:t:l:s:p:P:E:kh", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -210,12 +210,12 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      case 'k': {
+      case 's': {
         if (!sptk::ConvertStringToDouble(optarg, &step_size_factor) ||
             step_size_factor <= 0.0 || 1.0 <= step_size_factor) {
           std::ostringstream error_message;
           error_message
-              << "The argument for the -k option must be in (0.0, 1.0)";
+              << "The argument for the -s option must be in (0.0, 1.0)";
           sptk::PrintErrorMessage("amgcep", error_message);
           return 1;
         }
@@ -245,12 +245,12 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      case 'K': {
-        gain_flag = true;
-        break;
-      }
       case 'E': {
         prediction_error_file = optarg;
+        break;
+      }
+      case 'k': {
+        gain_flag = false;
         break;
       }
       case 'h': {
