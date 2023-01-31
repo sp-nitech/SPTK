@@ -60,12 +60,14 @@ class AdaptiveMelGeneralizedCepstralAnalysis {
    * @param[in] momentum Momentum, @f$\tau@f$.
    * @param[in] forgetting_factor Forgetting factor, @f$\lambda@f$.
    * @param[in] step_size_factor Step-size factor, @f$a@f$.
+   * @param[in] gain_flag If true, perform filtering with gain.
    */
   AdaptiveMelGeneralizedCepstralAnalysis(int num_order, int num_pade_order,
                                          int num_stage, double alpha,
                                          double min_epsilon, double momentum,
                                          double forgetting_factor,
-                                         double step_size_factor);
+                                         double step_size_factor,
+                                         bool gain_flag);
 
   virtual ~AdaptiveMelGeneralizedCepstralAnalysis() {
   }
@@ -124,6 +126,13 @@ class AdaptiveMelGeneralizedCepstralAnalysis {
    */
   double GetStepSizeFactor() const {
     return mel_cepstral_analysis_.GetStepSizeFactor();
+  }
+
+  /**
+   * @return Gain flag.
+   */
+  bool GetGainFlag() const {
+    return mel_cepstral_analysis_.GetGainFlag();
   }
 
   /**

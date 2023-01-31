@@ -24,12 +24,13 @@ namespace sptk {
 
 AdaptiveGeneralizedCepstralAnalysis::AdaptiveGeneralizedCepstralAnalysis(
     int num_order, int num_stage, double min_epsilon, double momentum,
-    double forgetting_factor, double step_size_factor)
+    double forgetting_factor, double step_size_factor, bool gain_flag)
     : num_stage_(num_stage),
       min_epsilon_(min_epsilon),
       momentum_(momentum),
       forgetting_factor_(forgetting_factor),
       step_size_factor_(step_size_factor),
+      gain_flag_(gain_flag),
       generalized_cepstrum_inverse_gain_normalization_(num_order,
                                                        -1.0 / num_stage_),
       is_valid_(true) {
@@ -73,7 +74,8 @@ bool AdaptiveGeneralizedCepstralAnalysis::Run(
   // Store e_\gamma(n - M).
   const double last_e(buffer->d_.back());
 
-  // Apply cascade all-zero digital filters.
+  // Apply cascaded all-zero digital filters.
+  double curr_prediction_error;
   {
     const double gamma(GetGamma());
     double x(input_signal);
@@ -89,7 +91,7 @@ bool AdaptiveGeneralizedCepstralAnalysis::Run(
       d[0] = x;
       x += y * gamma;
     }
-    *prediction_error = x;
+    curr_prediction_error = x;
   }
 
   // Update epsilon.
@@ -102,7 +104,7 @@ bool AdaptiveGeneralizedCepstralAnalysis::Run(
 
   // Update normalized generalized cepstrum.
   if (0 < num_order) {
-    const double sigma(2.0 * (1.0 - momentum_) * *prediction_error);
+    const double sigma(2.0 * (1.0 - momentum_) * curr_prediction_error);
     const double mu(step_size_factor_ / (num_order * curr_epsilon));
     const double* e(&buffer->d_[num_order * (num_stage_ - 1) + 1]);
     double* gradient(&buffer->gradient_[0]);
@@ -117,10 +119,17 @@ bool AdaptiveGeneralizedCepstralAnalysis::Run(
   // Update gain.
   const double curr_adjusted_error(
       (forgetting_factor_ * buffer->prev_adjusted_error_) +
-      (1.0 - forgetting_factor_) * (*prediction_error * *prediction_error));
+      (1.0 - forgetting_factor_) *
+          (curr_prediction_error * curr_prediction_error));
   buffer->normalized_generalized_cepstrum_[0] = std::sqrt(curr_adjusted_error);
 
   // Store outputs.
+  if (gain_flag_) {
+    *prediction_error =
+        curr_prediction_error / buffer->normalized_generalized_cepstrum_[0];
+  } else {
+    *prediction_error = curr_prediction_error;
+  }
   buffer->prev_adjusted_error_ = curr_adjusted_error;
   buffer->prev_epsilon_ = curr_epsilon;
 

@@ -21,12 +21,13 @@ namespace sptk {
 AdaptiveMelGeneralizedCepstralAnalysis::AdaptiveMelGeneralizedCepstralAnalysis(
     int num_order, int num_pade_order, int num_stage, double alpha,
     double min_epsilon, double momentum, double forgetting_factor,
-    double step_size_factor)
+    double step_size_factor, bool gain_flag)
     : generalized_cepstral_analysis_(num_order, num_stage, min_epsilon,
                                      momentum, forgetting_factor,
-                                     step_size_factor),
+                                     step_size_factor, gain_flag),
       mel_cepstral_analysis_(num_order, num_pade_order, alpha, min_epsilon,
-                             momentum, forgetting_factor, step_size_factor),
+                             momentum, forgetting_factor, step_size_factor,
+                             gain_flag),
       is_valid_(true) {
   if ((0 != num_stage && 0.0 != alpha) ||
       (0 != num_stage && !generalized_cepstral_analysis_.IsValid()) ||
