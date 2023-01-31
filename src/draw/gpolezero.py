@@ -90,22 +90,6 @@ def get_arguments():
         type=float,
         help="marker size",
     )
-    parser.add_argument(
-        "-mlc",
-        metavar="mlc",
-        dest="marker_line_color",
-        default="midnightblue",
-        type=str,
-        help="marker line color",
-    )
-    parser.add_argument(
-        "-mlw",
-        metavar="mlw",
-        dest="marker_line_width",
-        default=None,
-        type=float,
-        help="marker line width",
-    )
     return parser.parse_args()
 
 
@@ -134,10 +118,6 @@ def get_arguments():
 #   - marker color
 # - @b -mw @e float
 #   - marker size
-# - @b -mlc @e str
-#   - marker line color
-# - @b -mlw @e float
-#   - marker line width
 # - @b -ff @e str
 #   - font family
 # - @b -fs @e int
@@ -159,9 +139,10 @@ def get_arguments():
 def main():
     args = get_arguments()
 
-    in_files = []
-    in_files.append(None if args.zero_file is None else args.zero_file)
-    in_files.append(None if args.pole_file is None else args.pole_file)
+    if args.zero_file is None and args.pole_file is None:
+        in_files = [None]
+    else:
+        in_files = [args.zero_file, args.pole_file]
 
     markers = (
         dict(
@@ -172,11 +153,11 @@ def main():
             line_width=0,
         ),
         dict(
-            symbol="x-thin",
+            symbol="x-open",
             color=args.marker_color,
             size=args.marker_size,
-            line_color=args.marker_line_color,
-            line_width=args.marker_line_width,
+            line_color=None,
+            line_width=0,
         ),
     )
 
@@ -193,15 +174,18 @@ def main():
         y1=1,
         line_color="purple",
     )
+
     # Draw zeros and poles.
     for in_file, marker in zip(in_files, markers):
-        if in_file is None:
-            continue
-
-        if not os.path.exists(in_file):
-            utils.print_error_message("gpolezero", f"Cannot open {in_file}")
-            sys.exit(1)
-        data = utils.read_binary(in_file, dim=2)
+        if len(in_files) == 1:
+            data = utils.read_stdin(dim=2)
+        else:
+            if in_file is None:
+                continue
+            if not os.path.exists(in_file):
+                utils.print_error_message("gpolezero", f"Cannot open {in_file}")
+                sys.exit(1)
+            data = utils.read_binary(in_file, dim=2)
 
         if 0 == args.input_format:
             x = data[:, 0]
@@ -223,6 +207,7 @@ def main():
                 marker=marker,
             )
         )
+
     fig.update_layout(
         xaxis=dict(
             title_text="Real part",
