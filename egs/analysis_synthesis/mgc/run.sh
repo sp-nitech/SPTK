@@ -22,8 +22,8 @@ data=../../../asset/data.short
 dump=dump
 
 sr=16          # Sample rate in kHz
-fl=$((sr*25))  # Frame length (16kHz x 25ms)
-fp=$((sr*5))   # Frame shift  (16kHz x 5ms)
+fl=$((sr * 25)) # Frame length (16kHz x 25ms)
+fp=$((sr * 5)) # Frame shift  (16kHz x 5ms)
 nfft=512       # FFT length
 order=24       # Order of mel-cepstrum
 alpha=0.42     # Alpha of mel-cepstrum
@@ -46,13 +46,13 @@ $sptk4/excite -p $fp $dump/data.pit |
     $sptk4/x2x +ds -r > $dump/data.syn.raw
 
 # Fast-speaking voice.
-$sptk4/excite -p $((fp/2)) $dump/data.pit |
-    $sptk4/mglsadf -p $((fp/2)) -m $order -a $alpha -P 7 $dump/data.mgc |
+$sptk4/excite -p $((fp / 2)) $dump/data.pit |
+    $sptk4/mglsadf -p $((fp / 2)) -m $order -a $alpha -P 7 $dump/data.mgc |
     $sptk4/x2x +ds -r > $dump/data.fast.raw
 
 # Slow-speaking voice.
-$sptk4/excite -p $((fp*2)) $dump/data.pit |
-    $sptk4/mglsadf -p $((fp*2)) -m $order -a $alpha -P 7 $dump/data.mgc |
+$sptk4/excite -p $((fp * 2)) $dump/data.pit |
+    $sptk4/mglsadf -p $((fp * 2)) -m $order -a $alpha -P 7 $dump/data.mgc |
     $sptk4/x2x +ds -r > $dump/data.slow.raw
 
 # Hoarse voice.

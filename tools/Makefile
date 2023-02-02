@@ -16,12 +16,13 @@
 
 PYTHON_VERSION     := 3.8
 SHELLCHECK_VERSION := 0.9.0
+SHFMT_VERSION      := 3.6.0
 JOBS               := 4
 
 
 all: check doxygen.done
 
-check: venv_dev bats.done shellcheck.done sptk.done
+check: venv_dev bats.done shellcheck.done shfmt.done sptk.done
 
 venv:
 	@if type virtualenv > /dev/null 2>&1; then \
@@ -62,6 +63,13 @@ shellcheck.done:
 	mv shellcheck-v$(SHELLCHECK_VERSION) shellcheck
 	touch shellcheck.done
 
+shfmt.done:
+	rm -rf shfmt
+	mkdir shfmt
+	wget -O shfmt/shfmt https://github.com/mvdan/sh/releases/download/v$(SHFMT_VERSION)/shfmt_v$(SHFMT_VERSION)_linux_amd64
+	chmod 755 shfmt/shfmt
+	touch shfmt.done
+
 sptk.done:
 	rm -rf sptk
 	export GIT_SSL_NO_VERIFY=1; git clone https://git.code.sf.net/p/sp-tk/SPTK sptk
@@ -70,6 +78,6 @@ sptk.done:
 	touch sptk.done
 
 clean:
-	rm -rf venv bats doxygen shellcheck sptk *.done
+	rm -rf venv bats doxygen shellcheck shfmt sptk *.done
 
 .PHONY: all check venv venv_dev clean

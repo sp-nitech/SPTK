@@ -30,8 +30,8 @@ teardown() {
 
 # Note `imglsadf -i 0` has no compatibility due to the change of implementation.
 @test "imglsadf: compatibility (c = 0)" {
-    $sptk3/x2x +sd $data | $sptk3/frame -l 400 -p 80 | \
-        $sptk3/window -l 400 -L 512 -w 1 -n 1 | \
+    $sptk3/x2x +sd $data | $sptk3/frame -l 400 -p 80 |
+        $sptk3/window -l 400 -L 512 -w 1 -n 1 |
         $sptk3/mcep -l 512 -m 24 > $tmp/1
 
     opt=("" "-t" "-k")
@@ -46,8 +46,8 @@ teardown() {
 }
 
 @test "imglsadf: compatibility (c > 0)" {
-    $sptk3/x2x +sd $data | $sptk3/frame -l 400 -p 80 | \
-        $sptk3/window -l 400 -L 512 -w 1 -n 1 | \
+    $sptk3/x2x +sd $data | $sptk3/frame -l 400 -p 80 |
+        $sptk3/window -l 400 -L 512 -w 1 -n 1 |
         $sptk3/mgcep -l 512 -m 24 -c 2 > $tmp/1
 
     opt=("" "-t" "-k")

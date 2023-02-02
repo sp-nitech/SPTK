@@ -22,14 +22,14 @@ data=../../../asset/data.short
 dump=dump
 
 sr=16          # Sample rate in kHz
-fl=$((sr*25))  # Frame length (16kHz x 25ms)
-fp=$((sr*5))   # Frame shift  (16kHz x 5ms)
+fl=$((sr * 25)) # Frame length (16kHz x 25ms)
+fp=$((sr * 5)) # Frame shift  (16kHz x 5ms)
 nfft=512       # FFT length
 order=24       # Order of mel-cepstrum
 alpha=0.42     # Alpha of mel-cepstrum
 nmix=2         # Number of mixtures
 
-fp2=$((sr*10)) # Frame shift (target)
+fp2=$((sr * 10)) # Frame shift (target)
 alpha2=0.3     # Alpha of mel-cepstrum (target)
 
 mkdir -p $dump
@@ -43,7 +43,7 @@ $sptk4/x2x +sd $data |
     $sptk4/window -l $fl -L $nfft |
     $sptk4/mgcep -l $nfft -m $order -a $alpha > $dump/data.mgc.source
 $sptk4/delta -m $order -D $dump/win.mgc $dump/data.mgc.source \
-             > $dump/data.mgc.source.delta
+    > $dump/data.mgc.source.delta
 
 # Make target.
 $sptk4/x2x +sd $data |
@@ -59,18 +59,18 @@ $sptk4/x2x +sd $data |
     $sptk4/mgcep -l $nfft -m $order -a $alpha2 > $dump/data.mgc.target
 
 # Perform DTW.
-dl=$((2*(order+1)))
+dl=$((2 * (order + 1)))
 $sptk4/dtw -l $dl -p 1 -S $dump/dtw.score $dump/data.mgc.target.delta \
-           < $dump/data.mgc.source.delta > $dump/data.mgc.joint
+    < $dump/data.mgc.source.delta        > $dump/data.mgc.joint
 
 # Train joint GMMs.
-dl2=$((2*dl))
+dl2=$((2 * dl))
 $sptk4/gmm -k $nmix -l $dl2 -B $dl $dl $dump/data.mgc.joint \
-           > $dump/joint.gmm
+    > $dump/joint.gmm
 
 # Perform GMM-based voice conversion.
 $sptk4/vc -k $nmix -m $order -D $dump/win.mgc -f $dump/joint.gmm \
-          < $dump/data.mgc.source.delta > $dump/data.mgc.convert
+    < $dump/data.mgc.source.delta       > $dump/data.mgc.convert
 
 # Take the difference between source and converted one without c0.
 $sptk4/ramp -l 1 > $dump/mask
@@ -79,7 +79,7 @@ $sptk4/vopr -s $dump/data.mgc.source < $dump/data.mgc.convert |
     $sptk4/vopr -n $order -m $dump/mask -q 1 > $dump/data.mgc.diff
 
 # Generate waveform by differential filtering.
-$sptk4/x2x +sd $data | \
+$sptk4/x2x +sd $data |
     $sptk4/mglsadf -m $order -a $alpha -p $fp $dump/data.mgc.diff |
     $sptk4/x2x +ds -r > $dump/data.raw
 

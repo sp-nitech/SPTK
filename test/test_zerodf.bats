@@ -35,7 +35,7 @@ teardown() {
             $sptk3/lpc -l 400 -m 24 > $tmp/1
 
     # Calculate impulse response of all-pole filter.
-    $sptk3/train -l $((19200*240/80)) -p 240 -n 0 |
+    $sptk3/train -l $((19200 * 240 / 80)) -p 240 -n 0 |
         $sptk3/poledf -m 24 -p 240 -i 0 $tmp/1 > $tmp/2
 
     opt=("" "-t" "-k")
