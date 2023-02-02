@@ -22,8 +22,8 @@ data=../../../asset/data.short
 dump=dump
 
 sr=16          # Sample rate in kHz
-fl=$((sr*25))  # Frame length (16kHz x 25ms)
-fp=$((sr*5))   # Frame shift  (16kHz x 5ms)
+fl=$((sr * 25)) # Frame length (16kHz x 25ms)
+fp=$((sr * 5)) # Frame shift  (16kHz x 5ms)
 nfft=512       # FFT length
 order=24       # Order of mel-cepstrum
 alpha=0.42     # Alpha of mel-cepstrum

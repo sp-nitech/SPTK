@@ -40,7 +40,7 @@ teardown() {
         $sptk3/mcep -m $m -q 0 -j 5 > $tmp/mc
 
     $sptk3/step -v 1 -l $s > $tmp/w
-    $sptk3/step -v $b -l $((m-s+1)) |
+    $sptk3/step -v $b -l $((m - s + 1)) |
         $sptk3/sopr -a 1 >> $tmp/w
 
     $sptk3/freqt -m $m -M $M -a $a -A 0 $tmp/mc |
@@ -53,13 +53,13 @@ teardown() {
     $sptk3/mc2b -m $m -a $a $tmp/mcw |
         $sptk3/bcp +d -n $m -s 0 -e 0 > $tmp/b0w
 
-    $sptk3/vopr -d < $tmp/r0 $tmp/r0w |
+    $sptk3/vopr -d           $tmp/r0w < $tmp/r0 |
         $sptk3/sopr -LN -d 2 |
         $sptk3/vopr -a $tmp/b0w > $tmp/b0p
 
     $sptk3/mc2b -m $m -a $a $tmp/mcw |
         $sptk3/bcp +d -n $m -s 1 -e $m |
-        $sptk3/merge +d -n $((m-1)) -s 0 -N 0 $tmp/b0p | \
+        $sptk3/merge +d -n $((m - 1)) -s 0 -N 0 $tmp/b0p |
         $sptk3/b2mc -m $m -a $a > $tmp/mcp
 
     $sptk4/mcpf -m $m -l $l -s $s -a $a -b $b $tmp/mc > $tmp/mcp2

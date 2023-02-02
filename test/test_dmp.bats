@@ -29,8 +29,8 @@ teardown() {
 
 @test "dmp: compatibility" {
     ary1=("c" "C" "s" "S" "i3" "I3" "i" "I" "l" "L" "f" "d" "de")
-    ary2=("c" "C" "s" "S" "h"  "H"  "i" "I" "l" "L" "f" "d" "e")
-    for t in $(seq 0 $((${#ary1[@]}-1))); do
+    ary2=("c" "C" "s" "S" "h" "H" "i" "I" "l" "L" "f" "d" "e")
+    for t in $(seq 0 $((${#ary1[@]} - 1))); do
         $sptk3/ramp -l 21 | $sptk3/x2x +d"${ary1[$t]}" > $tmp/1
 
         $sptk3/dmp +"${ary1[$t]}" $tmp/1 -n 5 |

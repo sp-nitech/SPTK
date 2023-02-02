@@ -22,8 +22,8 @@ data=../../../asset/data.short
 dump=dump
 
 sr=16          # Sample rate in kHz
-fl=$((sr*25))  # Frame length (16kHz x 25ms)
-fp=$((sr*5))   # Frame shift  (16kHz x 5ms)
+fl=$((sr * 25)) # Frame length (16kHz x 25ms)
+fp=$((sr * 5)) # Frame shift  (16kHz x 5ms)
 order=24       # Order of LPC
 
 mkdir -p $dump

@@ -33,7 +33,7 @@ teardown() {
 
     for d in $(seq 0 1); do
         for p in $(seq 0 6); do
-            $sptk3/dtw -l 2 -p $((p+1)) -n $((d+1)) \
+            $sptk3/dtw -l 2 -p $((p + 1)) -n $((d + 1)) \
                        $tmp/0_r $tmp/0_q -s $tmp/1_s > $tmp/1
             $sptk4/dtw -l 2 -p "$p" -d "$d" \
                        $tmp/0_r $tmp/0_q -S $tmp/2_s > $tmp/2
