@@ -16,6 +16,9 @@
 
 #include "SPTK/analysis/aperiodicity_extraction.h"
 
+#include <algorithm>  // std::copy, std::fill, std::min
+#include <cmath>      // std::ceil
+
 #include "SPTK/analysis/aperiodicity_extraction_by_tandem.h"
 #include "SPTK/analysis/aperiodicity_extraction_by_world.h"
 
@@ -40,6 +43,32 @@ AperiodicityExtraction::AperiodicityExtraction(
       break;
     }
   }
+}
+
+bool AperiodicityExtraction::Run(
+    const std::vector<double>& waveform, const std::vector<double>& f0,
+    std::vector<std::vector<double> >* aperiodicity) const {
+  if (NULL == aperiodicity_extraction_) {
+    return false;
+  }
+
+  const int target_f0_length(
+      static_cast<int>(std::ceil(static_cast<double>(waveform.size()) /
+                                 aperiodicity_extraction_->GetFrameShift())));
+  const int given_f0_length(static_cast<int>(f0.size()));
+  if (target_f0_length == given_f0_length) {
+    return aperiodicity_extraction_->Run(waveform, f0, aperiodicity);
+  }
+
+  std::vector<double> length_fixed_f0(target_f0_length);
+  std::copy(f0.begin(),
+            f0.begin() + std::min(target_f0_length, given_f0_length),
+            length_fixed_f0.begin());
+  if (given_f0_length < target_f0_length) {
+    std::fill(length_fixed_f0.begin() + given_f0_length, length_fixed_f0.end(),
+              f0.back());
+  }
+  return aperiodicity_extraction_->Run(waveform, length_fixed_f0, aperiodicity);
 }
 
 }  // namespace sptk

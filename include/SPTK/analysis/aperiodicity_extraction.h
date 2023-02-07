@@ -74,10 +74,7 @@ class AperiodicityExtraction {
    * @return True on success, false on failure.
    */
   bool Run(const std::vector<double>& waveform, const std::vector<double>& f0,
-           std::vector<std::vector<double> >* aperiodicity) const {
-    return (NULL != aperiodicity_extraction_ &&
-            aperiodicity_extraction_->Run(waveform, f0, aperiodicity));
-  }
+           std::vector<std::vector<double> >* aperiodicity) const;
 
  private:
   AperiodicityExtractionInterface* aperiodicity_extraction_;
