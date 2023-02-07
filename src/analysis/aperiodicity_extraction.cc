@@ -48,7 +48,8 @@ AperiodicityExtraction::AperiodicityExtraction(
 bool AperiodicityExtraction::Run(
     const std::vector<double>& waveform, const std::vector<double>& f0,
     std::vector<std::vector<double> >* aperiodicity) const {
-  if (NULL == aperiodicity_extraction_) {
+  if (NULL == aperiodicity_extraction_ ||
+      !aperiodicity_extraction_->IsValid()) {
     return false;
   }
 
@@ -64,7 +65,7 @@ bool AperiodicityExtraction::Run(
   std::copy(f0.begin(),
             f0.begin() + std::min(target_f0_length, given_f0_length),
             length_fixed_f0.begin());
-  if (given_f0_length < target_f0_length) {
+  if (1 <= given_f0_length && given_f0_length < target_f0_length) {
     std::fill(length_fixed_f0.begin() + given_f0_length, length_fixed_f0.end(),
               f0.back());
   }

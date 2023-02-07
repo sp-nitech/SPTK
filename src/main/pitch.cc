@@ -188,7 +188,7 @@ int main(int argc, char* argv[]) {
       }
       case 'p': {
         if (!sptk::ConvertStringToInteger(optarg, &frame_shift) ||
-            frame_shift <= 0.0) {
+            frame_shift <= 0) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -p option must be a positive integer";
