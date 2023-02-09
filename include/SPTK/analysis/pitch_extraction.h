@@ -42,13 +42,13 @@ namespace sptk {
  *
  * [4] M. Morise, H. Kawahara and H. Katayose, &quot;Fast and reliable F0
  *     estimation method based on the period extraction of vocal fold vibration
- *     of singing voice and speech, Proc. of AES 35th International Conference,
- *     2009.
+ *     of singing voice and speech,&quot; Proc. of AES 35th International
+ *     Conference, 2009.
  */
 class PitchExtraction {
  public:
   /**
-   * Pitch extraction algorithm type.
+   * Pitch extraction algorithms.
    */
   enum Algorithms { kRapt = 0, kSwipe, kReaper, kWorld, kNumAlgorithms };
 
@@ -84,10 +84,7 @@ class PitchExtraction {
    */
   bool Run(const std::vector<double>& waveform, std::vector<double>* f0,
            std::vector<double>* epochs,
-           PitchExtractionInterface::Polarity* polarity) const {
-    return (NULL != pitch_extraction_ &&
-            pitch_extraction_->Get(waveform, f0, epochs, polarity));
-  }
+           PitchExtractionInterface::Polarity* polarity) const;
 
  private:
   PitchExtractionInterface* pitch_extraction_;

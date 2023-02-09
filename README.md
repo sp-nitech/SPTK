@@ -130,6 +130,7 @@ Changes from SPTK3
 - No memory leaks
 - Thread-safe
 - New features:
+  - Aperiodicity extraction (`ap`)
   - Conversion from/to log area ratio (`lar2par` and `par2lar`)
   - Dynamic range compression (`drc`)
   - Entropy calculation (`entropy`)

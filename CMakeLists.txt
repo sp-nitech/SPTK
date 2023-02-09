@@ -58,13 +58,18 @@ set(CC_SOURCES
   ${THIRD_PARTY_DIR}/SWIPE/vector.cc
   ${THIRD_PARTY_DIR}/Snack/jkGetF0.cc
   ${THIRD_PARTY_DIR}/Snack/sigproc.cc
+  ${THIRD_PARTY_DIR}/WORLD/aperiodicity.cc
   ${THIRD_PARTY_DIR}/WORLD/common.cc
+  ${THIRD_PARTY_DIR}/WORLD/d4c.cc
   ${THIRD_PARTY_DIR}/WORLD/dio.cc
   ${THIRD_PARTY_DIR}/WORLD/fft_world.cc
   ${THIRD_PARTY_DIR}/WORLD/matlabfunctions.cc
   ${SOURCE_DIR}/analysis/adaptive_generalized_cepstral_analysis.cc
   ${SOURCE_DIR}/analysis/adaptive_mel_cepstral_analysis.cc
   ${SOURCE_DIR}/analysis/adaptive_mel_generalized_cepstral_analysis.cc
+  ${SOURCE_DIR}/analysis/aperiodicity_extraction.cc
+  ${SOURCE_DIR}/analysis/aperiodicity_extraction_by_tandem.cc
+  ${SOURCE_DIR}/analysis/aperiodicity_extraction_by_world.cc
   ${SOURCE_DIR}/analysis/autocorrelation_analysis.cc
   ${SOURCE_DIR}/analysis/fast_fourier_transform_cepstral_analysis.cc
   ${SOURCE_DIR}/analysis/mel_cepstral_analysis.cc
@@ -213,6 +218,7 @@ set(MAIN_SOURCES
   ${SOURCE_DIR}/main/acr2csm.cc
   ${SOURCE_DIR}/main/aeq.cc
   ${SOURCE_DIR}/main/amgcep.cc
+  ${SOURCE_DIR}/main/ap.cc
   ${SOURCE_DIR}/main/average.cc
   ${SOURCE_DIR}/main/b2mc.cc
   ${SOURCE_DIR}/main/bcp.cc

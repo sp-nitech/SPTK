@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // Copyright 2012 Masanori Morise
-// Author: mmorise [at] yamanashi.ac.jp (Masanori Morise)
-// Last update: 2017/02/01
+// Author: mmorise [at] meiji.ac.jp (Masanori Morise)
+// Last update: 2021/02/15
 //
 // Matlab functions implemented for WORLD
 // Since these functions are implemented as the same function of Matlab,
@@ -162,27 +162,21 @@ void histc(const double *x, int x_length, const double *edges,
 void interp1(const double *x, const double *y, int x_length, const double *xi,
     int xi_length, double *yi) {
   double *h = new double[x_length - 1];
-  double *p = new double[xi_length];
-  double *s = new double[xi_length];
   int *k = new int[xi_length];
 
   for (int i = 0; i < x_length - 1; ++i) h[i] = x[i + 1] - x[i];
   for (int i = 0; i < xi_length; ++i) {
-    p[i] = i;
     k[i] = 0;
   }
 
   histc(x, x_length, xi, xi_length, k);
 
-  for (int i = 0; i < xi_length; ++i)
-    s[i] = (xi[i] - x[k[i] - 1]) / h[k[i] - 1];
-
-  for (int i = 0; i < xi_length; ++i)
-    yi[i] = y[k[i] - 1] + s[i] * (y[k[i]] - y[k[i] - 1]);
+  for (int i = 0; i < xi_length; ++i) {
+    double s = (xi[i] - x[k[i] - 1]) / h[k[i] - 1];
+    yi[i] = y[k[i] - 1] + s * (y[k[i]] - y[k[i] - 1]);
+  }
 
   delete[] k;
-  delete[] s;
-  delete[] p;
   delete[] h;
 }
 
@@ -203,7 +197,7 @@ void decimate(const double *x, int x_length, int r, double *y) {
   for (int i = 0; i < 2 * kNFact + x_length; ++i)
     tmp1[i] = tmp2[2 * kNFact + x_length - i - 1];
 
-  int nout = x_length / r + 1;
+  int nout = (x_length - 1) / r + 1;
   int nbeg = r - r * nout + x_length;
 
   int count = 0;
@@ -317,6 +311,34 @@ void fast_fftfilt(const double *x, int x_length, const double *h, int h_length,
 
   delete[] x_spectrum;
 }
+
+#if 1
+void inv(double **r, int n, double **invr) {
+  for (int i = 0; i < n; ++i)
+    for (int j = 0; j < n; ++j) invr[i][j] = 0.0;
+  for (int i = 0; i < n; ++i) invr[i][i] = 1.0;
+
+  double tmp;
+  for (int i = 0; i < n; ++i) {
+    tmp = r[i][i];
+    r[i][i] = 1.0;
+    for (int j = 0; j <= i; ++j) invr[i][j] /= tmp;
+    for (int j = i + 1; j < n; ++j) r[i][j] /= tmp;
+    for (int j = i + 1; j < n; ++j) {
+      tmp = r[j][i];
+      for (int k = 0; k <= i; ++k) invr[j][k] -= invr[i][k] * tmp;
+      for (int k = i; k < n; ++k) r[j][k] -= r[i][k] * tmp;
+    }
+  }
+
+  for (int i = n - 1; i >= 0; --i) {
+    for (int j = 0; j < i; ++j) {
+      tmp = r[j][i];
+      for (int k = 0; k < n; ++k) invr[j][k] -= invr[i][k] * tmp;
+    }
+  }
+}
+#endif
 
 double matlab_std(const double *x, int x_length) {
   double average = 0.0;

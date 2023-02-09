@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // Copyright 2012 Masanori Morise
-// Author: mmorise [at] yamanashi.ac.jp (Masanori Morise)
-// Last update: 2018/01/21
+// Author: mmorise [at] meiji.ac.jp (Masanori Morise)
+// Last update: 2021/02/15
 //
 // This file represents the functions about FFT (Fast Fourier Transform)
 // implemented by Mr. Ooura, and wrapper functions implemented by M. Morise.
@@ -14,7 +14,11 @@
 //   (English) http://www.fftw.org/
 // 2012/08/24 by M. Morise
 //-----------------------------------------------------------------------------
+#if 0
+#include "world/fft.h"
+#else
 #include "world/fft_world.h"
+#endif
 
 #include <math.h>
 #include <stdlib.h>

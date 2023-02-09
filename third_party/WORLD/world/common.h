@@ -1,12 +1,16 @@
 //-----------------------------------------------------------------------------
 // Copyright 2012 Masanori Morise
-// Author: mmorise [at] yamanashi.ac.jp (Masanori Morise)
-// Last update: 2017/04/29
+// Author: mmorise [at] meiji.ac.jp (Masanori Morise)
+// Last update: 2021/02/15
 //-----------------------------------------------------------------------------
 #ifndef WORLD_COMMON_H_
 #define WORLD_COMMON_H_
 
+#if 0
+#include "world/fft.h"
+#else
 #include "world/fft_world.h"
+#endif
 #include "world/macrodefinitions.h"
 
 #if 1
