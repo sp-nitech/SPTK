@@ -48,7 +48,7 @@ namespace sptk {
 class PitchExtraction {
  public:
   /**
-   * Pitch extraction algorithm type.
+   * Pitch extraction algorithms.
    */
   enum Algorithms { kRapt = 0, kSwipe, kReaper, kWorld, kNumAlgorithms };
 

@@ -42,7 +42,7 @@ namespace sptk {
 class AperiodicityExtraction {
  public:
   /**
-   * Aperiodicity extraction algorithm type.
+   * Aperiodicity extraction algorithms.
    */
   enum Algorithms { kTandem = 0, kWorld, kNumAlgorithms };
 

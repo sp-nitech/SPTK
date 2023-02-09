@@ -118,7 +118,7 @@ void PrintUsage(std::ostream* stream) {
  *   - output format
  *     @arg @c 0 Ha
  *     @arg @c 1 Hp
- *     @arg @c 2 Ha/HP
+ *     @arg @c 2 Ha/Hp
  *     @arg @c 3 Hp/Ha
  * - @b infile @e str
  *   - double-type waveform
@@ -126,6 +126,13 @@ void PrintUsage(std::ostream* stream) {
  *   - double-type pitch
  * - @b stdout
  *   - double-type aperiodicity
+ *
+ * The below is a simple example to extract aperiodicity from @c data.d
+ *
+ * @code{.sh}
+ *   pitch -s 16 -p 80 -L 80 -H 200 -o 0 < data.d > data.f0
+ *   ap -s 16 -p 80 -q 0 data.f0 < data.d > data.ap
+ * @endcode
  *
  * @param[in] argc Number of arguments.
  * @param[in] argv Argument vector.

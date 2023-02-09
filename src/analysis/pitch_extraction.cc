@@ -58,7 +58,7 @@ PitchExtraction::PitchExtraction(int frame_shift, double sampling_rate,
 bool PitchExtraction::Run(const std::vector<double>& waveform,
                           std::vector<double>* f0, std::vector<double>* epochs,
                           PitchExtractionInterface::Polarity* polarity) const {
-  if (NULL == pitch_extraction_ || !pitch_extraction_->IsValid()) {
+  if (!IsValid()) {
     return false;
   }
 
