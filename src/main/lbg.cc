@@ -43,25 +43,27 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       lbg [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : length of vector              (   int)[" << std::setw(5) << std::right << kDefaultNumOrder + 1          << "][   1 <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -m m  : order of vector               (   int)[" << std::setw(5) << std::right << "l-1"                         << "][   0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -s s  : seed                          (   int)[" << std::setw(5) << std::right << kDefaultSeed                  << "][     <= s <=   ]" << std::endl;  // NOLINT
-  *stream << "       -e e  : target codebook size          (   int)[" << std::setw(5) << std::right << kDefaultTargetCodebookSize    << "][   2 <= e <=   ]" << std::endl;  // NOLINT
-  *stream << "       -C C  : input filename of double type (string)[" << std::setw(5) << std::right << "N/A"                         << "]" << std::endl;  // NOLINT
+  *stream << "       -l l  : length of vector               (   int)[" << std::setw(5) << std::right << kDefaultNumOrder + 1          << "][   1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of vector                (   int)[" << std::setw(5) << std::right << "l-1"                         << "][   0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : seed                           (   int)[" << std::setw(5) << std::right << kDefaultSeed                  << "][     <= s <=   ]" << std::endl;  // NOLINT
+  *stream << "       -e e  : target codebook size           (   int)[" << std::setw(5) << std::right << kDefaultTargetCodebookSize    << "][   2 <= e <=   ]" << std::endl;  // NOLINT
+  *stream << "       -C C  : input filename of double type  (string)[" << std::setw(5) << std::right << "N/A"                         << "]" << std::endl;  // NOLINT
   *stream << "               initial codebook" << std::endl;
-  *stream << "       -I I  : output filename of int type   (string)[" << std::setw(5) << std::right << "N/A"                         << "]" << std::endl;  // NOLINT
+  *stream << "       -I I  : output filename of int type    (string)[" << std::setw(5) << std::right << "N/A"                         << "]" << std::endl;  // NOLINT
   *stream << "               codebook index" << std::endl;
+  *stream << "       -S S  : output filename of double type (string)[" << std::setw(5) << std::right << "N/A"                         << "]" << std::endl;  // NOLINT
+  *stream << "               total distance" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "     (level 2)" << std::endl;
-  *stream << "       -n n  : minimum number of vectors in  (   int)[" << std::setw(5) << std::right << kDefaultMinNumVectorInCluster << "][   1 <= n <=   ]" << std::endl;  // NOLINT
+  *stream << "       -n n  : minimum number of vectors in   (   int)[" << std::setw(5) << std::right << kDefaultMinNumVectorInCluster << "][   1 <= n <=   ]" << std::endl;  // NOLINT
   *stream << "               a cluster" << std::endl;
-  *stream << "       -i i  : maximum number of iterations  (   int)[" << std::setw(5) << std::right << kDefaultNumIteration          << "][   1 <= i <=   ]" << std::endl;  // NOLINT
-  *stream << "       -d d  : convergence threshold         (double)[" << std::setw(5) << std::right << kDefaultConvergenceThreshold  << "][ 0.0 <= d <=   ]" << std::endl;  // NOLINT
-  *stream << "       -r r  : splitting factor              (double)[" << std::setw(5) << std::right << kDefaultSplittingFactor       << "][ 0.0 <  r <=   ]" << std::endl;  // NOLINT
+  *stream << "       -i i  : maximum number of iterations   (   int)[" << std::setw(5) << std::right << kDefaultNumIteration          << "][   1 <= i <=   ]" << std::endl;  // NOLINT
+  *stream << "       -d d  : convergence threshold          (double)[" << std::setw(5) << std::right << kDefaultConvergenceThreshold  << "][ 0.0 <= d <=   ]" << std::endl;  // NOLINT
+  *stream << "       -r r  : splitting factor               (double)[" << std::setw(5) << std::right << kDefaultSplittingFactor       << "][ 0.0 <  r <=   ]" << std::endl;  // NOLINT
   *stream << "  infile:" << std::endl;
-  *stream << "       vectors                               (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       vectors                                (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       codebook                              (double)" << std::endl;  // NOLINT
+  *stream << "       codebook                               (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
   *stream << "       number of input vectors must be equal to or greater than n * e" << std::endl;  // NOLINT
   *stream << "       final codebook size may not be e because codebook size is always doubled" << std::endl;  // NOLINT
@@ -88,6 +90,8 @@ void PrintUsage(std::ostream* stream) {
  *   - double-type initial codebook
  * - @b -I @e str
  *   - int-type output codebook index
+ * - @b -S @e str
+ *   - double-type output total distance
  * - @b -n @e int
  *   - minimum number of vectors in a cluster @f$(1 \le V)@f$
  * - @b -i @e int
@@ -118,6 +122,7 @@ int main(int argc, char* argv[]) {
   int target_codebook_size(kDefaultTargetCodebookSize);
   const char* initial_codebook_file(NULL);
   const char* codebook_index_file(NULL);
+  const char* total_distance_file(NULL);
   int min_num_vector_in_cluster(kDefaultMinNumVectorInCluster);
   int num_iteration(kDefaultNumIteration);
   double convergence_threshold(kDefaultConvergenceThreshold);
@@ -125,7 +130,7 @@ int main(int argc, char* argv[]) {
 
   for (;;) {
     const int option_char(
-        getopt_long(argc, argv, "l:m:s:e:C:I:n:i:d:r:h", NULL, NULL));
+        getopt_long(argc, argv, "l:m:s:e:C:I:S:n:i:d:r:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -178,6 +183,10 @@ int main(int argc, char* argv[]) {
       }
       case 'I': {
         codebook_index_file = optarg;
+        break;
+      }
+      case 'S': {
+        total_distance_file = optarg;
         break;
       }
       case 'n': {
@@ -302,18 +311,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  std::ofstream ofs;
-  if (NULL != codebook_index_file) {
-    ofs.open(codebook_index_file, std::ios::out | std::ios::binary);
-    if (ofs.fail()) {
-      std::ostringstream error_message;
-      error_message << "Cannot open file " << codebook_index_file;
-      sptk::PrintErrorMessage("lbg", error_message);
-      return 1;
-    }
-  }
-  std::ostream& output_stream(ofs);
-
   sptk::LindeBuzoGrayAlgorithm codebook_design(
       num_order, static_cast<int>(codebook_vectors.size()),
       target_codebook_size, min_num_vector_in_cluster, num_iteration,
@@ -325,9 +322,10 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  double total_distance;
   std::vector<int> codebook_indices(input_vectors.size());
-  if (!codebook_design.Run(input_vectors, &codebook_vectors,
-                           &codebook_indices)) {
+  if (!codebook_design.Run(input_vectors, &codebook_vectors, &codebook_indices,
+                           &total_distance)) {
     std::ostringstream error_message;
     error_message << "Failed to design codebook";
     sptk::PrintErrorMessage("lbg", error_message);
@@ -346,10 +344,39 @@ int main(int argc, char* argv[]) {
   }
 
   if (NULL != codebook_index_file) {
+    std::ofstream ofs;
+    ofs.open(codebook_index_file, std::ios::out | std::ios::binary);
+    if (ofs.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << codebook_index_file;
+      sptk::PrintErrorMessage("lbg", error_message);
+      return 1;
+    }
+    std::ostream& output_stream(ofs);
+
     if (!sptk::WriteStream(0, static_cast<int>(codebook_indices.size()),
                            codebook_indices, &output_stream, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write codebook index";
+      sptk::PrintErrorMessage("lbg", error_message);
+      return 1;
+    }
+  }
+
+  if (NULL != total_distance_file) {
+    std::ofstream ofs;
+    ofs.open(total_distance_file, std::ios::out | std::ios::binary);
+    if (ofs.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << total_distance_file;
+      sptk::PrintErrorMessage("lbg", error_message);
+      return 1;
+    }
+    std::ostream& output_stream(ofs);
+
+    if (!sptk::WriteStream(total_distance, &output_stream)) {
+      std::ostringstream error_message;
+      error_message << "Failed to write total distance";
       sptk::PrintErrorMessage("lbg", error_message);
       return 1;
     }
