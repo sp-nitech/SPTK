@@ -529,9 +529,10 @@ bool GaussianMixtureModeling::Initialize(
     const double convergence_threshold(1e-5);
     const double splitting_factor(1e-5);
     const int seed(1);
+    double distance;
     LindeBuzoGrayAlgorithm lbg(num_order_, 1, num_mixture_, 1, num_iteration,
                                convergence_threshold, splitting_factor, seed);
-    if (!lbg.Run(input_vectors, mean_vectors, &codebook_indices)) {
+    if (!lbg.Run(input_vectors, mean_vectors, &codebook_indices, &distance)) {
       return false;
     }
   }

@@ -170,11 +170,12 @@ class LindeBuzoGrayAlgorithm {
    * @param[in,out] codebook_vectors @f$M@f$-th order codebook vectors.
    *                The shape is @f$[I, M+1]@f$.
    * @param[out] codebook_indices @f$T@f$ codebook indices.
+   * @param[out] total_distance Total distance.
    * @return True on success, false on failure.
    */
   bool Run(const std::vector<std::vector<double> >& input_vectors,
            std::vector<std::vector<double> >* codebook_vectors,
-           std::vector<int>* codebook_indices) const;
+           std::vector<int>* codebook_indices, double* total_distance) const;
 
  private:
   const int num_order_;

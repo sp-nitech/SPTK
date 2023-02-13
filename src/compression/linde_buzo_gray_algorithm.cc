@@ -55,12 +55,13 @@ LindeBuzoGrayAlgorithm::LindeBuzoGrayAlgorithm(
 bool LindeBuzoGrayAlgorithm::Run(
     const std::vector<std::vector<double> >& input_vectors,
     std::vector<std::vector<double> >* codebook_vectors,
-    std::vector<int>* codebook_indices) const {
+    std::vector<int>* codebook_indices, double* total_distance) const {
   // Check inputs.
   const int num_input_vector(static_cast<int>(input_vectors.size()));
   if (!is_valid_ ||
       num_input_vector < min_num_vector_in_cluster_ * target_codebook_size_ ||
       NULL == codebook_vectors || NULL == codebook_indices ||
+      NULL == total_distance ||
       codebook_vectors->size() !=
           static_cast<std::size_t>(initial_codebook_size_)) {
     return false;
@@ -74,6 +75,8 @@ bool LindeBuzoGrayAlgorithm::Run(
 
   // Prepare random value generator.
   NormalDistributedRandomValueGeneration random_value_generation(seed_);
+
+  *total_distance = DBL_MAX;
 
   // Design codebook.
   int current_codebook_size(initial_codebook_size_);
@@ -103,10 +106,10 @@ bool LindeBuzoGrayAlgorithm::Run(
 
     current_codebook_size = next_codebook_size;
 
-    double prev_total_distance(DBL_MAX);
+    double prev_total_distance;
     for (int n(0); n < num_iteration_; ++n) {
       // Initialize.
-      double total_distance(0.0);
+      double sum(0.0);
       for (int i(0); i < current_codebook_size; ++i) {
         statistics_accumulation_.Clear(&(buffers[i]));
       }
@@ -130,17 +133,20 @@ bool LindeBuzoGrayAlgorithm::Run(
                                        (*codebook_vectors)[index], &distance)) {
           return false;
         }
-        total_distance += distance;
+        sum += distance;
       }
-      total_distance /= num_input_vector;
+      *total_distance = sum / num_input_vector;
 
       // Check convergence.
-      const double criterion_value(
-          std::fabs(prev_total_distance - total_distance) / total_distance);
-      if (0.0 == total_distance || criterion_value < convergence_threshold_) {
-        break;
+      if (0 < n) {
+        const double criterion_value(
+            std::fabs(prev_total_distance - *total_distance) / *total_distance);
+        if (0.0 == *total_distance ||
+            criterion_value < convergence_threshold_) {
+          break;
+        }
       }
-      prev_total_distance = total_distance;
+      prev_total_distance = *total_distance;
 
       // Update codebook (M-step) and find a maximum cluster.
       int majority_index(-1);
