@@ -106,7 +106,7 @@ bool LindeBuzoGrayAlgorithm::Run(
 
     current_codebook_size = next_codebook_size;
 
-    double prev_total_distance;
+    double prev_total_distance(DBL_MAX);
     for (int n(0); n < num_iteration_; ++n) {
       // Initialize.
       double sum(0.0);
@@ -138,13 +138,10 @@ bool LindeBuzoGrayAlgorithm::Run(
       *total_distance = sum / num_input_vector;
 
       // Check convergence.
-      if (0 < n) {
-        const double criterion_value(
-            std::fabs(prev_total_distance - *total_distance) / *total_distance);
-        if (0.0 == *total_distance ||
-            criterion_value < convergence_threshold_) {
-          break;
-        }
+      const double criterion_value(
+          std::fabs(prev_total_distance - *total_distance) / *total_distance);
+      if (0.0 == *total_distance || criterion_value < convergence_threshold_) {
+        break;
       }
       prev_total_distance = *total_distance;
 

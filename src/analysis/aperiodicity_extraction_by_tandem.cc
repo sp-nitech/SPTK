@@ -43,7 +43,7 @@ bool AperiodicityExtractionByTandem::Run(
     return false;
   }
 
-  const int f0_length(f0.size());
+  const int f0_length(static_cast<int>(f0.size()));
   const double frame_shift_in_sec(frame_shift_ / sampling_rate_);
   std::vector<double> time_axis(f0_length);
   for (int i(0); i < f0_length; ++i) {
