@@ -24,7 +24,7 @@ What is SPTK?
   ```sh
   x2x +sd < data.raw | clip | x2x +da | less
   ```
-- The data type is basically little-endian double 16 bytes.
+- The data type is basically little-endian double 8 bytes.
 - The commands do not require interactive user inputs.
   Parameters are set via command line options beforehand.
   ```sh
