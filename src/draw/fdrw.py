@@ -339,7 +339,7 @@ def main():
             family=args.font_family,
             size=args.font_size,
         ),
-        showlegend=args.names is None or 0 < len(args.names),
+        showlegend=names is not None,
     )
     fig.write_image(
         args.out_file, width=args.width, height=args.height, scale=args.factor
