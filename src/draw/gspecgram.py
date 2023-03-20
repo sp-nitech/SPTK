@@ -132,6 +132,8 @@ def get_arguments():
 #   - width of figure in pixels
 # - @b -H @e int
 #   - height of figure in pixels
+# - @b -M @e int or str
+#   - margin around image in pixels
 # - @b -s @e int
 #   - start point
 # - @b -e @e int
@@ -237,7 +239,8 @@ def main():
         font=dict(
             family=args.font_family,
             size=args.font_size,
-        )
+        ),
+        margin=args.margin,
     )
 
     # Hide reference color bar.

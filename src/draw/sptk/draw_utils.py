@@ -124,6 +124,25 @@ def print_error_message(name, message):
 
 
 def get_default_parser(description, input_name=None, allow_dtype=True):
+    class MarginAction(argparse.Action):
+        def __init__(self, option_strings, dest, nargs=None, **kwargs):
+            if nargs is not None:
+                raise ValueError("nargs not allowed")
+            super().__init__(option_strings, dest, **kwargs)
+
+        def __call__(self, parser, namespace, values, option_string=None):
+            if values is not None:
+                v = [int(x) for x in values.split(",")]
+                if len(v) == 1:
+                    values = dict(l=v[0], r=v[0], t=v[0], b=v[0])
+                elif len(v) == 2:
+                    values = dict(l=v[0], r=v[0], t=v[1], b=v[1])
+                elif len(v) == 4:
+                    values = dict(l=v[0], r=v[1], t=v[2], b=v[3])
+                else:
+                    raise ValueError("unexpected margin")
+            setattr(namespace, self.dest, values)
+
     parser = argparse.ArgumentParser(description=description, prefix_chars="-+")
     if input_name is not None:
         parser.add_argument(
@@ -163,6 +182,15 @@ def get_default_parser(description, input_name=None, allow_dtype=True):
         default=None,
         type=int,
         help="height of figure [px]",
+    )
+    parser.add_argument(
+        "-M",
+        metavar="M",
+        dest="margin",
+        default=None,
+        action=MarginAction,
+        type=str,
+        help="comma-separated margin (l,r,t,b) [px]",
     )
     parser.add_argument(
         "-ff",
