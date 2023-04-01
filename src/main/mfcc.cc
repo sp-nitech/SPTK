@@ -142,7 +142,7 @@ void PrintUsage(std::ostream* stream) {
  *
  * @code{.sh}
  *   x2x +sd data.short |
- *     frame -l 400 -p 160 -n |
+ *     frame -l 400 -p 160 -n 1 |
  *     dfs -b 1 -0.97 |
  *     window -l 400 -L 512 -w 1 -n 0 |
  *     mfcc -l 512 -n 40 -c 22 -m 12 -L 64 -H 4000 -o 1 |
