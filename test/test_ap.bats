@@ -32,7 +32,7 @@ teardown() {
     $sptk3/x2x +sd $data > $tmp/0
     $sptk4/pitch $tmp/0 > $tmp/1
     for a in $(seq 0 1); do
-        run valgrind $sptk4/ap -a "$a" -l 12 $tmp/1 $tmp/0
+        run valgrind $sptk4/ap -a "$a" -l 16 $tmp/1 $tmp/0
         [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
     done
 }
