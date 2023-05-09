@@ -16,9 +16,11 @@
 
 #include "SPTK/analysis/spectrum_extraction_by_world.h"
 
-#include <cstddef>  // std::size_t
+#include <algorithm>  // std::min_element
+#include <cstddef>    // std::size_t
 
 #include "WORLD/world/cheaptrick.h"
+#include "WORLD/world/stonemask.h"
 
 namespace sptk {
 
@@ -47,6 +49,7 @@ bool SpectrumExtractionByWorld::Run(
   world::CheapTrickOption option;
   world::InitializeCheapTrickOption(sampling_rate_, &option);
   option.fft_size = fft_length_;
+  option.f0_floor = *std::min_element(f0.begin(), f0.end());
 
   const int f0_length(f0.size());
   const double frame_shift_in_sec(frame_shift_ / sampling_rate_);
@@ -66,15 +69,22 @@ bool SpectrumExtractionByWorld::Run(
     }
   }
 
+  // Modify F0 for pitch-adaptive spectrum estimation.
+  std::vector<double> modified_f0(f0_length);
+  world::StoneMask(waveform.data(), static_cast<int>(waveform.size()),
+                   static_cast<int>(sampling_rate_), time_axis.data(),
+                   f0.data(), f0_length, modified_f0.data());
+
   std::vector<double*> pointers;
   pointers.reserve(f0_length);
   for (std::vector<double>& vector : *spectrum) {
     pointers.push_back(vector.data());
   }
 
+  // Estimate spectrum.
   world::CheapTrick(waveform.data(), static_cast<int>(waveform.size()),
                     static_cast<int>(sampling_rate_), time_axis.data(),
-                    f0.data(), f0_length, &option, pointers.data());
+                    modified_f0.data(), f0_length, &option, pointers.data());
 
   return true;
 }

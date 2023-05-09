@@ -68,10 +68,7 @@ class SpectrumExtraction {
    * @return True on success, false on failure.
    */
   bool Run(const std::vector<double>& waveform, const std::vector<double>& f0,
-           std::vector<std::vector<double> >* spectrum) const {
-    return (NULL != spectrum_extraction_ &&
-            spectrum_extraction_->Run(waveform, f0, spectrum));
-  }
+           std::vector<std::vector<double> >* spectrum) const;
 
  private:
   SpectrumExtractionInterface* spectrum_extraction_;

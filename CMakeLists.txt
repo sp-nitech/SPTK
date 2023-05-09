@@ -65,6 +65,7 @@ set(CC_SOURCES
   ${THIRD_PARTY_DIR}/WORLD/dio.cc
   ${THIRD_PARTY_DIR}/WORLD/fft_world.cc
   ${THIRD_PARTY_DIR}/WORLD/matlabfunctions.cc
+  ${THIRD_PARTY_DIR}/WORLD/stonemask.cc
   ${SOURCE_DIR}/analysis/adaptive_generalized_cepstral_analysis.cc
   ${SOURCE_DIR}/analysis/adaptive_mel_cepstral_analysis.cc
   ${SOURCE_DIR}/analysis/adaptive_mel_generalized_cepstral_analysis.cc

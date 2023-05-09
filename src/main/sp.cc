@@ -70,6 +70,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       pitch                           (double)" << std::endl;
   *stream << "  stdout:" << std::endl;
   *stream << "       spectrum                        (double)" << std::endl;
+  *stream << "  notice:" << std::endl;
+  *stream << "       magic number representing unvoiced symbol is 0 (q = 0, 1) or -1e+10 (q = 2)" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -158,7 +160,7 @@ int main(int argc, char* argv[]) {
       }
       case 'p': {
         if (!sptk::ConvertStringToInteger(optarg, &frame_shift) ||
-            frame_shift <= 0.0) {
+            frame_shift <= 0) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -p option must be a positive integer";

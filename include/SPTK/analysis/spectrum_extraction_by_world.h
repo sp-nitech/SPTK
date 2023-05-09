@@ -50,7 +50,7 @@ class SpectrumExtractionByWorld : public SpectrumExtractionInterface {
   /**
    * @return Frame shift.
    */
-  int GetFrameShift() const {
+  virtual int GetFrameShift() const {
     return frame_shift_;
   }
 

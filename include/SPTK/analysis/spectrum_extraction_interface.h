@@ -30,6 +30,11 @@ class SpectrumExtractionInterface {
   }
 
   /**
+   * @return Frame shift.
+   */
+  virtual int GetFrameShift() const = 0;
+
+  /**
    * @return True if this object is valid.
    */
   virtual bool IsValid() const = 0;
