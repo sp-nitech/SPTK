@@ -73,6 +73,7 @@ format-sh:
 	fi
 	./tools/shellcheck/shellcheck egs/*/*/run.sh
 	./tools/shellcheck/shellcheck -x test/*.bats
+	./tools/shfmt/shfmt -i 4 -ci -sr -kp -w egs/*/*/run.sh test/*.bats
 
 format-py:
 	@if [ ! -x ./tools/venv/bin/black ] || [ ! -x ./tools/venv/bin/isort ] || [ ! -x ./tools/venv/bin/flake8 ]; then \
@@ -113,7 +114,10 @@ test:
 test-clean:
 	rm -rf test_*
 
+tool:
+	cd tools; make
+
 clean: doc-clean test-clean
 	rm -rf $(BUILDDIR) $(LIBDIR) $(BINDIR)
 
-.PHONY: all build doc doc-clean format test test-clean clean
+.PHONY: all build doc doc-clean format test test-clean tool clean

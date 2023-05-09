@@ -52,7 +52,7 @@ namespace sptk {
  *   \bar{\nabla} \epsilon^{(n)} = \tau \bar{\nabla} \epsilon^{(n-1)}
  *     -2 (1-\tau) e(n) \boldsymbol{e}^{(n)}_{\Phi}
  * @f]
- * where @f$\tau@f$ is the moment and
+ * where @f$\tau@f$ is the momentum and
  * @f$\boldsymbol{e}^{(n)}_{\Phi}=[e_1(n),e_2(n),\ldots,e_M(n)]^{\mathsf{T}}@f$
  * is the set of outputs of the filter @f$\Phi_m(z)@f$:
  * @image html amcep_2.png
@@ -97,11 +97,12 @@ class AdaptiveMelCepstralAnalysis {
    * @param[in] momentum Momentum, @f$\tau@f$.
    * @param[in] forgetting_factor Forgetting factor, @f$\lambda@f$.
    * @param[in] step_size_factor Step-size factor, @f$a@f$.
+   * @param[in] gain_flag If true, perform filtering with gain.
    */
   AdaptiveMelCepstralAnalysis(int num_order, int num_pade_order, double alpha,
                               double min_epsilon, double momentum,
-                              double forgetting_factor,
-                              double step_size_factor);
+                              double forgetting_factor, double step_size_factor,
+                              bool gain_flag);
 
   virtual ~AdaptiveMelCepstralAnalysis() {
   }
@@ -156,6 +157,13 @@ class AdaptiveMelCepstralAnalysis {
   }
 
   /**
+   * @return Gain flag.
+   */
+  bool GetGainFlag() const {
+    return gain_flag_;
+  }
+
+  /**
    * @return True if this object is valid.
    */
   bool IsValid() const {
@@ -178,6 +186,7 @@ class AdaptiveMelCepstralAnalysis {
   const double momentum_;
   const double forgetting_factor_;
   const double step_size_factor_;
+  const bool gain_flag_;
 
   const MlsaDigitalFilter mlsa_digital_filter_;
   const MlsaDigitalFilterCoefficientsToMelCepstrum

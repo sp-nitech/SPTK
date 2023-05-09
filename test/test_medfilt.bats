@@ -32,7 +32,7 @@ teardown() {
     cmd+="y = medfilt([0, 1, -2, 7, 4, 8, -5, -6, 3], kernel_size=3); "
     cmd+="print(' '.join(map(str, y[1:-1])))"
     tools/venv/bin/python -c "${cmd}" | $sptk3/x2x +ad > $tmp/1
-    echo "0 1 -2 7 4 8 -5 -6 3" | $sptk3/x2x +ad | \
+    echo "0 1 -2 7 4 8 -5 -6 3" | $sptk3/x2x +ad |
         $sptk4/medfilt -m 0 -k 2 | $sptk3/bcut +d -s 1 -e 7 > $tmp/2
     run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]

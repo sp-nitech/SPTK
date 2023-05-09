@@ -55,7 +55,7 @@ namespace sptk {
  *   \bar{\nabla} \epsilon^{(n)} = \tau \bar{\nabla} \epsilon^{(n-1)}
  *     -2 (1-\tau) e_\gamma(n) \boldsymbol{e}^{(n)}_{\gamma}
  * @f]
- * where @f$\tau@f$ is the moment and
+ * where @f$\tau@f$ is the momentum and
  * @f$\boldsymbol{e}^{(n)}_{\gamma} =
  *   [e_\gamma(n-1),\ldots,e_\gamma(n-M)]^{\mathsf{T}}@f$
  * is the set of outputs of the filter
@@ -98,11 +98,12 @@ class AdaptiveGeneralizedCepstralAnalysis {
    * @param[in] momentum Momentum, @f$\tau@f$.
    * @param[in] forgetting_factor Forgetting factor, @f$\lambda@f$.
    * @param[in] step_size_factor Step-size factor, @f$a@f$.
+   * @param[in] gain_flag If true, perform filtering with gain.
    */
   AdaptiveGeneralizedCepstralAnalysis(int num_order, int num_stage,
                                       double min_epsilon, double momentum,
                                       double forgetting_factor,
-                                      double step_size_factor);
+                                      double step_size_factor, bool gain_flag);
 
   virtual ~AdaptiveGeneralizedCepstralAnalysis() {
   }
@@ -157,6 +158,13 @@ class AdaptiveGeneralizedCepstralAnalysis {
   }
 
   /**
+   * @return Gain flag.
+   */
+  bool GetGainFlag() const {
+    return gain_flag_;
+  }
+
+  /**
    * @return True if this object is valid.
    */
   bool IsValid() const {
@@ -181,6 +189,7 @@ class AdaptiveGeneralizedCepstralAnalysis {
   const double momentum_;
   const double forgetting_factor_;
   const double step_size_factor_;
+  const bool gain_flag_;
 
   const GeneralizedCepstrumInverseGainNormalization
       generalized_cepstrum_inverse_gain_normalization_;

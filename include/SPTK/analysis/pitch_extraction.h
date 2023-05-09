@@ -48,7 +48,7 @@ namespace sptk {
 class PitchExtraction {
  public:
   /**
-   * Pitch extraction algorithm type.
+   * Pitch extraction algorithms.
    */
   enum Algorithms { kRapt = 0, kSwipe, kReaper, kWorld, kNumAlgorithms };
 
@@ -84,10 +84,7 @@ class PitchExtraction {
    */
   bool Run(const std::vector<double>& waveform, std::vector<double>* f0,
            std::vector<double>* epochs,
-           PitchExtractionInterface::Polarity* polarity) const {
-    return (NULL != pitch_extraction_ &&
-            pitch_extraction_->Get(waveform, f0, epochs, polarity));
-  }
+           PitchExtractionInterface::Polarity* polarity) const;
 
  private:
   PitchExtractionInterface* pitch_extraction_;

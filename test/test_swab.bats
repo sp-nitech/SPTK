@@ -29,8 +29,8 @@ teardown() {
 
 @test "swab: compatibility" {
     ary1=("s" "S" "i3" "I3" "i" "I" "l" "L" "f" "d" "de")
-    ary2=("s" "S" "h"  "H"  "i" "I" "l" "L" "f" "d" "e")
-    for t in $(seq 0 $((${#ary1[@]}-1))); do
+    ary2=("s" "S" "h" "H" "i" "I" "l" "L" "f" "d" "e")
+    for t in $(seq 0 $((${#ary1[@]} - 1))); do
         $sptk3/ramp -l 20 | $sptk3/x2x +d"${ary1[$t]}" > $tmp/1
 
         $sptk3/swab +"${ary1[$t]}" $tmp/1 -s 2 -e 10 |

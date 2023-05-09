@@ -20,6 +20,7 @@ tools/*.done
 tools/bats/
 tools/doxygen/
 tools/shellcheck/
+tools/shfmt/
 tools/sptk/
 tools/venv/
 

@@ -43,7 +43,8 @@ const sptk::AperiodicityExtraction::Algorithms kDefaultAlgorithm(
 const int kDefaultFftLength(256);
 const int kDefaultFrameShift(80);
 const double kDefaultSamplingRate(16.0);
-const double kDefaultLowerBound(1e-6);
+const double kDefaultLowerBound(1e-3);
+const double kDefaultUpperBound(1.0 - kDefaultLowerBound);
 const InputFormats kDefaultInputFormat(kPitch);
 const OutputFormats kDefaultOutputFormat(kAperiodicity);
 const double kDefaultF0(150.0);
@@ -58,12 +59,13 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  options:" << std::endl;
   *stream << "       -a a  : algorithm used for      (   int)[" << std::setw(5) << std::right << kDefaultAlgorithm    << "][   0 <= a <= 1    ]" << std::endl;  // NOLINT
   *stream << "               aperiodicity estimation" << std::endl;
-  *stream << "                 0 (WORLD)" << std::endl;
+  *stream << "                 0 (TANDEM-STRAIGHT)" << std::endl;
+  *stream << "                 1 (WORLD)" << std::endl;
   *stream << "       -l l  : FFT length              (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][   1 <= l <=      ]" << std::endl;  // NOLINT
   *stream << "       -p p  : frame shift [point]     (   int)[" << std::setw(5) << std::right << kDefaultFrameShift   << "][   1 <= p <=      ]" << std::endl;  // NOLINT
   *stream << "       -s s  : sampling rate [kHz]     (double)[" << std::setw(5) << std::right << kDefaultSamplingRate << "][ 8.0 <= s <= 98.0 ]" << std::endl;  // NOLINT
   *stream << "       -L L  : lower bound of Ha       (double)[" << std::setw(5) << std::right << kDefaultLowerBound   << "][ 0.0 <= L <  H    ]" << std::endl;  // NOLINT
-  *stream << "       -H H  : upper bound of Ha       (double)[" << std::setw(5) << std::right << "1-L"                << "][   L <  H <= 1.0  ]" << std::endl;  // NOLINT
+  *stream << "       -H H  : upper bound of Ha       (double)[" << std::setw(5) << std::right << kDefaultUpperBound   << "][   L <  H <= 1.0  ]" << std::endl;  // NOLINT
   *stream << "       -q q  : f0 input format         (   int)[" << std::setw(5) << std::right << kDefaultInputFormat  << "][   0 <= q <= 2    ]" << std::endl;  // NOLINT
   *stream << "                 0 (Fs/F0)" << std::endl;
   *stream << "                 1 (F0)" << std::endl;
@@ -80,6 +82,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       pitch                           (double)" << std::endl;
   *stream << "  stdout:" << std::endl;
   *stream << "       aperiodicity                    (double)" << std::endl;
+  *stream << "  notice:" << std::endl;
+  *stream << "       magic number representing unvoiced symbol is 0 (q = 0, 1) or -1e+10 (q = 2)" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -114,14 +118,21 @@ void PrintUsage(std::ostream* stream) {
  *   - output format
  *     @arg @c 0 Ha
  *     @arg @c 1 Hp
- *     @arg @c 2 Ha/HP
- *     @arg @c 2 Hp/Ha
+ *     @arg @c 2 Ha/Hp
+ *     @arg @c 3 Hp/Ha
  * - @b infile @e str
  *   - double-type waveform
  * - @b f0file @e str
- *   - double-type f0
+ *   - double-type pitch
  * - @b stdout
  *   - double-type aperiodicity
+ *
+ * The below is a simple example to extract aperiodicity from @c data.d
+ *
+ * @code{.sh}
+ *   pitch -s 16 -p 80 -L 80 -H 200 -o 0 < data.d > data.f0
+ *   ap -s 16 -p 80 -q 0 data.f0 < data.d > data.ap
+ * @endcode
  *
  * @param[in] argc Number of arguments.
  * @param[in] argv Argument vector.
@@ -133,10 +144,9 @@ int main(int argc, char* argv[]) {
   int frame_shift(kDefaultFrameShift);
   double sampling_rate(kDefaultSamplingRate);
   double lower_bound(kDefaultLowerBound);
-  double upper_bound(1.0);
+  double upper_bound(kDefaultUpperBound);
   InputFormats input_format(kDefaultInputFormat);
   OutputFormats output_format(kDefaultOutputFormat);
-  bool is_upper_bound_specified(false);
 
   for (;;) {
     const int option_char(
@@ -175,7 +185,7 @@ int main(int argc, char* argv[]) {
       }
       case 'p': {
         if (!sptk::ConvertStringToInteger(optarg, &frame_shift) ||
-            frame_shift <= 0.0) {
+            frame_shift <= 0) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -p option must be a positive integer";
@@ -217,7 +227,6 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("ap", error_message);
           return 1;
         }
-        is_upper_bound_specified = true;
         break;
       }
       case 'q': {
@@ -259,10 +268,6 @@ int main(int argc, char* argv[]) {
         return 1;
       }
     }
-  }
-
-  if (!is_upper_bound_specified) {
-    upper_bound = 1.0 - lower_bound;
   }
 
   if (upper_bound <= lower_bound) {

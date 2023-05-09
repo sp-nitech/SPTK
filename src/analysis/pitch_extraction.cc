@@ -55,4 +55,14 @@ PitchExtraction::PitchExtraction(int frame_shift, double sampling_rate,
   }
 }
 
+bool PitchExtraction::Run(const std::vector<double>& waveform,
+                          std::vector<double>* f0, std::vector<double>* epochs,
+                          PitchExtractionInterface::Polarity* polarity) const {
+  if (!IsValid()) {
+    return false;
+  }
+
+  return pitch_extraction_->Get(waveform, f0, epochs, polarity);
+}
+
 }  // namespace sptk

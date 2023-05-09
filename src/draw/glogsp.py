@@ -103,6 +103,8 @@ def get_arguments():
 #   - width of figure in pixels
 # - @b -H @e int
 #   - height of figure in pixels
+# - @b -M @e int or str
+#   - margin around image in pixels
 # - @b -g
 #   - draw grid
 # - @b -s @e int
@@ -188,6 +190,7 @@ def main():
             family=args.font_family,
             size=args.font_size,
         ),
+        margin=args.margin,
     )
     fig.write_image(
         args.out_file, width=args.width, height=args.height, scale=args.factor
