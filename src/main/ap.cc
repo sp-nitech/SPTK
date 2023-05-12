@@ -127,11 +127,11 @@ void PrintUsage(std::ostream* stream) {
  * - @b stdout
  *   - double-type aperiodicity
  *
- * The below is a simple example to extract aperiodicity from @c data.d
+ * The below is a simple example to extract aperiodicity from @c data.d.
  *
  * @code{.sh}
- *   pitch -s 16 -p 80 -L 80 -H 200 -o 0 < data.d > data.f0
- *   ap -s 16 -p 80 -q 0 data.f0 < data.d > data.ap
+ *   pitch -s 16 -p 80 -L 80 -H 200 -o 1 < data.d > data.f0
+ *   ap -s 16 -p 80 -q 1 data.f0 < data.d > data.ap
  * @endcode
  *
  * @param[in] argc Number of arguments.

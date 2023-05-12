@@ -111,6 +111,13 @@ void PrintUsage(std::ostream* stream) {
  * - @b stdout
  *   - double-type spectrum
  *
+ * The below is a simple example to extract spectrum from @c data.d.
+ *
+ * @code{.sh}
+ *   pitch -s 16 -p 80 -L 80 -H 200 -o 1 < data.d > data.f0
+ *   sp -s 16 -p 80 -q 1 data.f0 < data.d > data.sp
+ * @endcode
+ *
  * @param[in] argc Number of arguments.
  * @param[in] argv Argument vector.
  * @return 0 on success, 1 on failure.

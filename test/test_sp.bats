@@ -31,6 +31,6 @@ teardown() {
 @test "sp: valgrind" {
     $sptk3/x2x +sd $data > $tmp/0
     $sptk4/pitch $tmp/0 > $tmp/1
-    run valgrind $sptk4/sp -l 16 $tmp/1 $tmp/0
+    run valgrind $sptk4/sp -l 1024 $tmp/1 $tmp/0
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }
