@@ -400,10 +400,10 @@ SpectrumToSpectrum::SpectrumToSpectrum(int fft_length,
       epsilon_(epsilon),
       relative_floor_in_decibels_(relative_floor_in_decibels),
       is_valid_(true) {
-  if (fft_length_ <= 0 || !IsPowerOfTwo(fft_length_) || input_format_ < 0 ||
-      kNumInputOutputFormats <= input_format_ || output_format_ < 0 ||
-      kNumInputOutputFormats <= output_format_ || epsilon_ < 0.0 ||
-      0.0 <= relative_floor_in_decibels_) {
+  if (fft_length_ <= 0 || !sptk::IsPowerOfTwo(fft_length_) ||
+      input_format_ < 0 || kNumInputOutputFormats <= input_format_ ||
+      output_format_ < 0 || kNumInputOutputFormats <= output_format_ ||
+      epsilon_ < 0.0 || 0.0 <= relative_floor_in_decibels_) {
     is_valid_ = false;
     return;
   }

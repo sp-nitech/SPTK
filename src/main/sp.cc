@@ -33,7 +33,7 @@ enum InputFormats { kPitch = 0, kF0, kLogF0, kNumInputFormats };
 
 const sptk::SpectrumExtraction::Algorithms kDefaultAlgorithm(
     sptk::SpectrumExtraction::Algorithms::kWorld);
-const int kDefaultFftLength(256);
+const int kDefaultFftLength(1024);
 const int kDefaultFrameShift(80);
 const double kDefaultSamplingRate(16.0);
 const InputFormats kDefaultInputFormat(kPitch);
@@ -48,29 +48,30 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       sp [ options ] f0file [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -a a  : algorithm used for      (   int)[" << std::setw(5) << std::right << kDefaultAlgorithm    << "][   0 <= a <= 0    ]" << std::endl;  // NOLINT
+  *stream << "       -a a  : algorithm used for  (   int)[" << std::setw(5) << std::right << kDefaultAlgorithm    << "][   0 <= a <= 0    ]" << std::endl;  // NOLINT
   *stream << "               spectrum estimation" << std::endl;
   *stream << "                 0 (WORLD)" << std::endl;
-  *stream << "       -l l  : FFT length              (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][   1 <= l <=      ]" << std::endl;  // NOLINT
-  *stream << "       -p p  : frame shift [point]     (   int)[" << std::setw(5) << std::right << kDefaultFrameShift   << "][   1 <= p <=      ]" << std::endl;  // NOLINT
-  *stream << "       -s s  : sampling rate [kHz]     (double)[" << std::setw(5) << std::right << kDefaultSamplingRate << "][ 8.0 <= s <= 98.0 ]" << std::endl;  // NOLINT
-  *stream << "       -q q  : f0 input format         (   int)[" << std::setw(5) << std::right << kDefaultInputFormat  << "][   0 <= q <= 2    ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : FFT length          (   int)[" << std::setw(5) << std::right << kDefaultFftLength    << "][   4 <= l <=      ]" << std::endl;  // NOLINT
+  *stream << "       -p p  : frame shift [point] (   int)[" << std::setw(5) << std::right << kDefaultFrameShift   << "][   1 <= p <=      ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : sampling rate [kHz] (double)[" << std::setw(5) << std::right << kDefaultSamplingRate << "][ 8.0 <= s <= 98.0 ]" << std::endl;  // NOLINT
+  *stream << "       -q q  : f0 input format     (   int)[" << std::setw(5) << std::right << kDefaultInputFormat  << "][   0 <= q <= 2    ]" << std::endl;  // NOLINT
   *stream << "                 0 (Fs/F0)" << std::endl;
   *stream << "                 1 (F0)" << std::endl;
   *stream << "                 2 (log F0)" << std::endl;
-  *stream << "       -o o  : output format           (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][   0 <= o <= 3    ]" << std::endl;  // NOLINT
+  *stream << "       -o o  : output format       (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][   0 <= o <= 3    ]" << std::endl;  // NOLINT
   *stream << "                 0 (20*log|H(z)|)" << std::endl;
   *stream << "                 1 (ln|H(z)|)" << std::endl;
   *stream << "                 2 (|H(z)|)" << std::endl;
   *stream << "                 3 (|H(z)|^2)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       waveform                        (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       waveform                    (double)[stdin]" << std::endl;
   *stream << "  f0file:" << std::endl;
-  *stream << "       pitch                           (double)" << std::endl;
+  *stream << "       pitch                       (double)" << std::endl;
   *stream << "  stdout:" << std::endl;
-  *stream << "       spectrum                        (double)" << std::endl;
+  *stream << "       spectrum                    (double)" << std::endl;
   *stream << "  notice:" << std::endl;
+  *stream << "       value of l must be a power of 2" << std::endl;
   *stream << "       magic number representing unvoiced symbol is 0 (q = 0, 1) or -1e+10 (q = 2)" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
@@ -149,10 +150,10 @@ int main(int argc, char* argv[]) {
       }
       case 'l': {
         if (!sptk::ConvertStringToInteger(optarg, &fft_length) ||
-            fft_length <= 0) {
+            fft_length <= 3) {
           std::ostringstream error_message;
-          error_message
-              << "The argument for the -l option must be a positive integer";
+          error_message << "The argument for the -l option must be a power of "
+                           "2 and greater than 3";
           sptk::PrintErrorMessage("sp", error_message);
           return 1;
         }
@@ -309,7 +310,7 @@ int main(int argc, char* argv[]) {
                                                sampling_rate_in_hz, algorithm);
   if (!spectrum_extraction.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to initialize SpectrumExtraction";
+    error_message << "FFT length must be a power of 2";
     sptk::PrintErrorMessage("sp", error_message);
     return 1;
   }
@@ -320,7 +321,8 @@ int main(int argc, char* argv[]) {
   std::vector<std::vector<double> > spectrum;
   if (!spectrum_extraction.Run(waveform, f0, &spectrum)) {
     std::ostringstream error_message;
-    error_message << "Failed to extract spectrum";
+    error_message
+        << "Failed to extract spectrum (consider increasing FFT length)";
     sptk::PrintErrorMessage("sp", error_message);
     return 1;
   }

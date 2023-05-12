@@ -16,10 +16,10 @@
 
 #include "SPTK/analysis/spectrum_extraction_by_world.h"
 
-#include <algorithm>  // std::min_element
-#include <cstddef>    // std::size_t
+#include <cstddef>  // std::size_t
 
 #include "WORLD/world/cheaptrick.h"
+#include "WORLD/world/constantnumbers.h"
 #include "WORLD/world/stonemask.h"
 
 namespace sptk {
@@ -31,8 +31,8 @@ SpectrumExtractionByWorld::SpectrumExtractionByWorld(int fft_length,
       frame_shift_(frame_shift),
       sampling_rate_(sampling_rate),
       is_valid_(true) {
-  if (fft_length <= 0 || frame_shift_ <= 0 ||
-      !sptk::IsInRange(sampling_rate_, 8000.0, 98000.0)) {
+  if (!sptk::IsPowerOfTwo(fft_length_) || fft_length <= 3 ||
+      frame_shift_ <= 0 || !sptk::IsInRange(sampling_rate_, 8000.0, 98000.0)) {
     is_valid_ = false;
     return;
   }
@@ -46,17 +46,28 @@ bool SpectrumExtractionByWorld::Run(
     return false;
   }
 
-  world::CheapTrickOption option;
-  world::InitializeCheapTrickOption(sampling_rate_, &option);
-  option.fft_size = fft_length_;
-  option.f0_floor = *std::min_element(f0.begin(), f0.end());
-
   const int f0_length(f0.size());
   const double frame_shift_in_sec(frame_shift_ / sampling_rate_);
   std::vector<double> time_axis(f0_length);
   for (int i(0); i < f0_length; ++i) {
     time_axis[i] = i * frame_shift_in_sec;
   }
+
+  // Check FFT size.
+  double f0_floor(world::kFloorF0);
+  for (int i(0); i < f0_length; ++i) {
+    if (0.0 < f0[i] && f0[i] < f0_floor) {
+      f0_floor = f0[i];
+    }
+  }
+  if (f0_floor < world::GetF0FloorForCheapTrick(sampling_rate_, fft_length_)) {
+    return false;
+  }
+
+  world::CheapTrickOption option;
+  world::InitializeCheapTrickOption(sampling_rate_, &option);
+  option.fft_size = fft_length_;
+  option.f0_floor = f0_floor;
 
   // Prepare memories.
   if (spectrum->size() != static_cast<std::size_t>(f0_length)) {
@@ -69,17 +80,17 @@ bool SpectrumExtractionByWorld::Run(
     }
   }
 
-  // Modify F0 for pitch-adaptive spectrum estimation.
-  std::vector<double> modified_f0(f0_length);
-  world::StoneMask(waveform.data(), static_cast<int>(waveform.size()),
-                   static_cast<int>(sampling_rate_), time_axis.data(),
-                   f0.data(), f0_length, modified_f0.data());
-
   std::vector<double*> pointers;
   pointers.reserve(f0_length);
   for (std::vector<double>& vector : *spectrum) {
     pointers.push_back(vector.data());
   }
+
+  // Modify F0 for pitch-adaptive spectrum estimation.
+  std::vector<double> modified_f0(f0_length);
+  world::StoneMask(waveform.data(), static_cast<int>(waveform.size()),
+                   static_cast<int>(sampling_rate_), time_axis.data(),
+                   f0.data(), f0_length, modified_f0.data());
 
   // Estimate spectrum.
   world::CheapTrick(waveform.data(), static_cast<int>(waveform.size()),

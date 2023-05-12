@@ -34,7 +34,7 @@ RealValuedFastFourierTransform::RealValuedFastFourierTransform(int num_order,
       fast_fourier_transform_(half_fft_length_),
       is_valid_(true) {
   if (num_order_ < 0 || fft_length_ <= num_order_ ||
-      !IsPowerOfTwo(fft_length_) || !fast_fourier_transform_.IsValid()) {
+      !sptk::IsPowerOfTwo(fft_length_) || !fast_fourier_transform_.IsValid()) {
     is_valid_ = false;
     return;
   }
