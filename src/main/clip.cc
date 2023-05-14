@@ -14,7 +14,6 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <cfloat>    // DBL_MAX
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -26,8 +25,8 @@
 
 namespace {
 
-const double kDefaultLowerBound(-DBL_MAX);
-const double kDefaultUpperBound(DBL_MAX);
+const double kDefaultLowerBound(sptk::kMin);
+const double kDefaultUpperBound(sptk::kMax);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -148,14 +147,14 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
   sptk::ScalarOperation scalar_operation;
-  if (-DBL_MAX != lower_bound &&
+  if (sptk::kMin != lower_bound &&
       !scalar_operation.AddLowerBoundingOperation(lower_bound)) {
     std::ostringstream error_message;
     error_message << "Failed to add lower bounding operation";
     sptk::PrintErrorMessage("clip", error_message);
     return 1;
   }
-  if (DBL_MAX != upper_bound &&
+  if (sptk::kMax != upper_bound &&
       !scalar_operation.AddUpperBoundingOperation(upper_bound)) {
     std::ostringstream error_message;
     error_message << "Failed to add upper bounding operation";

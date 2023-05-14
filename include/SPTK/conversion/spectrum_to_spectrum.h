@@ -17,7 +17,6 @@
 #ifndef SPTK_CONVERSION_SPECTRUM_TO_SPECTRUM_H_
 #define SPTK_CONVERSION_SPECTRUM_TO_SPECTRUM_H_
 
-#include <cfloat>  // DBL_MAX
 #include <vector>  // std::vector
 
 #include "SPTK/utils/sptk_utils.h"
@@ -94,7 +93,7 @@ class SpectrumToSpectrum {
    */
   SpectrumToSpectrum(int fft_length, InputOutputFormats input_format,
                      InputOutputFormats output_format, double epsilon = 0.0,
-                     double relative_floor_in_decibels = -DBL_MAX);
+                     double relative_floor_in_decibels = sptk::kMin);
 
   virtual ~SpectrumToSpectrum();
 

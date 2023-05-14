@@ -16,7 +16,6 @@
 
 #include "SPTK/compression/vector_quantization.h"
 
-#include <cfloat>   // DBL_MAX
 #include <cstddef>  // std::size_t
 
 namespace sptk {
@@ -45,7 +44,7 @@ bool VectorQuantization::Run(
   }
 
   int index(0);
-  double min_distance(DBL_MAX);
+  double min_distance(sptk::kMax);
 
   for (int i(0); i < codebook_size; ++i) {
     double distance;

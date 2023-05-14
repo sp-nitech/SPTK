@@ -17,7 +17,6 @@
 #include "SPTK/math/gaussian_mixture_modeling.h"
 
 #include <algorithm>  // std::fill, std::transform
-#include <cfloat>     // DBL_MAX
 #include <cmath>      // std::exp, std::log
 #include <cstddef>    // std::size_t
 #include <iomanip>    // std::setw
@@ -213,7 +212,7 @@ bool GaussianMixtureModeling::Run(
   GaussianMixtureModeling::Buffer buffer;
   std::vector<double> numerators(num_mixture_);
 
-  double prev_log_likelihood(-DBL_MAX);
+  double prev_log_likelihood(sptk::kMin);
 
   for (int n(1); n <= num_iteration_; ++n) {
     // Clear buffers.

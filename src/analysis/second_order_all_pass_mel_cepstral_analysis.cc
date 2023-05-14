@@ -17,7 +17,6 @@
 #include "SPTK/analysis/second_order_all_pass_mel_cepstral_analysis.h"
 
 #include <algorithm>   // std::copy, std::fill, std::transform, etc.
-#include <cfloat>      // DBL_MAX
 #include <cmath>       // std::cos, std::exp, std::fabs, std::log, std::sin
 #include <cstddef>     // std::size_t
 #include <functional>  // std::minus, std::plus
@@ -200,7 +199,7 @@ bool SecondOrderAllPassMelCepstralAnalysis::Run(
   }
 
   // Perform Newton-Raphson method.
-  double prev_epsilon(DBL_MAX);
+  double prev_epsilon(sptk::kMax);
   for (int n(0); n < num_iteration_; ++n) {
     // \tilde{c} -> c
     buffer->cepstrum_.resize(half_fft_length + 1);

@@ -17,8 +17,13 @@
 #include "SPTK/generation/recursive_maximum_likelihood_parameter_generation.h"
 
 #include <algorithm>  // std::fill, std::max
-#include <cfloat>     // DBL_MAX
 #include <cstddef>    // std::size_t
+
+namespace {
+
+static const double kInf(sptk::kMax);
+
+}  // namespace
 
 namespace sptk {
 
@@ -74,7 +79,7 @@ RecursiveMaximumLikelihoodParameterGeneration::
       // Initialize with infinite variance.
       std::fill(buffer_.static_and_dynamic_parameters.begin() +
                     static_and_dynamic_size,
-                buffer_.static_and_dynamic_parameters.end(), DBL_MAX);
+                buffer_.static_and_dynamic_parameters.end(), kInf);
       --num_remaining_frame_;
     }
     if (!Forward()) {
@@ -101,7 +106,7 @@ bool RecursiveMaximumLikelihoodParameterGeneration::Get(
     // Unobserved variance is infinite.
     std::fill(
         buffer_.static_and_dynamic_parameters.begin() + static_and_dynamic_size,
-        buffer_.static_and_dynamic_parameters.end(), DBL_MAX);
+        buffer_.static_and_dynamic_parameters.end(), kInf);
     if (num_remaining_frame_ <= 1) {
       return false;
     }
@@ -171,7 +176,7 @@ bool RecursiveMaximumLikelihoodParameterGeneration::Forward() {
         for (int u(0); u < calculation_field_; ++u) {
           buffer_.p[m][u].resize(2 * calculation_field_ + 1);
           std::fill(buffer_.p[m][u].begin(), buffer_.p[m][u].end(), 0.0);
-          buffer_.p[m][u][calculation_field_] = DBL_MAX;
+          buffer_.p[m][u][calculation_field_] = kInf;
         }
       }
     }
@@ -225,8 +230,8 @@ bool RecursiveMaximumLikelihoodParameterGeneration::Forward() {
     bool update(true);
     for (int m(0); m < static_size; ++m) {
       for (int j(-half_window_width); j <= half_window_width; ++j) {
-        if (DBL_MAX == buffer_.p[m][(current_frame_ + j) % calculation_field_]
-                                [calculation_field_]) {
+        if (kInf == buffer_.p[m][(current_frame_ + j) % calculation_field_]
+                             [calculation_field_]) {
           update = false;
           break;
         }

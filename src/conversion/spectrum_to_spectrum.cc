@@ -416,7 +416,7 @@ SpectrumToSpectrum::SpectrumToSpectrum(int fft_length,
     SelectOperation(input_format_, output_format_, &operations_);
   }
 
-  if (-DBL_MAX != relative_floor_in_decibels_) {
+  if (sptk::kMin != relative_floor_in_decibels_) {
     switch (output_format_) {
       case kLogAmplitudeSpectrumInDecibels: {
         operations_.push_back(

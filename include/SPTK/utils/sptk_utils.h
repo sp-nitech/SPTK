@@ -19,6 +19,7 @@
 
 #include <cstddef>   // std::size_t
 #include <iostream>  // std::istream, std::ostream
+#include <limits>    // std::numeric_limits
 #include <sstream>   // std::ostringstream
 #include <string>    // std::string
 #include <vector>    // std::vector
@@ -48,6 +49,10 @@ static const double kOctave(1.442695040888963);
 static const double kLogTwo(0.693147180559945);
 //! @f$\ln(0)@f$
 static const double kLogZero(-1e+10);
+//! -DBL_MAX
+static const double kMin(std::numeric_limits<double>::lowest());
+//! DBL_MAX
+static const double kMax(std::numeric_limits<double>::max());
 
 /**
  * @param[out] data_to_read Scalar.

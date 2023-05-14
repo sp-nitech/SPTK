@@ -14,13 +14,12 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <cfloat>     // DBL_MAX, FLT_MAX
-#include <climits>    // INT_MIN, INT_MAX, SCHAR_MIN, SCHAR_MAX, etc.
 #include <cstdint>    // int8_t, int16_t, int32_t, int64_t, etc.
 #include <cstring>    // std::strncmp
 #include <fstream>    // std::ifstream
 #include <iomanip>    // std::setw
 #include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <limits>     // std::numeric_limits
 #include <sstream>    // std::ostringstream
 #include <stdexcept>  // std::invalid_argument
 #include <string>     // std::stold, std::string
@@ -309,24 +308,28 @@ class DataTransformWrapper {
     } else if ("c" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<int8_t, uint8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int8_t>::max());
     } else if ("c" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<int8_t, uint16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int8_t>::max());
     } else if ("c" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<int8_t, sptk::uint24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::uint24_t(0),
-          sptk::uint24_t(SCHAR_MAX));
+          sptk::uint24_t(std::numeric_limits<int8_t>::max()));
     } else if ("c" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<int8_t, uint32_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int8_t>::max());
     } else if ("c" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<int8_t, uint64_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int8_t>::max());
     } else if ("c" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<int8_t, float>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -349,7 +352,8 @@ class DataTransformWrapper {
     if ("s" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int8_t>::min(),
+          std::numeric_limits<int8_t>::max());
     } else if ("s" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, int16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -369,24 +373,28 @@ class DataTransformWrapper {
     } else if ("s" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, uint8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint8_t>::max());
     } else if ("s" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, uint16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, SHRT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int16_t>::max());
     } else if ("s" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, sptk::uint24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output, sptk::uint24_t(0),
-          sptk::uint24_t(SHRT_MAX));
+          sptk::uint24_t(std::numeric_limits<int16_t>::max()));
     } else if ("s" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, uint32_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, SHRT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int16_t>::max());
     } else if ("s" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, uint64_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, SHRT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int16_t>::max());
     } else if ("s" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<int16_t, float>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -409,11 +417,13 @@ class DataTransformWrapper {
     if ("h" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<sptk::int24_t, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int8_t>::min(),
+          std::numeric_limits<int8_t>::max());
     } else if ("h" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<sptk::int24_t, int16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, SHRT_MIN, SHRT_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int16_t>::min(),
+          std::numeric_limits<int16_t>::max());
     } else if ("h" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<sptk::int24_t, sptk::int24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -429,11 +439,13 @@ class DataTransformWrapper {
     } else if ("h" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<sptk::int24_t, uint8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint8_t>::max());
     } else if ("h" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<sptk::int24_t, uint16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, USHRT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint16_t>::max());
     } else if ("h" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<sptk::int24_t, sptk::uint24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -469,11 +481,13 @@ class DataTransformWrapper {
     if ("i" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int8_t>::min(),
+          std::numeric_limits<int8_t>::max());
     } else if ("i" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, int16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, SHRT_MIN, SHRT_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int16_t>::min(),
+          std::numeric_limits<int16_t>::max());
     } else if ("i" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, sptk::int24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -490,11 +504,13 @@ class DataTransformWrapper {
     } else if ("i" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, uint8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint8_t>::max());
     } else if ("i" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, uint16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, USHRT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint16_t>::max());
     } else if ("i" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, sptk::uint24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -503,11 +519,13 @@ class DataTransformWrapper {
     } else if ("i" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, uint32_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, INT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int32_t>::max());
     } else if ("i" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, uint64_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, INT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int32_t>::max());
     } else if ("i" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<int32_t, float>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -530,11 +548,13 @@ class DataTransformWrapper {
     if ("l" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int8_t>::min(),
+          std::numeric_limits<int8_t>::max());
     } else if ("l" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, int16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, SHRT_MIN, SHRT_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int16_t>::min(),
+          std::numeric_limits<int16_t>::max());
     } else if ("l" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, sptk::int24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -543,7 +563,8 @@ class DataTransformWrapper {
     } else if ("l" == input_data_type && "i" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, int32_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, INT_MIN, INT_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int32_t>::min(),
+          std::numeric_limits<int32_t>::max());
     } else if ("l" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, int64_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -551,11 +572,13 @@ class DataTransformWrapper {
     } else if ("l" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, uint8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint8_t>::max());
     } else if ("l" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, uint16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, USHRT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint16_t>::max());
     } else if ("l" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, sptk::uint24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -564,11 +587,13 @@ class DataTransformWrapper {
     } else if ("l" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, uint32_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, UINT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint32_t>::max());
     } else if ("l" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, uint64_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, LLONG_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int64_t>::max());
     } else if ("l" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<int64_t, float>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -591,7 +616,8 @@ class DataTransformWrapper {
     if ("C" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<uint8_t, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int8_t>::max());
     } else if ("C" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<uint8_t, int16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -651,11 +677,13 @@ class DataTransformWrapper {
     if ("S" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<uint16_t, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int8_t>::max());
     } else if ("S" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<uint16_t, int16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, SHRT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int16_t>::max());
     } else if ("S" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<uint16_t, sptk::int24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -671,7 +699,8 @@ class DataTransformWrapper {
     } else if ("S" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<uint16_t, uint8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint8_t>::max());
     } else if ("S" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<uint16_t, uint16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -711,11 +740,13 @@ class DataTransformWrapper {
     if ("H" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int8_t>::max());
     } else if ("H" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, int16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, SHRT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int16_t>::max());
     } else if ("H" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, sptk::int24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -732,11 +763,13 @@ class DataTransformWrapper {
     } else if ("H" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, uint8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint8_t>::max());
     } else if ("H" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, uint16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, USHRT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint16_t>::max());
     } else if ("H" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, sptk::uint24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -773,11 +806,13 @@ class DataTransformWrapper {
     if ("I" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int8_t>::max());
     } else if ("I" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, int16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, SHRT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int16_t>::max());
     } else if ("I" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, sptk::int24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -786,7 +821,8 @@ class DataTransformWrapper {
     } else if ("I" == input_data_type && "i" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, int32_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, INT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int32_t>::max());
     } else if ("I" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, int64_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -794,11 +830,13 @@ class DataTransformWrapper {
     } else if ("I" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, uint8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint8_t>::max());
     } else if ("I" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, uint16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, USHRT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint16_t>::max());
     } else if ("I" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<uint32_t, sptk::uint24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -834,11 +872,13 @@ class DataTransformWrapper {
     if ("L" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, SCHAR_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int8_t>::max());
     } else if ("L" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, int16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, SHRT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int16_t>::max());
     } else if ("L" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, sptk::int24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -847,19 +887,23 @@ class DataTransformWrapper {
     } else if ("L" == input_data_type && "i" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, int32_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, INT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int32_t>::max());
     } else if ("L" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, int64_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, LLONG_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<int64_t>::max());
     } else if ("L" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, uint8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint8_t>::max());
     } else if ("L" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, uint16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, USHRT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint16_t>::max());
     } else if ("L" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, sptk::uint24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -868,7 +912,8 @@ class DataTransformWrapper {
     } else if ("L" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, uint32_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, UINT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint32_t>::max());
     } else if ("L" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<uint64_t, uint64_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -895,11 +940,13 @@ class DataTransformWrapper {
     if ("f" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<float, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int8_t>::min(),
+          std::numeric_limits<int8_t>::max());
     } else if ("f" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<float, int16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, SHRT_MIN, SHRT_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int16_t>::min(),
+          std::numeric_limits<int16_t>::max());
     } else if ("f" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<float, sptk::int24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -908,19 +955,23 @@ class DataTransformWrapper {
     } else if ("f" == input_data_type && "i" == output_data_type) {
       data_transform_ = new DataTransform<float, int32_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, INT_MIN, INT_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int32_t>::min(),
+          std::numeric_limits<int32_t>::max());
     } else if ("f" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<float, int64_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, LLONG_MIN, LLONG_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int64_t>::min(),
+          std::numeric_limits<int64_t>::max());
     } else if ("f" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<float, uint8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint8_t>::max());
     } else if ("f" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<float, uint16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, USHRT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint16_t>::max());
     } else if ("f" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<float, sptk::uint24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -929,11 +980,13 @@ class DataTransformWrapper {
     } else if ("f" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<float, uint32_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, UINT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint32_t>::max());
     } else if ("f" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<float, uint64_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, ULLONG_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint64_t>::max());
     } else if ("f" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<float, float>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -956,11 +1009,13 @@ class DataTransformWrapper {
     if ("d" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<double, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int8_t>::min(),
+          std::numeric_limits<int8_t>::max());
     } else if ("d" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<double, int16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, SHRT_MIN, SHRT_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int16_t>::min(),
+          std::numeric_limits<int16_t>::max());
     } else if ("d" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<double, sptk::int24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -969,19 +1024,23 @@ class DataTransformWrapper {
     } else if ("d" == input_data_type && "i" == output_data_type) {
       data_transform_ = new DataTransform<double, int32_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, INT_MIN, INT_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int32_t>::min(),
+          std::numeric_limits<int32_t>::max());
     } else if ("d" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<double, int64_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, LLONG_MIN, LLONG_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int64_t>::min(),
+          std::numeric_limits<int64_t>::max());
     } else if ("d" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<double, uint8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint8_t>::max());
     } else if ("d" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<double, uint16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, USHRT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint16_t>::max());
     } else if ("d" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<double, sptk::uint24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -990,15 +1049,18 @@ class DataTransformWrapper {
     } else if ("d" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<double, uint32_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, UINT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint32_t>::max());
     } else if ("d" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<double, uint64_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, ULLONG_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint64_t>::max());
     } else if ("d" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<double, float>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, -FLT_MAX, FLT_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<float>::lowest(),
+          std::numeric_limits<float>::max());
     } else if ("d" == input_data_type && "d" == output_data_type) {
       data_transform_ = new DataTransform<double, double>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -1017,11 +1079,13 @@ class DataTransformWrapper {
     if ("e" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<long double, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int8_t>::min(),
+          std::numeric_limits<int8_t>::max());
     } else if ("e" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<long double, int16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, SHRT_MIN, SHRT_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int16_t>::min(),
+          std::numeric_limits<int16_t>::max());
     } else if ("e" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<long double, sptk::int24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -1030,19 +1094,23 @@ class DataTransformWrapper {
     } else if ("e" == input_data_type && "i" == output_data_type) {
       data_transform_ = new DataTransform<long double, int32_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, INT_MIN, INT_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int32_t>::max(),
+          std::numeric_limits<int32_t>::max());
     } else if ("e" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<long double, int64_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, LLONG_MIN, LLONG_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int64_t>::max(),
+          std::numeric_limits<int64_t>::max());
     } else if ("e" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<long double, uint8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint8_t>::max());
     } else if ("e" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<long double, uint16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, USHRT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint16_t>::max());
     } else if ("e" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<long double, sptk::uint24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -1051,19 +1119,24 @@ class DataTransformWrapper {
     } else if ("e" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<long double, uint32_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, UINT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint32_t>::max());
     } else if ("e" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<long double, uint64_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, ULLONG_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint64_t>::max());
     } else if ("e" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<long double, float>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, -FLT_MAX, FLT_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<float>::lowest(),
+          std::numeric_limits<float>::max());
     } else if ("e" == input_data_type && "d" == output_data_type) {
       data_transform_ = new DataTransform<long double, double>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, -DBL_MAX, DBL_MAX);
+          is_ascii_input, is_ascii_output,
+          std::numeric_limits<double>::lowest(),
+          std::numeric_limits<double>::max());
     } else if ("e" == input_data_type && "e" == output_data_type) {
       data_transform_ = new DataTransform<long double, long double>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -1078,11 +1151,13 @@ class DataTransformWrapper {
     if ("a" == input_data_type && "c" == output_data_type) {
       data_transform_ = new DataTransform<long double, int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, SCHAR_MIN, SCHAR_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int8_t>::min(),
+          std::numeric_limits<int8_t>::max());
     } else if ("a" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<long double, int16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, SHRT_MIN, SHRT_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int16_t>::min(),
+          std::numeric_limits<int16_t>::max());
     } else if ("a" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<long double, sptk::int24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -1091,19 +1166,23 @@ class DataTransformWrapper {
     } else if ("a" == input_data_type && "i" == output_data_type) {
       data_transform_ = new DataTransform<long double, int32_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, INT_MIN, INT_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int32_t>::min(),
+          std::numeric_limits<int32_t>::max());
     } else if ("a" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<long double, int64_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, LLONG_MIN, LLONG_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<int64_t>::min(),
+          std::numeric_limits<int64_t>::max());
     } else if ("a" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<long double, uint8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, UCHAR_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint8_t>::max());
     } else if ("a" == input_data_type && "S" == output_data_type) {
       data_transform_ = new DataTransform<long double, uint16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, USHRT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint16_t>::max());
     } else if ("a" == input_data_type && "H" == output_data_type) {
       data_transform_ = new DataTransform<long double, sptk::uint24_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
@@ -1112,19 +1191,24 @@ class DataTransformWrapper {
     } else if ("a" == input_data_type && "I" == output_data_type) {
       data_transform_ = new DataTransform<long double, uint32_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, UINT_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint32_t>::max());
     } else if ("a" == input_data_type && "L" == output_data_type) {
       data_transform_ = new DataTransform<long double, uint64_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, 0, ULLONG_MAX);
+          is_ascii_input, is_ascii_output, 0,
+          std::numeric_limits<uint64_t>::max());
     } else if ("a" == input_data_type && "f" == output_data_type) {
       data_transform_ = new DataTransform<long double, float>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, -FLT_MAX, FLT_MAX);
+          is_ascii_input, is_ascii_output, std::numeric_limits<float>::lowest(),
+          std::numeric_limits<float>::max());
     } else if ("a" == input_data_type && "d" == output_data_type) {
       data_transform_ = new DataTransform<long double, double>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
-          is_ascii_input, is_ascii_output, -DBL_MAX, DBL_MAX);
+          is_ascii_input, is_ascii_output,
+          std::numeric_limits<double>::lowest(),
+          std::numeric_limits<double>::max());
     } else if ("a" == input_data_type && "e" == output_data_type) {
       data_transform_ = new DataTransform<long double, long double>(
           print_format, num_column, input_numeric_type, warning_type, rounding,

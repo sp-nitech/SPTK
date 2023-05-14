@@ -14,7 +14,6 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <cfloat>    // DBL_MAX
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -139,7 +138,7 @@ int main(int argc, char* argv[]) {
   int num_iteration(kDefaultNumIteration);
   double convergence_threshold(kDefaultConvergenceThreshold);
   double epsilon(0.0);
-  double relative_floor_in_decibels(-DBL_MAX);
+  double relative_floor_in_decibels(sptk::kMin);
 
   for (;;) {
     const int option_char(
