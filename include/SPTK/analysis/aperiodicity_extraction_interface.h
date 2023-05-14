@@ -30,7 +30,7 @@ class AperiodicityExtractionInterface {
   }
 
   /**
-   * @return Frame shift.
+   * @return Frame shift in point.
    */
   virtual int GetFrameShift() const = 0;
 
