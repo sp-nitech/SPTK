@@ -14,7 +14,6 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <cfloat>    // DBL_MAX
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -109,8 +108,8 @@ void PrintUsage(std::ostream* stream) {
  */
 int main(int argc, char* argv[]) {
   int output_length(kDefaultOutputLength);
-  double minimum_x(-DBL_MAX);
-  double maximum_x(DBL_MAX);
+  double minimum_x(sptk::kMin);
+  double maximum_x(sptk::kMax);
 
   for (;;) {
     const int option_char(getopt_long(argc, argv, "l:m:s:e:h", NULL, NULL));
@@ -213,7 +212,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  if (-DBL_MAX == minimum_x) {
+  if (sptk::kMin == minimum_x) {
     minimum_x = data_x.front();
   } else {
     if (minimum_x < data_x.front()) {
@@ -232,7 +231,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  if (DBL_MAX == maximum_x) {
+  if (sptk::kMax == maximum_x) {
     maximum_x = data_x.back();
   } else {
     if (data_x.back() < maximum_x) {

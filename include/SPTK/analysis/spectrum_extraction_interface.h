@@ -14,53 +14,42 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include "SPTK/compression/vector_quantization.h"
+#ifndef SPTK_ANALYSIS_SPECTRUM_EXTRACTION_INTERFACE_H_
+#define SPTK_ANALYSIS_SPECTRUM_EXTRACTION_INTERFACE_H_
 
-#include <cstddef>  // std::size_t
+#include <vector>  // std::vector
 
 namespace sptk {
 
-VectorQuantization::VectorQuantization(int num_order)
-    : num_order_(num_order),
-      distance_calculation_(
-          num_order_, DistanceCalculation::DistanceMetrics::kSquaredEuclidean),
-      is_valid_(true) {
-  if (num_order_ < 0 || !distance_calculation_.IsValid()) {
-    is_valid_ = false;
-    return;
-  }
-}
-
-bool VectorQuantization::Run(
-    const std::vector<double>& input_vector,
-    const std::vector<std::vector<double> >& codebook_vectors,
-    int* codebook_index) const {
-  // Check inputs.
-  const int codebook_size(static_cast<int>(codebook_vectors.size()));
-  if (!is_valid_ ||
-      input_vector.size() != static_cast<std::size_t>(num_order_ + 1) ||
-      0 == codebook_size || NULL == codebook_index) {
-    return false;
+/**
+ * An interface of spectrum extraction.
+ */
+class SpectrumExtractionInterface {
+ public:
+  virtual ~SpectrumExtractionInterface() {
   }
 
-  int index(0);
-  double min_distance(sptk::kMax);
+  /**
+   * @return Frame shift in point.
+   */
+  virtual int GetFrameShift() const = 0;
 
-  for (int i(0); i < codebook_size; ++i) {
-    double distance;
-    if (!distance_calculation_.Run(input_vector, codebook_vectors[i],
-                                   &distance)) {
-      return false;
-    }
-    if (distance < min_distance) {
-      index = i;
-      min_distance = distance;
-    }
-  }
+  /**
+   * @return True if this object is valid.
+   */
+  virtual bool IsValid() const = 0;
 
-  *codebook_index = index;
-
-  return true;
-}
+  /**
+   * @param[in] waveform Waveform.
+   * @param[in] f0 Fundamental frequency in Hz.
+   * @param[out] spectrum Power spectrum.
+   * @return True on success, false on failure.
+   */
+  virtual bool Run(const std::vector<double>& waveform,
+                   const std::vector<double>& f0,
+                   std::vector<std::vector<double> >* spectrum) const = 0;
+};
 
 }  // namespace sptk
+
+#endif  // SPTK_ANALYSIS_SPECTRUM_EXTRACTION_INTERFACE_H_

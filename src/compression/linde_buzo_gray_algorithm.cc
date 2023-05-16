@@ -16,7 +16,6 @@
 
 #include "SPTK/compression/linde_buzo_gray_algorithm.h"
 
-#include <cfloat>   // DBL_MAX
 #include <cmath>    // std::fabs
 #include <cstddef>  // std::size_t
 
@@ -76,7 +75,7 @@ bool LindeBuzoGrayAlgorithm::Run(
   // Prepare random value generator.
   NormalDistributedRandomValueGeneration random_value_generation(seed_);
 
-  *total_distance = DBL_MAX;
+  *total_distance = sptk::kMax;
 
   // Design codebook.
   int current_codebook_size(initial_codebook_size_);
@@ -106,7 +105,7 @@ bool LindeBuzoGrayAlgorithm::Run(
 
     current_codebook_size = next_codebook_size;
 
-    double prev_total_distance(DBL_MAX);
+    double prev_total_distance(sptk::kMax);
     for (int n(0); n < num_iteration_; ++n) {
       // Initialize.
       double sum(0.0);

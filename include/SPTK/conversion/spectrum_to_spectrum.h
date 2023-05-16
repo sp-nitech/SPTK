@@ -92,8 +92,8 @@ class SpectrumToSpectrum {
    * @param[in] relative_floor_in_decibels Relative floor in decibels.
    */
   SpectrumToSpectrum(int fft_length, InputOutputFormats input_format,
-                     InputOutputFormats output_format, double epsilon,
-                     double relative_floor_in_decibels);
+                     InputOutputFormats output_format, double epsilon = 0.0,
+                     double relative_floor_in_decibels = sptk::kMin);
 
   virtual ~SpectrumToSpectrum();
 

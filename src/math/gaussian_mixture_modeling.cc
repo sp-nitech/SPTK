@@ -17,7 +17,6 @@
 #include "SPTK/math/gaussian_mixture_modeling.h"
 
 #include <algorithm>  // std::fill, std::transform
-#include <cfloat>     // DBL_MAX
 #include <cmath>      // std::exp, std::log
 #include <cstddef>    // std::size_t
 #include <iomanip>    // std::setw
@@ -83,7 +82,7 @@ GaussianMixtureModeling::GaussianMixtureModeling(
       is_diagonal_(kDiagonal == covariance_type_ && 1 == block_size_.size()),
       is_valid_(true) {
   if (num_order_ < 0 || num_mixture_ <= 0 ||
-      (kKMeans == initialization_type_ && !IsPowerOfTwo(num_mixture_)) ||
+      (kKMeans == initialization_type_ && !sptk::IsPowerOfTwo(num_mixture_)) ||
       num_iteration_ <= 0 || convergence_threshold_ < 0.0 ||
       weight_floor_ < 0.0 || 1.0 / num_mixture_ < weight_floor_ ||
       variance_floor_ < 0.0 || log_interval <= 0 ||
@@ -213,7 +212,7 @@ bool GaussianMixtureModeling::Run(
   GaussianMixtureModeling::Buffer buffer;
   std::vector<double> numerators(num_mixture_);
 
-  double prev_log_likelihood(-DBL_MAX);
+  double prev_log_likelihood(sptk::kMin);
 
   for (int n(1); n <= num_iteration_; ++n) {
     // Clear buffers.

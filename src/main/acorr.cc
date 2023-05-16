@@ -15,7 +15,6 @@
 // ------------------------------------------------------------------------ //
 
 #include <algorithm>  // std::transform
-#include <cfloat>     // DBL_MAX
 #include <fstream>    // std::ifstream
 #include <iomanip>    // std::setw
 #include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -237,8 +236,7 @@ int main(int argc, char* argv[]) {
   sptk::SpectrumToSpectrum spectrum_to_spectrum(
       frame_length,
       static_cast<sptk::SpectrumToSpectrum::InputOutputFormats>(input_format),
-      sptk::SpectrumToSpectrum::InputOutputFormats::kPowerSpectrum, 0.0,
-      -DBL_MAX);
+      sptk::SpectrumToSpectrum::InputOutputFormats::kPowerSpectrum);
   if (kWaveform != input_format && !spectrum_to_spectrum.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to initialize SpectrumToSpectrum";

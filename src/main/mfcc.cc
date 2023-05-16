@@ -14,7 +14,6 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <cfloat>    // DBL_MAX
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -424,8 +423,7 @@ int main(int argc, char* argv[]) {
   sptk::SpectrumToSpectrum spectrum_to_spectrum(
       fft_length,
       static_cast<sptk::SpectrumToSpectrum::InputOutputFormats>(input_format),
-      sptk::SpectrumToSpectrum::InputOutputFormats::kPowerSpectrum, 0.0,
-      -DBL_MAX);
+      sptk::SpectrumToSpectrum::InputOutputFormats::kPowerSpectrum);
   if (kWaveform != input_format && !spectrum_to_spectrum.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to set condition for input formatting";
@@ -435,8 +433,7 @@ int main(int argc, char* argv[]) {
 
   sptk::WaveformToSpectrum waveform_to_spectrum(
       fft_length, fft_length,
-      sptk::SpectrumToSpectrum::InputOutputFormats::kPowerSpectrum, 0.0,
-      -DBL_MAX);
+      sptk::SpectrumToSpectrum::InputOutputFormats::kPowerSpectrum);
   sptk::WaveformToSpectrum::Buffer buffer_for_spectral_analysis;
   if (kWaveform == input_format && !waveform_to_spectrum.IsValid()) {
     std::ostringstream error_message;

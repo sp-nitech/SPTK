@@ -14,42 +14,80 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#ifndef SPTK_ANALYSIS_APERIODICITY_EXTRACTION_INTERFACE_H_
-#define SPTK_ANALYSIS_APERIODICITY_EXTRACTION_INTERFACE_H_
+#ifndef SPTK_ANALYSIS_SPECTRUM_EXTRACTION_BY_WORLD_H_
+#define SPTK_ANALYSIS_SPECTRUM_EXTRACTION_BY_WORLD_H_
 
 #include <vector>  // std::vector
+
+#include "SPTK/analysis/spectrum_extraction_interface.h"
+#include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
 /**
- * An interface of aperiodicity extraction.
+ * Extract spectrum based on WORLD (CheapTrick).
  */
-class AperiodicityExtractionInterface {
+class SpectrumExtractionByWorld : public SpectrumExtractionInterface {
  public:
-  virtual ~AperiodicityExtractionInterface() {
+  /**
+   * @param[in] fft_length FFT length.
+   * @param[in] frame_shift Frame shift in point.
+   * @param[in] sampling_rate Sampling rate in Hz.
+   */
+  SpectrumExtractionByWorld(int fft_length, int frame_shift,
+                            double sampling_rate);
+
+  virtual ~SpectrumExtractionByWorld() {
   }
 
   /**
-   * @return Frame shift in point.
+   * @return FFT length.
    */
-  virtual int GetFrameShift() const = 0;
+  int GetFftLength() const {
+    return fft_length_;
+  }
+
+  /**
+   * @return Frame shift.
+   */
+  virtual int GetFrameShift() const {
+    return frame_shift_;
+  }
+
+  /**
+   * @return Sampling rate.
+   */
+  double GetSamplingRate() const {
+    return sampling_rate_;
+  }
 
   /**
    * @return True if this object is valid.
    */
-  virtual bool IsValid() const = 0;
+  virtual bool IsValid() const {
+    return is_valid_;
+  }
 
   /**
    * @param[in] waveform Waveform.
    * @param[in] f0 Fundamental frequency in Hz.
-   * @param[out] aperiodicity Aperiodicity measure.
+   * @param[out] spectrum Power spectrum.
    * @return True on success, false on failure.
    */
   virtual bool Run(const std::vector<double>& waveform,
                    const std::vector<double>& f0,
-                   std::vector<std::vector<double> >* aperiodicity) const = 0;
+                   std::vector<std::vector<double> >* spectrum) const;
+
+ private:
+  const int fft_length_;
+  const int frame_shift_;
+  const double sampling_rate_;
+
+  bool is_valid_;
+
+  DISALLOW_COPY_AND_ASSIGN(SpectrumExtractionByWorld);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_ANALYSIS_APERIODICITY_EXTRACTION_INTERFACE_H_
+#endif  // SPTK_ANALYSIS_SPECTRUM_EXTRACTION_BY_WORLD_H_

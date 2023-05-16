@@ -92,7 +92,8 @@ class WaveformToSpectrum {
    */
   WaveformToSpectrum(int frame_length, int fft_length,
                      SpectrumToSpectrum::InputOutputFormats output_format,
-                     double epsilon, double relative_floor_in_decibels);
+                     double epsilon = 0.0,
+                     double relative_floor_in_decibels = sptk::kMin);
 
   virtual ~WaveformToSpectrum() {
   }

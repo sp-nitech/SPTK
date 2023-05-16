@@ -17,7 +17,7 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
-tmp=test_ap
+tmp=test_pitch_spec
 data=asset/data.short
 
 setup() {
@@ -28,11 +28,9 @@ teardown() {
     rm -rf $tmp
 }
 
-@test "ap: valgrind" {
+@test "sp: valgrind" {
     $sptk3/x2x +sd $data > $tmp/0
     $sptk4/pitch $tmp/0 > $tmp/1
-    for a in $(seq 0 1); do
-        run valgrind $sptk4/ap -a "$a" -l 16 $tmp/1 $tmp/0
-        [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
-    done
+    run valgrind $sptk4/pitch_spec -l 1024 $tmp/1 $tmp/0
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

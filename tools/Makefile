@@ -30,8 +30,8 @@ venv:
 	else \
 		test -d venv || python$(PYTHON_VERSION) -m venv venv; \
 	fi
-	. venv/bin/activate; pip install pip --upgrade; \
-	pip install -r requirements.txt --upgrade
+	. venv/bin/activate; python -m pip install pip --upgrade; \
+	python -m pip install -r requirements.txt --upgrade
 	touch venv/bin/activate
 
 venv_dev:
@@ -40,8 +40,8 @@ venv_dev:
 	else \
 		test -d venv || python$(PYTHON_VERSION) -m venv venv; \
 	fi
-	. venv/bin/activate; pip install pip --upgrade; \
-	pip install -r requirements.txt -r test_requirements.txt --upgrade
+	. venv/bin/activate; python -m pip install pip --upgrade; \
+	python -m pip install -r requirements.txt -r test_requirements.txt --upgrade
 	touch venv/bin/activate
 
 bats.done:
