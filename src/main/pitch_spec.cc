@@ -43,10 +43,10 @@ const sptk::SpectrumToSpectrum::InputOutputFormats kDefaultOutputFormat(
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " sp - spectrum extraction" << std::endl;
+  *stream << " pitch_spec - pitch-adaptive spectral estimation" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
-  *stream << "       sp [ options ] f0file [ infile ] > stdout" << std::endl;
+  *stream << "       pitch_spec [ options ] f0file [ infile ] > stdout" << std::endl;  // NOLINT
   *stream << "  options:" << std::endl;
   *stream << "       -a a  : algorithm used for  (   int)[" << std::setw(5) << std::right << kDefaultAlgorithm    << "][   0 <= a <= 0    ]" << std::endl;  // NOLINT
   *stream << "               spectrum estimation" << std::endl;
@@ -82,7 +82,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a sp [ @e option ] @e f0file [ @e infile ]
+ * @a pitch_spec [ @e option ] @e f0file [ @e infile ]
  *
  * - @b -a @e int
  *   - algorithm used for spectrum extraction
@@ -115,7 +115,7 @@ void PrintUsage(std::ostream* stream) {
  *
  * @code{.sh}
  *   pitch -s 16 -p 80 -L 80 -H 200 -o 1 < data.d > data.f0
- *   sp -s 16 -p 80 -q 1 data.f0 < data.d > data.sp
+ *   pitch_spec -s 16 -p 80 -q 1 data.f0 < data.d > data.sp
  * @endcode
  *
  * @param[in] argc Number of arguments.
@@ -149,7 +149,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -a option must be an integer "
                         << "in the range of " << min << " to " << max;
-          sptk::PrintErrorMessage("sp", error_message);
+          sptk::PrintErrorMessage("pitch_spec", error_message);
           return 1;
         }
         algorithm = static_cast<sptk::SpectrumExtraction::Algorithms>(tmp);
@@ -159,9 +159,9 @@ int main(int argc, char* argv[]) {
         if (!sptk::ConvertStringToInteger(optarg, &fft_length) ||
             fft_length <= 3) {
           std::ostringstream error_message;
-          error_message << "The argument for the -l option must be a power of "
-                           "2 and greater than 3";
-          sptk::PrintErrorMessage("sp", error_message);
+          error_message
+              << "The argument for the -l option must be greater than 3";
+          sptk::PrintErrorMessage("pitch_spec", error_message);
           return 1;
         }
         break;
@@ -172,7 +172,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -p option must be a positive integer";
-          sptk::PrintErrorMessage("sp", error_message);
+          sptk::PrintErrorMessage("pitch_spec", error_message);
           return 1;
         }
         break;
@@ -185,7 +185,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -s option must be in a number "
                         << "in the interval [" << min << ", " << max << "]";
-          sptk::PrintErrorMessage("sp", error_message);
+          sptk::PrintErrorMessage("pitch_spec", error_message);
           return 1;
         }
         break;
@@ -199,7 +199,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -q option must be an integer "
                         << "in the range of " << min << " to " << max;
-          sptk::PrintErrorMessage("sp", error_message);
+          sptk::PrintErrorMessage("pitch_spec", error_message);
           return 1;
         }
         input_format = static_cast<InputFormats>(tmp);
@@ -216,7 +216,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -o option must be an integer "
                         << "in the range of " << min << " to " << max;
-          sptk::PrintErrorMessage("sp", error_message);
+          sptk::PrintErrorMessage("pitch_spec", error_message);
           return 1;
         }
         output_format =
@@ -246,7 +246,7 @@ int main(int argc, char* argv[]) {
   } else {
     std::ostringstream error_message;
     error_message << "Just two input files, f0file and infile, are required";
-    sptk::PrintErrorMessage("sp", error_message);
+    sptk::PrintErrorMessage("pitch_spec", error_message);
     return 1;
   }
 
@@ -259,7 +259,7 @@ int main(int argc, char* argv[]) {
     if (ifs.fail()) {
       std::ostringstream error_message;
       error_message << "Cannot open file " << f0_file;
-      sptk::PrintErrorMessage("sp", error_message);
+      sptk::PrintErrorMessage("pitch_spec", error_message);
       return 1;
     }
     std::istream& input_stream(ifs);
@@ -301,7 +301,7 @@ int main(int argc, char* argv[]) {
     if (ifs.fail() && NULL != raw_file) {
       std::ostringstream error_message;
       error_message << "Cannot open file " << raw_file;
-      sptk::PrintErrorMessage("sp", error_message);
+      sptk::PrintErrorMessage("pitch_spec", error_message);
       return 1;
     }
     std::istream& input_stream(ifs.fail() ? std::cin : ifs);
@@ -318,7 +318,7 @@ int main(int argc, char* argv[]) {
   if (!spectrum_extraction.IsValid()) {
     std::ostringstream error_message;
     error_message << "FFT length must be a power of 2";
-    sptk::PrintErrorMessage("sp", error_message);
+    sptk::PrintErrorMessage("pitch_spec", error_message);
     return 1;
   }
 
@@ -330,7 +330,7 @@ int main(int argc, char* argv[]) {
     std::ostringstream error_message;
     error_message
         << "Failed to extract spectrum (consider increasing FFT length)";
-    sptk::PrintErrorMessage("sp", error_message);
+    sptk::PrintErrorMessage("pitch_spec", error_message);
     return 1;
   }
 
@@ -341,14 +341,14 @@ int main(int argc, char* argv[]) {
     if (!spectrum_to_spectrum.Run(tmp, &output)) {
       std::ostringstream error_message;
       error_message << "Failed to convert spectrum";
-      sptk::PrintErrorMessage("sp", error_message);
+      sptk::PrintErrorMessage("pitch_spec", error_message);
       return 1;
     }
 
     if (!sptk::WriteStream(0, output_length, output, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write spectrum";
-      sptk::PrintErrorMessage("sp", error_message);
+      sptk::PrintErrorMessage("pitch_spec", error_message);
       return 1;
     }
   }
