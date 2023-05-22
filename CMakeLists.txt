@@ -66,6 +66,7 @@ set(CC_SOURCES
   ${THIRD_PARTY_DIR}/WORLD/fft_world.cc
   ${THIRD_PARTY_DIR}/WORLD/matlabfunctions.cc
   ${THIRD_PARTY_DIR}/WORLD/stonemask.cc
+  ${THIRD_PARTY_DIR}/WORLD/synthesis.cc
   ${SOURCE_DIR}/analysis/adaptive_generalized_cepstral_analysis.cc
   ${SOURCE_DIR}/analysis/adaptive_mel_cepstral_analysis.cc
   ${SOURCE_DIR}/analysis/adaptive_mel_generalized_cepstral_analysis.cc
@@ -144,6 +145,7 @@ set(CC_SOURCES
   ${SOURCE_DIR}/filter/mlsa_digital_filter.cc
   ${SOURCE_DIR}/filter/pseudo_quadrature_mirror_filter_banks.cc
   ${SOURCE_DIR}/filter/second_order_digital_filter.cc
+  ${SOURCE_DIR}/filter/world_synthesis.cc
   ${SOURCE_DIR}/generation/delta_calculation.cc
   ${SOURCE_DIR}/generation/excitation_generation.cc
   ${SOURCE_DIR}/generation/m_sequence_generation.cc
@@ -209,13 +211,13 @@ target_include_directories(sptk PUBLIC
   ${THIRD_PARTY_DIR}
   ${THIRD_PARTY_DIR}/REAPER
   ${THIRD_PARTY_DIR}/WORLD
-  )
+)
 install(TARGETS sptk
   ARCHIVE DESTINATION lib
-  )
+)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/SPTK
   DESTINATION include
-  )
+)
 
 set(MAIN_SOURCES
   ${SOURCE_DIR}/main/acorr.cc
@@ -341,10 +343,11 @@ set(MAIN_SOURCES
   ${SOURCE_DIR}/main/vstat.cc
   ${SOURCE_DIR}/main/vsum.cc
   ${SOURCE_DIR}/main/window.cc
+  ${SOURCE_DIR}/main/world_synth.cc
   ${SOURCE_DIR}/main/x2x.cc
   ${SOURCE_DIR}/main/zcross.cc
   ${SOURCE_DIR}/main/zerodf.cc
-  )
+)
 
 set(PYTHON_SOURCES
   ${SOURCE_DIR}/draw/fdrw.py
@@ -354,7 +357,7 @@ set(PYTHON_SOURCES
   ${SOURCE_DIR}/draw/gseries.py
   ${SOURCE_DIR}/draw/gspecgram.py
   ${SOURCE_DIR}/draw/gwave.py
-  )
+)
 
 if(NOT WIN32)
   foreach(SOURCE ${MAIN_SOURCES})
@@ -363,7 +366,7 @@ if(NOT WIN32)
     target_link_libraries(${BIN} sptk)
     install(TARGETS ${BIN}
       RUNTIME DESTINATION bin
-      )
+    )
   endforeach()
 
   foreach(SOURCE ${PYTHON_SOURCES})
@@ -371,6 +374,6 @@ if(NOT WIN32)
     execute_process(COMMAND ln -snf ${SOURCE} ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${BIN}
       DESTINATION bin
-      )
+    )
   endforeach()
 endif()
