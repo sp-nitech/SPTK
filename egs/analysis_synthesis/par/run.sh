@@ -21,10 +21,10 @@ sptk4=../../../bin
 data=../../../asset/data.short
 dump=dump
 
-sr=16          # Sample rate in kHz
+sr=16           # Sample rate in kHz
 fl=$((sr * 25)) # Frame length (16kHz x 25ms)
-fp=$((sr * 5)) # Frame shift  (16kHz x 5ms)
-order=24       # Order of PARCOR
+fp=$((sr * 5))  # Frame shift (16kHz x 5ms)
+order=24        # Order of PARCOR
 
 mkdir -p $dump
 
@@ -37,10 +37,10 @@ $sptk4/x2x +sd $data |
 
 # Extract pitch.
 $sptk4/x2x +sd $data |
-    $sptk4/pitch -p $fp -o 0 > $dump/data.pitch
+    $sptk4/pitch -s $sr -p $fp -o 0 > $dump/data.pit
 
 # Synthesis from extracted features.
-$sptk4/excite -p $fp $dump/data.pitch |
+$sptk4/excite -p $fp $dump/data.pit |
     $sptk4/ltcdf -p $fp -m $order $dump/data.par |
     $sptk4/x2x +ds -r > $dump/data.syn.raw
 
