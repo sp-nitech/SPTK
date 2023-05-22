@@ -27,7 +27,7 @@ fp=$((sr * 5)) # Frame shift  (16kHz x 5ms)
 mkdir -p $dump
 
 # Extract pitch.
-for a in $(seq 0 3); do
+for a in $(seq 0 4); do
     $sptk4/x2x +sd $data |
         $sptk4/pitch -s $sr -p $fp -o 2 -a "$a" > $dump/data.lf0."$a"
 done
@@ -36,9 +36,11 @@ done
 $sptk4/merge -l 1 -L 1 $dump/data.lf0.1 < $dump/data.lf0.0 |
     $sptk4/merge -l 2 -L 1 $dump/data.lf0.2 |
     $sptk4/merge -l 3 -L 1 $dump/data.lf0.3 |
-    $sptk4/medfilt -l 4 -k 2 -magic -1e+10 -w 1 > $dump/data.lf0
+    $sptk4/merge -l 4 -L 1 $dump/data.lf0.4 |
+    $sptk4/medfilt -l 5 -k 2 -magic -1e+10 -w 1 > $dump/data.lf0
 
 # Draw pitch contours.
+export VIRTUAL_ENV_DISABLE_PROMPT=1
 # shellcheck disable=SC1091
 . ../../../tools/venv/bin/activate
 n=$($sptk4/x2x +da $dump/data.lf0 | wc -l)
@@ -47,6 +49,6 @@ cat $dump/data.lf0.? $dump/data.lf0 |
     $sptk4/fdrw -n "$n" -g $dump/contour.png \
                 -xname "Time [frame]" \
                 -yname "Fundamental frequency [Hz]" \
-                -names "RAPT,SWIPE,REAPER,WORLD,Voting"
+                -names "RAPT,SWIPE,REAPER,DIO,Harvest,Voting"
 
 echo "run.sh: successfully finished"

@@ -14,8 +14,8 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#ifndef SPTK_ANALYSIS_PITCH_EXTRACTION_BY_WORLD_H_
-#define SPTK_ANALYSIS_PITCH_EXTRACTION_BY_WORLD_H_
+#ifndef SPTK_ANALYSIS_PITCH_EXTRACTION_BY_HARVEST_H_
+#define SPTK_ANALYSIS_PITCH_EXTRACTION_BY_HARVEST_H_
 
 #include <vector>  // std::vector
 
@@ -25,9 +25,9 @@
 namespace sptk {
 
 /**
- * Extract pitch based on WORLD (DUO).
+ * Extract pitch based on WORLD (Harvest).
  */
-class PitchExtractionByWorld : public PitchExtractionInterface {
+class PitchExtractionByHarvest : public PitchExtractionInterface {
  public:
   /**
    * @param[in] frame_shift Frame shift in point.
@@ -36,10 +36,11 @@ class PitchExtractionByWorld : public PitchExtractionInterface {
    * @param[in] upper_f0 Upper bound of F0 in Hz.
    * @param[in] voicing_threshold Threshold for determining voiced/unvoiced.
    */
-  PitchExtractionByWorld(int frame_shift, double sampling_rate, double lower_f0,
-                         double upper_f0, double voicing_threshold);
+  PitchExtractionByHarvest(int frame_shift, double sampling_rate,
+                           double lower_f0, double upper_f0,
+                           double voicing_threshold);
 
-  virtual ~PitchExtractionByWorld() {
+  virtual ~PitchExtractionByHarvest() {
   }
 
   /**
@@ -104,9 +105,9 @@ class PitchExtractionByWorld : public PitchExtractionInterface {
 
   bool is_valid_;
 
-  DISALLOW_COPY_AND_ASSIGN(PitchExtractionByWorld);
+  DISALLOW_COPY_AND_ASSIGN(PitchExtractionByHarvest);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_ANALYSIS_PITCH_EXTRACTION_BY_WORLD_H_
+#endif  // SPTK_ANALYSIS_PITCH_EXTRACTION_BY_HARVEST_H_
