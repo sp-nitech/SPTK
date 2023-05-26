@@ -14,10 +14,10 @@
 # limitations under the License.                                           #
 # ------------------------------------------------------------------------ #
 
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.1)
 
 project(SPTK
-  VERSION 4.1.0
+  VERSION 4.1
   )
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -230,12 +230,8 @@ install(EXPORT ${PROJECT_NAME}Targets
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
   )
 
-file(WRITE ${PROJECT_BINARY_DIR}/Config.cmake.in
-  "@PACKAGE_INIT@\n\ninclude(\"\${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake\")\n\ncheck_required_components(@PROJECT_NAME@)\n"
-  )
-
 configure_package_config_file(
-  ${PROJECT_BINARY_DIR}/Config.cmake.in
+  ${PROJECT_SOURCE_DIR}/Config.cmake.in
   ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
   INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
   )
@@ -244,7 +240,6 @@ write_basic_package_version_file(
   ${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
   VERSION ${PROJECT_VERSION}
   COMPATIBILITY SameMajorVersion
-  ARCH_INDEPENDENT
   )
 
 install(FILES
