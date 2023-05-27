@@ -16,7 +16,7 @@
 
 cmake_minimum_required(VERSION 3.1)
 
-project(SPTK)
+project(SPTK VERSION 4.1)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.5.0)
@@ -207,16 +207,49 @@ set(CC_SOURCES
 
 add_library(sptk STATIC ${CC_SOURCES})
 target_include_directories(sptk PUBLIC
-  ${PROJECT_SOURCE_DIR}/include
-  ${THIRD_PARTY_DIR}
-  ${THIRD_PARTY_DIR}/REAPER
-  ${THIRD_PARTY_DIR}/WORLD
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${THIRD_PARTY_DIR}>
+  $<BUILD_INTERFACE:${THIRD_PARTY_DIR}/REAPER>
+  $<BUILD_INTERFACE:${THIRD_PARTY_DIR}/WORLD>
 )
+
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
 install(TARGETS sptk
-  ARCHIVE DESTINATION lib
+  EXPORT ${PROJECT_NAME}Targets
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
+
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/SPTK
-  DESTINATION include
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(EXPORT ${PROJECT_NAME}Targets
+  FILE ${PROJECT_NAME}Targets.cmake
+  NAMESPACE ${PROJECT_NAME}::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+)
+
+configure_package_config_file(
+  ${PROJECT_SOURCE_DIR}/Config.cmake.in
+  ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+)
+
+write_basic_package_version_file(
+  ${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY SameMajorVersion
+)
+
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
 )
 
 set(MAIN_SOURCES
@@ -365,7 +398,7 @@ if(NOT WIN32)
     add_executable(${BIN} ${SOURCE})
     target_link_libraries(${BIN} sptk)
     install(TARGETS ${BIN}
-      RUNTIME DESTINATION bin
+      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
   endforeach()
 
@@ -373,7 +406,7 @@ if(NOT WIN32)
     get_filename_component(BIN ${SOURCE} NAME_WE)
     execute_process(COMMAND ln -snf ${SOURCE} ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${BIN}
-      DESTINATION bin
+      DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
   endforeach()
 endif()
