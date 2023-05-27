@@ -91,6 +91,21 @@ void PrintUsage(std::ostream* stream) {
  * - @b stdout
  *   - double-type filtered data sequence
  *
+ * @code{.sh}
+ *   echo 1 3 5 7 | x2x +ad | medfilt -w 0 -l 1 -k 2 | x2x +da
+ *   # 2 3 5 6
+ * @endcode
+ *
+ * @code{.sh}
+ *   echo 1 2 3 4 5 6 7 8 | x2x +ad | medfilt -w 0 -l 2 | x2x +da
+ *   # 2 3 3 4 5 6 6 7
+ * @endcode
+ *
+ * @code{.sh}
+ *   echo 1 2 3 4 5 6 7 8 | x2x +ad | medfilt -w 1 -l 2 | x2x +da
+ *   # 2.5 3.5 5.5 6.5
+ * @endcode
+ *
  * @param[in] argc Number of arguments.
  * @param[in] argv Argument vector.
  * @return 0 on success, 1 on failure.

@@ -66,7 +66,11 @@ void SetInternalParameters(int segment_length, int n_margin,
     internal_parameters->H[i] = new double[n_margin * 2];
   internal_parameters->Hw = new double *[n_margin * 2];
   for (int i = 0; i < n_margin * 2; ++i)
+#if 0
     internal_parameters->Hw[i] = new double[segment_length];
+#else
+    internal_parameters->Hw[i] = new double[segment_length]();
+#endif
   internal_parameters->R = new double *[n_margin * 2];
   for (int i = 0; i < n_margin * 2; ++i)
     internal_parameters->R[i] = new double[n_margin * 2];
@@ -140,8 +144,12 @@ void GetHw(double **H, int segment_length, int n_margin2, double **w,
   double tmp;
   for (int i = 0; i < n_margin2; ++i) {
     for (int j = 0; j < segment_length; ++j) {
+#if 0
       tmp = 0.0;
       for (int k = 0; k < segment_length; ++k) tmp += H[k][i] * w[k][j];
+#else
+      tmp = H[j][i] * w[j][j];
+#endif
       Hw[i][j] = tmp;
     }
   }

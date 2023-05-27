@@ -17,12 +17,11 @@
 #include "SPTK/input/input_source_interpolation_with_magic_number.h"
 
 #include <algorithm>  // std::copy
-#include <cfloat>     // DBL_MAX
 #include <cstddef>    // std::size_t
 
 namespace {
 
-static const double kCannotCalculateIncrements(DBL_MAX);
+static const double kCannotCalculateIncrements(sptk::kMax);
 
 }  // namespace
 

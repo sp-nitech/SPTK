@@ -17,7 +17,6 @@
 #include "SPTK/conversion/filter_coefficients_to_spectrum.h"
 
 #include <algorithm>  // std::copy, std::fill, std::transform
-#include <cfloat>     // DBL_MAX
 #include <cstddef>    // std::size_t
 
 namespace sptk {

@@ -17,7 +17,6 @@
 #include "SPTK/math/dynamic_time_warping.h"
 
 #include <algorithm>  // std::reverse
-#include <cfloat>     // DBL_MAX
 
 namespace {
 
@@ -132,10 +131,10 @@ bool DynamicTimeWarping::Run(
       }
 
       double best_score_of_all_paths((0 == i && 0 == j) ? local_distance
-                                                        : DBL_MAX);
+                                                        : sptk::kMax);
       int best_i_of_all_paths(-1), best_j_of_all_paths(-1);
 
-      double best_score_of_diagonal_paths(DBL_MAX);
+      double best_score_of_diagonal_paths(sptk::kMax);
       int best_i_of_diagonal_paths(-1), best_j_of_diagonal_paths(-1);
 
       for (int k(0); k < num_candidate; ++k) {
@@ -178,7 +177,8 @@ bool DynamicTimeWarping::Run(
     }
   }
 
-  if (DBL_MAX == cell[num_query_vector - 1][num_reference_vector - 1].score) {
+  if (sptk::kMax ==
+      cell[num_query_vector - 1][num_reference_vector - 1].score) {
     return false;
   }
 

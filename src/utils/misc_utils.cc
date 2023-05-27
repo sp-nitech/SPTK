@@ -17,7 +17,6 @@
 #include "SPTK/utils/misc_utils.h"
 
 #include <algorithm>  // std::fill, std::max, std::min, std::transform
-#include <cfloat>     // DBL_MAX
 #include <cmath>      // std::atan, std::log, std::pow, std::sqrt, etc.
 #include <cstddef>    // std::size_t
 
@@ -181,7 +180,7 @@ bool MakePseudoQuadratureMirrorFilterBanks(
     // Initialize.
     double omega(sptk::kPi / (2 * num_subband));
     double step_size(initial_step_size);
-    double best_abs_error(DBL_MAX);
+    double best_abs_error(sptk::kMax);
 
     for (int i(0); i < num_iteration; ++i) {
       // Make ideal filter.

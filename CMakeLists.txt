@@ -61,11 +61,13 @@ set(CC_SOURCES
   ${THIRD_PARTY_DIR}/Snack/jkGetF0.cc
   ${THIRD_PARTY_DIR}/Snack/sigproc.cc
   ${THIRD_PARTY_DIR}/WORLD/aperiodicity.cc
+  ${THIRD_PARTY_DIR}/WORLD/cheaptrick.cc
   ${THIRD_PARTY_DIR}/WORLD/common.cc
   ${THIRD_PARTY_DIR}/WORLD/d4c.cc
   ${THIRD_PARTY_DIR}/WORLD/dio.cc
   ${THIRD_PARTY_DIR}/WORLD/fft_world.cc
   ${THIRD_PARTY_DIR}/WORLD/matlabfunctions.cc
+  ${THIRD_PARTY_DIR}/WORLD/stonemask.cc
   ${SOURCE_DIR}/analysis/adaptive_generalized_cepstral_analysis.cc
   ${SOURCE_DIR}/analysis/adaptive_mel_cepstral_analysis.cc
   ${SOURCE_DIR}/analysis/adaptive_mel_generalized_cepstral_analysis.cc
@@ -84,6 +86,8 @@ set(CC_SOURCES
   ${SOURCE_DIR}/analysis/pitch_extraction_by_swipe.cc
   ${SOURCE_DIR}/analysis/pitch_extraction_by_world.cc
   ${SOURCE_DIR}/analysis/second_order_all_pass_mel_cepstral_analysis.cc
+  ${SOURCE_DIR}/analysis/spectrum_extraction.cc
+  ${SOURCE_DIR}/analysis/spectrum_extraction_by_world.cc
   ${SOURCE_DIR}/analysis/zero_crossing_analysis.cc
   ${SOURCE_DIR}/check/line_spectral_pairs_stability_check.cc
   ${SOURCE_DIR}/check/linear_predictive_coefficients_stability_check.cc
@@ -347,6 +351,7 @@ set(MAIN_SOURCES
   ${SOURCE_DIR}/main/phase.cc
   ${SOURCE_DIR}/main/pitch.cc
   ${SOURCE_DIR}/main/pitch_mark.cc
+  ${SOURCE_DIR}/main/pitch_spec.cc
   ${SOURCE_DIR}/main/poledf.cc
   ${SOURCE_DIR}/main/pqmf.cc
   ${SOURCE_DIR}/main/quantize.cc
