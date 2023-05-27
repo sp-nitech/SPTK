@@ -15,12 +15,13 @@ on:
       - '**.md'
 
 jobs:
-  build:
+  ubuntu-latest:
 
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: clone
+      uses: actions/checkout@v2
     - name: install packages
       run: |
         sudo apt-get update
@@ -33,3 +34,13 @@ jobs:
       run: make format
     - name: make test
       run: make test
+
+  windows-latest:
+    runs-on: windows-latest
+
+    - name: clone
+      uses: actions/checkout@v2
+    - name: msbuild
+      uses: microsoft/setup-msbuild@v1.1
+    - name: make
+      run: ./make.bat
