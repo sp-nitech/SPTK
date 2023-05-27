@@ -9,21 +9,39 @@ on:
       - '**'
 
 jobs:
-  build:
-
+  ubuntu-latest:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - name: install packages
+      - name: Clone
+        uses: actions/checkout@v3
+
+      - name: Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install csh parallel valgrind
-      - name: setup
+
+      - name: Tool
         run: cd tools; make check -j 4 PYTHON_VERSION=3
-      - name: make
+
+      - name: Make
         run: make debug
-      - name: make format
+
+      - name: Format
         run: make format
-      - name: make test
+
+      - name: Test
         run: make test
+
+  windows-latest:
+    runs-on: windows-latest
+
+    steps:
+      - name: Clone
+        uses: actions/checkout@v3
+
+      - name: MSBuild
+        uses: microsoft/setup-msbuild@v1.1
+
+      - name: Make
+        run: ./make.bat

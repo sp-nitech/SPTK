@@ -6,19 +6,18 @@ on:
 
 jobs:
   stale:
-
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/stale@v8
         with:
-          days-before-issue-stale: -1
-          days-before-issue-close: -1
+          days-before-issue-stale: 30
+          days-before-issue-close: 10
           stale-issue-label: "stale"
-          stale-issue-message: "This issue is stale because it has been open for XX days with no activity."
-          close-issue-message: "This issue was closed because it has been inactive for XX days since being marked as stale."
+          stale-issue-message: "This issue is stale because it has been open for 30 days with no activity."
+          close-issue-message: "This issue was closed because it has been inactive for 10 days since being marked as stale."
           days-before-pr-stale: 30
           days-before-pr-close: 10
           stale-pr-label: "stale"
-          stale-pr-message: "This issue is stale because it has been open for 30 days with no activity."
-          close-pr-message: "This issue was closed because it has been inactive for 10 days since being marked as stale."
+          stale-pr-message: "This PR is stale because it has been open for 30 days with no activity."
+          close-pr-message: "This PR was closed because it has been inactive for 10 days since being marked as stale."
