@@ -29,12 +29,6 @@
 
 namespace {
 
-enum LongOptions {
-  kQ1 = 1000,
-  kQ2,
-  kQ3,
-};
-
 enum PitchFormats { kPitch = 0, kF0, kLogF0, kNumPitchFormats };
 
 enum AperiodicityFormats {
@@ -59,32 +53,32 @@ void PrintUsage(std::ostream* stream) {
   *stream << " world_synth - WORLD synthesizer" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
-  *stream << "       world_synth [ options ] f0file spfile apfile > stdout" << std::endl;  // NOLINT
+  *stream << "       world_synth [ options ] spfile apfile [ f0file ] > stdout" << std::endl;  // NOLINT
   *stream << "  options:" << std::endl;
   *stream << "       -l l  : FFT length          (   int)[" << std::setw(5) << std::right << kDefaultFftLength          << "][ 512 <= l <=      ]" << std::endl;  // NOLINT
   *stream << "       -p p  : frame shift [point] (   int)[" << std::setw(5) << std::right << kDefaultFrameShift         << "][   1 <= p <=      ]" << std::endl;  // NOLINT
   *stream << "       -s s  : sampling rate [kHz] (double)[" << std::setw(5) << std::right << kDefaultSamplingRate       << "][ 8.0 <= s <= 98.0 ]" << std::endl;  // NOLINT
-  *stream << "       -q1 q : pitch format        (   int)[" << std::setw(5) << std::right << kDefaultPitchFormat        << "][   0 <= q <= 2    ]" << std::endl;  // NOLINT
+  *stream << "       -F F  : pitch format        (   int)[" << std::setw(5) << std::right << kDefaultPitchFormat        << "][   0 <= F <= 2    ]" << std::endl;  // NOLINT
   *stream << "                 0 (Fs/F0)" << std::endl;
   *stream << "                 1 (F0)" << std::endl;
   *stream << "                 2 (log F0)" << std::endl;
-  *stream << "       -q2 q : spectrum format     (   int)[" << std::setw(5) << std::right << kDefaultSpectrumFormat     << "][   0 <= q <= 3    ]" << std::endl;  // NOLINT
+  *stream << "       -S S  : spectrum format     (   int)[" << std::setw(5) << std::right << kDefaultSpectrumFormat     << "][   0 <= S <= 3    ]" << std::endl;  // NOLINT
   *stream << "                 0 (20*log|H(z)|)" << std::endl;
   *stream << "                 1 (ln|H(z)|)" << std::endl;
   *stream << "                 2 (|H(z)|)" << std::endl;
   *stream << "                 3 (|H(z)|^2)" << std::endl;
-  *stream << "       -q3 q : aperiodicity format (   int)[" << std::setw(5) << std::right << kDefaultAperiodicityFormat << "][   0 <= q <= 3    ]" << std::endl;  // NOLINT
+  *stream << "       -A A  : aperiodicity format (   int)[" << std::setw(5) << std::right << kDefaultAperiodicityFormat << "][   0 <= A <= 3    ]" << std::endl;  // NOLINT
   *stream << "                 0 (Ha)" << std::endl;
   *stream << "                 1 (Hp)" << std::endl;
   *stream << "                 2 (Ha/Hp)" << std::endl;
   *stream << "                 3 (Hp/Ha)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
-  *stream << "  f0file:" << std::endl;
-  *stream << "       pitch                       (double)" << std::endl;
   *stream << "  spfile:" << std::endl;
   *stream << "       spectrum                    (double)" << std::endl;
   *stream << "  apfile:" << std::endl;
   *stream << "       aperiodicity                (double)" << std::endl;
+  *stream << "  f0file:" << std::endl;
+  *stream << "       pitch, not excitation       (double)" << std::endl;
   *stream << "  stdout:" << std::endl;
   *stream << "       waveform                    (double)" << std::endl;
   *stream << "  notice:" << std::endl;
@@ -106,29 +100,29 @@ void PrintUsage(std::ostream* stream) {
  *   - frame shift [point] @f$(1 \le P)@f$
  * - @b -s @e double
  *   - sampling rate [kHz] @f$(8 < F_s \le 98)@f$
- * - @b -q1 @e int
+ * - @b -F @e int
  *   - pitch format
  *     @arg @c 0 pitch @f$(F_s / F_0)@f$
  *     @arg @c 1 F0
  *     @arg @c 2 log F0
- * - @b -q2 @e int
+ * - @b -S @e int
  *   - spectrum format
  *     \arg @c 0 @f$20 \log_{10} |H(z)|@f$
  *     \arg @c 1 @f$\log |H(z)|@f$
  *     \arg @c 2 @f$|H(z)|@f$
  *     \arg @c 3 @f$|H(z)|^2@f$
- * - @b -q3 @e int
+ * - @b -A @e int
  *   - aperiodicity format
  *     @arg @c 0 Ha
  *     @arg @c 1 Hp
  *     @arg @c 2 Ha/Hp
  *     @arg @c 3 Hp/Ha
- * - @b f0file @e str
- *   - double-type pitch
  * - @b spfile @e str
  *   - double-type spectrum
  * - @b apfile @e str
  *   - double-type aperiodicity
+ * - @b f0file @e str
+ *   - double-type pitch, not exicitaiton
  * - @b stdout
  *   - double-type waveform
  *
@@ -145,16 +139,8 @@ int main(int argc, char* argv[]) {
       kDefaultSpectrumFormat);
   AperiodicityFormats aperiodicity_format(kDefaultAperiodicityFormat);
 
-  const struct option long_options[] = {
-      {"q1", required_argument, NULL, kQ1},
-      {"q2", required_argument, NULL, kQ2},
-      {"q3", required_argument, NULL, kQ3},
-      {0, 0, 0, 0},
-  };
-
   for (;;) {
-    const int option_char(
-        getopt_long_only(argc, argv, "l:p:s:h", long_options, NULL));
+    const int option_char(getopt_long(argc, argv, "l:p:s:F:S:A:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -193,14 +179,14 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      case kQ1: {
+      case 'F': {
         const int min(0);
         const int max(static_cast<int>(kNumPitchFormats) - 1);
         int tmp;
         if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
             !sptk::IsInRange(tmp, min, max)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -q1 option must be an integer "
+          error_message << "The argument for the -F option must be an integer "
                         << "in the range of " << min << " to " << max;
           sptk::PrintErrorMessage("world_synth", error_message);
           return 1;
@@ -208,7 +194,7 @@ int main(int argc, char* argv[]) {
         pitch_format = static_cast<PitchFormats>(tmp);
         break;
       }
-      case kQ2: {
+      case 'S': {
         const int min(0);
         const int max(
             static_cast<int>(sptk::SpectrumToSpectrum::kNumInputOutputFormats) -
@@ -217,7 +203,7 @@ int main(int argc, char* argv[]) {
         if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
             !sptk::IsInRange(tmp, min, max)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -q2 option must be an integer "
+          error_message << "The argument for the -S option must be an integer "
                         << "in the range of " << min << " to " << max;
           sptk::PrintErrorMessage("world_synth", error_message);
           return 1;
@@ -226,14 +212,14 @@ int main(int argc, char* argv[]) {
             static_cast<sptk::SpectrumToSpectrum::InputOutputFormats>(tmp);
         break;
       }
-      case kQ3: {
+      case 'A': {
         const int min(0);
         const int max(static_cast<int>(kNumAperiodicityFormats) - 1);
         int tmp;
         if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
             !sptk::IsInRange(tmp, min, max)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -q2 option must be an integer "
+          error_message << "The argument for the -A option must be an integer "
                         << "in the range of " << min << " to " << max;
           sptk::PrintErrorMessage("world_synth", error_message);
           return 1;
@@ -254,29 +240,37 @@ int main(int argc, char* argv[]) {
 
   const int spectrum_size(fft_length / 2 + 1);
 
+  const char* spectrum_file;
+  const char* aperiodicity_file;
+  const char* f0_file;
   const int num_input_files(argc - optind);
-  if (num_input_files != 3) {
+  if (3 == num_input_files) {
+    spectrum_file = argv[argc - 3];
+    aperiodicity_file = argv[argc - 2];
+    f0_file = argv[argc - 1];
+  } else if (2 == num_input_files) {
+    spectrum_file = argv[argc - 2];
+    aperiodicity_file = argv[argc - 1];
+    f0_file = NULL;
+  } else {
     std::ostringstream error_message;
     error_message
-        << "Just three input files, f0file, spfile, and apfile are required";
+        << "Just three input files, spfile, apfile, and f0file are required";
     sptk::PrintErrorMessage("world_synth", error_message);
     return 1;
   }
-  const char* f0_file(argv[argc - 3]);
-  const char* spectrum_file(argv[argc - 2]);
-  const char* aperiodicity_file(argv[argc - 1]);
 
   std::vector<double> f0;
   {
     std::ifstream ifs;
     ifs.open(f0_file, std::ios::in | std::ios::binary);
-    if (ifs.fail()) {
+    if (ifs.fail() && NULL != f0_file) {
       std::ostringstream error_message;
       error_message << "Cannot open file " << f0_file;
       sptk::PrintErrorMessage("world_synth", error_message);
       return 1;
     }
-    std::istream& input_stream(ifs);
+    std::istream& input_stream(ifs.fail() ? std::cin : ifs);
 
     double tmp;
     while (sptk::ReadStream(&tmp, &input_stream)) {
@@ -318,7 +312,7 @@ int main(int argc, char* argv[]) {
         sptk::SpectrumToSpectrum::InputOutputFormats::kPowerSpectrum);
     if (!spectrum_to_spectrum.IsValid()) {
       std::ostringstream error_message;
-      error_message << "Failed to initialize SpectrumToSpectrum";
+      error_message << "FFT length must be a power of 2";
       sptk::PrintErrorMessage("world_synth", error_message);
       return 1;
     }

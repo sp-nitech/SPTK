@@ -328,8 +328,7 @@ int main(int argc, char* argv[]) {
   std::vector<std::vector<double> > spectrum;
   if (!spectrum_extraction.Run(waveform, f0, &spectrum)) {
     std::ostringstream error_message;
-    error_message
-        << "Failed to extract spectrum (consider increasing FFT length)";
+    error_message << "Failed to extract spectrum";
     sptk::PrintErrorMessage("pitch_spec", error_message);
     return 1;
   }
