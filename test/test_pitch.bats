@@ -42,7 +42,7 @@ teardown() {
 
 @test "pitch: valgrind" {
     $sptk3/x2x +sd $data > $tmp/1
-    for a in $(seq 0 3); do
+    for a in $(seq 0 4); do
         run valgrind $sptk4/pitch -a "$a" $tmp/1
         [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
     done

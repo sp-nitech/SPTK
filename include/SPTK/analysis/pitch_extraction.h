@@ -29,7 +29,7 @@ namespace sptk {
  *
  * The input is whole audio waveform and the output is the sequence of the
  * fundamental frequency. The implemented algorithms of the extraction are
- * RAPT, SWIPE, REAPER, and DIO.
+ * RAPT, SWIPE, REAPER, DIO, and harvest.
  *
  * [1] D. Talkin, &quot;A robust algorithm for pitch tracking,&quot; Speech
  *     Coding and Synthesis, pp. 497-518, 1995.
@@ -44,13 +44,24 @@ namespace sptk {
  *     estimation method based on the period extraction of vocal fold vibration
  *     of singing voice and speech,&quot; Proc. of AES 35th International
  *     Conference, 2009.
+ *
+ * [5] M. Morise, &quot;Harvest: A high-performance fundamental frequency
+ *     estimator from speech signals,&quot; Proc. of Interspeech, pp. 2321-2325,
+ *     2017.
  */
 class PitchExtraction {
  public:
   /**
    * Pitch extraction algorithms.
    */
-  enum Algorithms { kRapt = 0, kSwipe, kReaper, kWorld, kNumAlgorithms };
+  enum Algorithms {
+    kRapt = 0,
+    kSwipe,
+    kReaper,
+    kDio,
+    kHarvest,
+    kNumAlgorithms
+  };
 
   /**
    * @param[in] frame_shift Frame shift in point.

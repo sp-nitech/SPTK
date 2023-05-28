@@ -64,6 +64,7 @@ set(CC_SOURCES
   ${THIRD_PARTY_DIR}/WORLD/d4c.cc
   ${THIRD_PARTY_DIR}/WORLD/dio.cc
   ${THIRD_PARTY_DIR}/WORLD/fft_world.cc
+  ${THIRD_PARTY_DIR}/WORLD/harvest.cc
   ${THIRD_PARTY_DIR}/WORLD/matlabfunctions.cc
   ${THIRD_PARTY_DIR}/WORLD/stonemask.cc
   ${THIRD_PARTY_DIR}/WORLD/synthesis.cc
@@ -80,10 +81,11 @@ set(CC_SOURCES
   ${SOURCE_DIR}/analysis/mel_frequency_cepstral_coefficients_analysis.cc
   ${SOURCE_DIR}/analysis/mel_generalized_cepstral_analysis.cc
   ${SOURCE_DIR}/analysis/pitch_extraction.cc
+  ${SOURCE_DIR}/analysis/pitch_extraction_by_dio.cc
+  ${SOURCE_DIR}/analysis/pitch_extraction_by_harvest.cc
   ${SOURCE_DIR}/analysis/pitch_extraction_by_rapt.cc
   ${SOURCE_DIR}/analysis/pitch_extraction_by_reaper.cc
   ${SOURCE_DIR}/analysis/pitch_extraction_by_swipe.cc
-  ${SOURCE_DIR}/analysis/pitch_extraction_by_world.cc
   ${SOURCE_DIR}/analysis/second_order_all_pass_mel_cepstral_analysis.cc
   ${SOURCE_DIR}/analysis/spectrum_extraction.cc
   ${SOURCE_DIR}/analysis/spectrum_extraction_by_world.cc

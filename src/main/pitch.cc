@@ -33,6 +33,7 @@ enum LongOptions {
   kT1,
   kT2,
   kT3,
+  kT4,
 };
 
 enum OutputFormats { kPitch = 0, kF0, kLogF0, kNumOutputFormats };
@@ -46,7 +47,8 @@ const double kDefaultUpperF0(240.0);
 const double kDefaultVoicingThresholdForRapt(0.0);
 const double kDefaultVoicingThresholdForSwipe(0.3);
 const double kDefaultVoicingThresholdForReaper(0.9);
-const double kDefaultVoicingThresholdForWorld(0.1);
+const double kDefaultVoicingThresholdForDio(0.1);
+const double kDefaultVoicingThresholdForHarvest(0.01);
 const OutputFormats kDefaultOutputFormat(kPitch);
 
 void PrintUsage(std::ostream* stream) {
@@ -57,23 +59,25 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       pitch [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -a a  : algorithm used for pitch      (   int)[" << std::setw(5) << std::right << kDefaultAlgorithm                 << "][    0 <= a <= 3     ]" << std::endl;  // NOLINT
+  *stream << "       -a a  : algorithm used for pitch      (   int)[" << std::setw(5) << std::right << kDefaultAlgorithm                  << "][    0 <= a <= 4     ]" << std::endl;  // NOLINT
   *stream << "               estimation" << std::endl;
   *stream << "                 0 (RAPT)" << std::endl;
   *stream << "                 1 (SWIPE')" << std::endl;
   *stream << "                 2 (REAPER)" << std::endl;
-  *stream << "                 3 (WORLD)" << std::endl;
-  *stream << "       -p p  : frame shift [point]           (   int)[" << std::setw(5) << std::right << kDefaultFrameShift                << "][    1 <= p <=       ]" << std::endl;  // NOLINT
-  *stream << "       -s s  : sampling rate [kHz]           (double)[" << std::setw(5) << std::right << kDefaultSamplingRate              << "][  6.0 <  s <= 98.0  ]" << std::endl;  // NOLINT
-  *stream << "       -L L  : minimum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultLowerF0                   << "][ 10.0 <  L <  H     ]" << std::endl;  // NOLINT
+  *stream << "                 3 (DIO)" << std::endl;
+  *stream << "                 4 (Harvest)" << std::endl;
+  *stream << "       -p p  : frame shift [point]           (   int)[" << std::setw(5) << std::right << kDefaultFrameShift                 << "][    1 <= p <=       ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : sampling rate [kHz]           (double)[" << std::setw(5) << std::right << kDefaultSamplingRate               << "][  6.0 <  s <= 98.0  ]" << std::endl;  // NOLINT
+  *stream << "       -L L  : minimum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultLowerF0                    << "][ 10.0 <  L <  H     ]" << std::endl;  // NOLINT
   *stream << "               to search for [Hz]" << std::endl;
-  *stream << "       -H H  : maximum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultUpperF0                   << "][    L <  H <  500*s ]" << std::endl;  // NOLINT
+  *stream << "       -H H  : maximum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultUpperF0                    << "][    L <  H <  500*s ]" << std::endl;  // NOLINT
   *stream << "               to search for [Hz]" << std::endl;
-  *stream << "       -t0 t : voicing threshold for RAPT    (double)[" << std::setw(5) << std::right << kDefaultVoicingThresholdForRapt   << "][ -0.6 <= t <= 0.7   ]" << std::endl;  // NOLINT
-  *stream << "       -t1 t : voicing threshold for SWIPE'  (double)[" << std::setw(5) << std::right << kDefaultVoicingThresholdForSwipe  << "][  0.2 <= t <= 0.5   ]" << std::endl;  // NOLINT
-  *stream << "       -t2 t : voicing threshold for REAPER  (double)[" << std::setw(5) << std::right << kDefaultVoicingThresholdForReaper << "][ -0.5 <= t <= 1.6   ]" << std::endl;  // NOLINT
-  *stream << "       -t3 t : voicing threshold for WORLD   (double)[" << std::setw(5) << std::right << kDefaultVoicingThresholdForWorld  << "][ 0.02 <= t <= 0.2   ]" << std::endl;  // NOLINT
-  *stream << "       -o o  : output format                 (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat              << "][    0 <= o <= 2     ]" << std::endl;  // NOLINT
+  *stream << "       -t0 t : voicing threshold for RAPT    (double)[" << std::setw(5) << std::right << kDefaultVoicingThresholdForRapt    << "][ -0.6 <= t <= 0.7   ]" << std::endl;  // NOLINT
+  *stream << "       -t1 t : voicing threshold for SWIPE'  (double)[" << std::setw(5) << std::right << kDefaultVoicingThresholdForSwipe   << "][  0.2 <= t <= 0.5   ]" << std::endl;  // NOLINT
+  *stream << "       -t2 t : voicing threshold for REAPER  (double)[" << std::setw(5) << std::right << kDefaultVoicingThresholdForReaper  << "][ -0.5 <= t <= 1.6   ]" << std::endl;  // NOLINT
+  *stream << "       -t3 t : voicing threshold for DIO     (double)[" << std::setw(5) << std::right << kDefaultVoicingThresholdForDio     << "][ 0.02 <= t <= 0.2   ]" << std::endl;  // NOLINT
+  *stream << "       -t4 t : voicing threshold for Harvest (double)[" << std::setw(5) << std::right << kDefaultVoicingThresholdForHarvest << "][  0.0 <= t <= 0.2   ]" << std::endl;  // NOLINT
+  *stream << "       -o o  : output format                 (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat               << "][    0 <= o <= 2     ]" << std::endl;  // NOLINT
   *stream << "                 0 (Fs/F0)" << std::endl;
   *stream << "                 1 (F0)" << std::endl;
   *stream << "                 2 (log F0)" << std::endl;
@@ -83,7 +87,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  stdout:" << std::endl;
   *stream << "       pitch                                 (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
-  *stream << "       if t is raised, the number of voiced frames increase in RAPT, REAPER, and WORLD" << std::endl;  // NOLINT
+  *stream << "       if t is raised, the number of voiced frames increase in RAPT, REAPER, DIO, and Harvest" << std::endl;  // NOLINT
   *stream << "       if t is dropped, the number of voiced frames increase in SWIPE'" << std::endl;  // NOLINT
   *stream << "       the value of t should be in the recommended range but values outside the range can be given" << std::endl;  // NOLINT
   *stream << std::endl;
@@ -102,7 +106,8 @@ void PrintUsage(std::ostream* stream) {
  *     @arg @c 0 RAPT
  *     @arg @c 1 SWIPE'
  *     @arg @c 2 REAPER
- *     @arg @c 3 WORLD (DIO)
+ *     @arg @c 3 DIO
+ *     @arg @c 4 Harvest
  * - @b -p @e int
  *   - frame shift [point] @f$(1 \le P)@f$
  * - @b -s @e double
@@ -118,7 +123,9 @@ void PrintUsage(std::ostream* stream) {
  * - @b -t2 @e double
  *   - voicing threshold for REAPER @f$(-0.5 \le T \le 1.6)@f$
  * - @b -t3 @e double
- *   - voicing threshold for WORLD @f$(0.02 \le T \le 0.2)@f$
+ *   - voicing threshold for DIO @f$(0.02 \le T \le 0.2)@f$
+ * - @b -t4 @e double
+ *   - voicing threshold for Harvest @f$(0.0 \le T \le 0.2)@f$
  * - @b -o @e int
  *   - output format
  *     @arg @c 0 pitch @f$(F_s / F_0)@f$
@@ -148,10 +155,9 @@ int main(int argc, char* argv[]) {
   double lower_f0(kDefaultLowerF0);
   double upper_f0(kDefaultUpperF0);
   std::vector<double> voicing_thresholds{
-      kDefaultVoicingThresholdForRapt,
-      kDefaultVoicingThresholdForSwipe,
-      kDefaultVoicingThresholdForReaper,
-      kDefaultVoicingThresholdForWorld,
+      kDefaultVoicingThresholdForRapt,    kDefaultVoicingThresholdForSwipe,
+      kDefaultVoicingThresholdForReaper,  kDefaultVoicingThresholdForDio,
+      kDefaultVoicingThresholdForHarvest,
   };
   OutputFormats output_format(kDefaultOutputFormat);
 
@@ -160,6 +166,7 @@ int main(int argc, char* argv[]) {
       {"t1", required_argument, NULL, kT1},
       {"t2", required_argument, NULL, kT2},
       {"t3", required_argument, NULL, kT3},
+      {"t4", required_argument, NULL, kT4},
       {0, 0, 0, 0},
   };
 
@@ -273,7 +280,18 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("pitch", error_message);
           return 1;
         }
-        voicing_thresholds[sptk::PitchExtraction::Algorithms::kWorld] = tmp;
+        voicing_thresholds[sptk::PitchExtraction::Algorithms::kDio] = tmp;
+        break;
+      }
+      case kT4: {
+        double tmp;
+        if (!sptk::ConvertStringToDouble(optarg, &tmp)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -t4 option must be numeric";
+          sptk::PrintErrorMessage("pitch", error_message);
+          return 1;
+        }
+        voicing_thresholds[sptk::PitchExtraction::Algorithms::kHarvest] = tmp;
         break;
       }
       case 'o': {

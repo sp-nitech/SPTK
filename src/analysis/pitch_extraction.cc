@@ -16,10 +16,11 @@
 
 #include "SPTK/analysis/pitch_extraction.h"
 
+#include "SPTK/analysis/pitch_extraction_by_dio.h"
+#include "SPTK/analysis/pitch_extraction_by_harvest.h"
 #include "SPTK/analysis/pitch_extraction_by_rapt.h"
 #include "SPTK/analysis/pitch_extraction_by_reaper.h"
 #include "SPTK/analysis/pitch_extraction_by_swipe.h"
-#include "SPTK/analysis/pitch_extraction_by_world.h"
 
 namespace sptk {
 
@@ -43,8 +44,13 @@ PitchExtraction::PitchExtraction(int frame_shift, double sampling_rate,
           frame_shift, sampling_rate, lower_f0, upper_f0, voicing_threshold);
       break;
     }
-    case kWorld: {
-      pitch_extraction_ = new PitchExtractionByWorld(
+    case kDio: {
+      pitch_extraction_ = new PitchExtractionByDio(
+          frame_shift, sampling_rate, lower_f0, upper_f0, voicing_threshold);
+      break;
+    }
+    case kHarvest: {
+      pitch_extraction_ = new PitchExtractionByHarvest(
           frame_shift, sampling_rate, lower_f0, upper_f0, voicing_threshold);
       break;
     }

@@ -14,19 +14,20 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include "SPTK/analysis/pitch_extraction_by_world.h"
+#include "SPTK/analysis/pitch_extraction_by_harvest.h"
 
 #include <algorithm>  // std::copy, std::fill
 #include <cmath>      // std::ceil
 
-#include "WORLD/world/dio.h"
+#include "WORLD/world/harvest.h"
 
 namespace sptk {
 
-PitchExtractionByWorld::PitchExtractionByWorld(int frame_shift,
-                                               double sampling_rate,
-                                               double lower_f0, double upper_f0,
-                                               double voicing_threshold)
+PitchExtractionByHarvest::PitchExtractionByHarvest(int frame_shift,
+                                                   double sampling_rate,
+                                                   double lower_f0,
+                                                   double upper_f0,
+                                                   double voicing_threshold)
     : frame_shift_(frame_shift),
       sampling_rate_(sampling_rate),
       lower_f0_(lower_f0),
@@ -41,7 +42,7 @@ PitchExtractionByWorld::PitchExtractionByWorld(int frame_shift,
   }
 }
 
-bool PitchExtractionByWorld::Get(
+bool PitchExtractionByHarvest::Get(
     const std::vector<double>& waveform, std::vector<double>* f0,
     std::vector<double>* epochs,
     PitchExtractionInterface::Polarity* polarity) const {
@@ -51,8 +52,8 @@ bool PitchExtractionByWorld::Get(
   }
 
   if (NULL != f0) {
-    world::DioOption option;
-    world::InitializeDioOption(&option);
+    world::HarvestOption option;
+    world::InitializeHarvestOption(&option);
 
     const double frame_period((1000.0 * frame_shift_) / sampling_rate_);
     option.frame_period = frame_period;
@@ -60,14 +61,14 @@ bool PitchExtractionByWorld::Get(
     option.f0_ceil = upper_f0_;
     option.allowed_range = voicing_threshold_;
 
-    const int tmp_length(world::GetSamplesForDIO(
+    const int tmp_length(world::GetSamplesForHarvest(
         static_cast<int>(sampling_rate_), static_cast<int>(waveform.size()),
         frame_period));
     std::vector<double> time_axis(tmp_length);
     std::vector<double> tmp_f0(tmp_length);
-    world::Dio(waveform.data(), static_cast<int>(waveform.size()),
-               static_cast<int>(sampling_rate_), &option, time_axis.data(),
-               tmp_f0.data());
+    world::Harvest(waveform.data(), static_cast<int>(waveform.size()),
+                   static_cast<int>(sampling_rate_), &option, time_axis.data(),
+                   tmp_f0.data());
 
     const int target_length(static_cast<int>(
         std::ceil(static_cast<double>(waveform.size()) / frame_shift_)));
