@@ -21,7 +21,7 @@ sptk4=../../../bin
 data=../../../asset/data.short
 dump=dump
 
-nbit=8  # Number of bits
+nbit=8 # Number of bits
 
 mkdir -p $dump
 

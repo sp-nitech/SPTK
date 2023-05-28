@@ -16,9 +16,7 @@
 
 cmake_minimum_required(VERSION 3.1)
 
-project(SPTK
-  VERSION 4.1
-  )
+project(SPTK VERSION 4.1)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.5.0)
@@ -68,6 +66,7 @@ set(CC_SOURCES
   ${THIRD_PARTY_DIR}/WORLD/fft_world.cc
   ${THIRD_PARTY_DIR}/WORLD/matlabfunctions.cc
   ${THIRD_PARTY_DIR}/WORLD/stonemask.cc
+  ${THIRD_PARTY_DIR}/WORLD/synthesis.cc
   ${SOURCE_DIR}/analysis/adaptive_generalized_cepstral_analysis.cc
   ${SOURCE_DIR}/analysis/adaptive_mel_cepstral_analysis.cc
   ${SOURCE_DIR}/analysis/adaptive_mel_generalized_cepstral_analysis.cc
@@ -146,6 +145,7 @@ set(CC_SOURCES
   ${SOURCE_DIR}/filter/mlsa_digital_filter.cc
   ${SOURCE_DIR}/filter/pseudo_quadrature_mirror_filter_banks.cc
   ${SOURCE_DIR}/filter/second_order_digital_filter.cc
+  ${SOURCE_DIR}/filter/world_synthesis.cc
   ${SOURCE_DIR}/generation/delta_calculation.cc
   ${SOURCE_DIR}/generation/excitation_generation.cc
   ${SOURCE_DIR}/generation/m_sequence_generation.cc
@@ -211,46 +211,46 @@ target_include_directories(sptk PUBLIC
   $<BUILD_INTERFACE:${THIRD_PARTY_DIR}>
   $<BUILD_INTERFACE:${THIRD_PARTY_DIR}/REAPER>
   $<BUILD_INTERFACE:${THIRD_PARTY_DIR}/WORLD>
-  )
+)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
 install(TARGETS sptk
   EXPORT ${PROJECT_NAME}Targets
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-  )
+)
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/SPTK
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-  )
+)
 
 install(EXPORT ${PROJECT_NAME}Targets
   FILE ${PROJECT_NAME}Targets.cmake
   NAMESPACE ${PROJECT_NAME}::
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-  )
+)
 
 configure_package_config_file(
   ${PROJECT_SOURCE_DIR}/Config.cmake.in
   ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
   INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-  )
+)
 
 write_basic_package_version_file(
   ${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
   VERSION ${PROJECT_VERSION}
   COMPATIBILITY SameMajorVersion
-  )
+)
 
 install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-  )
+)
 
 set(MAIN_SOURCES
   ${SOURCE_DIR}/main/acorr.cc
@@ -376,10 +376,11 @@ set(MAIN_SOURCES
   ${SOURCE_DIR}/main/vstat.cc
   ${SOURCE_DIR}/main/vsum.cc
   ${SOURCE_DIR}/main/window.cc
+  ${SOURCE_DIR}/main/world_synth.cc
   ${SOURCE_DIR}/main/x2x.cc
   ${SOURCE_DIR}/main/zcross.cc
   ${SOURCE_DIR}/main/zerodf.cc
-  )
+)
 
 set(PYTHON_SOURCES
   ${SOURCE_DIR}/draw/fdrw.py
@@ -389,7 +390,7 @@ set(PYTHON_SOURCES
   ${SOURCE_DIR}/draw/gseries.py
   ${SOURCE_DIR}/draw/gspecgram.py
   ${SOURCE_DIR}/draw/gwave.py
-  )
+)
 
 if(NOT WIN32)
   foreach(SOURCE ${MAIN_SOURCES})
@@ -397,8 +398,8 @@ if(NOT WIN32)
     add_executable(${BIN} ${SOURCE})
     target_link_libraries(${BIN} sptk)
     install(TARGETS ${BIN}
-      RUNTIME DESTINATION bin
-      )
+      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
   endforeach()
 
   foreach(SOURCE ${PYTHON_SOURCES})
@@ -406,6 +407,6 @@ if(NOT WIN32)
     execute_process(COMMAND ln -snf ${SOURCE} ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${BIN}
       DESTINATION ${CMAKE_INSTALL_BINDIR}
-      )
+    )
   endforeach()
 endif()

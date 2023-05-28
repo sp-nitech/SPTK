@@ -43,7 +43,15 @@ bool AperiodicityExtractionByTandem::Run(
     return false;
   }
 
+  // Check F0 values to prevent segmentation fault.
   const int f0_length(static_cast<int>(f0.size()));
+  const double nyquist_frequency(0.5 * sampling_rate_);
+  for (int i(0); i < f0_length; ++i) {
+    if (f0[i] < 0.0 || nyquist_frequency < f0[i]) {
+      return false;
+    }
+  }
+
   const double frame_shift_in_sec(frame_shift_ / sampling_rate_);
   std::vector<double> time_axis(f0_length);
   for (int i(0); i < f0_length; ++i) {

@@ -21,8 +21,8 @@ sptk4=../../../bin
 data=../../../asset/data.short
 dump=dump
 
-nband=4   # Number of subbands
-order=39  # Order of filter
+nband=4  # Number of subbands
+order=39 # Order of filter
 
 mkdir -p $dump
 

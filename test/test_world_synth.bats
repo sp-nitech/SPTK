@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bats
 # ------------------------------------------------------------------------ #
 # Copyright 2021 SPTK Working Group                                        #
 #                                                                          #
@@ -15,33 +15,24 @@
 # limitations under the License.                                           #
 # ------------------------------------------------------------------------ #
 
-set -euo pipefail
+sptk3=tools/sptk/bin
+sptk4=bin
+tmp=test_world_synth
+data=asset/data.short
 
-sptk4=../../../bin
-data=../../../asset/data.short
-dump=dump
+setup() {
+    mkdir -p $tmp
+}
 
-sr=16           # Sample rate in kHz
-fl=$((sr * 25)) # Frame length (16kHz x 25ms)
-fp=$((sr * 5))  # Frame shift (16kHz x 5ms)
-order=24        # Order of PARCOR
+teardown() {
+    rm -rf $tmp
+}
 
-mkdir -p $dump
-
-# Extract PARCOR.
-$sptk4/x2x +sd $data |
-    $sptk4/frame -l $fl -p $fp |
-    $sptk4/window -l $fl |
-    $sptk4/lpc -l $fl -m $order |
-    $sptk4/lpc2par -m $order > $dump/data.par
-
-# Extract pitch.
-$sptk4/x2x +sd $data |
-    $sptk4/pitch -s $sr -p $fp -o 0 > $dump/data.pit
-
-# Synthesis from extracted features.
-$sptk4/excite -p $fp $dump/data.pit |
-    $sptk4/ltcdf -p $fp -m $order $dump/data.par |
-    $sptk4/x2x +ds -r > $dump/data.syn.raw
-
-echo "run.sh: successfully finished"
+@test "world_synth: valgrind" {
+    $sptk3/x2x +sd $data > $tmp/0
+    $sptk4/pitch $tmp/0 > $tmp/1
+    $sptk4/pitch_spec -l 1024 $tmp/1 $tmp/0 > $tmp/2
+    $sptk4/ap -l 1024 $tmp/1 $tmp/0 > $tmp/3
+    run valgrind $sptk4/world_synth -l 1024 $tmp/1 $tmp/2 $tmp/3
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
+}

@@ -43,16 +43,24 @@ bool AperiodicityExtractionByWorld::Run(
     return false;
   }
 
-  world::D4COption option;
-  world::InitializeD4COption(&option);
-  option.threshold = 0.0;
-
+  // Check F0 values to prevent segmentation fault.
   const int f0_length(static_cast<int>(f0.size()));
+  const double nyquist_frequency(0.5 * sampling_rate_);
+  for (int i(0); i < f0_length; ++i) {
+    if (f0[i] < 0.0 || nyquist_frequency < f0[i]) {
+      return false;
+    }
+  }
+
   const double frame_shift_in_sec(frame_shift_ / sampling_rate_);
   std::vector<double> time_axis(f0_length);
   for (int i(0); i < f0_length; ++i) {
     time_axis[i] = i * frame_shift_in_sec;
   }
+
+  world::D4COption option;
+  world::InitializeD4COption(&option);
+  option.threshold = 0.0;
 
   // Prepare memories.
   if (aperiodicity->size() != static_cast<std::size_t>(f0_length)) {

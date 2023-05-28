@@ -21,8 +21,8 @@ sptk4=../../../bin
 data=../../../asset/data.short
 dump=dump
 
-sr=16         # Sample rate in kHz
-fp=$((sr * 5)) # Frame shift  (16kHz x 5ms)
+sr=16          # Sample rate in kHz
+fp=$((sr * 5)) # Frame shift (16kHz x 5ms)
 
 mkdir -p $dump
 

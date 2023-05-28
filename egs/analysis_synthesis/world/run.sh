@@ -21,27 +21,26 @@ sptk4=../../../bin
 data=../../../asset/data.short
 dump=dump
 
-sr=16           # Sample rate in kHz
-fl=$((sr * 25)) # Frame length (16kHz x 25ms)
-fp=$((sr * 5))  # Frame shift (16kHz x 5ms)
-order=24        # Order of PARCOR
+sr=16          # Sample rate in kHz
+fp=$((sr * 5)) # Frame shift (16kHz x 5ms)
+ft=1024        # FFT length
 
 mkdir -p $dump
 
-# Extract PARCOR.
-$sptk4/x2x +sd $data |
-    $sptk4/frame -l $fl -p $fp |
-    $sptk4/window -l $fl |
-    $sptk4/lpc -l $fl -m $order |
-    $sptk4/lpc2par -m $order > $dump/data.par
-
 # Extract pitch.
 $sptk4/x2x +sd $data |
-    $sptk4/pitch -s $sr -p $fp -o 0 > $dump/data.pit
+    $sptk4/pitch -s $sr -p $fp -o 0 -a 3 > $dump/data.pit
+
+# Extract spectrum.
+$sptk4/x2x +sd $data |
+    $sptk4/pitch_spec -s $sr -p $fp -l $ft $dump/data.pit > $dump/data.sp
+
+# Extract aperiodicity.
+$sptk4/x2x +sd $data |
+    $sptk4/ap -s $sr -p $fp -l $ft $dump/data.pit > $dump/data.ap
 
 # Synthesis from extracted features.
-$sptk4/excite -p $fp $dump/data.pit |
-    $sptk4/ltcdf -p $fp -m $order $dump/data.par |
+$sptk4/world_synth -s $sr -p $fp -l $ft $dump/data.sp $dump/data.ap < $dump/data.pit |
     $sptk4/x2x +ds -r > $dump/data.syn.raw
 
 echo "run.sh: successfully finished"
