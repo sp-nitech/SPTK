@@ -46,11 +46,13 @@ bool SpectrumExtractionByWorld::Run(
     return false;
   }
 
-  const int f0_length(f0.size());
-  const double frame_shift_in_sec(frame_shift_ / sampling_rate_);
-  std::vector<double> time_axis(f0_length);
+  // Check F0 values to prevent segmentation fault.
+  const int f0_length(static_cast<int>(f0.size()));
+  const double nyquist_frequency(0.5 * sampling_rate_);
   for (int i(0); i < f0_length; ++i) {
-    time_axis[i] = i * frame_shift_in_sec;
+    if (f0[i] < 0.0 || nyquist_frequency < f0[i]) {
+      return false;
+    }
   }
 
   // Check FFT size.
@@ -62,6 +64,12 @@ bool SpectrumExtractionByWorld::Run(
   }
   if (f0_floor < world::GetF0FloorForCheapTrick(sampling_rate_, fft_length_)) {
     return false;
+  }
+
+  const double frame_shift_in_sec(frame_shift_ / sampling_rate_);
+  std::vector<double> time_axis(f0_length);
+  for (int i(0); i < f0_length; ++i) {
+    time_axis[i] = i * frame_shift_in_sec;
   }
 
   world::CheapTrickOption option;

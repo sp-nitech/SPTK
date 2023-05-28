@@ -51,6 +51,17 @@ bool WorldSynthesis::Run(const std::vector<double>& f0,
   if (static_cast<int>(aperiodicity.size()) < f0_length) {
     f0_length = static_cast<int>(aperiodicity.size());
   }
+  if (f0_length <= 0) {
+    return false;
+  }
+
+  // Check F0 values to prevent segmentation fault.
+  const double nyquist_frequency(0.5 * sampling_rate_);
+  for (int i(0); i < f0_length; ++i) {
+    if (f0[i] < 0.0 || nyquist_frequency < f0[i]) {
+      return false;
+    }
+  }
 
   // Prepare memories.
   const std::size_t spectrum_size(fft_length_ / 2 + 1);
