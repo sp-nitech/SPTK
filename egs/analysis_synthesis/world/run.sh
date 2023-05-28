@@ -33,14 +33,14 @@ $sptk4/x2x +sd $data |
 
 # Extract spectrum.
 $sptk4/x2x +sd $data |
-    $sptk4/pitch_spec -s $sr -p $fp -l $ft -q 0 -o 0 $dump/data.pit > $dump/data.sp
+    $sptk4/pitch_spec -s $sr -p $fp -l $ft $dump/data.pit > $dump/data.sp
 
 # Extract aperiodicity.
 $sptk4/x2x +sd $data |
-    $sptk4/ap -s $sr -p $fp -l $ft -q 0 -o 0 $dump/data.pit > $dump/data.ap
+    $sptk4/ap -s $sr -p $fp -l $ft $dump/data.pit > $dump/data.ap
 
 # Synthesis from extracted features.
-$sptk4/world_synth -s $sr -p $fp -l $ft $dump/data.pit $dump/data.sp $dump/data.ap |
+$sptk4/world_synth -s $sr -p $fp -l $ft $dump/data.sp $dump/data.ap < $dump/data.pit |
     $sptk4/x2x +ds -r > $dump/data.syn.raw
 
 echo "run.sh: successfully finished"
