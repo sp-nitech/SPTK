@@ -258,12 +258,14 @@ class GaussianMixtureModeling {
    *                The shape is @f$[K, M+1]@f$.
    * @param[in,out] covariance_matrices @f$K@f$ covariance matrices.
    *                The shape is @f$[K, M+1, M+1]@f$.
+   * @param[out] total_log_likelihood Total log-likelihood.
    * @return True on success, false on failure.
    */
   bool Run(const std::vector<std::vector<double> >& input_vectors,
            std::vector<double>* weights,
            std::vector<std::vector<double> >* mean_vectors,
-           std::vector<SymmetricMatrix>* covariance_matrices) const;
+           std::vector<SymmetricMatrix>* covariance_matrices,
+           double* total_log_likelihood) const;
 
   /**
    * Calculate log-probablity of data.

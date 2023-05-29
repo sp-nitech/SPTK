@@ -164,10 +164,12 @@ bool GaussianMixtureModeling::Run(
     const std::vector<std::vector<double> >& input_vectors,
     std::vector<double>* weights,
     std::vector<std::vector<double> >* mean_vectors,
-    std::vector<SymmetricMatrix>* covariance_matrices) const {
+    std::vector<SymmetricMatrix>* covariance_matrices,
+    double* total_log_likelihood) const {
   // Check inputs.
   if (!is_valid_ || input_vectors.empty() || NULL == weights ||
-      NULL == mean_vectors || NULL == covariance_matrices) {
+      NULL == mean_vectors || NULL == covariance_matrices ||
+      NULL == total_log_likelihood) {
     return false;
   }
 
@@ -332,6 +334,7 @@ bool GaussianMixtureModeling::Run(
     FloorVariance(covariance_matrices);
 
     // Check convergence.
+    *total_log_likelihood = log_likelihood;
     log_likelihood /= num_data;
     const double change(log_likelihood - prev_log_likelihood);
     if (0 == n % log_interval_) {
