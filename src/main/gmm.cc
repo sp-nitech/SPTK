@@ -44,26 +44,28 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       gmm [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : length of vector         (   int)[" << std::setw(5) << std::right << kDefaultNumOrder + 1         << "][   1 <= l <=     ]" << std::endl;  // NOLINT
-  *stream << "       -m m  : order of vector          (   int)[" << std::setw(5) << std::right << "l-1"                        << "][   0 <= m <=     ]" << std::endl;  // NOLINT
-  *stream << "       -k k  : number of mixtures       (   int)[" << std::setw(5) << std::right << kDefaultNumMixture           << "][   1 <= k <=     ]" << std::endl;  // NOLINT
-  *stream << "       -i i  : number of iterations     (   int)[" << std::setw(5) << std::right << kDefaultNumIteration         << "][   1 <= i <=     ]" << std::endl;  // NOLINT
-  *stream << "       -d d  : convergence threshold    (double)[" << std::setw(5) << std::right << kDefaultConvergenceThreshold << "][ 0.0 <= d <=     ]" << std::endl;  // NOLINT
-  *stream << "       -w w  : floor value of weight    (double)[" << std::setw(5) << std::right << kDefaultWeightFloor          << "][ 0.0 <= w <= 1/k ]" << std::endl;  // NOLINT
-  *stream << "       -v v  : floor value of variance  (double)[" << std::setw(5) << std::right << kDefaultVarianceFloor        << "][ 0.0 <= v <=     ]" << std::endl;  // NOLINT
-  *stream << "       -M M  : MAP smoothing parameter  (double)[" << std::setw(5) << std::right << kDefaultSmoothingParameter   << "][ 0.0 <= M <= 1.0 ]" << std::endl;  // NOLINT
-  *stream << "       -U U  : input filename of double (string)[" << std::setw(5) << std::right << "N/A"                        << "]" << std::endl;  //  NOLINT
+  *stream << "       -l l  : length of vector          (   int)[" << std::setw(5) << std::right << kDefaultNumOrder + 1         << "][   1 <= l <=     ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of vector           (   int)[" << std::setw(5) << std::right << "l-1"                        << "][   0 <= m <=     ]" << std::endl;  // NOLINT
+  *stream << "       -k k  : number of mixtures        (   int)[" << std::setw(5) << std::right << kDefaultNumMixture           << "][   1 <= k <=     ]" << std::endl;  // NOLINT
+  *stream << "       -i i  : number of iterations      (   int)[" << std::setw(5) << std::right << kDefaultNumIteration         << "][   1 <= i <=     ]" << std::endl;  // NOLINT
+  *stream << "       -d d  : convergence threshold     (double)[" << std::setw(5) << std::right << kDefaultConvergenceThreshold << "][ 0.0 <= d <=     ]" << std::endl;  // NOLINT
+  *stream << "       -w w  : floor value of weight     (double)[" << std::setw(5) << std::right << kDefaultWeightFloor          << "][ 0.0 <= w <= 1/k ]" << std::endl;  // NOLINT
+  *stream << "       -v v  : floor value of variance   (double)[" << std::setw(5) << std::right << kDefaultVarianceFloor        << "][ 0.0 <= v <=     ]" << std::endl;  // NOLINT
+  *stream << "       -M M  : MAP smoothing parameter   (double)[" << std::setw(5) << std::right << kDefaultSmoothingParameter   << "][ 0.0 <= M <= 1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -U U  : input filename of double  (string)[" << std::setw(5) << std::right << "N/A"                        << "]" << std::endl;  //  NOLINT
   *stream << "               type initial GMM parameters" << std::endl;
-  *stream << "       -f    : use full covariance      (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultFullCovarianceFlag) << "]" << std::endl;  // NOLINT
-  *stream << "       -V    : show log-likelihood      (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultShowLikelihoodFlag) << "]" << std::endl;  // NOLINT
+  *stream << "       -S S  : output filename of double (string)[" << std::setw(5) << std::right << "N/A"                        << "]" << std::endl;  // NOLINT
+  *stream << "               type total log-likliehood" << std::endl;
+  *stream << "       -f    : use full covariance       (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultFullCovarianceFlag) << "]" << std::endl;  // NOLINT
+  *stream << "       -V    : show avg. log-likelihood  (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultShowLikelihoodFlag) << "]" << std::endl;  // NOLINT
   *stream << "     (level 2)" << std::endl;
-  *stream << "       -B B1 .. Bp : block size of      (   int)[" << std::setw(5) << std::right << "N/A"                        << "][   1 <= B <= l   ]" << std::endl;  // NOLINT
+  *stream << "       -B B1 .. Bp : block size of       (   int)[" << std::setw(5) << std::right << "N/A"                        << "][   1 <= B <= l   ]" << std::endl;  // NOLINT
   *stream << "                     covariance matrix" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       training data sequence           (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       training data sequence            (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       GMM parameters                   (double)" << std::endl;
+  *stream << "       GMM parameters                    (double)" << std::endl;
   *stream << "  notice:" << std::endl;
   *stream << "       -B option requires B1 + B2 + ... + Bp = l" << std::endl;
   *stream << "       -M option requires -U option" << std::endl;
@@ -96,10 +98,12 @@ void PrintUsage(std::ostream* stream) {
  *   - MAP smoothing parameter @f$(0 \le \alpha \le 1)@f$
  * - @b -U @e str
  *   - double-type initial GMM parameters
+ * - @b -S @e str
+ *   - double-type total log-likelihood
  * - @b -f
  *   - use full covariance
  * - @b -V
- *   - show log likelihood at each iteration
+ *   - show average log likelihood at each iteration
  * - @b -B @e int+
  *   - block size of covariance matrix
  * - @b infile @e str
@@ -137,13 +141,14 @@ int main(int argc, char* argv[]) {
   double variance_floor(kDefaultVarianceFloor);
   double smoothing_parameter(kDefaultSmoothingParameter);
   const char* initial_gmm_file(NULL);
+  const char* log_likelihood_file(NULL);
   bool full_covariance_flag(kDefaultFullCovarianceFlag);
   bool show_likelihood_flag(kDefaultShowLikelihoodFlag);
   std::vector<int> block_size;
 
   for (;;) {
     const int option_char(
-        getopt_long(argc, argv, "l:m:k:i:d:w:v:M:U:fVB:h", NULL, NULL));
+        getopt_long(argc, argv, "l:m:k:i:d:w:v:M:U:S:fVB:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -238,6 +243,10 @@ int main(int argc, char* argv[]) {
       }
       case 'U': {
         initial_gmm_file = optarg;
+        break;
+      }
+      case 'S': {
+        log_likelihood_file = optarg;
         break;
       }
       case 'f': {
@@ -385,8 +394,9 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  double log_likelihood;
   if (!gaussian_mixture_modeling.Run(input_vectors, &weights, &mean_vectors,
-                                     &covariance_matrices)) {
+                                     &covariance_matrices, &log_likelihood)) {
     std::ostringstream error_message;
     error_message << "Failed to train Gaussian mixture models. "
                   << "Please consider the following attemps: "
@@ -429,6 +439,25 @@ int main(int argc, char* argv[]) {
         sptk::PrintErrorMessage("gmm", error_message);
         return 1;
       }
+    }
+  }
+
+  if (NULL != log_likelihood_file) {
+    std::ofstream ofs;
+    ofs.open(log_likelihood_file, std::ios::out | std::ios::binary);
+    if (ofs.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << log_likelihood_file;
+      sptk::PrintErrorMessage("gmm", error_message);
+      return 1;
+    }
+    std::ostream& output_stream(ofs);
+
+    if (!sptk::WriteStream(log_likelihood, &output_stream)) {
+      std::ostringstream error_message;
+      error_message << "Failed to write log-likelihood";
+      sptk::PrintErrorMessage("gmm", error_message);
+      return 1;
     }
   }
 
