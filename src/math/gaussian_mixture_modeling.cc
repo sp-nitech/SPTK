@@ -269,8 +269,7 @@ bool GaussianMixtureModeling::Run(
         (*weights)[k] = buffer0[k] * z;
       }
     } else {
-      const double z(1.0 /
-                     (num_data + std::accumulate(xi_.begin(), xi_.end(), 0.0)));
+      const double z(1.0 / (num_data + smoothing_parameter_));
       for (int k(0); k < num_mixture_; ++k) {
         (*weights)[k] = (buffer0[k] + xi_[k]) * z;
       }
