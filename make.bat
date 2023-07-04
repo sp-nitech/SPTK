@@ -22,11 +22,13 @@ set JOBS=4
 
 where /q cmake || (
     echo ERROR: Could not find cmake.
+    pause
     exit /b 1
 )
 
 where /q MSBuild || (
     echo ERROR: Could not find MSBuild.
+    pause
     exit /b 1
 )
 
