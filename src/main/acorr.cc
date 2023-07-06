@@ -59,7 +59,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       acorr [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -l l  : frame length (FFT length) (   int)[" << std::setw(5) << std::right << kDefaultFrameLength  << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -m m  : order of autocorrelation  (   int)[" << std::setw(5) << std::right << kDefaultNumOrder     << "][ 0 <= m <    ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of autocorrelation  (   int)[" << std::setw(5) << std::right << kDefaultNumOrder     << "][ 0 <= m <  l ]" << std::endl;  // NOLINT
   *stream << "       -q q  : input format              (   int)[" << std::setw(5) << std::right << kDefaultInputFormat  << "][ 0 <= q <= 4 ]" << std::endl;  // NOLINT
   *stream << "                 0 (20*log|X(z)|)" << std::endl;
   *stream << "                 1 (ln|X(z)|)" << std::endl;
@@ -90,7 +90,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b -l @e int
  *   - frame length @f$(1 \le L)@f$
  * - @b -m @e int
- *   - order of autocorrelation coefficients @f$(0 \le M)@f$
+ *   - order of autocorrelation coefficients @f$(0 \le M < L)@f$
  * - @b -q @e int
  *   - input format
  *     \arg @c 0 amplitude spectrum in dB
@@ -212,6 +212,14 @@ int main(int argc, char* argv[]) {
         return 1;
       }
     }
+  }
+
+  if (frame_length <= num_order) {
+    std::ostringstream error_message;
+    error_message << "Order of autocorrelation coefficients must be less than "
+                  << "frame length";
+    sptk::PrintErrorMessage("acorr", error_message);
+    return 1;
   }
 
   const int num_input_files(argc - optind);

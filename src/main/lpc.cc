@@ -53,7 +53,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       lpc [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -l l  : frame length                            (   int)[" << std::setw(5) << std::right << kDefaultFrameLength << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -m m  : order of linear predictive coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumOrder    << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of linear predictive coefficients (   int)[" << std::setw(5) << std::right << kDefaultNumOrder    << "][ 0 <= m <  l ]" << std::endl;  // NOLINT
   *stream << "       -e e  : warning type of unstable index          (   int)[" << std::setw(5) << std::right << kDefaultWarningType << "][ 0 <= e <= 2 ]" << std::endl;  // NOLINT
   *stream << "                 0 (no warning)" << std::endl;
   *stream << "                 1 (output the index to stderr)" << std::endl;
@@ -84,7 +84,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b -l @e int
  *   - frame length @f$(1 \le L)@f$
  * - @b -m @e int
- *   - order of coefficients @f$(0 \le M)@f$
+ *   - order of coefficients @f$(0 \le M < L)@f$
  * - @b -e @e int
  *   - warning type
  *     \arg @c 0 no warning
@@ -190,6 +190,13 @@ int main(int argc, char* argv[]) {
         return 1;
       }
     }
+  }
+
+  if (frame_length <= num_order) {
+    std::ostringstream error_message;
+    error_message << "Order of LPC coefficients must be less than frame length";
+    sptk::PrintErrorMessage("lpc", error_message);
+    return 1;
   }
 
   const int num_input_files(argc - optind);
