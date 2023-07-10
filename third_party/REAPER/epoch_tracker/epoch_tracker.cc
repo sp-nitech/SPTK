@@ -807,7 +807,9 @@ bool EpochTracker::TrackEpochs(void) {
 void EpochTracker::CreatePeriodLattice(void) {
   int32_t low_period = RoundUp(sample_rate_ / max_f0_search_);
   int32_t high_period = RoundUp(sample_rate_ / min_f0_search_);
+#if 0
   int32_t total_cands = 0;
+#endif
 
   //  For each pulse in the normalized residual...
   for (size_t peak = 0; peak < resid_peaks_.size(); ++peak) {
@@ -892,7 +894,9 @@ void EpochTracker::CreatePeriodLattice(void) {
         v_cand->best_prev_cand = -1;
         resid_peaks_[peak].future.push_back(v_cand);
         resid_peaks_[npeak].past.push_back(v_cand);
+#if 0
         total_cands++;
+#endif
         next_cands_created++;
         if (resid_peaks_[npeak].resid_index >= max_period) {
           break;  // Exit the search only after at least one peak has
@@ -906,7 +910,9 @@ void EpochTracker::CreatePeriodLattice(void) {
       // was at least one voiced hyp.
       resid_peaks_[peak].future.push_back(uv_cand);
       resid_peaks_[uv_cand->end_peak].past.push_back(uv_cand);
+#if 0
       total_cands++;
+#endif
     } else {
       delete uv_cand;
     }
@@ -967,7 +973,9 @@ void EpochTracker::CreatePeriodLattice(void) {
             unvoiced_cost_ + reward_;
         resid_peaks_[start_peak].future.push_back(uv_cand);
         resid_peaks_[peak].past.push_back(uv_cand);
+#if 0
         total_cands++;
+#endif
       }
     }
   }  // end of the first pass at all pulses in the residual.
