@@ -39,7 +39,8 @@ Overview
 
 Documentation
 -------------
-See [this page](https://sp-nitech.github.io/sptk/latest/) for a reference manual.
+- See [this page](https://sp-nitech.github.io/sptk/latest/) for a reference manual.
+- Our [paper](https://openreview.net/pdf?id=O9l-6JBLf-) is available on OpenReview.
 
 
 Requirements
@@ -60,10 +61,7 @@ The install procedure is as follows.
 ```sh
 git clone https://github.com/sp-nitech/SPTK.git
 cd SPTK
-mkdir build
-cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=..  # Please change install directory.
-make -j 4 install  # Please change the number of jobs depending on your environment.
+make
 ```
 Then the SPTK commands can be used by adding `bin/` directory to the `PATH` environment variable.
 If you would like to use a part of the SPTK functions, please link the static library `lib/libsptk.a`.
@@ -75,15 +73,15 @@ If you would like to use a part of the SPTK functions, please link the static li
 <details><summary>expand</summary><div>
 
 You may need to add `cmake` and `MSBuild` to the `PATH` environment variable in advance.
-Open Command Prompt and follow the below procedure:
+Please run `make.bat` or open Command Prompt and follow the below procedure:
 ```sh
 cd /path/to/SPTK  # Please change here to your appropriate path.
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=..  # Please change install directory.
-MSBuild -maxcpucount:4 /p:Configuration=Release INSTALL.vcxproj
+MSBuild /p:Configuration=Release INSTALL.vcxproj
 ```
-You can compile the programs via GUI instead of running MSBuild.
+You can compile SPTK via GUI instead of running MSBuild by opening the generated project file.
 Then the SPTK functions can be used by linking the static library `lib/sptk.lib`.
 
 </div></details>
@@ -98,7 +96,7 @@ Demonstration
 
 Examples
 --------
-The SPTK provides some examples.
+SPTK provides some examples.
 Go to an example directory and execute `run.sh`, e.g.,
 ```sh
 cd egs/analysis_synthesis/mgc
@@ -140,12 +138,14 @@ Changes from SPTK3
   - Mel-cepstrum postfilter (`mcpf`)
   - Mel-filter-bank extraction (`fbank`)
   - Nonrecursive MLPG (`mlpg -R 1`)
+  - Pitch adaptive spectrum estimation (`pitch_spec`)
   - Pitch extraction by DIO used in WORLD (`pitch -a 3`)
   - Pole-zero plot (`gpolezero`)
   - Scalar quantization (`quantize` and `dequantize`)
   - Spectrogram plot (`gspecgram`)
   - Stability check of LPC coefficients (`lpccheck`)
   - Subband decomposition (`pqmf` and `ipqmf`)
+  - WORLD synthesis (`world_synth`)
   - Windows build support (**only static library**)
 - Obsoleted commands:
   - `acep`, `agcep`, and `amcep` -> `amgcep`
@@ -217,3 +217,15 @@ Contributors to former versions of SPTK
 License
 -------
 This software is released under the Apache License 2.0.
+
+
+Reference
+---------
+```
+@InProceedings{sp-nitech2023sptk,
+  author = {Takenori Yoshimura and Takato Fujimoto and Keiichiro Oura and Keiichi Tokuda},
+  title = {{SPTK4}: An open-source software toolkit for speech signal processing},
+  booktitle = {12th ISCA Workshop on Speech Synthesis (SSW 12)}, 
+  year = {2023},
+}
+```
