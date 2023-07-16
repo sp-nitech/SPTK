@@ -53,7 +53,6 @@ sptk2numpy = {
     "L": np.uint64,
     "f": np.float32,
     "d": np.float64,
-    "e": np.float128,
 }
 
 sptk2struct = {
@@ -278,13 +277,6 @@ def get_default_parser(description, input_name=None, allow_dtype=True):
             action="store_const",
             const="d",
             help="(data type) double, 8byte",
-        )
-        parser.add_argument(
-            "+e",
-            dest="dtype",
-            action="store_const",
-            const="d",
-            help="(data type) long double, 16byte",
         )
     parser.set_defaults(dtype="d")
     return parser
