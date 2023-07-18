@@ -397,6 +397,13 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
+    sptk::PrintErrorMessage("merge", error_message);
+    return 1;
+  }
+
   // Open stream for reading insert data.
   std::ifstream ifs1;
   ifs1.open(insert_file, std::ios::in | std::ios::binary);
@@ -410,14 +417,16 @@ int main(int argc, char* argv[]) {
 
   // Open stream for reading input data.
   std::ifstream ifs2;
-  ifs2.open(input_file, std::ios::in | std::ios::binary);
-  if (ifs2.fail() && NULL != input_file) {
-    std::ostringstream error_message;
-    error_message << "Cannot open file " << input_file;
-    sptk::PrintErrorMessage("merge", error_message);
-    return 1;
+  if (NULL != input_file) {
+    ifs2.open(input_file, std::ios::in | std::ios::binary);
+    if (ifs2.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << input_file;
+      sptk::PrintErrorMessage("merge", error_message);
+      return 1;
+    }
   }
-  std::istream& input_stream(ifs2.fail() ? std::cin : ifs2);
+  std::istream& input_stream(ifs2.is_open() ? ifs2 : std::cin);
 
   VectorMergeWrapper merge(data_type, insert_point, input_length, insert_length,
                            overwrite_mode);

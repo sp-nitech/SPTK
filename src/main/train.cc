@@ -195,6 +195,13 @@ int main(int argc, char* argv[]) {
     }
   }
 
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
+    sptk::PrintErrorMessage("train", error_message);
+    return 1;
+  }
+
   const double frequency(1.0 / period);
   double phase(1.0);
   for (int i(0); kMagicNumberForInfinity == output_length || i < output_length;

@@ -127,6 +127,19 @@ void PrintUsage(std::ostream* stream) {
   // clang-format on
 }
 
+void PrintTypeErrorMessage(const char* option) {
+  std::ostringstream error_message;
+  error_message << "The argument for the -" << option
+                << " option must be numeric";
+  sptk::PrintErrorMessage("sopr", error_message);
+}
+
+void PrintGeneralErrorMessage(const char* option) {
+  std::ostringstream error_message;
+  error_message << "Failed to add operation by -" << option << " option";
+  sptk::PrintErrorMessage("sopr", error_message);
+}
+
 }  // namespace
 
 /**
@@ -264,15 +277,11 @@ int main(int argc, char* argv[]) {
         double addend;
         if (!sptk::ConvertSpecialStringToDouble(optarg, &addend) &&
             !sptk::ConvertStringToDouble(optarg, &addend)) {
-          std::ostringstream error_message;
-          error_message << "The argument for the -a option must be numeric";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintTypeErrorMessage("a");
           return 1;
         }
         if (!scalar_operation.AddAdditionOperation(addend)) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -a option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("a");
           return 1;
         }
         break;
@@ -281,15 +290,11 @@ int main(int argc, char* argv[]) {
         double subtrahend;
         if (!sptk::ConvertSpecialStringToDouble(optarg, &subtrahend) &&
             !sptk::ConvertStringToDouble(optarg, &subtrahend)) {
-          std::ostringstream error_message;
-          error_message << "The argument for the -s option must be numeric";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintTypeErrorMessage("s");
           return 1;
         }
         if (!scalar_operation.AddSubtractionOperation(subtrahend)) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -s option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("s");
           return 1;
         }
         break;
@@ -298,15 +303,11 @@ int main(int argc, char* argv[]) {
         double multiplier;
         if (!sptk::ConvertSpecialStringToDouble(optarg, &multiplier) &&
             !sptk::ConvertStringToDouble(optarg, &multiplier)) {
-          std::ostringstream error_message;
-          error_message << "The argument for the -m option must be numeric";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintTypeErrorMessage("m");
           return 1;
         }
         if (!scalar_operation.AddMultiplicationOperation(multiplier)) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -m option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("m");
           return 1;
         }
         break;
@@ -315,15 +316,11 @@ int main(int argc, char* argv[]) {
         double divisor;
         if (!sptk::ConvertSpecialStringToDouble(optarg, &divisor) &&
             !sptk::ConvertStringToDouble(optarg, &divisor)) {
-          std::ostringstream error_message;
-          error_message << "The argument for the -d option must be numeric";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintTypeErrorMessage("d");
           return 1;
         }
         if (!scalar_operation.AddDivisionOperation(divisor)) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -d option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("d");
           return 1;
         }
         break;
@@ -332,15 +329,11 @@ int main(int argc, char* argv[]) {
         double divisor;
         if (!sptk::ConvertSpecialStringToDouble(optarg, &divisor) &&
             !sptk::ConvertStringToDouble(optarg, &divisor)) {
-          std::ostringstream error_message;
-          error_message << "The argument for the -r option must be numeric";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintTypeErrorMessage("r");
           return 1;
         }
         if (!scalar_operation.AddModuloOperation(divisor)) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -r option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("r");
           return 1;
         }
         break;
@@ -349,15 +342,11 @@ int main(int argc, char* argv[]) {
         double exponent;
         if (!sptk::ConvertSpecialStringToDouble(optarg, &exponent) &&
             !sptk::ConvertStringToDouble(optarg, &exponent)) {
-          std::ostringstream error_message;
-          error_message << "The argument for the -p option must be numeric";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintTypeErrorMessage("p");
           return 1;
         }
         if (!scalar_operation.AddPowerOperation(exponent)) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -p option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("p");
           return 1;
         }
         break;
@@ -366,15 +355,11 @@ int main(int argc, char* argv[]) {
         double lower_bound;
         if (!sptk::ConvertSpecialStringToDouble(optarg, &lower_bound) &&
             !sptk::ConvertStringToDouble(optarg, &lower_bound)) {
-          std::ostringstream error_message;
-          error_message << "The argument for the -l option must be numeric";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintTypeErrorMessage("l");
           return 1;
         }
         if (!scalar_operation.AddLowerBoundingOperation(lower_bound)) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -l option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("l");
           return 1;
         }
         break;
@@ -383,78 +368,60 @@ int main(int argc, char* argv[]) {
         double upper_bound;
         if (!sptk::ConvertSpecialStringToDouble(optarg, &upper_bound) &&
             !sptk::ConvertStringToDouble(optarg, &upper_bound)) {
-          std::ostringstream error_message;
-          error_message << "The argument for the -u option must be numeric";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintTypeErrorMessage("u");
           return 1;
         }
         if (!scalar_operation.AddUpperBoundingOperation(upper_bound)) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -u option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("u");
           return 1;
         }
         break;
       }
       case kABS: {
         if (!scalar_operation.AddAbsoluteOperation()) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -ABS option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("ABS");
           return 1;
         }
         break;
       }
       case kINV: {
         if (!scalar_operation.AddReciprocalOperation()) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -INV option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("INV");
           return 1;
         }
         break;
       }
       case kSQR: {
         if (!scalar_operation.AddSquareOperation()) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -SQR option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("SQR");
           return 1;
         }
         break;
       }
       case kSQRT: {
         if (!scalar_operation.AddSquareRootOperation()) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -SQRT option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("SQRT");
           return 1;
         }
         break;
       }
       case kLN: {
         if (!scalar_operation.AddNaturalLogarithmOperation()) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -LN option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("LN");
           return 1;
         }
         break;
       }
       case kLOG2: {
         if (!scalar_operation.AddLogarithmOperation(2.0)) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -LOG2 option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("LOG2");
           return 1;
         }
         break;
       }
       case kLOG10: {
         if (!scalar_operation.AddLogarithmOperation(10.0)) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -LOG10 option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("LOG10");
           return 1;
         }
         break;
@@ -462,42 +429,32 @@ int main(int argc, char* argv[]) {
       case kLOGX: {
         double base;
         if (!sptk::ConvertStringToDouble(optarg, &base)) {
-          std::ostringstream error_message;
-          error_message << "The argument for the -LOGX option must be numeric";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintTypeErrorMessage("LOGX");
           return 1;
         }
         if (!scalar_operation.AddLogarithmOperation(base)) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -LOGX option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("LOGX");
           return 1;
         }
         break;
       }
       case kEXP: {
         if (!scalar_operation.AddNaturalExponentialOperation()) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -EXP option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("EXP");
           return 1;
         }
         break;
       }
       case kPOW2: {
         if (!scalar_operation.AddExponentialOperation(2.0)) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -POW2 option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("POW2");
           return 1;
         }
         break;
       }
       case kPOW10: {
         if (!scalar_operation.AddExponentialOperation(10.0)) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -POW10 option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("POW10");
           return 1;
         }
         break;
@@ -505,141 +462,109 @@ int main(int argc, char* argv[]) {
       case kPOWX: {
         double base;
         if (!sptk::ConvertStringToDouble(optarg, &base)) {
-          std::ostringstream error_message;
-          error_message << "The argument for the -POWX option must be numeric";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintTypeErrorMessage("POWX");
           return 1;
         }
         if (!scalar_operation.AddExponentialOperation(base)) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -POWX option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("POWX");
           return 1;
         }
         break;
       }
       case kFLOOR: {
         if (!scalar_operation.AddFlooringOperation()) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -FLOOR option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("FLOOR");
           return 1;
         }
         break;
       }
       case kCEIL: {
         if (!scalar_operation.AddCeilingOperation()) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -CEIL option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("CEIL");
           return 1;
         }
         break;
       }
       case kROUND: {
         if (!scalar_operation.AddRoundingOperation()) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -ROUND option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("ROUND");
           return 1;
         }
         break;
       }
       case kROUNDUP: {
         if (!scalar_operation.AddRoundingUpOperation()) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -ROUNDUP option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("ROUNDUP");
           return 1;
         }
         break;
       }
       case kROUNDDOWN: {
         if (!scalar_operation.AddRoundingDownOperation()) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -ROUNDDOWN option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("ROUNDDOWN");
           return 1;
         }
         break;
       }
       case kUNIT: {
         if (!scalar_operation.AddUnitStepOperation()) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -UNIT option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("UNIT");
           return 1;
         }
         break;
       }
       case kRAMP: {
         if (!scalar_operation.AddLowerBoundingOperation(0.0)) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -RAMP option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("RAMP");
           return 1;
         }
         break;
       }
       case kSIGN: {
         if (!scalar_operation.AddSignOperation()) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -SIGN option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("SIGN");
           return 1;
         }
         break;
       }
       case kSIN: {
         if (!scalar_operation.AddSineOperation()) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -SIN option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("SIN");
           return 1;
         }
         break;
       }
       case kCOS: {
         if (!scalar_operation.AddCosineOperation()) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -COS option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("COS");
           return 1;
         }
         break;
       }
       case kTAN: {
         if (!scalar_operation.AddTangentOperation()) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -TAN option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("TAN");
           return 1;
         }
         break;
       }
       case kATAN: {
         if (!scalar_operation.AddArctangentOperation()) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -ATAN option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("ATAN");
           return 1;
         }
         break;
       }
       case kTANH: {
         if (!scalar_operation.AddHyperbolicTangentOperation()) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -TANH option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("TANH");
           return 1;
         }
         break;
       }
       case kATANH: {
         if (!scalar_operation.AddHyperbolicArctangentOperation()) {
-          std::ostringstream error_message;
-          error_message << "Failed to add operation by -ATANH option";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintGeneralErrorMessage("ATANH");
           return 1;
         }
         break;
@@ -648,9 +573,7 @@ int main(int argc, char* argv[]) {
         double magic_number;
         if (!sptk::ConvertSpecialStringToDouble(optarg, &magic_number) &&
             !sptk::ConvertStringToDouble(optarg, &magic_number)) {
-          std::ostringstream error_message;
-          error_message << "The argument for the -magic option must be numeric";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintTypeErrorMessage("magic");
           return 1;
         }
         if (!scalar_operation.AddMagicNumberRemover(magic_number)) {
@@ -665,9 +588,7 @@ int main(int argc, char* argv[]) {
         double replacement_number;
         if (!sptk::ConvertSpecialStringToDouble(optarg, &replacement_number) &&
             !sptk::ConvertStringToDouble(optarg, &replacement_number)) {
-          std::ostringstream error_message;
-          error_message << "The argument for the -MAGIC option must be numeric";
-          sptk::PrintErrorMessage("sopr", error_message);
+          PrintTypeErrorMessage("MAGIC");
           return 1;
         }
         if (!scalar_operation.AddMagicNumberReplacer(replacement_number)) {
@@ -698,15 +619,24 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  std::ifstream ifs;
-  ifs.open(input_file, std::ios::in | std::ios::binary);
-  if (ifs.fail() && NULL != input_file) {
+  if (!sptk::SetBinaryMode()) {
     std::ostringstream error_message;
-    error_message << "Cannot open file " << input_file;
+    error_message << "Cannot set translation mode";
     sptk::PrintErrorMessage("sopr", error_message);
     return 1;
   }
-  std::istream& input_stream(ifs.fail() ? std::cin : ifs);
+
+  std::ifstream ifs;
+  if (NULL != input_file) {
+    ifs.open(input_file, std::ios::in | std::ios::binary);
+    if (ifs.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << input_file;
+      sptk::PrintErrorMessage("sopr", error_message);
+      return 1;
+    }
+  }
+  std::istream& input_stream(ifs.is_open() ? ifs : std::cin);
 
   double number;
   bool is_magic_number;

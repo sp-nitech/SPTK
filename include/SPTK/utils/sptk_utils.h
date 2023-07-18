@@ -279,6 +279,11 @@ void PrintDataType(const std::string& symbol, std::ostream* stream);
 void PrintErrorMessage(const std::string& program_name,
                        const std::ostringstream& message);
 
+/**
+ * Set standard input/output to binary mode.
+ */
+bool SetBinaryMode();
+
 }  // namespace sptk
 
 #endif  // SPTK_UTILS_SPTK_UTILS_H_

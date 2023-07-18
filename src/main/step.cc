@@ -139,6 +139,13 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
+    sptk::PrintErrorMessage("step", error_message);
+    return 1;
+  }
+
   for (int i(0); kMagicNumberForInfinity == output_length || i < output_length;
        ++i) {
     if (!sptk::WriteStream(step_value, &std::cout)) {

@@ -333,6 +333,13 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
+    sptk::PrintErrorMessage("vc", error_message);
+    return 1;
+  }
+
   // Load GMM.
   std::vector<double> weights(num_mixture);
   std::vector<std::vector<double> > mean_vectors(num_mixture);
@@ -392,14 +399,16 @@ int main(int argc, char* argv[]) {
   std::vector<std::vector<double> > source_vectors;
   {
     std::ifstream ifs;
-    ifs.open(input_file, std::ios::in | std::ios::binary);
-    if (ifs.fail() && NULL != input_file) {
-      std::ostringstream error_message;
-      error_message << "Cannot open file " << input_file;
-      sptk::PrintErrorMessage("vc", error_message);
-      return 1;
+    if (NULL != input_file) {
+      ifs.open(input_file, std::ios::in | std::ios::binary);
+      if (ifs.fail()) {
+        std::ostringstream error_message;
+        error_message << "Cannot open file " << input_file;
+        sptk::PrintErrorMessage("vc", error_message);
+        return 1;
+      }
     }
-    std::istream& input_stream(ifs.fail() ? std::cin : ifs);
+    std::istream& input_stream(ifs.is_open() ? ifs : std::cin);
 
     const int read_size(static_cast<int>(window_coefficients.size() + 1) *
                         (num_source_order + 1));

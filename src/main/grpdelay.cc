@@ -195,6 +195,13 @@ int main(int argc, char* argv[]) {
     }
   }
 
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
+    sptk::PrintErrorMessage("grpdelay", error_message);
+    return 1;
+  }
+
   if (is_numerator_specified || is_denominator_specified) {
     const int numerator_length(num_numerator_order + 1);
     const int denominator_length(num_denominator_order + 1);
@@ -220,10 +227,10 @@ int main(int argc, char* argv[]) {
     }
 
     std::ifstream ifs_for_numerator;
-    if (is_numerator_specified) {
+    if (is_numerator_specified && NULL != numerator_coefficients_file) {
       ifs_for_numerator.open(numerator_coefficients_file,
                              std::ios::in | std::ios::binary);
-      if (ifs_for_numerator.fail() && NULL != numerator_coefficients_file) {
+      if (ifs_for_numerator.fail()) {
         std::ostringstream error_message;
         error_message << "Cannot open file " << numerator_coefficients_file;
         sptk::PrintErrorMessage("grpdelay", error_message);
@@ -233,15 +240,13 @@ int main(int argc, char* argv[]) {
       numerator_coefficients[0] = 1.0;
     }
     std::istream& input_stream_for_numerator(
-        (is_numerator_specified && ifs_for_numerator.fail())
-            ? std::cin
-            : ifs_for_numerator);
+        ifs_for_numerator.is_open() ? ifs_for_numerator : std::cin);
 
     std::ifstream ifs_for_denominator;
-    if (is_denominator_specified) {
+    if (is_denominator_specified && NULL != denominator_coefficients_file) {
       ifs_for_denominator.open(denominator_coefficients_file,
                                std::ios::in | std::ios::binary);
-      if (ifs_for_denominator.fail() && NULL != denominator_coefficients_file) {
+      if (ifs_for_denominator.fail()) {
         std::ostringstream error_message;
         error_message << "Cannot open file " << denominator_coefficients_file;
         sptk::PrintErrorMessage("grpdelay", error_message);
@@ -251,9 +256,7 @@ int main(int argc, char* argv[]) {
       denominator_coefficients[0] = 1.0;
     }
     std::istream& input_stream_for_denominator(
-        (is_denominator_specified && ifs_for_denominator.fail())
-            ? std::cin
-            : ifs_for_denominator);
+        ifs_for_denominator.is_open() ? ifs_for_denominator : std::cin);
 
     sptk::FilterCoefficientsToGroupDelay filter_coefficients_to_group_delay(
         num_numerator_order, num_denominator_order, fft_length, alpha, gamma);
@@ -303,14 +306,16 @@ int main(int argc, char* argv[]) {
     const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
     std::ifstream ifs;
-    ifs.open(input_file, std::ios::in | std::ios::binary);
-    if (ifs.fail() && NULL != input_file) {
-      std::ostringstream error_message;
-      error_message << "Cannot open file " << input_file;
-      sptk::PrintErrorMessage("grpdelay", error_message);
-      return 1;
+    if (NULL != input_file) {
+      ifs.open(input_file, std::ios::in | std::ios::binary);
+      if (ifs.fail()) {
+        std::ostringstream error_message;
+        error_message << "Cannot open file " << input_file;
+        sptk::PrintErrorMessage("grpdelay", error_message);
+        return 1;
+      }
     }
-    std::istream& input_stream(ifs.fail() ? std::cin : ifs);
+    std::istream& input_stream(ifs.is_open() ? ifs : std::cin);
 
     sptk::FilterCoefficientsToGroupDelay waveform_to_group_delay(
         fft_length - 1, 0, fft_length, alpha, gamma);

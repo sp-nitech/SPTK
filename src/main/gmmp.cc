@@ -188,8 +188,14 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  const bool is_diagonal(!full_covariance_flag);
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
+    sptk::PrintErrorMessage("gmmp", error_message);
+    return 1;
+  }
 
+  const bool is_diagonal(!full_covariance_flag);
   std::vector<double> weights(num_mixture);
   std::vector<std::vector<double> > mean_vectors(num_mixture);
   std::vector<sptk::SymmetricMatrix> covariance_matrices(num_mixture);
@@ -243,14 +249,16 @@ int main(int argc, char* argv[]) {
   }
 
   std::ifstream ifs;
-  ifs.open(input_file, std::ios::in | std::ios::binary);
-  if (ifs.fail() && NULL != input_file) {
-    std::ostringstream error_message;
-    error_message << "Cannot open file " << input_file;
-    sptk::PrintErrorMessage("gmmp", error_message);
-    return 1;
+  if (NULL != input_file) {
+    ifs.open(input_file, std::ios::in | std::ios::binary);
+    if (ifs.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << input_file;
+      sptk::PrintErrorMessage("gmmp", error_message);
+      return 1;
+    }
   }
-  std::istream& input_stream(ifs.fail() ? std::cin : ifs);
+  std::istream& input_stream(ifs.is_open() ? ifs : std::cin);
 
   const int length(num_order + 1);
   std::vector<double> input_vector(length);

@@ -410,15 +410,24 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  std::ifstream ifs;
-  ifs.open(input_file, std::ios::in | std::ios::binary);
-  if (ifs.fail() && NULL != input_file) {
+  if (!sptk::SetBinaryMode()) {
     std::ostringstream error_message;
-    error_message << "Cannot open file " << input_file;
+    error_message << "Cannot set translation mode";
     sptk::PrintErrorMessage("mfcc", error_message);
     return 1;
   }
-  std::istream& input_stream(ifs.fail() ? std::cin : ifs);
+
+  std::ifstream ifs;
+  if (NULL != input_file) {
+    ifs.open(input_file, std::ios::in | std::ios::binary);
+    if (ifs.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << input_file;
+      sptk::PrintErrorMessage("mfcc", error_message);
+      return 1;
+    }
+  }
+  std::istream& input_stream(ifs.is_open() ? ifs : std::cin);
 
   sptk::SpectrumToSpectrum spectrum_to_spectrum(
       fft_length,
@@ -460,7 +469,7 @@ int main(int argc, char* argv[]) {
   std::vector<double> input(input_length);
   std::vector<double> processed_input(fft_length / 2 + 1);
   std::vector<double> output(output_length);
-  double energy;
+  double energy(0.0);
 
   while (sptk::ReadStream(false, 0, 0, input_length, &input, &input_stream,
                           NULL)) {

@@ -125,6 +125,13 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
+    sptk::PrintErrorMessage("impulse", error_message);
+    return 1;
+  }
+
   if (!sptk::WriteStream(1.0, &std::cout)) {
     std::ostringstream error_message;
     error_message << "Failed to write impulse sequence";

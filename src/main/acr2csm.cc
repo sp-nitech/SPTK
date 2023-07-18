@@ -138,15 +138,24 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  std::ifstream ifs;
-  ifs.open(input_file, std::ios::in | std::ios::binary);
-  if (ifs.fail() && NULL != input_file) {
+  if (!sptk::SetBinaryMode()) {
     std::ostringstream error_message;
-    error_message << "Cannot open file " << input_file;
+    error_message << "Cannot set translation mode";
     sptk::PrintErrorMessage("acr2csm", error_message);
     return 1;
   }
-  std::istream& input_stream(ifs.fail() ? std::cin : ifs);
+
+  std::ifstream ifs;
+  if (NULL != input_file) {
+    ifs.open(input_file, std::ios::in | std::ios::binary);
+    if (ifs.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << input_file;
+      sptk::PrintErrorMessage("acr2csm", error_message);
+      return 1;
+    }
+  }
+  std::istream& input_stream(ifs.is_open() ? ifs : std::cin);
 
   sptk::AutocorrelationToCompositeSinusoidalModeling
       autocorrelation_to_composite_sinusoidal_modeling(num_order, num_iteration,

@@ -185,6 +185,13 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
+    sptk::PrintErrorMessage("ramp", error_message);
+    return 1;
+  }
+
   if (is_end_value_specified) {
     if (0.0 <= step_size && end_value < start_value) {
       std::ostringstream error_message;

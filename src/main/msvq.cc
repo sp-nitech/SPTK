@@ -133,6 +133,13 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
+    sptk::PrintErrorMessage("msvq", error_message);
+    return 1;
+  }
+
   const int length(num_order + 1);
   std::vector<std::vector<std::vector<double> > > codebook_vectors;
   for (int n(0); n < num_stage; ++n) {
@@ -166,14 +173,16 @@ int main(int argc, char* argv[]) {
   const char* input_vectors_file(0 == num_input_files ? NULL : argv[optind]);
 
   std::ifstream ifs;
-  ifs.open(input_vectors_file, std::ios::in | std::ios::binary);
-  if (ifs.fail() && NULL != input_vectors_file) {
-    std::ostringstream error_message;
-    error_message << "Cannot open file " << input_vectors_file;
-    sptk::PrintErrorMessage("msvq", error_message);
-    return 1;
+  if (NULL != input_vectors_file) {
+    ifs.open(input_vectors_file, std::ios::in | std::ios::binary);
+    if (ifs.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << input_vectors_file;
+      sptk::PrintErrorMessage("msvq", error_message);
+      return 1;
+    }
   }
-  std::istream& stream_for_input_vectors(ifs.fail() ? std::cin : ifs);
+  std::istream& stream_for_input_vectors(ifs.is_open() ? ifs : std::cin);
 
   sptk::MultistageVectorQuantization multistage_vector_quantization(num_order,
                                                                     num_stage);
