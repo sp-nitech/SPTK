@@ -20,7 +20,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/generation/delta_calculation.h"
 #include "SPTK/input/input_source_from_stream.h"
 #include "SPTK/utils/misc_utils.h"

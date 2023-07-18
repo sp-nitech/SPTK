@@ -26,7 +26,7 @@
 #include <string>     // std::stold, std::string
 #include <vector>     // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/utils/int24_t.h"
 #include "SPTK/utils/sptk_utils.h"
 #include "SPTK/utils/uint24_t.h"

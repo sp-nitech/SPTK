@@ -19,7 +19,7 @@
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/compression/dynamic_range_compression.h"
 #include "SPTK/utils/sptk_utils.h"
 

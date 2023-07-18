@@ -20,7 +20,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/analysis/mel_filter_bank_analysis.h"
 #include "SPTK/conversion/spectrum_to_spectrum.h"
 #include "SPTK/conversion/waveform_to_spectrum.h"

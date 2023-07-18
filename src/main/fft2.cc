@@ -20,7 +20,7 @@
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/math/matrix.h"
 #include "SPTK/math/two_dimensional_fast_fourier_transform.h"
 #include "SPTK/utils/sptk_utils.h"

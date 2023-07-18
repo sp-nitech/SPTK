@@ -20,7 +20,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/generation/nonrecursive_maximum_likelihood_parameter_generation.h"
 #include "SPTK/generation/recursive_maximum_likelihood_parameter_generation.h"
 #include "SPTK/input/input_source_from_stream.h"

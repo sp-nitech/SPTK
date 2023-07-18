@@ -22,7 +22,7 @@
 #include <sstream>    // std::ostringstream
 #include <vector>     // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/conversion/generalized_cepstrum_gain_normalization.h"
 #include "SPTK/conversion/mel_cepstrum_to_mlsa_digital_filter_coefficients.h"
 #include "SPTK/filter/inverse_mglsa_digital_filter.h"

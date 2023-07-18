@@ -20,7 +20,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/conversion/cepstrum_to_minimum_phase_impulse_response.h"
 #include "SPTK/utils/sptk_utils.h"
 

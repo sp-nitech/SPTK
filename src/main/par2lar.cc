@@ -20,7 +20,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/conversion/parcor_coefficients_to_log_area_ratio.h"
 #include "SPTK/utils/sptk_utils.h"
 

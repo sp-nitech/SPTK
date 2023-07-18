@@ -21,7 +21,7 @@
 #include <string>    // std::string
 #include <vector>    // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/compression/huffman_coding.h"
 #include "SPTK/utils/sptk_utils.h"
 

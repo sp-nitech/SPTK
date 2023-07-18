@@ -20,7 +20,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/utils/sptk_utils.h"
 #include "SPTK/window/data_windowing.h"
 #include "SPTK/window/standard_window.h"

@@ -20,7 +20,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/math/inverse_discrete_cosine_transform.h"
 #include "SPTK/utils/sptk_utils.h"
 

@@ -22,7 +22,7 @@
 #include <sstream>    // std::ostringstream
 #include <vector>     // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/filter/second_order_digital_filter.h"
 #include "SPTK/utils/sptk_utils.h"
 

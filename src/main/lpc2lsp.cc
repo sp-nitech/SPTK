@@ -22,7 +22,7 @@
 #include <sstream>    // std::ostringstream
 #include <vector>     // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/conversion/linear_predictive_coefficients_to_line_spectral_pairs.h"
 #include "SPTK/utils/sptk_utils.h"
 

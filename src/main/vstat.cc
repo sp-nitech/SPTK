@@ -21,7 +21,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/math/statistics_accumulation.h"
 #include "SPTK/math/symmetric_matrix.h"
 #include "SPTK/utils/misc_utils.h"
