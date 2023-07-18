@@ -150,7 +150,7 @@ int main(int argc, char* argv[]) {
 
   for (;;) {
     const int option_char(
-        getopt_long_only(argc, argv, "a:l:p:s:L:H:q:o:h", NULL, NULL));
+        getopt_long(argc, argv, "a:l:p:s:L:H:q:o:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {

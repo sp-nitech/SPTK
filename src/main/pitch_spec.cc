@@ -132,8 +132,7 @@ int main(int argc, char* argv[]) {
       kDefaultOutputFormat);
 
   for (;;) {
-    const int option_char(
-        getopt_long_only(argc, argv, "a:l:p:s:q:o:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "a:l:p:s:q:o:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
