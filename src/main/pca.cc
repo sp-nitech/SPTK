@@ -22,7 +22,7 @@
 #include <sstream>    // std::ostringstream
 #include <vector>     // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/math/principal_component_analysis.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -229,16 +229,25 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  // Open stream for reading inputs.
-  std::ifstream ifs;
-  ifs.open(input_file, std::ios::in | std::ios::binary);
-  if (ifs.fail() && NULL != input_file) {
+  if (!sptk::SetBinaryMode()) {
     std::ostringstream error_message;
-    error_message << "Cannot open file " << input_file;
+    error_message << "Cannot set translation mode";
     sptk::PrintErrorMessage("pca", error_message);
     return 1;
   }
-  std::istream& input_stream(ifs.fail() ? std::cin : ifs);
+
+  // Open stream for reading inputs.
+  std::ifstream ifs;
+  if (NULL != input_file) {
+    ifs.open(input_file, std::ios::in | std::ios::binary);
+    if (ifs.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << input_file;
+      sptk::PrintErrorMessage("pca", error_message);
+      return 1;
+    }
+  }
+  std::istream& input_stream(ifs.is_open() ? ifs : std::cin);
 
   // Open stream for writing eigenvalues.
   std::ofstream ofs;

@@ -20,7 +20,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/analysis/fast_fourier_transform_cepstral_analysis.h"
 #include "SPTK/conversion/spectrum_to_spectrum.h"
 #include "SPTK/conversion/waveform_to_spectrum.h"
@@ -241,15 +241,24 @@ int main(int argc, char* argv[]) {
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
 
-  std::ifstream ifs;
-  ifs.open(input_file, std::ios::in | std::ios::binary);
-  if (ifs.fail() && NULL != input_file) {
+  if (!sptk::SetBinaryMode()) {
     std::ostringstream error_message;
-    error_message << "Cannot open file " << input_file;
+    error_message << "Cannot set translation mode";
     sptk::PrintErrorMessage("fftcep", error_message);
     return 1;
   }
-  std::istream& input_stream(ifs.fail() ? std::cin : ifs);
+
+  std::ifstream ifs;
+  if (NULL != input_file) {
+    ifs.open(input_file, std::ios::in | std::ios::binary);
+    if (ifs.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << input_file;
+      sptk::PrintErrorMessage("fftcep", error_message);
+      return 1;
+    }
+  }
+  std::istream& input_stream(ifs.is_open() ? ifs : std::cin);
 
   sptk::SpectrumToSpectrum spectrum_to_spectrum(
       fft_length,

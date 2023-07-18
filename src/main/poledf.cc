@@ -20,7 +20,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/filter/all_pole_digital_filter.h"
 #include "SPTK/input/input_source_from_stream.h"
 #include "SPTK/input/input_source_interpolation.h"
@@ -186,6 +186,13 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
+    sptk::PrintErrorMessage("poledf", error_message);
+    return 1;
+  }
+
   // Open stream for reading filter coefficients.
   std::ifstream ifs1;
   ifs1.open(filter_coefficients_file, std::ios::in | std::ios::binary);
@@ -199,14 +206,16 @@ int main(int argc, char* argv[]) {
 
   // Open stream for reading input signals.
   std::ifstream ifs2;
-  ifs2.open(filter_input_file, std::ios::in | std::ios::binary);
-  if (ifs2.fail() && NULL != filter_input_file) {
-    std::ostringstream error_message;
-    error_message << "Cannot open file " << filter_input_file;
-    sptk::PrintErrorMessage("poledf", error_message);
-    return 1;
+  if (NULL != filter_input_file) {
+    ifs2.open(filter_input_file, std::ios::in | std::ios::binary);
+    if (ifs2.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << filter_input_file;
+      sptk::PrintErrorMessage("poledf", error_message);
+      return 1;
+    }
   }
-  std::istream& stream_for_filter_input(ifs2.fail() ? std::cin : ifs2);
+  std::istream& stream_for_filter_input(ifs2.is_open() ? ifs2 : std::cin);
 
   // Prepare variables for filtering.
   const int filter_length(num_filter_order + 1);

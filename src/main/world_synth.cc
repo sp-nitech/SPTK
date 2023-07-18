@@ -22,7 +22,7 @@
 #include <sstream>    // std::ostringstream
 #include <vector>     // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/conversion/spectrum_to_spectrum.h"
 #include "SPTK/filter/world_synthesis.h"
 #include "SPTK/utils/sptk_utils.h"
@@ -238,8 +238,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  const int spectrum_size(fft_length / 2 + 1);
-
   const char* spectrum_file;
   const char* aperiodicity_file;
   const char* f0_file;
@@ -260,17 +258,28 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
+    sptk::PrintErrorMessage("world_synth", error_message);
+    return 1;
+  }
+  const int spectrum_size(fft_length / 2 + 1);
+  const double sampling_rate_in_hz(1000.0 * sampling_rate);
+
   std::vector<double> f0;
   {
     std::ifstream ifs;
-    ifs.open(f0_file, std::ios::in | std::ios::binary);
-    if (ifs.fail() && NULL != f0_file) {
-      std::ostringstream error_message;
-      error_message << "Cannot open file " << f0_file;
-      sptk::PrintErrorMessage("world_synth", error_message);
-      return 1;
+    if (NULL != f0_file) {
+      ifs.open(f0_file, std::ios::in | std::ios::binary);
+      if (ifs.fail()) {
+        std::ostringstream error_message;
+        error_message << "Cannot open file " << f0_file;
+        sptk::PrintErrorMessage("world_synth", error_message);
+        return 1;
+      }
     }
-    std::istream& input_stream(ifs.fail() ? std::cin : ifs);
+    std::istream& input_stream(ifs.is_open() ? ifs : std::cin);
 
     double tmp;
     while (sptk::ReadStream(&tmp, &input_stream)) {
@@ -280,8 +289,8 @@ int main(int argc, char* argv[]) {
     switch (pitch_format) {
       case kPitch: {
         std::transform(f0.begin(), f0.end(), f0.begin(),
-                       [sampling_rate](double x) {
-                         return (0.0 == x) ? 0.0 : 1000.0 * sampling_rate / x;
+                       [sampling_rate_in_hz](double x) {
+                         return (0.0 == x) ? 0.0 : sampling_rate_in_hz / x;
                        });
         break;
       }
@@ -385,7 +394,7 @@ int main(int argc, char* argv[]) {
   }
 
   sptk::WorldSynthesis world_synthesis(fft_length, frame_shift,
-                                       1000.0 * sampling_rate);
+                                       sampling_rate_in_hz);
   if (!world_synthesis.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to initialize WorldSynthesis";

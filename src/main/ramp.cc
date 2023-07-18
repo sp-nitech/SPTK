@@ -18,7 +18,7 @@
 #include <iostream>  // std::cerr, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -181,6 +181,13 @@ int main(int argc, char* argv[]) {
   if (0 != argc - optind) {
     std::ostringstream error_message;
     error_message << "Input file is not required";
+    sptk::PrintErrorMessage("ramp", error_message);
+    return 1;
+  }
+
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
     sptk::PrintErrorMessage("ramp", error_message);
     return 1;
   }

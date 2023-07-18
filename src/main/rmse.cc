@@ -21,7 +21,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/math/statistics_accumulation.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -200,6 +200,13 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
+    sptk::PrintErrorMessage("rmse", error_message);
+    return 1;
+  }
+
   std::ifstream ifs1;
   ifs1.open(input_file1, std::ios::in | std::ios::binary);
   if (ifs1.fail()) {
@@ -211,14 +218,16 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream1(ifs1);
 
   std::ifstream ifs2;
-  ifs2.open(input_file2, std::ios::in | std::ios::binary);
-  if (ifs2.fail() && NULL != input_file2) {
-    std::ostringstream error_message;
-    error_message << "Cannot open file " << input_file2;
-    sptk::PrintErrorMessage("rmse", error_message);
-    return 1;
+  if (NULL != input_file2) {
+    ifs2.open(input_file2, std::ios::in | std::ios::binary);
+    if (ifs2.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << input_file2;
+      sptk::PrintErrorMessage("rmse", error_message);
+      return 1;
+    }
   }
-  std::istream& input_stream2(ifs2.fail() ? std::cin : ifs2);
+  std::istream& input_stream2(ifs2.is_open() ? ifs2 : std::cin);
 
   sptk::StatisticsAccumulation accumulation(0, 1);
   sptk::StatisticsAccumulation::Buffer buffer_for_mean_squared_error;

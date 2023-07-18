@@ -43,7 +43,7 @@ set(SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
 set(THIRD_PARTY_DIR ${PROJECT_SOURCE_DIR}/third_party)
 
 set(CC_SOURCES
-  ${THIRD_PARTY_DIR}/Getopt/getoptwin.cc
+  ${THIRD_PARTY_DIR}/GETOPT/ya_getopt.cc
   ${THIRD_PARTY_DIR}/REAPER/core/file_resource.cc
   ${THIRD_PARTY_DIR}/REAPER/core/float_matrix.cc
   ${THIRD_PARTY_DIR}/REAPER/core/track.cc
@@ -394,16 +394,16 @@ set(PYTHON_SOURCES
   ${SOURCE_DIR}/draw/gwave.py
 )
 
-if(NOT WIN32)
-  foreach(SOURCE ${MAIN_SOURCES})
-    get_filename_component(BIN ${SOURCE} NAME_WE)
-    add_executable(${BIN} ${SOURCE})
-    target_link_libraries(${BIN} sptk)
-    install(TARGETS ${BIN}
-      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    )
-  endforeach()
+foreach(SOURCE ${MAIN_SOURCES})
+  get_filename_component(BIN ${SOURCE} NAME_WE)
+  add_executable(${BIN} ${SOURCE})
+  target_link_libraries(${BIN} sptk)
+  install(TARGETS ${BIN}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  )
+endforeach()
 
+if(NOT WIN32)
   foreach(SOURCE ${PYTHON_SOURCES})
     get_filename_component(BIN ${SOURCE} NAME_WE)
     execute_process(COMMAND ln -snf ${SOURCE} ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

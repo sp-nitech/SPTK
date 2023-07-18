@@ -21,7 +21,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/math/distance_calculation.h"
 #include "SPTK/math/statistics_accumulation.h"
 #include "SPTK/utils/sptk_utils.h"
@@ -241,6 +241,13 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
+    sptk::PrintErrorMessage("cdist", error_message);
+    return 1;
+  }
+
   std::ifstream ifs1;
   ifs1.open(cepstrum1_file, std::ios::in | std::ios::binary);
   if (ifs1.fail()) {
@@ -252,14 +259,16 @@ int main(int argc, char* argv[]) {
   std::istream& stream_for_cepstrum1(ifs1);
 
   std::ifstream ifs2;
-  ifs2.open(cepstrum2_file, std::ios::in | std::ios::binary);
-  if (ifs2.fail() && NULL != cepstrum2_file) {
-    std::ostringstream error_message;
-    error_message << "Cannot open file " << cepstrum2_file;
-    sptk::PrintErrorMessage("cdist", error_message);
-    return 1;
+  if (NULL != cepstrum2_file) {
+    ifs2.open(cepstrum2_file, std::ios::in | std::ios::binary);
+    if (ifs2.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << cepstrum2_file;
+      sptk::PrintErrorMessage("cdist", error_message);
+      return 1;
+    }
   }
-  std::istream& stream_for_cepstrum2(ifs2.fail() ? std::cin : ifs2);
+  std::istream& stream_for_cepstrum2(ifs2.is_open() ? ifs2 : std::cin);
 
   sptk::StatisticsAccumulation statistics_accumulation(0, 1);
   sptk::StatisticsAccumulation::Buffer buffer;

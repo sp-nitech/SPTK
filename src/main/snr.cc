@@ -21,7 +21,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -191,14 +191,16 @@ int main(int argc, char* argv[]) {
 
   // Open stream for reading signal plus noise sequence.
   std::ifstream ifs2;
-  ifs2.open(signal_plus_noise_file, std::ios::in | std::ios::binary);
-  if (ifs2.fail() && NULL != signal_plus_noise_file) {
-    std::ostringstream error_message;
-    error_message << "Cannot open file " << signal_plus_noise_file;
-    sptk::PrintErrorMessage("snr", error_message);
-    return 1;
+  if (NULL != signal_plus_noise_file) {
+    ifs2.open(signal_plus_noise_file, std::ios::in | std::ios::binary);
+    if (ifs2.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << signal_plus_noise_file;
+      sptk::PrintErrorMessage("snr", error_message);
+      return 1;
+    }
   }
-  std::istream& stream_for_signal_plus_noise(ifs2.fail() ? std::cin : ifs2);
+  std::istream& stream_for_signal_plus_noise(ifs2.is_open() ? ifs2 : std::cin);
 
   if (OutputType::kSnr == output_type) {
     double signal;

@@ -19,7 +19,7 @@
 #include <iostream>  // std::cerr, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -193,6 +193,13 @@ int main(int argc, char* argv[]) {
     default: {
       return 1;
     }
+  }
+
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
+    sptk::PrintErrorMessage("train", error_message);
+    return 1;
   }
 
   const double frequency(1.0 / period);

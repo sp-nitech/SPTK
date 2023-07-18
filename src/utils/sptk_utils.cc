@@ -16,6 +16,11 @@
 
 #include "SPTK/utils/sptk_utils.h"
 
+#ifdef _WIN32
+#include <fcntl.h>
+#include <io.h>
+#endif
+
 #include <algorithm>  // std::fill_n, std::transform
 #include <cctype>     // std::tolower
 #include <cerrno>     // errno, ERANGE
@@ -508,6 +513,16 @@ void PrintErrorMessage(const std::string& program_name,
   std::ostringstream stream;
   stream << program_name << ": " << message.str() << "!" << std::endl;
   std::cerr << stream.str();
+}
+
+bool SetBinaryMode() {
+#ifdef _WIN32
+  if (-1 == _setmode(_fileno(stdin), _O_BINARY) ||
+      -1 == _setmode(_fileno(stdout), _O_BINARY)) {
+    return false;
+  }
+#endif
+  return true;
 }
 
 // clang-format off

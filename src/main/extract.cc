@@ -20,7 +20,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -170,6 +170,13 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
+    sptk::PrintErrorMessage("extract", error_message);
+    return 1;
+  }
+
   // Open stream for reading index sequence.
   std::ifstream ifs1;
   ifs1.open(index_file, std::ios::in | std::ios::binary);
@@ -183,14 +190,16 @@ int main(int argc, char* argv[]) {
 
   // Open stream for reading input sequence.
   std::ifstream ifs2;
-  ifs2.open(input_file, std::ios::in | std::ios::binary);
-  if (ifs2.fail() && NULL != input_file) {
-    std::ostringstream error_message;
-    error_message << "Cannot open file " << input_file;
-    sptk::PrintErrorMessage("extract", error_message);
-    return 1;
+  if (NULL != input_file) {
+    ifs2.open(input_file, std::ios::in | std::ios::binary);
+    if (ifs2.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << input_file;
+      sptk::PrintErrorMessage("extract", error_message);
+      return 1;
+    }
   }
-  std::istream& stream_for_input(ifs2.fail() ? std::cin : ifs2);
+  std::istream& stream_for_input(ifs2.is_open() ? ifs2 : std::cin);
 
   int index;
   std::vector<double> input_vector(vector_length);

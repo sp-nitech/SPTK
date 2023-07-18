@@ -20,7 +20,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/compression/inverse_multistage_vector_quantization.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -134,6 +134,13 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
+    sptk::PrintErrorMessage("imsvq", error_message);
+    return 1;
+  }
+
   const int length(num_order + 1);
   std::vector<std::vector<std::vector<double> > > codebook_vectors;
   for (int n(0); n < num_stage; ++n) {
@@ -167,14 +174,16 @@ int main(int argc, char* argv[]) {
   const char* codebook_index_file(0 == num_input_files ? NULL : argv[optind]);
 
   std::ifstream ifs;
-  ifs.open(codebook_index_file, std::ios::in | std::ios::binary);
-  if (ifs.fail() && NULL != codebook_index_file) {
-    std::ostringstream error_message;
-    error_message << "Cannot open file " << codebook_index_file;
-    sptk::PrintErrorMessage("imsvq", error_message);
-    return 1;
+  if (NULL != codebook_index_file) {
+    ifs.open(codebook_index_file, std::ios::in | std::ios::binary);
+    if (ifs.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << codebook_index_file;
+      sptk::PrintErrorMessage("imsvq", error_message);
+      return 1;
+    }
   }
-  std::istream& stream_for_codebook_index(ifs.fail() ? std::cin : ifs);
+  std::istream& stream_for_codebook_index(ifs.is_open() ? ifs : std::cin);
 
   sptk::InverseMultistageVectorQuantization
       inverse_multistage_vector_quantization(num_order, num_stage);

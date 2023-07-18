@@ -19,7 +19,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/compression/huffman_encoding.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -118,15 +118,23 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  std::ifstream ifs2;
-  ifs2.open(input_file, std::ios::in | std::ios::binary);
-  if (ifs2.fail() && NULL != input_file) {
+  if (!sptk::SetBinaryMode()) {
     std::ostringstream error_message;
-    error_message << "Cannot open file " << input_file;
+    error_message << "Cannot set translation mode";
     sptk::PrintErrorMessage("huffman_encode", error_message);
     return 1;
   }
-  std::istream& input_stream(ifs2.fail() ? std::cin : ifs2);
+  std::ifstream ifs2;
+  if (NULL != input_file) {
+    ifs2.open(input_file, std::ios::in | std::ios::binary);
+    if (ifs2.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << input_file;
+      sptk::PrintErrorMessage("huffman_encode", error_message);
+      return 1;
+    }
+  }
+  std::istream& input_stream(ifs2.is_open() ? ifs2 : std::cin);
 
   int input;
   std::vector<bool> output;

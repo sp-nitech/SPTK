@@ -21,7 +21,7 @@
 #include <utility>   // std::pair
 #include <vector>    // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/math/distance_calculation.h"
 #include "SPTK/math/dynamic_time_warping.h"
 #include "SPTK/utils/sptk_utils.h"
@@ -210,6 +210,12 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
+    sptk::PrintErrorMessage("dtw", error_message);
+    return 1;
+  }
   const int length(num_order + 1);
 
   std::vector<std::vector<double> > reference_vectors;
@@ -233,14 +239,16 @@ int main(int argc, char* argv[]) {
   std::vector<std::vector<double> > query_vectors;
   {
     std::ifstream ifs;
-    ifs.open(query_file, std::ios::in | std::ios::binary);
-    if (ifs.fail() && NULL != query_file) {
-      std::ostringstream error_message;
-      error_message << "Cannot open file " << query_file;
-      sptk::PrintErrorMessage("dtw", error_message);
-      return 1;
+    if (NULL != query_file) {
+      ifs.open(query_file, std::ios::in | std::ios::binary);
+      if (ifs.fail()) {
+        std::ostringstream error_message;
+        error_message << "Cannot open file " << query_file;
+        sptk::PrintErrorMessage("dtw", error_message);
+        return 1;
+      }
     }
-    std::istream& input_stream(ifs.fail() ? std::cin : ifs);
+    std::istream& input_stream(ifs.is_open() ? ifs : std::cin);
 
     std::vector<double> tmp(length);
     while (sptk::ReadStream(false, 0, 0, length, &tmp, &input_stream, NULL)) {

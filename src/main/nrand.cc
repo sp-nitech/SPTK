@@ -19,7 +19,7 @@
 #include <iostream>  // std::cerr, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/generation/normal_distributed_random_value_generation.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -186,6 +186,13 @@ int main(int argc, char* argv[]) {
   if (0 != argc - optind) {
     std::ostringstream error_message;
     error_message << "Input file is not required";
+    sptk::PrintErrorMessage("nrand", error_message);
+    return 1;
+  }
+
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
     sptk::PrintErrorMessage("nrand", error_message);
     return 1;
   }

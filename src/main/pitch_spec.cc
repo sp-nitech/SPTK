@@ -22,7 +22,7 @@
 #include <sstream>    // std::ostringstream
 #include <vector>     // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/analysis/spectrum_extraction.h"
 #include "SPTK/conversion/spectrum_to_spectrum.h"
 #include "SPTK/utils/sptk_utils.h"
@@ -132,8 +132,7 @@ int main(int argc, char* argv[]) {
       kDefaultOutputFormat);
 
   for (;;) {
-    const int option_char(
-        getopt_long_only(argc, argv, "a:l:p:s:q:o:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "a:l:p:s:q:o:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -250,6 +249,12 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
+    sptk::PrintErrorMessage("pitch_spec", error_message);
+    return 1;
+  }
   const double sampling_rate_in_hz(1000.0 * sampling_rate);
 
   std::vector<double> f0;
@@ -297,14 +302,16 @@ int main(int argc, char* argv[]) {
   std::vector<double> waveform;
   {
     std::ifstream ifs;
-    ifs.open(raw_file, std::ios::in | std::ios::binary);
-    if (ifs.fail() && NULL != raw_file) {
-      std::ostringstream error_message;
-      error_message << "Cannot open file " << raw_file;
-      sptk::PrintErrorMessage("pitch_spec", error_message);
-      return 1;
+    if (NULL != raw_file) {
+      ifs.open(raw_file, std::ios::in | std::ios::binary);
+      if (ifs.fail()) {
+        std::ostringstream error_message;
+        error_message << "Cannot open file " << raw_file;
+        sptk::PrintErrorMessage("pitch_spec", error_message);
+        return 1;
+      }
     }
-    std::istream& input_stream(ifs.fail() ? std::cin : ifs);
+    std::istream& input_stream(ifs.is_open() ? ifs : std::cin);
 
     double tmp;
     while (sptk::ReadStream(&tmp, &input_stream)) {

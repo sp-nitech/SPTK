@@ -20,7 +20,7 @@
 #include <sstream>   // std::ostringstream
 #include <vector>    // std::vector
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -135,6 +135,13 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
+    sptk::PrintErrorMessage("dtw_merge", error_message);
+    return 1;
+  }
+
   std::ifstream ifs1;
   ifs1.open(viterbi_path_file, std::ios::in | std::ios::binary);
   if (ifs1.fail()) {
@@ -156,14 +163,16 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream_for_reference(ifs2);
 
   std::ifstream ifs3;
-  ifs3.open(query_file, std::ios::in | std::ios::binary);
-  if (ifs3.fail() && NULL != query_file) {
-    std::ostringstream error_message;
-    error_message << "Cannot open file " << query_file;
-    sptk::PrintErrorMessage("dtw_merge", error_message);
-    return 1;
+  if (NULL != query_file) {
+    ifs3.open(query_file, std::ios::in | std::ios::binary);
+    if (ifs3.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << query_file;
+      sptk::PrintErrorMessage("dtw_merge", error_message);
+      return 1;
+    }
   }
-  std::istream& input_stream_for_query(ifs3.fail() ? std::cin : ifs3);
+  std::istream& input_stream_for_query(ifs3.is_open() ? ifs3 : std::cin);
 
   const int length(num_order + 1);
   std::vector<double> query_vector(length);

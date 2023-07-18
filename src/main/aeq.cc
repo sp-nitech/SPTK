@@ -20,7 +20,7 @@
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
 
-#include "Getopt/getoptwin.h"
+#include "GETOPT/ya_getopt.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -173,6 +173,13 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  if (!sptk::SetBinaryMode()) {
+    std::ostringstream error_message;
+    error_message << "Cannot set translation mode";
+    sptk::PrintErrorMessage("aeq", error_message);
+    return 1;
+  }
+
   std::ifstream ifs1;
   ifs1.open(expected_file, std::ios::in | std::ios::binary);
   if (ifs1.fail()) {
@@ -184,14 +191,16 @@ int main(int argc, char* argv[]) {
   std::istream& stream_for_expected(ifs1);
 
   std::ifstream ifs2;
-  ifs2.open(actual_file, std::ios::in | std::ios::binary);
-  if (ifs2.fail() && NULL != actual_file) {
-    std::ostringstream error_message;
-    error_message << "Cannot open file " << actual_file;
-    sptk::PrintErrorMessage("aeq", error_message);
-    return 1;
+  if (NULL != actual_file) {
+    ifs2.open(actual_file, std::ios::in | std::ios::binary);
+    if (ifs2.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << actual_file;
+      sptk::PrintErrorMessage("aeq", error_message);
+      return 1;
+    }
   }
-  std::istream& stream_for_actual(ifs2.fail() ? std::cin : ifs2);
+  std::istream& stream_for_actual(ifs2.is_open() ? ifs2 : std::cin);
 
   double expected;
   double actual;
