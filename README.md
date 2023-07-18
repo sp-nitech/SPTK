@@ -141,7 +141,7 @@ Changes from SPTK3
   - Stability check of LPC coefficients (`lpccheck`)
   - Subband decomposition (`pqmf` and `ipqmf`)
   - WORLD synthesis (`world_synth`)
-  - Windows build support (**only static library**)
+  - Windows build support
 - Obsoleted commands:
   - `acep`, `agcep`, and `amcep` -> `amgcep`
   - `bell`
