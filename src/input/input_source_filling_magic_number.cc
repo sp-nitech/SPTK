@@ -131,12 +131,12 @@ int InputSourceFillingMagicNumber::Proceed() {
     } else if (magic_number_region_[i]) {
       // Interpolate magic numbers.
       double left;
-      if (magic_number_ == final_output_[i]) {
-        left = right;
-      } else if (static_cast<int>(queue_.size()) == magic_number_region_[i]) {
+      if (static_cast<int>(queue_.size()) != magic_number_region_[i]) {
+        left = (*(queue_.rbegin() + magic_number_region_[i]))[i];
+      } else if (magic_number_ != final_output_[i]) {
         left = final_output_[i];
       } else {
-        left = (*(queue_.rbegin() + magic_number_region_[i]))[i];
+        left = right;
       }
       const double slope((left - right) / (magic_number_region_[i] + 1));
       double value(right);
