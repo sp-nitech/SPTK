@@ -33,6 +33,12 @@ teardown() {
     $sptk4/magic_intpl $tmp/1 -magic 0 > $tmp/3
     run $sptk4/aeq $tmp/2 $tmp/3
     [ "$status" -eq 0 ]
+
+    echo 0 9 0 0 2 1 0 0 4 5 0 0 | $sptk3/x2x +ad > $tmp/4
+    echo 2 9 2 5 2 1 3 3 4 5 4 5 | $sptk3/x2x +ad > $tmp/5
+    $sptk4/magic_intpl -l 2 $tmp/4 -magic 0 > $tmp/6
+    run $sptk4/aeq $tmp/5 $tmp/6
+    [ "$status" -eq 0 ]
 }
 
 @test "magic_intpl: valgrind" {
