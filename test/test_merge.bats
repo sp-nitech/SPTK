@@ -52,6 +52,8 @@ teardown() {
 
 @test "merge: valgrind" {
     $sptk3/nrand -l 20 > $tmp/1
-    run valgrind $sptk4/merge +d $tmp/1 $tmp/1 -l 1 -L 1
-    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
+    for q in $(seq 0 1); do
+        run valgrind $sptk4/merge +d -q "$q" $tmp/1 $tmp/1 -l 1 -L 1
+        [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
+    done
 }

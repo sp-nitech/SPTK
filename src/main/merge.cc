@@ -30,9 +30,12 @@
 
 namespace {
 
+enum InputFormats { kNaive = 0, kRecursive, kNumInputFormats };
+
 const int kDefaultInsertPoint(0);
 const int kDefaultFrameLengthOfInputData(25);
 const int kDefaultFrameLengthOfInsertData(10);
+const InputFormats kDefaultInputFormat(kNaive);
 const bool kDefaultOverwriteMode(false);
 const char* kDefaultDataType("d");
 
@@ -49,6 +52,13 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -m m  : order of input data         (   int)[" << std::setw(5) << std::right << "l-1"                           << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -L L  : frame length of insert data (   int)[" << std::setw(5) << std::right << kDefaultFrameLengthOfInsertData << "][ 1 <= L <=   ]" << std::endl;  // NOLINT
   *stream << "       -M M  : order of insert data        (   int)[" << std::setw(5) << std::right << "L-1"                           << "][ 0 <= M <=   ]" << std::endl;  // NOLINT
+  *stream << "       -q q  : input format                (   int)[" << std::setw(5) << std::right << kDefaultInputFormat             << "][ 0 <= q <= 1 ]" << std::endl;  // NOLINT
+  *stream << "                  0 (naive)" << std::endl;
+  *stream << "                      infile: a11 a12 .. a1l  a21 a22 .. a2l  a31 a32 .. a3l  a41 a42 .. a4l" << std::endl;  // NOLINT
+  *stream << "                      file1 : b11 b12 .. b1L  b21 b22 .. b2L  b31 b32 .. b3L  b41 b42 .. b4L" << std::endl;  // NOLINT
+  *stream << "                  1 (recursive)" << std::endl;
+  *stream << "                      infile: a11 a12 .. a1l  a21 a22 .. a2l  a31 a32 .. a3l  a41 a42 .. a4l" << std::endl;  // NOLINT
+  *stream << "                      file1 : b11 b12 .. b1L" << std::endl;
   *stream << "       -w    : overwrite mode              (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultOverwriteMode) << "]" << std::endl;  // NOLINT
   *stream << "       +type : data type                           [" << std::setw(5) << std::right << kDefaultDataType                << "]" << std::endl;  // NOLINT
   *stream << "                 "; sptk::PrintDataType("c", stream); sptk::PrintDataType("C", stream); *stream << std::endl;  // NOLINT
@@ -73,32 +83,56 @@ void PrintUsage(std::ostream* stream) {
 
 class VectorMergeInterface {
  public:
+  class Buffer {
+   public:
+    virtual ~Buffer() {
+    }
+  };
+
   virtual ~VectorMergeInterface() {
   }
 
   virtual bool Run(std::istream* input_stream, std::istream* insert_stream,
-                   bool* all_merged) const = 0;
+                   bool* eof_reached, Buffer* buffer) const = 0;
 };
 
 template <typename T>
 class VectorMerge : public VectorMergeInterface {
  public:
+  class Buffer : public VectorMergeInterface::Buffer {
+   public:
+    Buffer() : first_(true) {
+    }
+
+    ~Buffer() {
+    }
+
+   private:
+    bool first_;
+    std::vector<T> insert_vector_;
+
+    friend class VectorMerge<T>;
+    DISALLOW_COPY_AND_ASSIGN(Buffer);
+  };
+
   VectorMerge(int insert_point, int input_length, int insert_length,
-              bool overwrite_mode)
+              bool recursive, bool overwrite_mode)
       : insert_point_(insert_point),
         input_length_(input_length),
         insert_length_(insert_length),
         merged_length_(overwrite_mode ? input_length_
                                       : input_length_ + insert_length_),
         input_rest_length_(merged_length_ - insert_point_ - insert_length_),
-        input_skip_length_(overwrite_mode ? insert_length_ : 0) {
+        input_skip_length_(overwrite_mode ? insert_length_ : 0),
+        recursive_(recursive) {
   }
 
   ~VectorMerge() {
   }
 
   virtual bool Run(std::istream* input_stream, std::istream* insert_stream,
-                   bool* all_merged) const {
+                   bool* eof_reached,
+                   VectorMergeInterface::Buffer* org_buffer) const {
     std::vector<T> merged_vector(merged_length_);
     for (;;) {
       if (0 < insert_point_) {
@@ -107,9 +141,23 @@ class VectorMerge : public VectorMergeInterface {
           break;
         }
       }
-      if (!sptk::ReadStream(false, 0, insert_point_, insert_length_,
-                            &merged_vector, insert_stream, NULL)) {
-        break;
+      if (recursive_) {
+        VectorMerge::Buffer* buffer(
+            reinterpret_cast<VectorMerge::Buffer*>(org_buffer));
+        if (buffer->first_) {
+          if (!sptk::ReadStream(false, 0, 0, insert_length_,
+                                &buffer->insert_vector_, insert_stream, NULL)) {
+            break;
+          }
+          buffer->first_ = false;
+        }
+        std::copy(buffer->insert_vector_.begin(), buffer->insert_vector_.end(),
+                  merged_vector.begin() + insert_point_);
+      } else {
+        if (!sptk::ReadStream(false, 0, insert_point_, insert_length_,
+                              &merged_vector, insert_stream, NULL)) {
+          break;
+        }
       }
       if (0 < input_rest_length_) {
         if (!sptk::ReadStream(
@@ -124,9 +172,10 @@ class VectorMerge : public VectorMergeInterface {
       }
     }
 
-    if (all_merged) {
-      *all_merged = (input_stream->peek() == std::istream::traits_type::eof() &&
-                     insert_stream->peek() == std::istream::traits_type::eof());
+    if (NULL != eof_reached) {
+      *eof_reached =
+          (input_stream->peek() == std::istream::traits_type::eof() &&
+           insert_stream->peek() == std::istream::traits_type::eof());
     }
     return true;
   }
@@ -138,6 +187,7 @@ class VectorMerge : public VectorMergeInterface {
   const int merged_length_;
   const int input_rest_length_;
   const int input_skip_length_;
+  const bool recursive_;
 
   DISALLOW_COPY_AND_ASSIGN(VectorMerge<T>);
 };
@@ -145,52 +195,67 @@ class VectorMerge : public VectorMergeInterface {
 class VectorMergeWrapper {
  public:
   VectorMergeWrapper(const std::string& data_type, int insert_point,
-                     int input_length, int insert_length, bool overwrite_mode)
-      : merge_(NULL) {
+                     int input_length, int insert_length, bool recursive,
+                     bool overwrite_mode)
+      : merge_(NULL), buffer_(NULL) {
     if ("c" == data_type) {
-      merge_ = new VectorMerge<int8_t>(insert_point, input_length,
-                                       insert_length, overwrite_mode);
+      merge_ = new VectorMerge<int8_t>(
+          insert_point, input_length, insert_length, recursive, overwrite_mode);
+      buffer_ = new VectorMerge<int8_t>::Buffer();
     } else if ("s" == data_type) {
-      merge_ = new VectorMerge<int16_t>(insert_point, input_length,
-                                        insert_length, overwrite_mode);
+      merge_ = new VectorMerge<int16_t>(
+          insert_point, input_length, insert_length, recursive, overwrite_mode);
+      buffer_ = new VectorMerge<int16_t>::Buffer();
     } else if ("h" == data_type) {
-      merge_ = new VectorMerge<sptk::int24_t>(insert_point, input_length,
-                                              insert_length, overwrite_mode);
+      merge_ = new VectorMerge<sptk::int24_t>(
+          insert_point, input_length, insert_length, recursive, overwrite_mode);
+      buffer_ = new VectorMerge<sptk::int24_t>::Buffer();
     } else if ("i" == data_type) {
-      merge_ = new VectorMerge<int32_t>(insert_point, input_length,
-                                        insert_length, overwrite_mode);
+      merge_ = new VectorMerge<int32_t>(
+          insert_point, input_length, insert_length, recursive, overwrite_mode);
+      buffer_ = new VectorMerge<int32_t>::Buffer();
     } else if ("l" == data_type) {
-      merge_ = new VectorMerge<int64_t>(insert_point, input_length,
-                                        insert_length, overwrite_mode);
+      merge_ = new VectorMerge<int64_t>(
+          insert_point, input_length, insert_length, recursive, overwrite_mode);
+      buffer_ = new VectorMerge<int64_t>::Buffer();
     } else if ("C" == data_type) {
-      merge_ = new VectorMerge<uint8_t>(insert_point, input_length,
-                                        insert_length, overwrite_mode);
+      merge_ = new VectorMerge<uint8_t>(
+          insert_point, input_length, insert_length, recursive, overwrite_mode);
+      buffer_ = new VectorMerge<uint8_t>::Buffer();
     } else if ("S" == data_type) {
-      merge_ = new VectorMerge<uint16_t>(insert_point, input_length,
-                                         insert_length, overwrite_mode);
+      merge_ = new VectorMerge<uint16_t>(
+          insert_point, input_length, insert_length, recursive, overwrite_mode);
+      buffer_ = new VectorMerge<uint16_t>::Buffer();
     } else if ("H" == data_type) {
-      merge_ = new VectorMerge<sptk::uint24_t>(insert_point, input_length,
-                                               insert_length, overwrite_mode);
+      merge_ = new VectorMerge<sptk::uint24_t>(
+          insert_point, input_length, insert_length, recursive, overwrite_mode);
+      buffer_ = new VectorMerge<sptk::uint24_t>::Buffer();
     } else if ("I" == data_type) {
-      merge_ = new VectorMerge<uint32_t>(insert_point, input_length,
-                                         insert_length, overwrite_mode);
+      merge_ = new VectorMerge<uint32_t>(
+          insert_point, input_length, insert_length, recursive, overwrite_mode);
+      buffer_ = new VectorMerge<uint32_t>::Buffer();
     } else if ("L" == data_type) {
-      merge_ = new VectorMerge<uint64_t>(insert_point, input_length,
-                                         insert_length, overwrite_mode);
+      merge_ = new VectorMerge<uint64_t>(
+          insert_point, input_length, insert_length, recursive, overwrite_mode);
+      buffer_ = new VectorMerge<uint64_t>::Buffer();
     } else if ("f" == data_type) {
       merge_ = new VectorMerge<float>(insert_point, input_length, insert_length,
-                                      overwrite_mode);
+                                      recursive, overwrite_mode);
+      buffer_ = new VectorMerge<float>::Buffer();
     } else if ("d" == data_type) {
-      merge_ = new VectorMerge<double>(insert_point, input_length,
-                                       insert_length, overwrite_mode);
+      merge_ = new VectorMerge<double>(
+          insert_point, input_length, insert_length, recursive, overwrite_mode);
+      buffer_ = new VectorMerge<double>::Buffer();
     } else if ("e" == data_type) {
-      merge_ = new VectorMerge<long double>(insert_point, input_length,
-                                            insert_length, overwrite_mode);
+      merge_ = new VectorMerge<long double>(
+          insert_point, input_length, insert_length, recursive, overwrite_mode);
+      buffer_ = new VectorMerge<long double>::Buffer();
     }
   }
 
   ~VectorMergeWrapper() {
     delete merge_;
+    delete buffer_;
   }
 
   bool IsValid() const {
@@ -198,12 +263,14 @@ class VectorMergeWrapper {
   }
 
   bool Run(std::istream* input_stream, std::istream* insert_stream,
-           bool* all_merged) const {
-    return IsValid() && merge_->Run(input_stream, insert_stream, all_merged);
+           bool* eof_reached) const {
+    return IsValid() &&
+           merge_->Run(input_stream, insert_stream, eof_reached, buffer_);
   }
 
  private:
   VectorMergeInterface* merge_;
+  VectorMergeInterface::Buffer* buffer_;
 
   DISALLOW_COPY_AND_ASSIGN(VectorMergeWrapper);
 };
@@ -223,6 +290,10 @@ class VectorMergeWrapper {
  *   - frame length of output data @f$(1 \le L_2)@f$
  * - @b -M @e int
  *   - order of output data @f$(0 \le L_2 - 1)@f$
+ * - @b -q @e int
+ *   - input format
+ *     \arg @c 0 naive
+ *     \arg @c 1 recursive
  * - @b -w
  *   - overwrite mode
  * - @b +type @e char
@@ -278,11 +349,13 @@ int main(int argc, char* argv[]) {
   int insert_point(kDefaultInsertPoint);
   int input_length(kDefaultFrameLengthOfInputData);
   int insert_length(kDefaultFrameLengthOfInsertData);
+  InputFormats input_format(kDefaultInputFormat);
   bool overwrite_mode(kDefaultOverwriteMode);
   std::string data_type(kDefaultDataType);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "s:l:m:L:M:wh", NULL, NULL));
+    const int option_char(
+        getopt_long(argc, argv, "s:l:m:L:M:q:wh", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -341,6 +414,21 @@ int main(int argc, char* argv[]) {
           return 1;
         }
         ++insert_length;
+        break;
+      }
+      case 'q': {
+        const int min(0);
+        const int max(static_cast<int>(kNumInputFormats) - 1);
+        int tmp;
+        if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
+            !sptk::IsInRange(tmp, min, max)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -q option must be an integer "
+                        << "in the range of " << min << " to " << max;
+          sptk::PrintErrorMessage("merge", error_message);
+          return 1;
+        }
+        input_format = static_cast<InputFormats>(tmp);
         break;
       }
       case 'w': {
@@ -429,7 +517,7 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs2.is_open() ? ifs2 : std::cin);
 
   VectorMergeWrapper merge(data_type, insert_point, input_length, insert_length,
-                           overwrite_mode);
+                           kRecursive == input_format, overwrite_mode);
 
   if (!merge.IsValid()) {
     std::ostringstream error_message;
