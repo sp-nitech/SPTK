@@ -14,14 +14,15 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <cstdint>   // int8_t, int16_t, int32_t, int64_t, etc.
-#include <cstring>   // std::strncmp
-#include <fstream>   // std::ifstream
-#include <iomanip>   // std::setw
-#include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
-#include <sstream>   // std::ostringstream
-#include <string>    // std::string
-#include <vector>    // std::vector
+#include <algorithm>  // std::copy
+#include <cstdint>    // int8_t, int16_t, int32_t, int64_t, etc.
+#include <cstring>    // std::strncmp
+#include <fstream>    // std::ifstream
+#include <iomanip>    // std::setw
+#include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>    // std::ostringstream
+#include <string>     // std::string
+#include <vector>     // std::vector
 
 #include "GETOPT/ya_getopt.h"
 #include "SPTK/utils/int24_t.h"
@@ -132,7 +133,7 @@ class VectorMerge : public VectorMergeInterface {
 
   virtual bool Run(std::istream* input_stream, std::istream* insert_stream,
                    bool* eof_reached,
-                   VectorMergeInterface::Buffer* org_buffer) const {
+                   VectorMergeInterface::Buffer* buffer) const {
     std::vector<T> merged_vector(merged_length_);
     for (;;) {
       if (0 < insert_point_) {
@@ -142,16 +143,21 @@ class VectorMerge : public VectorMergeInterface {
         }
       }
       if (recursive_) {
-        VectorMerge::Buffer* buffer(
-            reinterpret_cast<VectorMerge::Buffer*>(org_buffer));
-        if (buffer->first_) {
+        if (NULL == buffer) {
+          return false;
+        }
+        VectorMerge::Buffer* tmp_buffer(
+            reinterpret_cast<VectorMerge::Buffer*>(buffer));
+        if (tmp_buffer->first_) {
           if (!sptk::ReadStream(false, 0, 0, insert_length_,
-                                &buffer->insert_vector_, insert_stream, NULL)) {
+                                &tmp_buffer->insert_vector_, insert_stream,
+                                NULL)) {
             break;
           }
-          buffer->first_ = false;
+          tmp_buffer->first_ = false;
         }
-        std::copy(buffer->insert_vector_.begin(), buffer->insert_vector_.end(),
+        std::copy(tmp_buffer->insert_vector_.begin(),
+                  tmp_buffer->insert_vector_.end(),
                   merged_vector.begin() + insert_point_);
       } else {
         if (!sptk::ReadStream(false, 0, insert_point_, insert_length_,
