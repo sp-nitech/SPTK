@@ -182,7 +182,7 @@ class VectorMergeWrapper {
  public:
   VectorMergeWrapper(const std::string& data_type, int insert_point,
                      int input_length, int insert_length, bool recursive,
-                     bool overwrite_mode, std::istream* insert_stream = NULL)
+                     bool overwrite_mode, std::istream* insert_stream)
       : merge_(NULL) {
     if ("c" == data_type) {
       merge_ =
