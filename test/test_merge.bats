@@ -47,7 +47,23 @@ teardown() {
             $sptk3/x2x +"${ary1[$t]}"d > $tmp/4
         run $sptk4/aeq -L $tmp/3 $tmp/4
         [ "$status" -eq 0 ]
+
+        $sptk3/merge +"${ary1[$t]}" $tmp/1 $tmp/2 -s 2 -l 6 -L 4 -o |
+            $sptk3/x2x +"${ary1[$t]}"d > $tmp/3
+        $sptk4/merge +"${ary2[$t]}" $tmp/1 $tmp/2 -s 2 -l 6 -L 4 -w |
+            $sptk3/x2x +"${ary1[$t]}"d > $tmp/4
+        run $sptk4/aeq -L $tmp/3 $tmp/4
+        [ "$status" -eq 0 ]
     done
+}
+
+@test "merge: recursive" {
+    echo 4 | $sptk3/x2x +ad > $tmp/1
+    echo 1 1 2 2 3 3 | $sptk3/x2x +ad > $tmp/2
+    $sptk4/merge +d $tmp/1 $tmp/2 -q 1 -s 0 -l 2 -L 1 > $tmp/3
+    echo 4 1 1 4 2 2 4 3 3 | $sptk3/x2x +ad > $tmp/4
+    run $sptk4/aeq $tmp/3 $tmp/4
+    [ "$status" -eq 0 ]
 }
 
 @test "merge: valgrind" {

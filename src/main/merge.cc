@@ -105,11 +105,10 @@ class VectorMerge : public VectorMergeInterface {
         input_rest_length_(merged_length_ - insert_point_ - insert_length_),
         input_skip_length_(overwrite_mode ? insert_length_ : 0),
         recursive_(recursive),
-        is_valid_(true) {
-    if (recursive_ && !sptk::ReadStream(false, 0, 0, insert_length_,
-                                        &insert_vector_, insert_stream, NULL)) {
-      is_valid_ = false;
-      return;
+        has_vector_(false) {
+    if (recursive_ && sptk::ReadStream(false, 0, 0, insert_length_,
+                                       &insert_vector_, insert_stream, NULL)) {
+      has_vector_ = true;
     }
   }
 
@@ -118,10 +117,12 @@ class VectorMerge : public VectorMergeInterface {
 
   virtual bool Run(std::istream* input_stream, std::istream* insert_stream,
                    bool* eof_reached) const {
-    if (!is_valid_) {
-      return false;
+    if (recursive_ && !has_vector_) {
+      return true;
     }
+
     std::vector<T> merged_vector(merged_length_);
+    std::vector<T> garbage(input_skip_length_);
     for (;;) {
       if (0 < insert_point_) {
         if (!sptk::ReadStream(false, 0, 0, insert_point_, &merged_vector,
@@ -140,6 +141,11 @@ class VectorMerge : public VectorMergeInterface {
         if (!sptk::ReadStream(
                 false, input_skip_length_, insert_point_ + insert_length_,
                 input_rest_length_, &merged_vector, input_stream, NULL)) {
+          break;
+        }
+      } else if (0 < input_skip_length_) {
+        if (!sptk::ReadStream(false, 0, 0, input_skip_length_, &garbage,
+                              input_stream, NULL)) {
           break;
         }
       }
@@ -166,7 +172,7 @@ class VectorMerge : public VectorMergeInterface {
   const int input_skip_length_;
   const bool recursive_;
 
-  bool is_valid_;
+  bool has_vector_;
   std::vector<T> insert_vector_;
 
   DISALLOW_COPY_AND_ASSIGN(VectorMerge<T>);
