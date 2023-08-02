@@ -47,11 +47,29 @@ teardown() {
             $sptk3/x2x +"${ary1[$t]}"d > $tmp/4
         run $sptk4/aeq -L $tmp/3 $tmp/4
         [ "$status" -eq 0 ]
+
+        $sptk3/merge +"${ary1[$t]}" $tmp/1 $tmp/2 -s 2 -l 6 -L 4 -o |
+            $sptk3/x2x +"${ary1[$t]}"d > $tmp/3
+        $sptk4/merge +"${ary2[$t]}" $tmp/1 $tmp/2 -s 2 -l 6 -L 4 -w |
+            $sptk3/x2x +"${ary1[$t]}"d > $tmp/4
+        run $sptk4/aeq -L $tmp/3 $tmp/4
+        [ "$status" -eq 0 ]
     done
+}
+
+@test "merge: recursive" {
+    echo 4 | $sptk3/x2x +ad > $tmp/1
+    echo 1 1 2 2 3 3 | $sptk3/x2x +ad > $tmp/2
+    $sptk4/merge +d $tmp/1 $tmp/2 -q 1 -s 0 -l 2 -L 1 > $tmp/3
+    echo 4 1 1 4 2 2 4 3 3 | $sptk3/x2x +ad > $tmp/4
+    run $sptk4/aeq $tmp/3 $tmp/4
+    [ "$status" -eq 0 ]
 }
 
 @test "merge: valgrind" {
     $sptk3/nrand -l 20 > $tmp/1
-    run valgrind $sptk4/merge +d $tmp/1 $tmp/1 -l 1 -L 1
-    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
+    for q in $(seq 0 1); do
+        run valgrind $sptk4/merge +d -q "$q" $tmp/1 $tmp/1 -l 1 -L 1
+        [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
+    done
 }
