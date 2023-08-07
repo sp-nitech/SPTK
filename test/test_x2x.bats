@@ -44,6 +44,13 @@ teardown() {
     done
 }
 
+@test "x2x: rounding" {
+    echo -0.5 0.5 | $sptk3/x2x +ai -r > $tmp/1
+    echo -0.5 0.5 | $sptk4/x2x +ai -r > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
+    [ "$status" -eq 0 ]
+}
+
 @test "x2x: valgrind" {
     $sptk3/nrand -l 20 > $tmp/1
     run valgrind $sptk4/x2x +da $tmp/1

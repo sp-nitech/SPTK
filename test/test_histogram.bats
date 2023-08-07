@@ -36,6 +36,15 @@ teardown() {
     $sptk3/ramp -l 10 | $sptk4/histogram -l 0 -u 9 -b 4 > $tmp/2
     run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
+
+    cmd="import numpy as np; "
+    cmd+="h, e = np.histogram(np.arange(10), bins=4, range=(0, 9), density=True); "
+    cmd+="h *= np.diff(e); "
+    cmd+="print(' '.join(map(str, h)))"
+    tools/venv/bin/python -c "${cmd}" | $sptk3/x2x +ad > $tmp/3
+    $sptk3/ramp -l 10 | $sptk4/histogram -l 0 -u 9 -b 4 -n > $tmp/4
+    run $sptk4/aeq $tmp/3 $tmp/4
+    [ "$status" -eq 0 ]
 }
 
 @test "histogram: valgrind" {

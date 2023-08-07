@@ -61,8 +61,8 @@ teardown() {
 }
 
 @test "amgcep: compatibility (a = 0, c = 0)" {
-    $sptk3/nrand -l 20 | $sptk3/acep -m 3 -k 0.2 -p 2 > $tmp/1
-    $sptk3/nrand -l 20 | $sptk4/amgcep -m 3 -c 0 -a 0 -s 0.2 -p 2 > $tmp/2
+    $sptk3/nrand -l 20 | $sptk3/acep -m 3 -k 0.2 -t 0.8 -l 0.9 -p 2 > $tmp/1
+    $sptk3/nrand -l 20 | $sptk4/amgcep -m 3 -c 0 -a 0 -s 0.2 -t 0.8 -l 0.9 -p 2 > $tmp/2
     run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }

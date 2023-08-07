@@ -91,8 +91,8 @@ void PrintUsage(std::ostream* stream) {
 
 }  // namespace
 
-/*
- * @a world_synth [ @e option ] @e f0file @e spfile @e apfile
+/**
+ * @a world_synth [ @e option ] @e spfile @e apfile [ @e f0file ]
  *
  * - @b -l @e int
  *   - FFT length

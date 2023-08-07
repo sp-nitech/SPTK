@@ -32,9 +32,9 @@ teardown() {
     # signal energy before windowing whereas SPTK4 calculates one after
     # windowing.
     $sptk3/nrand -l 16 |
-        $sptk3/mfcc -a 0 -c 10 -e 1 -l 8 -L 8 -w 1 -n 6 -m 3 -E -0 > $tmp/1
+        $sptk3/mfcc -a 0 -c 10 -e 1 -l 8 -L 8 -w 1 -n 6 -m 3 -E -0 -s 8 > $tmp/1
     $sptk3/nrand -l 16 |
-        $sptk4/mfcc -c 10 -e 1 -l 8 -n 6 -m 3 -o 3 > $tmp/2
+        $sptk4/mfcc -c 10 -e 1 -l 8 -n 6 -m 3 -o 3 -s 8 > $tmp/2
     run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }

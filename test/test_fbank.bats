@@ -29,9 +29,9 @@ teardown() {
 
 @test "fbank: compatibility" {
     $sptk3/nrand -l 16 |
-        $sptk3/mfcc -a 0 -c 0 -e 1 -l 8 -L 8 -w 1 -n 4 -m 3 > $tmp/1
+        $sptk3/mfcc -a 0 -c 0 -e 1 -l 8 -L 8 -w 1 -n 4 -m 3 -s 8 > $tmp/1
     $sptk3/nrand -l 16 |
-        $sptk4/fbank -l 8 -n 4 -e 1 |
+        $sptk4/fbank -l 8 -n 4 -e 1 -s 8 |
         $sptk3/dct -l 4 |
         $sptk3/bcp -l 4 -s 1 +d > $tmp/2
     run $sptk4/aeq $tmp/1 $tmp/2

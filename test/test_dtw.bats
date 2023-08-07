@@ -34,12 +34,18 @@ teardown() {
     for d in $(seq 0 1); do
         for p in $(seq 0 6); do
             $sptk3/dtw -l 2 -p $((p + 1)) -n $((d + 1)) \
-                       $tmp/0_r $tmp/0_q -s $tmp/1_s > $tmp/1
+                       $tmp/0_r $tmp/0_q -s $tmp/1_s -v $tmp/1_v > $tmp/1
             $sptk4/dtw -l 2 -p "$p" -d "$d" \
-                       $tmp/0_r $tmp/0_q -S $tmp/2_s > $tmp/2
+                       $tmp/0_r $tmp/0_q -S $tmp/2_s -P $tmp/2_v > $tmp/2
             run $sptk4/aeq $tmp/1 $tmp/2
             [ "$status" -eq 0 ]
+
             run $sptk4/aeq $tmp/1_s $tmp/2_s
+            [ "$status" -eq 0 ]
+
+            $sptk3/x2x +id $tmp/1_v > $tmp/1_p
+            $sptk3/x2x +id $tmp/2_v > $tmp/2_p
+            run $sptk4/aeq $tmp/1_p $tmp/2_p
             [ "$status" -eq 0 ]
         done
     done
