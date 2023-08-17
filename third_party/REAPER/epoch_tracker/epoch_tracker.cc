@@ -1194,6 +1194,11 @@ bool EpochTracker::ResampleAndReturnResults(float resample_interval,
   for (int32_t i = limit; i >= 0; --i) {
     int32_t frame = RoundUp(output_[i].resid_index /
                             (sample_rate_ * resample_interval));
+#if 1
+    if (frame >= n_frames) {
+      frame = n_frames - 1;
+    }
+#endif
     (*f0)[frame] = output_[i].f0;
     (*correlations)[frame] = output_[i].nccf_value;
     if ((frame - prev_frame) > 1) {
