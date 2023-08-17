@@ -2489,7 +2489,8 @@ cGet_f0(const std::vector<double> &waveform, int frame_shift,
   float *tmp = (float *)ckalloc(sizeof(float) * (5 + sound->length / 80));
 #else
   long sound_length = static_cast<long>(waveform.size());
-  float *tmp = (float *)ckalloc(sizeof(float) * (5 + sound_length / frame_shift));
+  int tmp_length = 5 + sound_length / frame_shift;
+  float *tmp = (float *)ckalloc(sizeof(float) * tmp_length);
   float *buf;
   double fsp, noise, noise_sdev = 50.0;
   int alpha, beta, pad_length, total_length;
@@ -2653,7 +2654,11 @@ cGet_f0(const std::vector<double> &waveform, int frame_shift,
 #endif
     }
     /*if (sound->debug > 0) Snack_WriteLogInt("done dp_f0",vecsize);*/
+#if 0
     for (i = vecsize - 1; i >= 0; i--) {
+#else
+    for (i = std::min(count + vecsize, tmp_length) - count - 1; i >= 0; i--) {
+#endif
       tmp[count] = f0p[i];
       count++;
     }
