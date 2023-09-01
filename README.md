@@ -220,7 +220,8 @@ Reference
 @InProceedings{sp-nitech2023sptk,
   author = {Takenori Yoshimura and Takato Fujimoto and Keiichiro Oura and Keiichi Tokuda},
   title = {{SPTK4}: An open-source software toolkit for speech signal processing},
-  booktitle = {12th ISCA Workshop on Speech Synthesis (SSW 12)},
+  booktitle = {12th ISCASpeech Synthesis Workshop (SSW 2023)},
+  pages = {211--217},
   year = {2023},
 }
 ```
