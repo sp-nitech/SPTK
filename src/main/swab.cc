@@ -314,7 +314,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  if (end_address < start_address) {
+  if (kMagicNumberForEnd != end_address && end_address < start_address) {
     std::ostringstream error_message;
     error_message << "End address must be equal to or greater than "
                   << "start address";
@@ -322,7 +322,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  if (end_offset < start_offset) {
+  if (kMagicNumberForEnd != end_offset && end_offset < start_offset) {
     std::ostringstream error_message;
     error_message << "End offset number must be equal to or greater than "
                   << "start offset number";
