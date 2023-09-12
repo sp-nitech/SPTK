@@ -15,7 +15,6 @@
 // ------------------------------------------------------------------------ //
 
 #include <algorithm>  // std::reverse
-#include <climits>    // INT_MAX
 #include <cstdint>    // int16_t, int32_t, int64_t, etc.
 #include <cstring>    // std::strncmp
 #include <fstream>    // std::ifstream
@@ -31,10 +30,11 @@
 
 namespace {
 
+const int kMagicNumberForEnd(-1);
 const int kDefaultStartAddress(0);
 const int kDefaultStartOffset(0);
-const int kDefaultEndAddress(INT_MAX);
-const int kDefaultEndOffset(INT_MAX);
+const int kDefaultEndAddress(kMagicNumberForEnd);
+const int kDefaultEndOffset(kMagicNumberForEnd);
 const char* kDefaultDataType("s");
 
 void PrintUsage(std::ostream* stream) {
@@ -109,8 +109,9 @@ class ByteSwap : public ByteSwapInterface {
     // Swap data.
     T data;
     for (int address(skip_size), offset(start_offset_);
-         ((address <= end_address_) && (offset <= end_offset_) &&
-          sptk::ReadStream(&data, input_stream));
+         (kMagicNumberForEnd == end_address_ || address <= end_address_) &&
+         (kMagicNumberForEnd == end_offset_ || offset <= end_offset_) &&
+         sptk::ReadStream(&data, input_stream);
          address += data_size, ++offset) {
       unsigned char* p(reinterpret_cast<unsigned char*>(&data));
       std::reverse(p, p + data_size);
