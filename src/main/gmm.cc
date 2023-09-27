@@ -14,7 +14,7 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <fstream>   // std::ifstream
+#include <fstream>   // std::ifstream, std::ofstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
