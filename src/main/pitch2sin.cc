@@ -79,7 +79,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b stdout
  *   - sinudoisal sequence
  *
- * The below is a simple example to generate sinusoidal from @c data.d
+ * The below is a simple example to generate sinusoidal from @c data.d.
  *
  * @code{.sh}
  *   pitch -s 16 -p 80 -o 0 < data.d | pitch2sin -p 80 > data.sin
