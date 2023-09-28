@@ -120,6 +120,7 @@ Changes from SPTK3
 - **Input and output types are changed to double from float**
 - Signal processing classes are written in C++ instead of C
 - Drawing commands are implemented in Python
+- Some option names
 - No memory leaks
 - Thread-safe
 - New features:
@@ -137,6 +138,7 @@ Changes from SPTK3
   - Pitch extraction by DIO used in WORLD (`pitch -a 3`)
   - Pole-zero plot (`gpolezero`)
   - Scalar quantization (`quantize` and `dequantize`)
+  - Sinusoidal generation from pitch (`pitch2sin`)
   - Spectrogram plot (`gspecgram`)
   - Stability check of LPC coefficients (`lpccheck`)
   - Subband decomposition (`pqmf` and `ipqmf`)
