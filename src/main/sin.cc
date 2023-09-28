@@ -24,10 +24,12 @@
 
 namespace {
 
+enum OutputFormats { kSine = 0, kCosine, kNumOutputFormats };
+
 const int kMagicNumberForInfinity(-1);
 const double kDefaultPeriod(10.0);
 const double kDefaultAmplitude(1.0);
-const bool kDefaultCosineWaveFlag(false);
+const OutputFormats kDefaultOutputFormat(kSine);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -37,11 +39,13 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       sin [ options ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l  : output length      (   int)[" << std::setw(5) << std::right << "INF"             << "][   1 <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -m m  : output order       (   int)[" << std::setw(5) << std::right << "l-1"             << "][   0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -p p  : period             (double)[" << std::setw(5) << std::right << kDefaultPeriod    << "][ 0.0 <  p <=   ]" << std::endl;  // NOLINT
-  *stream << "       -a a  : amplitude          (double)[" << std::setw(5) << std::right << kDefaultAmplitude << "][     <= a <=   ]" << std::endl;  // NOLINT
-  *stream << "       -C    : cosine wave        (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultCosineWaveFlag) << "]" << std::endl;  // NOLINT
+  *stream << "       -l l  : output length      (   int)[" << std::setw(5) << std::right << "INF"                << "][   1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : output order       (   int)[" << std::setw(5) << std::right << "l-1"                << "][   0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -p p  : period             (double)[" << std::setw(5) << std::right << kDefaultPeriod       << "][ 0.0 <  p <=   ]" << std::endl;  // NOLINT
+  *stream << "       -a a  : amplitude          (double)[" << std::setw(5) << std::right << kDefaultAmplitude    << "][     <= a <=   ]" << std::endl;  // NOLINT
+  *stream << "       -o o  : output format      (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat << "][   0 <= o <= 1 ]" << std::endl;  // NOLINT
+  *stream << "                 0 (sine)" << std::endl;
+  *stream << "                 1 (cosine)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  stdout:" << std::endl;
   *stream << "       sinusoidal sequence        (double)" << std::endl;
@@ -64,8 +68,10 @@ void PrintUsage(std::ostream* stream) {
  *   - period @f$(0 < P)@f$
  * - @b -a @e double
  *   - amplitude @f$(A)@f$
- * - @b -C
- *   - generate cosine wave
+ * - @b -o @e int
+ *   - output format
+ *     \arg @c 0 sine
+ *     \arg @c 1 cosine
  * - @b stdout
  *   - double-type sinusoidal sequence
  *
@@ -89,10 +95,10 @@ int main(int argc, char* argv[]) {
   int output_length(kMagicNumberForInfinity);
   double period(kDefaultPeriod);
   double amplitude(kDefaultAmplitude);
-  bool cosine_wave(kDefaultCosineWaveFlag);
+  OutputFormats output_format(kDefaultOutputFormat);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:m:p:a:Ch", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:p:a:o:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -138,8 +144,19 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      case 'C': {
-        cosine_wave = true;
+      case 'o': {
+        const int min(0);
+        const int max(static_cast<int>(kNumOutputFormats) - 1);
+        int tmp;
+        if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
+            !sptk::IsInRange(tmp, min, max)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -o option must be an integer "
+                        << "in the range of " << min << " to " << max;
+          sptk::PrintErrorMessage("sin", error_message);
+          return 1;
+        }
+        output_format = static_cast<OutputFormats>(tmp);
         break;
       }
       case 'h': {
@@ -170,8 +187,20 @@ int main(int argc, char* argv[]) {
   const double omega(sptk::kTwoPi / period);
   for (int i(0); kMagicNumberForInfinity == output_length || i < output_length;
        ++i) {
-    const double output(cosine_wave ? amplitude * std::cos(omega * i)
-                                    : amplitude * std::sin(omega * i));
+    double output;
+    switch (output_format) {
+      case kSine: {
+        output = amplitude * std::sin(omega * i);
+        break;
+      }
+      case kCosine: {
+        output = amplitude * std::cos(omega * i);
+        break;
+      }
+      default: {
+        return 1;
+      }
+    }
     if (!sptk::WriteStream(output, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write sinusoidal sequence";
