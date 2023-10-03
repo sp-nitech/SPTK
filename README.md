@@ -138,7 +138,7 @@ Changes from SPTK3
   - Pitch extraction by DIO used in WORLD (`pitch -a 3`)
   - Pole-zero plot (`gpolezero`)
   - Scalar quantization (`quantize` and `dequantize`)
-  - Sinusoidal generation from pitch (`pitch2sin`)
+  - Sinusoidal generation from pitch or GCI (`pitch2sin`, `pitch_mark2sin`)
   - Spectrogram plot (`gspecgram`)
   - Stability check of LPC coefficients (`lpccheck`)
   - Subband decomposition (`pqmf` and `ipqmf`)

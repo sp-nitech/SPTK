@@ -59,6 +59,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 0 (binary sequence)" << std::endl;
   *stream << "                 1 (position in seconds)" << std::endl;
   *stream << "                 2 (position in samples)" << std::endl;
+  *stream << "       -V V  : output filename of double     (string)[" << std::setw(5) << std::right << "N/A"                    << "]" << std::endl;  // NOLINT
+  *stream << "               type vuv symbol" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       waveform                              (double)[stdin]" << std::endl;  // NOLINT
@@ -92,6 +94,8 @@ void PrintUsage(std::ostream* stream) {
  *     @arg @c 0 binary sequence
  *     @arg @c 1 position in seconds
  *     @arg @c 2 position in samples
+ * - @b -V @e str
+ *   - double-type voiced/unvoiced symbol
  * - @b infile @e str
  *   - double-type waveform
  * - @b stdout
@@ -115,9 +119,10 @@ int main(int argc, char* argv[]) {
   double upper_f0(kDefaultUpperF0);
   double voicing_threshold(kDefaultVoicingThreshold);
   OutputFormats output_format(kDefaultOutputFormat);
+  const char* vuv_file(NULL);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "s:L:H:t:o:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "s:L:H:t:o:V:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -180,6 +185,10 @@ int main(int argc, char* argv[]) {
         output_format = static_cast<OutputFormats>(tmp);
         break;
       }
+      case 'V': {
+        vuv_file = optarg;
+        break;
+      }
       case 'h': {
         PrintUsage(&std::cout);
         return 0;
@@ -235,6 +244,18 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.is_open() ? ifs : std::cin);
 
+  std::ofstream ofs;
+  if (NULL != vuv_file) {
+    ofs.open(vuv_file, std::ios::out | std::ios::binary);
+    if (ofs.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << vuv_file;
+      sptk::PrintErrorMessage("pitch_mark", error_message);
+      return 1;
+    }
+  }
+  std::ostream& output_stream(ofs);
+
   sptk::PitchExtraction pitch_extraction(
       1, sampling_rate_in_hz, lower_f0, upper_f0, voicing_threshold,
       sptk::PitchExtraction::Algorithms::kReaper);
@@ -254,9 +275,11 @@ int main(int argc, char* argv[]) {
   }
   if (waveform.empty()) return 0;
 
+  std::vector<double> f0;
   std::vector<double> pitch_mark;
   sptk::PitchExtractionInterface::Polarity polarity;
-  if (!pitch_extraction.Run(waveform, NULL, &pitch_mark, &polarity)) {
+  if (!pitch_extraction.Run(waveform, vuv_file ? &f0 : NULL, &pitch_mark,
+                            &polarity)) {
     std::ostringstream error_message;
     error_message << "Failed to extract pitch mark";
     sptk::PrintErrorMessage("pitch_mark", error_message);
@@ -321,6 +344,19 @@ int main(int argc, char* argv[]) {
     }
     default: {
       break;
+    }
+  }
+
+  if (NULL != vuv_file) {
+    for (std::vector<double>::const_iterator itr(f0.begin()); itr != f0.end();
+         ++itr) {
+      const double vuv(0.0 < *itr);
+      if (!sptk::WriteStream(vuv, &output_stream)) {
+        std::ostringstream error_message;
+        error_message << "Failed to write vuv symbol";
+        sptk::PrintErrorMessage("pitch_mark", error_message);
+        return 1;
+      }
     }
   }
 

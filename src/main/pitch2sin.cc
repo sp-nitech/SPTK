@@ -79,9 +79,9 @@ void PrintUsage(std::ostream* stream) {
  * - @b -V @e str
  *   - double-type voiced/unvoiced symbol
  * - @b infile @e str
- *   - pitch period
+ *   - double-type pitch period
  * - @b stdout
- *   - sinudoisal sequence
+ *   - double-type sinudoisal sequence
  *
  * The below is a simple example to generate sinusoidal from @c data.d.
  *

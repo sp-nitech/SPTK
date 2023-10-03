@@ -355,6 +355,7 @@ set(MAIN_SOURCES
   ${SOURCE_DIR}/main/pitch.cc
   ${SOURCE_DIR}/main/pitch2sin.cc
   ${SOURCE_DIR}/main/pitch_mark.cc
+  ${SOURCE_DIR}/main/pitch_mark2sin.cc
   ${SOURCE_DIR}/main/pitch_spec.cc
   ${SOURCE_DIR}/main/poledf.cc
   ${SOURCE_DIR}/main/pqmf.cc
