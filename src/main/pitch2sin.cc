@@ -81,7 +81,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b infile @e str
  *   - double-type pitch period
  * - @b stdout
- *   - double-type sinudoisal sequence
+ *   - double-type sinusoidal sequence
  *
  * The below is a simple example to generate sinusoidal from @c data.d.
  *
