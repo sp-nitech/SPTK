@@ -85,9 +85,9 @@ void PrintUsage(std::ostream* stream) {
  * - @b -s @e int
  *   - seed for random number generation
  * - @b infile @e str
- *   - pitch period
+ *   - double-type pitch period
  * - @b stdout
- *   - excitation
+ *   - double-type excitation
  *
  * This command generates an excitation sequence from the pitch period in
  * @c infile (or standard input), and sends the result to standard output.

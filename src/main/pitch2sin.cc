@@ -14,7 +14,7 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <fstream>   // std::ifstream, std::ofstream
+#include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>   // std::ostringstream
@@ -32,6 +32,7 @@ enum OutputFormats { kSine = 0, kCosine, kNumOutputFormats };
 const int kDefaultFramePeriod(100);
 const int kDefaultInterpolationPeriod(1);
 const OutputFormats kDefaultOutputFormat(kSine);
+const bool kDefaultStrictFlag(false);
 const double kMagicNumberForUnvoicedFrame(0.0);
 
 void PrintUsage(std::ostream* stream) {
@@ -47,8 +48,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -o o  : output format        (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat        << "][ 0 <= o <= 1   ]" << std::endl;  // NOLINT
   *stream << "                 0 (sine)" << std::endl;
   *stream << "                 1 (cosine)" << std::endl;
-  *stream << "       -V V  : output filename of   (string)[" << std::setw(5) << std::right << "N/A"                       << "]" << std::endl;  // NOLINT
-  *stream << "               double type vuv" << std::endl;
+  *stream << "       -s    : strictly drop signal (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultStrictFlag) << "]" << std::endl;  // NOLINT
+  *stream << "               in unvoiced region" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       pitch period                 (double)[stdin]" << std::endl;
@@ -76,12 +77,12 @@ void PrintUsage(std::ostream* stream) {
  *   - output format
  *     \arg @c 0 sine
  *     \arg @c 1 cosine
- * - @b -V @e str
- *   - double-type voiced/unvoiced symbol
+ * - @b -s
+ *   - strictly drop sinusoidal in unvoiced region
  * - @b infile @e str
- *   - pitch period
+ *   - double-type pitch period
  * - @b stdout
- *   - sinudoisal sequence
+ *   - double-type sinusoidal sequence
  *
  * The below is a simple example to generate sinusoidal from @c data.d.
  *
@@ -97,10 +98,10 @@ int main(int argc, char* argv[]) {
   int frame_period(kDefaultFramePeriod);
   int interpolation_period(kDefaultInterpolationPeriod);
   OutputFormats output_format(kDefaultOutputFormat);
-  const char* vuv_file(NULL);
+  bool strict(kDefaultStrictFlag);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "p:i:o:V:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "p:i:o:sh", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -141,8 +142,8 @@ int main(int argc, char* argv[]) {
         output_format = static_cast<OutputFormats>(tmp);
         break;
       }
-      case 'V': {
-        vuv_file = optarg;
+      case 's': {
+        strict = true;
         break;
       }
       case 'h': {
@@ -192,18 +193,6 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.is_open() ? ifs : std::cin);
 
-  std::ofstream ofs;
-  if (NULL != vuv_file) {
-    ofs.open(vuv_file, std::ios::out | std::ios::binary);
-    if (ofs.fail()) {
-      std::ostringstream error_message;
-      error_message << "Cannot open file " << vuv_file;
-      sptk::PrintErrorMessage("pitch2sin", error_message);
-      return 1;
-    }
-  }
-  std::ostream& output_stream(ofs);
-
   sptk::InputSourceFromStream input_source_from_stream(false, 1, &input_stream);
   sptk::InputSourceInterpolationWithMagicNumber
       input_source_interpolation_with_magic_number(
@@ -217,7 +206,7 @@ int main(int argc, char* argv[]) {
   }
 
   sptk::SinusoidalGeneration sinusoidal_generation(
-      &input_source_interpolation_with_magic_number);
+      strict, &input_source_interpolation_with_magic_number);
   if (!sinusoidal_generation.IsValid()) {
     std::ostringstream error_message;
     error_message << "Failed to initialize SinusoidalGeneration";
@@ -226,26 +215,14 @@ int main(int argc, char* argv[]) {
   }
 
   double sinusoidal;
-  double pitch;
-  while (
-      sinusoidal_generation.Get(kSine == output_format ? &sinusoidal : NULL,
-                                kCosine == output_format ? &sinusoidal : NULL,
-                                NULL != vuv_file ? &pitch : NULL)) {
+  while (sinusoidal_generation.Get(
+      kSine == output_format ? &sinusoidal : NULL,
+      kCosine == output_format ? &sinusoidal : NULL, NULL)) {
     if (!sptk::WriteStream(sinusoidal, &std::cout)) {
       std::ostringstream error_message;
       error_message << "Failed to write sinusoidal";
       sptk::PrintErrorMessage("pitch2sin", error_message);
       return 1;
-    }
-
-    if (NULL != vuv_file) {
-      const double vuv(kMagicNumberForUnvoicedFrame == pitch ? 0.0 : 1.0);
-      if (!sptk::WriteStream(vuv, &output_stream)) {
-        std::ostringstream error_message;
-        error_message << "Failed to write vuv symbol";
-        sptk::PrintErrorMessage("pitch2sin", error_message);
-        return 1;
-      }
     }
   }
 
