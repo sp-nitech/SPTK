@@ -22,8 +22,13 @@
 namespace sptk {
 
 SinusoidalGeneration::SinusoidalGeneration(
-    InputSourceInterpolationWithMagicNumber* input_source)
-    : input_source_(input_source), is_valid_(true), phase_(0.0) {
+    bool strict, InputSourceInterpolationWithMagicNumber* input_source)
+    : strict_(strict),
+      input_source_(input_source),
+      is_valid_(true),
+      phase_(0.0),
+      voiced_pitch_(0.0),
+      extending_(false) {
   if (NULL == input_source_ || !input_source_->IsValid()) {
     is_valid_ = false;
     return;
@@ -43,6 +48,12 @@ bool SinusoidalGeneration::Get(double* sin, double* cos, double* pitch) {
       return false;
     }
     pitch_in_current_point = tmp[0];
+  }
+
+  const bool unvoiced(input_source_->GetMagicNumber() ==
+                      pitch_in_current_point);
+  if (!strict_ && unvoiced && extending_) {
+    pitch_in_current_point = voiced_pitch_;
   }
 
   if (pitch) {
@@ -68,8 +79,19 @@ bool SinusoidalGeneration::Get(double* sin, double* cos, double* pitch) {
     *cos = std::cos(phase_);
   }
 
+  if (!strict_) {
+    extending_ = true;
+    voiced_pitch_ = pitch_in_current_point;
+  }
+
   // Proceed phase.
+  const double prev_phase(phase_);
   phase_ += sptk::kTwoPi / pitch_in_current_point;
+  if (!strict_ && unvoiced &&
+      ((prev_phase <= sptk::kPi && sptk::kPi <= phase_) ||
+       (prev_phase <= sptk::kTwoPi && sptk::kTwoPi <= phase_))) {
+    extending_ = false;
+  }
   if (sptk::kTwoPi < phase_) {
     phase_ -= sptk::kTwoPi;
   }

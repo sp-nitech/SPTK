@@ -32,10 +32,11 @@ namespace sptk {
 class SinusoidalGeneration {
  public:
   /**
+   * @param[in] strict If true, strictly drop sinusoidal in an unvoiced region.
    * @param[in] input_source Input source.
    */
   explicit SinusoidalGeneration(
-      InputSourceInterpolationWithMagicNumber* input_source);
+      bool strict, InputSourceInterpolationWithMagicNumber* input_source);
 
   virtual ~SinusoidalGeneration() {
   }
@@ -58,12 +59,18 @@ class SinusoidalGeneration {
   bool Get(double* sin, double* cos, double* pitch);
 
  private:
+  const bool strict_;
+
   InputSourceInterpolationWithMagicNumber* input_source_;
 
   bool is_valid_;
 
-  // Phase value ranging from 0.0 to 2 x pi
+  // Phase value ranging from 0 to 2 x pi
   double phase_;
+
+  // For strict = false
+  double voiced_pitch_;
+  bool extending_;
 
   DISALLOW_COPY_AND_ASSIGN(SinusoidalGeneration);
 };
