@@ -15,10 +15,11 @@
 // ------------------------------------------------------------------------ //
 
 #include <algorithm>  // std::transform
-#include <cmath>      // std::round
+#include <cmath>      // std::round, std::sin
 #include <fstream>    // std::ifstream
 #include <iomanip>    // std::setw
 #include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <numeric>    // std::accumulate
 #include <sstream>    // std::ostringstream
 #include <vector>     // std::vector
 
@@ -32,6 +33,8 @@ enum OutputFormats {
   kBinarySequence = 0,
   kPositionInSeconds,
   kPositionInSamples,
+  kSine,
+  kCosine,
   kNumOutputFormats
 };
 
@@ -55,10 +58,12 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -H H  : maximum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultUpperF0          << "][    L <  H <  500*s ]" << std::endl;  // NOLINT
   *stream << "               to search for [Hz]" << std::endl;
   *stream << "       -t t  : voicing threshold             (double)[" << std::setw(5) << std::right << kDefaultVoicingThreshold << "][ -0.5 <= t <= 1.6   ]" << std::endl;  // NOLINT
-  *stream << "       -o o  : output format                 (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat     << "][    0 <= o <= 2     ]" << std::endl;  // NOLINT
+  *stream << "       -o o  : output format                 (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat     << "][    0 <= o <= 4     ]" << std::endl;  // NOLINT
   *stream << "                 0 (binary sequence)" << std::endl;
   *stream << "                 1 (position in seconds)" << std::endl;
   *stream << "                 2 (position in samples)" << std::endl;
+  *stream << "                 3 (sine waveform)" << std::endl;
+  *stream << "                 4 (cosine waveform)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       waveform                              (double)[stdin]" << std::endl;  // NOLINT
@@ -92,6 +97,8 @@ void PrintUsage(std::ostream* stream) {
  *     @arg @c 0 binary sequence
  *     @arg @c 1 position in seconds
  *     @arg @c 2 position in samples
+ *     @arg @c 3 sine waveform
+ *     @arg @c 4 cosine waveform
  * - @b infile @e str
  *   - double-type waveform
  * - @b stdout
@@ -254,35 +261,39 @@ int main(int argc, char* argv[]) {
   }
   if (waveform.empty()) return 0;
 
+  const bool sinusoidal_output(kSine == output_format ||
+                               kCosine == output_format);
+  std::vector<double> f0;
   std::vector<double> pitch_mark;
   sptk::PitchExtractionInterface::Polarity polarity;
-  if (!pitch_extraction.Run(waveform, NULL, &pitch_mark, &polarity)) {
+  if (!pitch_extraction.Run(waveform, sinusoidal_output ? &f0 : NULL,
+                            &pitch_mark, &polarity)) {
     std::ostringstream error_message;
     error_message << "Failed to extract pitch mark";
     sptk::PrintErrorMessage("pitch_mark", error_message);
     return 1;
   }
 
-  if (kBinarySequence == output_format || kPositionInSamples == output_format) {
+  if (kPositionInSeconds != output_format) {
     std::transform(
         pitch_mark.begin(), pitch_mark.end(), pitch_mark.begin(),
         [sampling_rate_in_hz](double x) { return x * sampling_rate_in_hz; });
   }
 
+  if (sptk::PitchExtractionInterface::Polarity::kUnknown == polarity) {
+    std::ostringstream error_message;
+    error_message << "Failed to detect polarity";
+    sptk::PrintErrorMessage("pitch_mark", error_message);
+    return 1;
+  }
+  const double binary_polarity(
+      sptk::PitchExtractionInterface::Polarity::kPositive == polarity ? 1.0
+                                                                      : -1.0);
+  const int waveform_length(static_cast<int>(waveform.size()));
+  const int num_pitch_marks(static_cast<int>(pitch_mark.size()));
+
   switch (output_format) {
     case kBinarySequence: {
-      if (sptk::PitchExtractionInterface::Polarity::kUnknown == polarity) {
-        std::ostringstream error_message;
-        error_message << "Failed to detect polarity";
-        sptk::PrintErrorMessage("pitch_mark", error_message);
-        return 1;
-      }
-      const double binary_polarity(
-          sptk::PitchExtractionInterface::Polarity::kPositive == polarity
-              ? 1.0
-              : -1.0);
-      const int waveform_length(static_cast<int>(waveform.size()));
-      const int num_pitch_marks(static_cast<int>(pitch_mark.size()));
       int next_pitch_mark(pitch_mark.empty() ? -1 : std::round(pitch_mark[0]));
       for (int i(0), j(1); i < waveform_length; ++i) {
         if (i == next_pitch_mark) {
@@ -308,14 +319,60 @@ int main(int argc, char* argv[]) {
     }
     case kPositionInSeconds:
     case kPositionInSamples: {
-      const int num_pitch_marks(static_cast<int>(pitch_mark.size()));
-      if ((0 < num_pitch_marks) &&
+      if (0 < num_pitch_marks &&
           !sptk::WriteStream(0, num_pitch_marks, pitch_mark, &std::cout,
                              NULL)) {
         std::ostringstream error_message;
         error_message << "Failed to write pitch mark";
         sptk::PrintErrorMessage("pitch_mark", error_message);
         return 1;
+      }
+      break;
+    }
+    case kSine:
+    case kCosine: {
+      const double bias(kSine == output_format ? 0.0 : 0.5 * sptk::kPi);
+      for (int n(0), i(0); n <= num_pitch_marks; ++n) {
+        const int next_pitch_mark(
+            n < num_pitch_marks ? std::round(pitch_mark[n]) : waveform_length);
+        // Find the point across voiced region to unvoiced one.
+        int j(i);
+        for (; j < next_pitch_mark; ++j) {
+          if (0.0 == f0[j]) {
+            break;
+          }
+        }
+
+        // Output sinusoidal sequence.
+        if (i < j) {
+          const double sum_f0(
+              std::accumulate(f0.begin() + i, f0.begin() + j, 0.0));
+          const double multiplier(sptk::kTwoPi / sum_f0);
+
+          double phase(bias);
+          for (int k(i); k < j; ++k) {
+            const double output(binary_polarity * std::sin(phase));
+            if (!sptk::WriteStream(output, &std::cout)) {
+              std::ostringstream error_message;
+              error_message << "Failed to write sinusoidal sequence";
+              sptk::PrintErrorMessage("pitch_mark", error_message);
+              return 1;
+            }
+            phase += multiplier * f0[k];
+          }
+        }
+
+        // Output unvoiced sequence.
+        for (int k(j); k < next_pitch_mark; ++k) {
+          if (!sptk::WriteStream(0.0, &std::cout)) {
+            std::ostringstream error_message;
+            error_message << "Failed to write sinusoidal sequence";
+            sptk::PrintErrorMessage("pitch_mark", error_message);
+            return 1;
+          }
+        }
+
+        i = next_pitch_mark;
       }
       break;
     }
