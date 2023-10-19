@@ -73,6 +73,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       vectors                      (double)[stdin]" << std::endl;
   *stream << "  stdout:" << std::endl;
   *stream << "       statistics                   (double)" << std::endl;
+  *stream << "  notice:" << std::endl;
+  *stream << "       -d is valid only if o = 0 or o = 2" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -155,18 +157,10 @@ bool OutputStatistics(const sptk::StatisticsAccumulation& accumulation,
       return false;
     }
 
-    if (outputs_only_diagonal_elements) {
-      for (int i(0); i < vector_length; ++i) {
-        if (!sptk::WriteStream(precision_matrix[i][i], &std::cout)) {
+    for (int i(0); i < vector_length; ++i) {
+      for (int j(0); j < vector_length; ++j) {
+        if (!sptk::WriteStream(precision_matrix[i][j], &std::cout)) {
           return false;
-        }
-      }
-    } else {
-      for (int i(0); i < vector_length; ++i) {
-        for (int j(0); j < vector_length; ++j) {
-          if (!sptk::WriteStream(precision_matrix[i][j], &std::cout)) {
-            return false;
-          }
         }
       }
     }
@@ -459,10 +453,18 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.is_open() ? ifs : std::cin);
 
+  bool diagonal(false);
+  if (kMeanAndCovariance == output_format || kCovariance == output_format) {
+    if (outputs_only_diagonal_elements) {
+      diagonal = true;
+    }
+  } else if (kStandardDeviation == output_format ||
+             kMeanAndLowerAndUpperBounds == output_format) {
+    diagonal = true;
+  }
+
   sptk::StatisticsAccumulation accumulation(
-      vector_length - 1, kMean == output_format ? 1 : 2,
-      outputs_only_diagonal_elements || kStandardDeviation == output_format ||
-          kMeanAndLowerAndUpperBounds == output_format);
+      vector_length - 1, kMean == output_format ? 1 : 2, diagonal);
   sptk::StatisticsAccumulation::Buffer buffer;
   if (!accumulation.IsValid()) {
     std::ostringstream error_message;
