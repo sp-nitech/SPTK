@@ -75,8 +75,10 @@ class StatisticsAccumulation {
   /**
    * @param[in] num_order Order of vector, @f$M@f$.
    * @param[in] num_statistics_order Order of statistics, @f$K@f$.
+   * @param[in] diagonal If true, only diagonal part is accumulated.
    */
-  StatisticsAccumulation(int num_order, int num_statistics_order);
+  StatisticsAccumulation(int num_order, int num_statistics_order,
+                         bool diagonal = false);
 
   virtual ~StatisticsAccumulation() {
   }
@@ -186,6 +188,7 @@ class StatisticsAccumulation {
  private:
   const int num_order_;
   const int num_statistics_order_;
+  const bool diagonal_;
 
   bool is_valid_;
 

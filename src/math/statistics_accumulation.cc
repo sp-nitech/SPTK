@@ -24,9 +24,11 @@
 namespace sptk {
 
 StatisticsAccumulation::StatisticsAccumulation(int num_order,
-                                               int num_statistics_order)
+                                               int num_statistics_order,
+                                               bool diagonal)
     : num_order_(num_order),
       num_statistics_order_(num_statistics_order),
+      diagonal_(diagonal),
       is_valid_(true) {
   if (num_order_ < 0 || num_statistics_order_ < 0 ||
       2 < num_statistics_order_) {
@@ -131,7 +133,7 @@ bool StatisticsAccumulation::GetStandardDeviation(
 bool StatisticsAccumulation::GetFullCovariance(
     const StatisticsAccumulation::Buffer& buffer,
     SymmetricMatrix* full_covariance) const {
-  if (!is_valid_ || num_statistics_order_ < 2 ||
+  if (!is_valid_ || num_statistics_order_ < 2 || diagonal_ ||
       buffer.zeroth_order_statistics_ <= 0 || NULL == full_covariance) {
     return false;
   }
@@ -160,7 +162,7 @@ bool StatisticsAccumulation::GetFullCovariance(
 bool StatisticsAccumulation::GetUnbiasedCovariance(
     const StatisticsAccumulation::Buffer& buffer,
     SymmetricMatrix* unbiased_covariance) const {
-  if (!is_valid_ || num_statistics_order_ < 2 ||
+  if (!is_valid_ || num_statistics_order_ < 2 || diagonal_ ||
       buffer.zeroth_order_statistics_ <= 1 || NULL == unbiased_covariance) {
     return false;
   }
@@ -183,7 +185,8 @@ bool StatisticsAccumulation::GetUnbiasedCovariance(
 bool StatisticsAccumulation::GetCorrelation(
     const StatisticsAccumulation::Buffer& buffer,
     SymmetricMatrix* correlation) const {
-  if (!is_valid_ || num_statistics_order_ < 2 || NULL == correlation) {
+  if (!is_valid_ || num_statistics_order_ < 2 || diagonal_ ||
+      NULL == correlation) {
     return false;
   }
 
@@ -242,7 +245,7 @@ bool StatisticsAccumulation::Run(const std::vector<double>& data,
   // Accumulate 2nd order statistics.
   if (2 <= num_statistics_order_) {
     for (int i(0); i < length; ++i) {
-      for (int j(0); j <= i; ++j) {
+      for (int j(diagonal_ ? i : 0); j <= i; ++j) {
         buffer->second_order_statistics_[i][j] += data[i] * data[j];
       }
     }

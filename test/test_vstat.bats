@@ -30,8 +30,8 @@ teardown() {
 @test "vstat: compatibility" {
     $sptk3/nrand -l 100 > $tmp/0
 
-    ary1=("-o 0" "-o 1" "-o 2" "-o 2 -d" "-o 2 -r" "-o 2 -i")
-    ary2=("-o 0" "-o 1" "-o 2" "-o 2 -d" "-o 4" "-o 5")
+    ary1=("-o 0" "-o 0 -d" "-o 1" "-o 2" "-o 2 -d" "-o 2 -r" "-o 2 -i")
+    ary2=("-o 0" "-o 0 -d" "-o 1" "-o 2" "-o 2 -d" "-o 4" "-o 5")
     for i in $(seq 0 $((${#ary1[@]} - 1))); do
         # shellcheck disable=SC2086
         $sptk3/vstat -l 2 $tmp/0 ${ary1[$i]} > $tmp/1
