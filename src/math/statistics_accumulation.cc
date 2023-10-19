@@ -24,9 +24,11 @@
 namespace sptk {
 
 StatisticsAccumulation::StatisticsAccumulation(int num_order,
-                                               int num_statistics_order)
+                                               int num_statistics_order,
+                                               bool diagonal)
     : num_order_(num_order),
       num_statistics_order_(num_statistics_order),
+      diagonal_(diagonal),
       is_valid_(true) {
   if (num_order_ < 0 || num_statistics_order_ < 0 ||
       2 < num_statistics_order_) {
@@ -242,7 +244,7 @@ bool StatisticsAccumulation::Run(const std::vector<double>& data,
   // Accumulate 2nd order statistics.
   if (2 <= num_statistics_order_) {
     for (int i(0); i < length; ++i) {
-      for (int j(0); j <= i; ++j) {
+      for (int j(diagonal_ ? i : 0); j <= i; ++j) {
         buffer->second_order_statistics_[i][j] += data[i] * data[j];
       }
     }

@@ -459,8 +459,10 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.is_open() ? ifs : std::cin);
 
-  sptk::StatisticsAccumulation accumulation(vector_length - 1,
-                                            kMean == output_format ? 1 : 2);
+  sptk::StatisticsAccumulation accumulation(
+      vector_length - 1, kMean == output_format ? 1 : 2,
+      outputs_only_diagonal_elements || kStandardDeviation == output_format ||
+          kMeanAndLowerAndUpperBounds == output_format);
   sptk::StatisticsAccumulation::Buffer buffer;
   if (!accumulation.IsValid()) {
     std::ostringstream error_message;
