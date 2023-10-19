@@ -111,12 +111,8 @@ bool OutputStatistics(const sptk::StatisticsAccumulation& accumulation,
       if (!accumulation.GetFullCovariance(buffer, &variance)) {
         return false;
       }
-      for (int i(0); i < vector_length; ++i) {
-        for (int j(0); j < vector_length; ++j) {
-          if (!sptk::WriteStream(variance[i][j], &std::cout)) {
-            return false;
-          }
-        }
+      if (!sptk::WriteStream(variance, &std::cout)) {
+        return false;
       }
     }
   }
@@ -137,12 +133,8 @@ bool OutputStatistics(const sptk::StatisticsAccumulation& accumulation,
     if (!accumulation.GetCorrelation(buffer, &correlation)) {
       return false;
     }
-    for (int i(0); i < vector_length; ++i) {
-      for (int j(0); j < vector_length; ++j) {
-        if (!sptk::WriteStream(correlation[i][j], &std::cout)) {
-          return false;
-        }
-      }
+    if (!sptk::WriteStream(correlation, &std::cout)) {
+      return false;
     }
   }
 
@@ -157,12 +149,8 @@ bool OutputStatistics(const sptk::StatisticsAccumulation& accumulation,
       return false;
     }
 
-    for (int i(0); i < vector_length; ++i) {
-      for (int j(0); j < vector_length; ++j) {
-        if (!sptk::WriteStream(precision_matrix[i][j], &std::cout)) {
-          return false;
-        }
-      }
+    if (!sptk::WriteStream(precision_matrix, &std::cout)) {
+      return false;
     }
   }
 
