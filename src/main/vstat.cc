@@ -37,6 +37,7 @@ enum OutputFormats {
   kCorrelation,
   kPrecision,
   kMeanAndLowerAndUpperBounds,
+  kForMerge,
   kNumOutputFormats
 };
 
@@ -45,6 +46,7 @@ const int kDefaultVectorLength(1);
 const double kDefaultConfidenceLevel(95.0);
 const OutputFormats kDefaultOutputFormat(kMeanAndCovariance);
 const bool kDefaultOutputOnlyDiagonalElementsFlag(false);
+const bool kDefaultNeumericallyStableFlag(false);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -58,7 +60,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -m m  : order of vector      (   int)[" << std::setw(5) << std::right << "l-1"                   << "][ 0 <= m <=     ]" << std::endl;  // NOLINT
   *stream << "       -t t  : output interval      (   int)[" << std::setw(5) << std::right << "EOF"                   << "][ 1 <= t <=     ]" << std::endl;  // NOLINT
   *stream << "       -c c  : confidence level     (double)[" << std::setw(5) << std::right << kDefaultConfidenceLevel << "][ 0 <  c <  100 ]" << std::endl;  // NOLINT
-  *stream << "       -o o  : output format        (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat    << "][ 0 <= o <= 6   ]" << std::endl;  // NOLINT
+  *stream << "       -o o  : output format        (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat    << "][ 0 <= o <= 7   ]" << std::endl;  // NOLINT
   *stream << "                 0 (mean and covariance)" << std::endl;
   *stream << "                 1 (mean)" << std::endl;
   *stream << "                 2 (covariance)" << std::endl;
@@ -66,8 +68,11 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 4 (correlation)" << std::endl;
   *stream << "                 5 (precision)" << std::endl;
   *stream << "                 6 (mean and lower/upper bounds)" << std::endl;
+  *stream << "                 7 (statistics for merge)" << std::endl;
   *stream << "       -d    : output only diagonal (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultOutputOnlyDiagonalElementsFlag) << "]" << std::endl;  // NOLINT
   *stream << "               elements" << std::endl;
+  *stream << "       -e    : use a neumerically   (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultNeumericallyStableFlag)         << "]" << std::endl;  // NOLINT
+  *stream << "               stable algorithm" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       vectors                      (double)[stdin]" << std::endl;
@@ -194,6 +199,32 @@ bool OutputStatistics(const sptk::StatisticsAccumulation& accumulation,
     }
   }
 
+  if (kForMerge == output_format) {
+    int zero;
+    if (!accumulation.GetNumData(buffer, &zero)) {
+      return false;
+    }
+    if (!sptk::WriteStream(static_cast<double>(zero), &std::cout)) {
+      return false;
+    }
+
+    std::vector<double> first;
+    if (!accumulation.GetFirst(buffer, &first)) {
+      return false;
+    }
+    if (!sptk::WriteStream(0, vector_length, first, &std::cout, NULL)) {
+      return false;
+    }
+
+    sptk::SymmetricMatrix second;
+    if (!accumulation.GetSecond(buffer, &second)) {
+      return false;
+    }
+    if (!sptk::WriteStream(second, &std::cout)) {
+      return false;
+    }
+  }
+
   return true;
 }
 
@@ -219,8 +250,11 @@ bool OutputStatistics(const sptk::StatisticsAccumulation& accumulation,
  *     \arg @c 4 correlation
  *     \arg @c 5 precision
  *     \arg @c 6 mean and lower/upper bounds
+ *     \arg @c 7 stats for merge
  * - @b -d
  *   - output only diagonal elements
+ * - @b -e
+ *   - use a numerically stable algorithm
  * - @b infile @e str
  *   - double-type vectors
  * - @b stdout
@@ -332,9 +366,10 @@ int main(int argc, char* argv[]) {
   double confidence_level(kDefaultConfidenceLevel);
   OutputFormats output_format(kDefaultOutputFormat);
   bool outputs_only_diagonal_elements(kDefaultOutputOnlyDiagonalElementsFlag);
+  bool neumerically_stable(kDefaultNeumericallyStableFlag);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:m:t:c:o:dh", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:t:c:o:deh", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -402,6 +437,10 @@ int main(int argc, char* argv[]) {
         outputs_only_diagonal_elements = true;
         break;
       }
+      case 'e': {
+        neumerically_stable = true;
+        break;
+      }
       case 'h': {
         PrintUsage(&std::cout);
         return 0;
@@ -451,8 +490,9 @@ int main(int argc, char* argv[]) {
     diagonal = true;
   }
 
-  sptk::StatisticsAccumulation accumulation(
-      vector_length - 1, kMean == output_format ? 1 : 2, diagonal);
+  sptk::StatisticsAccumulation accumulation(vector_length - 1,
+                                            kMean == output_format ? 1 : 2,
+                                            diagonal, neumerically_stable);
   sptk::StatisticsAccumulation::Buffer buffer;
   if (!accumulation.IsValid()) {
     std::ostringstream error_message;

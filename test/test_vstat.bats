@@ -62,6 +62,12 @@ teardown() {
     $sptk4/vstat -l 2 $tmp/0 -o 1 -t 5 > $tmp/2
     run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
+
+    # Neumerically stable algorithm:
+    $sptk3/vstat -l 2 $tmp/0 -o 0 > $tmp/1
+    $sptk4/vstat -l 2 $tmp/0 -o 0 -e > $tmp/2
+    run $sptk4/aeq $tmp/1 $tmp/2
+    [ "$status" -eq 0 ]
 }
 
 @test "vstat: valgrind" {
