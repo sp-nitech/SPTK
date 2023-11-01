@@ -37,7 +37,7 @@ enum OutputFormats {
   kCorrelation,
   kPrecision,
   kMeanAndLowerAndUpperBounds,
-  kForMerge,
+  kSufficientStatistics,
   kNumOutputFormats
 };
 
@@ -68,7 +68,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 4 (correlation)" << std::endl;
   *stream << "                 5 (precision)" << std::endl;
   *stream << "                 6 (mean and lower/upper bounds)" << std::endl;
-  *stream << "                 7 (statistics for merge)" << std::endl;
+  *stream << "                 7 (sufficient statistics)" << std::endl;
+  *stream << "       -s s  : statistics file      (string)[" << std::setw(5) << std::right << "N/A"                   << "]" << std::endl;  // NOLINT
   *stream << "       -d    : output only diagonal (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultOutputOnlyDiagonalElementsFlag) << "]" << std::endl;  // NOLINT
   *stream << "               elements" << std::endl;
   *stream << "       -e    : use a neumerically   (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultNeumericallyStableFlag)         << "]" << std::endl;  // NOLINT
@@ -80,6 +81,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       statistics                   (double)" << std::endl;
   *stream << "  notice:" << std::endl;
   *stream << "       -d is valid only if o = 0 or o = 2" << std::endl;
+  *stream << "       -s can be specified multiple times" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -160,37 +162,27 @@ bool OutputStatistics(const sptk::StatisticsAccumulation& accumulation,
   }
 
   if (kMeanAndLowerAndUpperBounds == output_format) {
-    int num_vector;
-    if (!accumulation.GetNumData(buffer, &num_vector)) {
-      return false;
-    }
-
-    const int degrees_of_freedom(num_vector - 1);
-    if (0 == degrees_of_freedom) {
-      return false;
-    }
-    double t;
-    if (!sptk::ComputePercentagePointOfTDistribution(
-            0.5 * (1.0 - confidence_level / 100.0), degrees_of_freedom, &t)) {
+    int num_data;
+    if (!accumulation.GetNumData(buffer, &num_data)) {
       return false;
     }
     std::vector<double> mean(vector_length);
-    std::vector<double> variance(vector_length);
     if (!accumulation.GetMean(buffer, &mean)) {
       return false;
     }
+    std::vector<double> variance(vector_length);
     if (!accumulation.GetDiagonalCovariance(buffer, &variance)) {
       return false;
     }
 
-    const double inverse_degrees_of_freedom(1.0 / degrees_of_freedom);
     std::vector<double> lower_bound(vector_length);
     std::vector<double> upper_bound(vector_length);
-    for (int i(0); i < vector_length; ++i) {
-      const double error(std::sqrt(variance[i] * inverse_degrees_of_freedom));
-      lower_bound[i] = mean[i] - t * error;
-      upper_bound[i] = mean[i] + t * error;
+    if (!sptk::ComputeLowerAndUpperBounds(confidence_level, num_data, mean,
+                                          variance, &lower_bound,
+                                          &upper_bound)) {
+      return false;
     }
+
     if (!sptk::WriteStream(0, vector_length, lower_bound, &std::cout, NULL)) {
       return false;
     }
@@ -199,12 +191,12 @@ bool OutputStatistics(const sptk::StatisticsAccumulation& accumulation,
     }
   }
 
-  if (kForMerge == output_format) {
-    int zero;
-    if (!accumulation.GetNumData(buffer, &zero)) {
+  if (kSufficientStatistics == output_format) {
+    int num_data;
+    if (!accumulation.GetNumData(buffer, &num_data)) {
       return false;
     }
-    if (!sptk::WriteStream(static_cast<double>(zero), &std::cout)) {
+    if (!sptk::WriteStream(static_cast<double>(num_data), &std::cout)) {
       return false;
     }
 
@@ -250,7 +242,9 @@ bool OutputStatistics(const sptk::StatisticsAccumulation& accumulation,
  *     \arg @c 4 correlation
  *     \arg @c 5 precision
  *     \arg @c 6 mean and lower/upper bounds
- *     \arg @c 7 stats for merge
+ *     \arg @c 7 sufficient statistics
+ * - @b -s @e str
+ *   - statistics file
  * - @b -d
  *   - output only diagonal elements
  * - @b -e
@@ -356,6 +350,14 @@ bool OutputStatistics(const sptk::StatisticsAccumulation& accumulation,
  *   # 2, 7
  * @endcode
  *
+ * @code{.sh}
+ *   cat data1.d data2.d | vstat -o 7 > data12.stat
+ *   cat data3.d data4.d | vstat -o 7 > data34.stat
+ *   echo | vstat -s data12.stat -s data34.stat -o 1 > data.mean
+ *   # equivalent to the following line
+ *   cat data?.d | vstat -o 1 > data.mean
+ * @endcode
+ *
  * @param[in] argc Number of arguments.
  * @param[in] argv Argument vector.
  * @return 0 on success, 1 on failure.
@@ -365,11 +367,13 @@ int main(int argc, char* argv[]) {
   int output_interval(kMagicNumberForEndOfFile);
   double confidence_level(kDefaultConfidenceLevel);
   OutputFormats output_format(kDefaultOutputFormat);
+  std::vector<const char*> statistics_file;
   bool outputs_only_diagonal_elements(kDefaultOutputOnlyDiagonalElementsFlag);
   bool neumerically_stable(kDefaultNeumericallyStableFlag);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:m:t:c:o:deh", NULL, NULL));
+    const int option_char(
+        getopt_long(argc, argv, "l:m:t:c:o:s:deh", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -433,6 +437,10 @@ int main(int argc, char* argv[]) {
         output_format = static_cast<OutputFormats>(tmp);
         break;
       }
+      case 's': {
+        statistics_file.push_back(optarg);
+        break;
+      }
       case 'd': {
         outputs_only_diagonal_elements = true;
         break;
@@ -450,6 +458,13 @@ int main(int argc, char* argv[]) {
         return 1;
       }
     }
+  }
+
+  if (kMagicNumberForEndOfFile != output_interval && !statistics_file.empty()) {
+    std::ostringstream error_message;
+    error_message << "Cannot specify -t option and -s option at the same time";
+    sptk::PrintErrorMessage("vstat", error_message);
+    return 1;
   }
 
   const int num_input_files(argc - optind);
@@ -501,6 +516,51 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  for (const char* file : statistics_file) {
+    std::ifstream ifs;
+    ifs.open(file, std::ios::in | std::ios::binary);
+    if (ifs.fail()) {
+      std::ostringstream error_message;
+      error_message << "Cannot open file " << file;
+      sptk::PrintErrorMessage("vstat", error_message);
+      return 1;
+    }
+    std::istream& input_stream(ifs);
+
+    double num_data;
+    if (!sptk::ReadStream(&num_data, &input_stream)) {
+      std::ostringstream error_message;
+      error_message << "Failed to read statistics (zeroth order)";
+      sptk::PrintErrorMessage("vstat", error_message);
+      return 1;
+    }
+
+    std::vector<double> first(vector_length);
+    if (!sptk::ReadStream(false, 0, 0, vector_length, &first, &input_stream,
+                          NULL)) {
+      std::ostringstream error_message;
+      error_message << "Failed to read statistics (first order)";
+      sptk::PrintErrorMessage("vstat", error_message);
+      return 1;
+    }
+
+    sptk::SymmetricMatrix second(vector_length);
+    if (!sptk::ReadStream(&second, &input_stream)) {
+      std::ostringstream error_message;
+      error_message << "Failed to read statistics (second order)";
+      sptk::PrintErrorMessage("vstat", error_message);
+      return 1;
+    }
+
+    if (!accumulation.Merge(static_cast<int>(num_data), first, second,
+                            &buffer)) {
+      std::ostringstream error_message;
+      error_message << "Failed to merge statistics";
+      sptk::PrintErrorMessage("vstat_merge", error_message);
+      return 1;
+    }
+  }
+
   std::vector<double> data(vector_length);
   for (int vector_index(1);
        sptk::ReadStream(false, 0, 0, vector_length, &data, &input_stream, NULL);
@@ -525,15 +585,15 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  int num_actual_vector;
-  if (!accumulation.GetNumData(buffer, &num_actual_vector)) {
+  int num_data;
+  if (!accumulation.GetNumData(buffer, &num_data)) {
     std::ostringstream error_message;
     error_message << "Failed to accumulate statistics";
     sptk::PrintErrorMessage("vstat", error_message);
     return 1;
   }
 
-  if (kMagicNumberForEndOfFile == output_interval && 0 < num_actual_vector) {
+  if (kMagicNumberForEndOfFile == output_interval && 0 < num_data) {
     if (!OutputStatistics(accumulation, buffer, vector_length, output_format,
                           confidence_level, outputs_only_diagonal_elements)) {
       std::ostringstream error_message;

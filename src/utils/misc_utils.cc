@@ -310,4 +310,47 @@ bool ComputeSecondOrderRegressionCoefficients(
   return true;
 }
 
+bool ComputeLowerAndUpperBounds(double confidence_level, int num_data,
+                                const std::vector<double> mean,
+                                const std::vector<double> variance,
+                                std::vector<double>* lower_bound,
+                                std::vector<double>* upper_bound) {
+  if (confidence_level <= 0.0 ||
+      100.0 <= confidence_level ||
+      num_data <= 0 || mean.size() != variance.size() ||
+      NULL == lower_bound || NULL == upper_bound) {
+    return false;
+  }
+
+  if (lower_bound->size() != mean.size()) {
+    lower_bound->resize(mean.size());
+  }
+  if (upper_bound->size() != mean.size()) {
+    upper_bound->resize(mean.size());
+  }
+
+  const int degrees_of_freedom(num_data - 1);
+  if (0 == degrees_of_freedom) {
+    return false;
+  }
+
+  double t;
+  if (!sptk::ComputePercentagePointOfTDistribution(
+          0.5 * (1.0 - confidence_level / 100.0), degrees_of_freedom, &t)) {
+    return false;
+  }
+
+  const double inverse_degrees_of_freedom(1.0 / degrees_of_freedom);
+  const int vector_length(static_cast<int>(mean.size()));
+  double* l(&((*lower_bound)[0]));
+  double* u(&((*upper_bound)[0]));
+  for (int i(0); i < vector_length; ++i) {
+    const double error(std::sqrt(variance[i] * inverse_degrees_of_freedom));
+    l[i] = mean[i] - t * error;
+    u[i] = mean[i] + t * error;
+  }
+
+  return true;
+}
+
 }  // namespace sptk

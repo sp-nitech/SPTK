@@ -329,4 +329,73 @@ bool StatisticsAccumulation::Run(const std::vector<double>& data,
   return true;
 }
 
+bool StatisticsAccumulation::Merge(
+    int num_data, const std::vector<double>& first,
+    const SymmetricMatrix& second,
+    StatisticsAccumulation::Buffer* buffer) const {
+  if (!is_valid_ || NULL == buffer) {
+    return false;
+  }
+
+  if (0 == buffer->zeroth_order_statistics_) {
+    buffer->zeroth_order_statistics_ = num_data;
+    buffer->first_order_statistics_ = first;
+    buffer->second_order_statistics_ = second;
+    return true;
+  }
+
+  if (num_data <= 0 || first.size() != buffer->first_order_statistics_.size() ||
+      second.GetNumDimension() !=
+          buffer->second_order_statistics_.GetNumDimension()) {
+    return false;
+  }
+
+  // Save the current statistics.
+  const int m(buffer->zeroth_order_statistics_);
+  std::vector<double> prev_first_order_statistics(
+      buffer->first_order_statistics_);
+
+  const int n(num_data);
+  const int mn(m + n);
+  buffer->zeroth_order_statistics_ = mn;
+
+  if (1 <= num_statistics_order_) {
+    if (numerically_stable_) {
+      const double a(static_cast<double>(n) / mn);
+      const double b(static_cast<double>(m) / mn);
+      std::transform(first.begin(), first.end(),
+                     buffer->first_order_statistics_.begin(),
+                     buffer->first_order_statistics_.begin(),
+                     [a, b](double x, double y) { return a * x + b * y; });
+    } else {
+      std::transform(
+          first.begin(), first.end(), buffer->first_order_statistics_.begin(),
+          buffer->first_order_statistics_.begin(), std::plus<double>());
+    }
+  }
+
+  if (2 <= num_statistics_order_) {
+    if (numerically_stable_) {
+      const double* mu1(&(prev_first_order_statistics[0]));
+      const double* mu2(&(first[0]));
+      const double c(static_cast<double>(m * n) / mn);
+      for (int i(0); i <= num_order_; ++i) {
+        for (int j(diagonal_ ? i : 0); j <= i; ++j) {
+          buffer->second_order_statistics_[i][j] +=
+              second[i][j] + c * ((mu1[i] * mu1[j] + mu2[i] * mu2[j]) -
+                                  (mu1[i] * mu2[j] + mu2[i] * mu1[j]));
+        }
+      }
+    } else {
+      for (int i(0); i <= num_order_; ++i) {
+        for (int j(diagonal_ ? i : 0); j <= i; ++j) {
+          buffer->second_order_statistics_[i][j] += second[i][j];
+        }
+      }
+    }
+  }
+
+  return true;
+}
+
 }  // namespace sptk

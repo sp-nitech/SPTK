@@ -122,7 +122,7 @@ class StatisticsAccumulation {
    * @return True on success, false on failure.
    */
   bool GetFirst(const StatisticsAccumulation::Buffer& buffer,
-                  std::vector<double>* first) const;
+                std::vector<double>* first) const;
 
   /**
    * @param[in] buffer Buffer.
@@ -204,6 +204,19 @@ class StatisticsAccumulation {
    */
   bool Run(const std::vector<double>& data,
            StatisticsAccumulation::Buffer* buffer) const;
+
+  /**
+   * Merge statistics.
+   *
+   * @param[in] num_data Number of data.
+   * @param[in] first First order statistics.
+   * @param[in] second Second order statistics.
+   * @param[in,out] buffer Buffer.
+   * @return True on success, false on failure.
+   */
+  bool Merge(int num_data, const std::vector<double>& first,
+             const SymmetricMatrix& second,
+             StatisticsAccumulation::Buffer* buffer) const;
 
  private:
   const int num_order_;

@@ -128,6 +128,23 @@ bool ComputeFirstOrderRegressionCoefficients(int n,
 bool ComputeSecondOrderRegressionCoefficients(
     int n, std::vector<double>* coefficients);
 
+/**
+ * Compute lower and upper bounds.
+ *
+ * @param[in] confidence_level Confidence level.
+ * @param[in] num_data Number of data.
+ * @param[in] mean Mean vector.
+ * @param[in] variance Variance vector.
+ * @param[out] lower_bound Lower bound.
+ * @param[out] upper_bound Upper bound.
+ * @return True on success, false on failure.
+ */
+bool ComputeLowerAndUpperBounds(double confidence_level, int num_data,
+                                const std::vector<double> mean,
+                                const std::vector<double> variance,
+                                std::vector<double>* lower_bound,
+                                std::vector<double>* upper_bound);
+
 }  // namespace sptk
 
 #endif  // SPTK_UTILS_MISC_UTILS_H_
