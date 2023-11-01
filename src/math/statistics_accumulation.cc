@@ -382,8 +382,7 @@ bool StatisticsAccumulation::Merge(
       for (int i(0); i <= num_order_; ++i) {
         for (int j(diagonal_ ? i : 0); j <= i; ++j) {
           buffer->second_order_statistics_[i][j] +=
-              second[i][j] + c * ((mu1[i] * mu1[j] + mu2[i] * mu2[j]) -
-                                  (mu1[i] * mu2[j] + mu2[i] * mu1[j]));
+              second[i][j] + c * (mu1[i] - mu2[i]) * (mu1[j] - mu2[j]);
         }
       }
     } else {

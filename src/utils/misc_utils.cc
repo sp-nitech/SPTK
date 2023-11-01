@@ -315,10 +315,9 @@ bool ComputeLowerAndUpperBounds(double confidence_level, int num_data,
                                 const std::vector<double> variance,
                                 std::vector<double>* lower_bound,
                                 std::vector<double>* upper_bound) {
-  if (confidence_level <= 0.0 ||
-      100.0 <= confidence_level ||
-      num_data <= 0 || mean.size() != variance.size() ||
-      NULL == lower_bound || NULL == upper_bound) {
+  if (confidence_level <= 0.0 || 100.0 <= confidence_level || num_data <= 0 ||
+      mean.size() != variance.size() || NULL == lower_bound ||
+      NULL == upper_bound) {
     return false;
   }
 
