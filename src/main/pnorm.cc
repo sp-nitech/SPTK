@@ -21,37 +21,31 @@
 #include <vector>    // std::vector
 
 #include "GETOPT/ya_getopt.h"
-#include "SPTK/postfilter/mel_cepstrum_postfilter.h"
+#include "SPTK/conversion/mel_cepstrum_power_normalization.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
 
 const int kDefaultNumOrder(25);
 const int kDefaultImpulseResponseLength(128);
-const int kDefaultOnsetIndex(2);
 const double kDefaultAlpha(0.35);
-const double kDefaultBeta(0.1);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " mcpf - postfilter for mel-cepstrum" << std::endl;
+  *stream << " pnorm - power normalization of mel-cepstrum" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
-  *stream << "       mcpf [ options ] [ infile ] > stdout" << std::endl;
+  *stream << "       pnorm [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -m m  : order of mel-cepstrum      (   int)[" << std::setw(5) << std::right << kDefaultNumOrder              << "][    0 <= m <  l   ]" << std::endl;  // NOLINT
   *stream << "       -l l  : length of impulse response (   int)[" << std::setw(5) << std::right << kDefaultImpulseResponseLength << "][    2 <= l <=     ]" << std::endl;  // NOLINT
-  *stream << "       -s s  : onset index                (   int)[" << std::setw(5) << std::right << kDefaultOnsetIndex            << "][    0 <= s <= m   ]" << std::endl;  // NOLINT
   *stream << "       -a a  : all-pass constant          (double)[" << std::setw(5) << std::right << kDefaultAlpha                 << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
-  *stream << "       -b b  : intensity                  (double)[" << std::setw(5) << std::right << kDefaultBeta                  << "][      <= b <=     ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       mel-cepstrum                       (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       postfiltered mel-cepstrum          (double)" << std::endl;
-  *stream << "  notice:" << std::endl;
-  *stream << "       value of l must be a power of 2" << std::endl;
+  *stream << "       power-normalized mel-cepstrum      (double)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -61,22 +55,18 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a mcpf [ @e option ] [ @e infile ]
+ * @a pnorm [ @e option ] [ @e infile ]
  *
  * - @b -m @e int
  *   - order of mel-cepstral coefficients @f$(0 \le M < L)@f$
  * - @b -l @e int
  *   - length of impulse response @f$(M < L)@f$
- * - @b -s @e int
- *   - onset index @f$(0 \le S \le M)@f$
  * - @b -a @e double
- *   - all-pass constant @f$(|\alpha| < 1)@f$
- * - @b -b @e double
- *   - intensity @f$(\beta)@f$
+ *   - alpha @f$(|\alpha|<1)@f$
  * - @b infile @e str
  *   - double-type mel-cepstral coefficients
  * - @b stdout
- *   - double-type postfiltered mel-cepstral coefficients
+ *   - double-type power-normalized mel-cepstral coefficients
  *
  * @param[in] argc Number of arguments.
  * @param[in] argv Argument vector.
@@ -85,12 +75,10 @@ void PrintUsage(std::ostream* stream) {
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   int impulse_response_length(kDefaultImpulseResponseLength);
-  int onset_index(kDefaultOnsetIndex);
   double alpha(kDefaultAlpha);
-  double beta(kDefaultBeta);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "m:l:s:a:b:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "m:l:a:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -100,7 +88,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -m option must be a "
                         << "non-negative integer";
-          sptk::PrintErrorMessage("mcpf", error_message);
+          sptk::PrintErrorMessage("pnorm", error_message);
           return 1;
         }
         break;
@@ -114,33 +102,13 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
-      case 's': {
-        if (!sptk::ConvertStringToInteger(optarg, &onset_index) ||
-            onset_index < 0) {
-          std::ostringstream error_message;
-          error_message << "The argument for the -s option must be a "
-                        << "non-negative integer";
-          sptk::PrintErrorMessage("mcpf", error_message);
-          return 1;
-        }
-        break;
-      }
       case 'a': {
         if (!sptk::ConvertStringToDouble(optarg, &alpha) ||
             !sptk::IsValidAlpha(alpha)) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -a option must be in (-1.0, 1.0)";
-          sptk::PrintErrorMessage("mcpf", error_message);
-          return 1;
-        }
-        break;
-      }
-      case 'b': {
-        if (!sptk::ConvertStringToDouble(optarg, &beta)) {
-          std::ostringstream error_message;
-          error_message << "The argument for the -b option must be a number";
-          sptk::PrintErrorMessage("mcpf", error_message);
+          sptk::PrintErrorMessage("pnorm", error_message);
           return 1;
         }
         break;
@@ -160,14 +128,7 @@ int main(int argc, char* argv[]) {
     std::ostringstream error_message;
     error_message
         << "Order of mel-cepstrum must be less than length of impulse response";
-    sptk::PrintErrorMessage("mcpf", error_message);
-    return 1;
-  }
-
-  if (num_order < onset_index) {
-    std::ostringstream error_message;
-    error_message << "Order of mel-cepstrum must be greater than onset index";
-    sptk::PrintErrorMessage("mcpf", error_message);
+    sptk::PrintErrorMessage("pnorm", error_message);
     return 1;
   }
 
@@ -175,7 +136,7 @@ int main(int argc, char* argv[]) {
   if (1 < num_input_files) {
     std::ostringstream error_message;
     error_message << "Too many input files";
-    sptk::PrintErrorMessage("mcpf", error_message);
+    sptk::PrintErrorMessage("pnorm", error_message);
     return 1;
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
@@ -183,7 +144,7 @@ int main(int argc, char* argv[]) {
   if (!sptk::SetBinaryMode()) {
     std::ostringstream error_message;
     error_message << "Cannot set translation mode";
-    sptk::PrintErrorMessage("mcpf", error_message);
+    sptk::PrintErrorMessage("pnorm", error_message);
     return 1;
   }
 
@@ -193,38 +154,42 @@ int main(int argc, char* argv[]) {
     if (ifs.fail()) {
       std::ostringstream error_message;
       error_message << "Cannot open file " << input_file;
-      sptk::PrintErrorMessage("mcpf", error_message);
+      sptk::PrintErrorMessage("pnorm", error_message);
       return 1;
     }
   }
   std::istream& input_stream(ifs.is_open() ? ifs : std::cin);
 
-  sptk::MelCepstrumPostfilter mel_cepstrum_postfilter(
-      num_order, impulse_response_length, onset_index, alpha, beta);
-  sptk::MelCepstrumPostfilter::Buffer buffer;
-  if (!mel_cepstrum_postfilter.IsValid()) {
+  sptk::MelCepstrumPowerNormalization mel_cepstrum_power_normalization(
+      num_order, impulse_response_length, alpha);
+  sptk::MelCepstrumPowerNormalization::Buffer buffer;
+  if (!mel_cepstrum_power_normalization.IsValid()) {
     std::ostringstream error_message;
-    error_message << "FFT length must be a power of 2 and greater than 1";
-    sptk::PrintErrorMessage("mcpf", error_message);
+    error_message << "Failed to initialize MelCepstrumPowerNormalization";
+    sptk::PrintErrorMessage("pnorm", error_message);
     return 1;
   }
 
-  const int length(num_order + 1);
-  std::vector<double> mel_cepstrum(length);
+  const int input_length(num_order + 1);
+  const int output_length(num_order + 2);
+  std::vector<double> mel_cepstrum(input_length);
+  std::vector<double> power_normalized_mel_cepstrum(output_length);
 
-  while (sptk::ReadStream(false, 0, 0, length, &mel_cepstrum, &input_stream,
-                          NULL)) {
-    if (!mel_cepstrum_postfilter.Run(&mel_cepstrum, &buffer)) {
+  while (sptk::ReadStream(false, 0, 0, input_length, &mel_cepstrum,
+                          &input_stream, NULL)) {
+    if (!mel_cepstrum_power_normalization.Run(
+            mel_cepstrum, &power_normalized_mel_cepstrum, &buffer)) {
       std::ostringstream error_message;
-      error_message << "Failed to apply postfilter for mel-cepstrum";
-      sptk::PrintErrorMessage("mcpf", error_message);
+      error_message << "Failed to normalize mel-cepstrum";
+      sptk::PrintErrorMessage("pnorm", error_message);
       return 1;
     }
 
-    if (!sptk::WriteStream(0, length, mel_cepstrum, &std::cout, NULL)) {
+    if (!sptk::WriteStream(0, output_length, power_normalized_mel_cepstrum,
+                           &std::cout, NULL)) {
       std::ostringstream error_message;
-      error_message << "Failed to write postfiltered mel-cepstrum";
-      sptk::PrintErrorMessage("mcpf", error_message);
+      error_message << "Failed to write power-normalized mel-cepstrum";
+      sptk::PrintErrorMessage("pnorm", error_message);
       return 1;
     }
   }
