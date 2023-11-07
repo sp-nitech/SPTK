@@ -256,7 +256,7 @@ bool OutputStatistics(const sptk::StatisticsAccumulation& accumulation,
  *
  * The input of this command is
  * @f[
- *   \begin{array}{cccc}
+ *   \begin{array}{c}
  *     \underbrace{
  *       \underbrace{x_1(1), \; \ldots, \; x_1(L)}_L, \; \ldots, \;
  *       \underbrace{x_T(1), \; \ldots, \; x_T(L)}_L,
@@ -297,7 +297,7 @@ bool OutputStatistics(const sptk::StatisticsAccumulation& accumulation,
  *   \begin{array}{cc}
  *     \underbrace{\sigma_{0}(1,1), \; \sigma_{0}(2,2), \; \ldots, \;
  *                 \sigma_{0}(L,L)}_L, &
- *     \ldots
+ *     \ldots.
  *   \end{array}
  * @f]
  *
@@ -323,11 +323,11 @@ bool OutputStatistics(const sptk::StatisticsAccumulation& accumulation,
  *   \end{array}
  * @f]
  * where @f$s_t(k,l)@f$ is the @f$(k,l)@f$-th component of the inverse of the
- * covariance matrix @f$\{\sigma^2_t(k,l)\}_{k,l=1}^L@f$.
+ * covariance matrix.
  *
  * If @f$O=6@f$,
  * @f[
- *   \begin{array}{ccc}
+ *   \begin{array}{cccc}
  *     \underbrace{\mu_{0}(1), \; \ldots, \; \mu_{0}(L)}_L, &
  *     \underbrace{\ell_{0}(1), \; \ldots, \; \ell_{0}(L)}_L, &
  *     \underbrace{u_{0}(1), \; \ldots, \; u_{0}(L)}_L, &
@@ -336,11 +336,24 @@ bool OutputStatistics(const sptk::StatisticsAccumulation& accumulation,
  * @f]
  * where
  * @f{eqnarray}{
- *   \ell_t(l) &=& \mu_t(l) - p(C, L-1) \sqrt{\frac{\sigma^2_t(l,l)}{L-1}}, \\
- *      u_t(l) &=& \mu_t(l) + p(C, L-1) \sqrt{\frac{\sigma^2_t(l,l)}{L-1}},
+ *   \ell_t(l) &=& \mu_t(l) - p(C, T-1) \sqrt{\frac{\sigma^2_t(l,l)}{T-1}}, \\
+ *      u_t(l) &=& \mu_t(l) + p(C, T-1) \sqrt{\frac{\sigma^2_t(l,l)}{T-1}},
  * @f}
- * and @f$p(C, L-1)@f$ is the upper @f$(100-C)/2@f$-th percentile of the of the
- * t-distribution with degrees of freedom @f$L-1@f$.
+ * and @f$p(C, T-1)@f$ is the upper @f$(100-C)/2@f$-th percentile of the
+ * t-distribution with degrees of freedom @f$T-1@f$.
+ *
+ * If @f$O=7@f$,
+ * @f[
+ *   \begin{array}{cccc}
+ *     \underbrace{T}_1, &
+ *     \underbrace{m^{(1)}_{0}(1), \; \ldots, \; m^{(1)}_{0}(L)}_L, &
+ *     \underbrace{m^{(2)}_{0}(1,1), \; m^{(2)}_{0}(1,2), \; \ldots, \;
+ *                 m^{(2)}_{0}(L,L)}_{L \times L}, &
+ *     \ldots,
+ *   \end{array}
+ * @f]
+ * where @f$m^{(1)}@f$ is the first-order statistics and @f$m^{(2)}@f$ is the
+ * second-order statistics.
  *
  * @code{.sh}
  *   echo 0 1 2 3 4 5 6 7 8 9 | x2x +ad > data.d
@@ -528,36 +541,31 @@ int main(int argc, char* argv[]) {
     std::istream& input_stream(ifs);
 
     double num_data;
-    if (!sptk::ReadStream(&num_data, &input_stream)) {
-      std::ostringstream error_message;
-      error_message << "Failed to read statistics (zeroth order)";
-      sptk::PrintErrorMessage("vstat", error_message);
-      return 1;
-    }
-
     std::vector<double> first(vector_length);
-    if (!sptk::ReadStream(false, 0, 0, vector_length, &first, &input_stream,
-                          NULL)) {
-      std::ostringstream error_message;
-      error_message << "Failed to read statistics (first order)";
-      sptk::PrintErrorMessage("vstat", error_message);
-      return 1;
-    }
-
     sptk::SymmetricMatrix second(vector_length);
-    if (!sptk::ReadStream(&second, &input_stream)) {
-      std::ostringstream error_message;
-      error_message << "Failed to read statistics (second order)";
-      sptk::PrintErrorMessage("vstat", error_message);
-      return 1;
-    }
+    while (sptk::ReadStream(&num_data, &input_stream)) {
+      if (!sptk::ReadStream(false, 0, 0, vector_length, &first, &input_stream,
+                            NULL)) {
+        std::ostringstream error_message;
+        error_message << "Failed to read statistics (first order) in " << file;
+        sptk::PrintErrorMessage("vstat", error_message);
+        return 1;
+      }
 
-    if (!accumulation.Merge(static_cast<int>(num_data), first, second,
-                            &buffer)) {
-      std::ostringstream error_message;
-      error_message << "Failed to merge statistics";
-      sptk::PrintErrorMessage("vstat_merge", error_message);
-      return 1;
+      if (!sptk::ReadStream(&second, &input_stream)) {
+        std::ostringstream error_message;
+        error_message << "Failed to read statistics (second order) in " << file;
+        sptk::PrintErrorMessage("vstat", error_message);
+        return 1;
+      }
+
+      if (!accumulation.Merge(static_cast<int>(num_data), first, second,
+                              &buffer)) {
+        std::ostringstream error_message;
+        error_message << "Failed to merge statistics";
+        sptk::PrintErrorMessage("vstat_merge", error_message);
+        return 1;
+      }
     }
   }
 

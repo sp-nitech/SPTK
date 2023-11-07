@@ -5,7 +5,7 @@ vstat
 
 .. doxygenfile:: vstat.cc
 
-.. seealso:: :ref:`vsum`
+.. seealso:: :ref:`vsum`  :ref:`median`
 
 .. doxygenclass:: sptk::StatisticsAccumulation
    :members:

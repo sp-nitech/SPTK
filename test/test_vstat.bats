@@ -71,6 +71,11 @@ teardown() {
         $sptk4/vstat -l 2 $tmp/0 -o 0 > $tmp/4
         run $sptk4/aeq $tmp/3 $tmp/4
         [ "$status" -eq 0 ]
+
+        cat $tmp/1 $tmp/2 > $tmp/5
+        echo | $sptk4/vstat -l 2 -s $tmp/5 -o 0 $opt > $tmp/6
+        run $sptk4/aeq $tmp/3 $tmp/6
+        [ "$status" -eq 0 ]
     done
 }
 
