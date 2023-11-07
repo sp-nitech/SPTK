@@ -35,7 +35,7 @@ What is SPTK?
 Documentation
 -------------
 - See [this page](https://sp-nitech.github.io/sptk/latest/) for a reference manual.
-- Our [paper](https://openreview.net/pdf?id=O9l-6JBLf-) is available on OpenReview.
+- Our [paper](https://www.isca-speech.org/archive/ssw_2023/yoshimura23_ssw.html) is available on the ISCA Archive.
 
 
 Requirements

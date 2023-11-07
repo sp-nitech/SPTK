@@ -68,6 +68,8 @@ class StatisticsAccumulation {
     std::vector<double> first_order_statistics_;
     SymmetricMatrix second_order_statistics_;
 
+    std::vector<double> delta_;
+
     friend class StatisticsAccumulation;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
@@ -76,9 +78,11 @@ class StatisticsAccumulation {
    * @param[in] num_order Order of vector, @f$M@f$.
    * @param[in] num_statistics_order Order of statistics, @f$K@f$.
    * @param[in] diagonal If true, only diagonal part is accumulated.
+   * @param[in] numerically_stable If true, use a numerically stable algorithm.
    */
   StatisticsAccumulation(int num_order, int num_statistics_order,
-                         bool diagonal = false);
+                         bool diagonal = false,
+                         bool numerically_stable = false);
 
   virtual ~StatisticsAccumulation() {
   }
@@ -111,6 +115,22 @@ class StatisticsAccumulation {
    */
   bool GetNumData(const StatisticsAccumulation::Buffer& buffer,
                   int* num_data) const;
+
+  /**
+   * @param[in] buffer Buffer.
+   * @param[out] first First order statistics.
+   * @return True on success, false on failure.
+   */
+  bool GetFirst(const StatisticsAccumulation::Buffer& buffer,
+                std::vector<double>* first) const;
+
+  /**
+   * @param[in] buffer Buffer.
+   * @param[out] second Second order statistics.
+   * @return True on success, false on failure.
+   */
+  bool GetSecond(const StatisticsAccumulation::Buffer& buffer,
+                 SymmetricMatrix* second) const;
 
   /**
    * @param[in] buffer Buffer.
@@ -185,10 +205,24 @@ class StatisticsAccumulation {
   bool Run(const std::vector<double>& data,
            StatisticsAccumulation::Buffer* buffer) const;
 
+  /**
+   * Merge statistics.
+   *
+   * @param[in] num_data Number of data.
+   * @param[in] first First order statistics.
+   * @param[in] second Second order statistics.
+   * @param[in,out] buffer Buffer.
+   * @return True on success, false on failure.
+   */
+  bool Merge(int num_data, const std::vector<double>& first,
+             const SymmetricMatrix& second,
+             StatisticsAccumulation::Buffer* buffer) const;
+
  private:
   const int num_order_;
   const int num_statistics_order_;
   const bool diagonal_;
+  const bool numerically_stable_;
 
   bool is_valid_;
 

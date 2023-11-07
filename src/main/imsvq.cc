@@ -81,7 +81,7 @@ void PrintUsage(std::ostream* stream) {
  */
 int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
-  std::vector<char*> codebook_vectors_file;
+  std::vector<const char*> codebook_vectors_file;
 
   for (;;) {
     const int option_char(getopt_long(argc, argv, "l:m:s:h", NULL, NULL));
