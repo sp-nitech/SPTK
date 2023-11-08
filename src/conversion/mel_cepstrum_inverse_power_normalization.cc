@@ -47,8 +47,8 @@ bool MelCepstrumInversePowerNormalization::Run(
   }
 
   // Convert.
-  (*mel_cepstrum)[0] =
-      power_normalized_mel_cepstrum[0] + power_normalized_mel_cepstrum[1];
+  const double log_k(power_normalized_mel_cepstrum[0]);
+  (*mel_cepstrum)[0] = power_normalized_mel_cepstrum[1] + log_k;
   std::copy(power_normalized_mel_cepstrum.begin() + 2,
             power_normalized_mel_cepstrum.end(), mel_cepstrum->begin() + 1);
 

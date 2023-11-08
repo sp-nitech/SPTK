@@ -32,7 +32,7 @@ teardown() {
         $sptk3/mgc2mgc -m 9 -M 127 -a 0.1 -G 1 -U |
         $sptk3/sopr -P |
         $sptk3/vsum -t 128 |
-        $sptk3/sopr -LN > $tmp/1
+        $sptk3/sopr -LN -m 0.5 > $tmp/1
     $sptk3/nrand -l 20 |
         $sptk4/pnorm -m 9 -l 128 -a 0.1 |
         $sptk3/bcp +d -n 10 -e 0 > $tmp/2

@@ -65,9 +65,9 @@ bool MelCepstrumPowerNormalization::Run(
   }
 
   // Convert.
-  const double power(std::log(buffer->autocorrelation_[0]));
-  (*power_normalized_mel_cepstrum)[0] = power;
-  (*power_normalized_mel_cepstrum)[1] = mel_cepstrum[0] - power;
+  const double log_k(0.5 * std::log(buffer->autocorrelation_[0]));
+  (*power_normalized_mel_cepstrum)[0] = log_k;
+  (*power_normalized_mel_cepstrum)[1] = mel_cepstrum[0] - log_k;
   std::copy(mel_cepstrum.begin() + 1, mel_cepstrum.end(),
             power_normalized_mel_cepstrum->begin() + 2);
 

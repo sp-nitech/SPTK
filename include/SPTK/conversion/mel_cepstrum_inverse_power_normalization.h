@@ -30,11 +30,11 @@ namespace sptk {
  * coefficients:
  * @f[
  *   \begin{array}{ccccc}
- *     P, & \tilde{c}'(0), & \tilde{c}'(1), & \ldots, & \tilde{c}'(M),
+ *     \log K, & \tilde{c}'(0), & \tilde{c}'(1), & \ldots, & \tilde{c}'(M),
  *   \end{array}
  * @f]
- * where @f$P@f$ is the power and the output is the @f$M@f$-th order
- * mel-cepstral coefficients:
+ * where @f$K@f$ is the square root of power and the output is the @f$M@f$-th
+ * order mel-cepstral coefficients:
  * @f[
  *   \begin{array}{cccc}
  *     \tilde{c}(0), & \tilde{c}(1), & \ldots, & \tilde{c}(M),
@@ -43,7 +43,7 @@ namespace sptk {
  * where
  * @f[
  *   \tilde{c}(m) = \left\{ \begin{array}{ll}
- *     \tilde{c}'(0) + K, & m = 0 \\
+ *     \tilde{c}'(0) + \log K, & m = 0 \\
  *     \tilde{c}'(m). & 1 \le m \le M
  *   \end{array} \right.
  * @f]
