@@ -80,7 +80,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  stdout:" << std::endl;
   *stream << "       statistics                   (double)" << std::endl;
   *stream << "  notice:" << std::endl;
-  *stream << "       -d is valid only if o = 0 or o = 2" << std::endl;
+  *stream << "       -d is valid only if o = 0, 2 or 7" << std::endl;
   *stream << "       -s can be specified multiple times" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
@@ -212,8 +212,18 @@ bool OutputStatistics(const sptk::StatisticsAccumulation& accumulation,
     if (!accumulation.GetSecond(buffer, &second)) {
       return false;
     }
-    if (!sptk::WriteStream(second, &std::cout)) {
-      return false;
+    if (outputs_only_diagonal_elements) {
+      std::vector<double> tmp(vector_length);
+      if (!second.GetDiagonal(&tmp)) {
+        return false;
+      }
+      if (!sptk::WriteStream(0, vector_length, tmp, &std::cout, NULL)) {
+        return false;
+      }
+    } else {
+      if (!sptk::WriteStream(second, &std::cout)) {
+        return false;
+      }
     }
   }
 
@@ -509,7 +519,8 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.is_open() ? ifs : std::cin);
 
   bool diagonal(false);
-  if (kMeanAndCovariance == output_format || kCovariance == output_format) {
+  if (kMeanAndCovariance == output_format || kCovariance == output_format ||
+      kSufficientStatistics == output_format) {
     if (outputs_only_diagonal_elements) {
       diagonal = true;
     }
@@ -541,6 +552,7 @@ int main(int argc, char* argv[]) {
 
     double num_data;
     std::vector<double> first(vector_length);
+    std::vector<double> tmp(vector_length);
     sptk::SymmetricMatrix second(vector_length);
     while (sptk::ReadStream(&num_data, &ifs2)) {
       if (!sptk::ReadStream(false, 0, 0, vector_length, &first, &ifs2, NULL)) {
@@ -550,11 +562,23 @@ int main(int argc, char* argv[]) {
         return 1;
       }
 
-      if (!sptk::ReadStream(&second, &ifs2)) {
-        std::ostringstream error_message;
-        error_message << "Failed to read statistics (second order) in " << file;
-        sptk::PrintErrorMessage("vstat", error_message);
-        return 1;
+      if (diagonal) {
+        if (!sptk::ReadStream(false, 0, 0, vector_length, &tmp, &ifs2, NULL) ||
+            !second.SetDiagonal(tmp)) {
+          std::ostringstream error_message;
+          error_message << "Failed to read statistics (second order) in "
+                        << file;
+          sptk::PrintErrorMessage("vstat", error_message);
+          return 1;
+        }
+      } else {
+        if (!sptk::ReadStream(&second, &ifs2)) {
+          std::ostringstream error_message;
+          error_message << "Failed to read statistics (second order) in "
+                        << file;
+          sptk::PrintErrorMessage("vstat", error_message);
+          return 1;
+        }
       }
 
       if (!accumulation.Merge(static_cast<int>(num_data), first, second,

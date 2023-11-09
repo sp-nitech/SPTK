@@ -64,16 +64,17 @@ teardown() {
     [ "$status" -eq 0 ]
 
     # Merge:
-    for opt in "" "-e" "-d" "-d -e"; do
-        $sptk3/bcut +d -l 2 -e 29 $tmp/0 | $sptk4/vstat -l 2 -o 7 $opt > $tmp/1
-        $sptk3/bcut +d -l 2 -s 30 $tmp/0 | $sptk4/vstat -l 2 -o 7 $opt > $tmp/2
-        echo | $sptk4/vstat -l 2 -s $tmp/1 -s $tmp/2 -o 0 $opt > $tmp/3
-        $sptk4/vstat -l 2 $tmp/0 -o 0 $opt > $tmp/4
+    # shellcheck disable=SC2086
+    for de in "" "-d" "-e" "-d -e"; do
+        $sptk3/bcut +d -l 2 -e 29 $tmp/0 | $sptk4/vstat -l 2 -o 7 $de > $tmp/1
+        $sptk3/bcut +d -l 2 -s 30 $tmp/0 | $sptk4/vstat -l 2 -o 7 $de > $tmp/2
+        echo | $sptk4/vstat -l 2 -s $tmp/1 -s $tmp/2 -o 0 $de > $tmp/3
+        $sptk4/vstat -l 2 $tmp/0 -o 0 $de > $tmp/4
         run $sptk4/aeq $tmp/3 $tmp/4
         [ "$status" -eq 0 ]
 
         cat $tmp/1 $tmp/2 > $tmp/5
-        echo | $sptk4/vstat -l 2 -s $tmp/5 -o 0 $opt > $tmp/6
+        echo | $sptk4/vstat -l 2 -s $tmp/5 -o 0 $de > $tmp/6
         run $sptk4/aeq $tmp/3 $tmp/6
         [ "$status" -eq 0 ]
     done
