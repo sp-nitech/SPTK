@@ -530,29 +530,27 @@ int main(int argc, char* argv[]) {
   }
 
   for (const char* file : statistics_file) {
-    std::ifstream ifs;
-    ifs.open(file, std::ios::in | std::ios::binary);
-    if (ifs.fail()) {
+    std::ifstream ifs2;
+    ifs2.open(file, std::ios::in | std::ios::binary);
+    if (ifs2.fail()) {
       std::ostringstream error_message;
       error_message << "Cannot open file " << file;
       sptk::PrintErrorMessage("vstat", error_message);
       return 1;
     }
-    std::istream& input_stream(ifs);
 
     double num_data;
     std::vector<double> first(vector_length);
     sptk::SymmetricMatrix second(vector_length);
-    while (sptk::ReadStream(&num_data, &input_stream)) {
-      if (!sptk::ReadStream(false, 0, 0, vector_length, &first, &input_stream,
-                            NULL)) {
+    while (sptk::ReadStream(&num_data, &ifs2)) {
+      if (!sptk::ReadStream(false, 0, 0, vector_length, &first, &ifs2, NULL)) {
         std::ostringstream error_message;
         error_message << "Failed to read statistics (first order) in " << file;
         sptk::PrintErrorMessage("vstat", error_message);
         return 1;
       }
 
-      if (!sptk::ReadStream(&second, &input_stream)) {
+      if (!sptk::ReadStream(&second, &ifs2)) {
         std::ostringstream error_message;
         error_message << "Failed to read statistics (second order) in " << file;
         sptk::PrintErrorMessage("vstat", error_message);

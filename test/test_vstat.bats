@@ -64,11 +64,11 @@ teardown() {
     [ "$status" -eq 0 ]
 
     # Merge:
-    for opt in "" "-e"; do
+    for opt in "" "-e" "-d" "-d -e"; do
         $sptk3/bcut +d -l 2 -e 29 $tmp/0 | $sptk4/vstat -l 2 -o 7 $opt > $tmp/1
         $sptk3/bcut +d -l 2 -s 30 $tmp/0 | $sptk4/vstat -l 2 -o 7 $opt > $tmp/2
         echo | $sptk4/vstat -l 2 -s $tmp/1 -s $tmp/2 -o 0 $opt > $tmp/3
-        $sptk4/vstat -l 2 $tmp/0 -o 0 > $tmp/4
+        $sptk4/vstat -l 2 $tmp/0 -o 0 $opt > $tmp/4
         run $sptk4/aeq $tmp/3 $tmp/4
         [ "$status" -eq 0 ]
 
