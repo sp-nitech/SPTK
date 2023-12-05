@@ -68,7 +68,7 @@ class LinearPredictiveCoefficientsToLineSpectralPairs {
 
   /**
    * @param[in] num_order Order of coefficients, @f$M@f$.
-   * @param[in] num_split Number of splits of unit circle.
+   * @param[in] num_split Number of splits of unit circle quadrant.
    * @param[in] num_iteration Number of iterations.
    * @param[in] convergence_threshold Convergence threshold.
    */
