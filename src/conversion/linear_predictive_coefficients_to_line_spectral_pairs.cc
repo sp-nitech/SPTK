@@ -123,7 +123,9 @@ bool LinearPredictiveCoefficientsToLineSpectralPairs::Run(
 
   // Search roots of polynomials.
   const double delta(1.0 / num_split_);
-  for (double x(1.0 - delta); -1.0 <= x; x -= delta) {
+  const double x_max(1.0 - delta);
+  const double x_min(-1.0 - delta);
+  for (double x(x_max); x_min < x; x -= delta) {
     double y(CalculateChebyshevPolynomial(*c, x));
 
     if (y * y_prev <= 0.0) {
