@@ -73,7 +73,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -h    : print this message" << std::endl;
   *stream << "     (level 2)" << std::endl;
   *stream << "       -n n  : number of splits of unit circle         (   int)[" << std::setw(5) << std::right << kDefaultNumSplit             << "][   1 <= n <=   ]" << std::endl;  // NOLINT
-  *stream << "       -i i  : maximum number of iterations            (   int)[" << std::setw(5) << std::right << kDefaultNumIteration         << "][   1 <= i <=   ]" << std::endl;  // NOLINT
+  *stream << "       -i i  : maximum number of iterations            (   int)[" << std::setw(5) << std::right << kDefaultNumIteration         << "][   0 <= i <=   ]" << std::endl;  // NOLINT
   *stream << "       -d d  : convergence threshold                   (double)[" << std::setw(5) << std::right << kDefaultConvergenceThreshold << "][ 0.0 <= d <=   ]" << std::endl;  // NOLINT
   *stream << "  infile:" << std::endl;
   *stream << "       linear predictive coefficients                  (double)[stdin]" << std::endl;  // NOLINT
@@ -106,9 +106,9 @@ void PrintUsage(std::ostream* stream) {
  *     \arg @c 2 frequency in kHz
  *     \arg @c 3 frequency in Hz
  * - @b -n @e int
- *   - number of splits of unit circle @f$(1 \le S)@f$
+ *   - number of splits of unit circle quadrant @f$(1 \le S)@f$
  * - @b -i @e int
- *   - maximum number of iterations @f$(1 \le N)@f$
+ *   - maximum number of iterations @f$(0 \le N)@f$
  * - @b -d @e double
  *   - convergence threshold @f$(0 \le \epsilon)@f$
  * - @b infile @e str
@@ -206,10 +206,10 @@ int main(int argc, char* argv[]) {
       }
       case 'i': {
         if (!sptk::ConvertStringToInteger(optarg, &num_iteration) ||
-            num_iteration <= 0) {
+            num_iteration < 0) {
           std::ostringstream error_message;
-          error_message
-              << "The argument for the -i option must be a positive integer";
+          error_message << "The argument for the -i option must be a "
+                        << "non-negative integer";
           sptk::PrintErrorMessage("lpc2lsp", error_message);
           return 1;
         }

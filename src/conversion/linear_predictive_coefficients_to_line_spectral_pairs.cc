@@ -51,7 +51,7 @@ LinearPredictiveCoefficientsToLineSpectralPairs::
       num_iteration_(num_iteration),
       convergence_threshold_(convergence_threshold),
       is_valid_(true) {
-  if (num_order_ < 0 || num_split_ <= 0 || num_iteration_ <= 0 ||
+  if (num_order_ < 0 || num_split_ <= 0 || num_iteration_ < 0 ||
       convergence_threshold_ < 0.0) {
     is_valid_ = false;
     return;
@@ -123,9 +123,7 @@ bool LinearPredictiveCoefficientsToLineSpectralPairs::Run(
 
   // Search roots of polynomials.
   const double delta(1.0 / num_split_);
-  const double x_max(1.0 - delta);
-  const double x_min(-1.0 - delta);
-  for (double x(x_max); x_min < x; x -= delta) {
+  for (double x(1.0 - delta); -1.0 <= x; x -= delta) {
     double y(CalculateChebyshevPolynomial(*c, x));
 
     if (y * y_prev <= 0.0) {
