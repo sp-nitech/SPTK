@@ -30,7 +30,7 @@ MelGeneralizedLineSpectralPairsToSpectrum::
       fft_length_(fft_length),
       is_valid_(true) {
   if (num_order_ < 0 || !sptk::IsValidAlpha(alpha_) ||
-      !sptk::IsValidGamma(gamma_) || fft_length_ <= 0) {
+      !sptk::IsValidGamma(gamma_) || 0.0 <= gamma_ || fft_length_ <= 0) {
     is_valid_ = false;
     return;
   }
