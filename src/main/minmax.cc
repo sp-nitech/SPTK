@@ -354,8 +354,8 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("minmax", error_message);
           return 1;
         }
-        if (empty) empty = false;
       }
+      if (empty) empty = false;
     }
     // Write value if at least one data is given.
     if (!empty) {
