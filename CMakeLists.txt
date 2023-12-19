@@ -16,7 +16,7 @@
 
 cmake_minimum_required(VERSION 3.1...3.5)
 
-project(SPTK VERSION 4.1)
+project(SPTK VERSION 4.2)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.5.0)
