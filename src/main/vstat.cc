@@ -14,7 +14,6 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <cmath>     // std::sqrt
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
 #include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
