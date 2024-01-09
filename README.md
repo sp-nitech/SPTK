@@ -136,6 +136,7 @@ Changes from SPTK3
   - Nonrecursive MLPG (`mlpg -R 1`)
   - Pitch adaptive spectrum estimation (`pitch_spec`)
   - Pitch extraction by DIO used in WORLD (`pitch -a 3`)
+  - PLP extraction (`plp`)
   - Pole-zero plot (`gpolezero`)
   - Scalar quantization (`quantize` and `dequantize`)
   - Sinusoidal generation from pitch (`pitch2sin`)
