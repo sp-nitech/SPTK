@@ -82,16 +82,16 @@ class PerceptualLinearPredictiveCoefficientsAnalysis {
    * @param[in] num_channel Number of channels, @f$C@f$.
    * @param[in] num_order Order of cepstral coefficients, @f$M@f$.
    * @param[in] liftering_coefficient A parameter of liftering, @f$L@f$.
+   * @param[in] compression_factor Amplitude compression factor.
    * @param[in] sampling_rate Sampling rate in Hz.
    * @param[in] lowest_frequency Lowest frequency in Hz.
    * @param[in] highest_frequency Highest frequency in Hz.
    * @param[in] floor Floor value of raw filter-bank output.
-   * @param[in] compression_factor Amplitude compression factor.
    */
   PerceptualLinearPredictiveCoefficientsAnalysis(
       int fft_length, int num_channel, int num_order, int liftering_coefficient,
-      double sampling_rate, double lowest_frequency, double highest_frequency,
-      double floor, double compression_factor);
+      double compression_factor, double sampling_rate, double lowest_frequency,
+      double highest_frequency, double floor);
 
   virtual ~PerceptualLinearPredictiveCoefficientsAnalysis() {
   }

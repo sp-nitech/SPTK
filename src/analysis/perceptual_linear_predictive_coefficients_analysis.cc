@@ -25,9 +25,9 @@ namespace sptk {
 PerceptualLinearPredictiveCoefficientsAnalysis::
     PerceptualLinearPredictiveCoefficientsAnalysis(
         int fft_length, int num_channel, int num_order,
-        int liftering_coefficient, double sampling_rate,
-        double lowest_frequency, double highest_frequency, double floor,
-        double compression_factor)
+        int liftering_coefficient, double compression_factor,
+        double sampling_rate, double lowest_frequency, double highest_frequency,
+        double floor)
     : liftering_coefficient_(liftering_coefficient),
       compression_factor_(compression_factor),
       mel_filter_bank_analysis_(fft_length, num_channel, sampling_rate,

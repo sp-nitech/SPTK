@@ -68,10 +68,10 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -m m  : order of cepstrum               (   int)[" << std::setw(5) << std::right << kDefaultNumOrder             << "][   1 <= m <  n     ]" << std::endl;  // NOLINT
   *stream << "       -l l  : frame length (FFT length)       (   int)[" << std::setw(5) << std::right << kDefaultFftLength            << "][   2 <= l <=       ]" << std::endl;  // NOLINT
   *stream << "       -c c  : liftering coefficient           (   int)[" << std::setw(5) << std::right << kDefaultLifteringCoefficient << "][   1 <= c <        ]" << std::endl;  // NOLINT
+  *stream << "       -f f  : amplitude compression factor    (double)[" << std::setw(5) << std::right << kDefaultCompressionFactor    << "][ 0.0 <  f <=       ]" << std::endl;  // NOLINT
   *stream << "       -s s  : sampling rate [kHz]             (double)[" << std::setw(5) << std::right << kDefaultSamplingRate         << "][ 0.0 <  s <=       ]" << std::endl;  // NOLINT
   *stream << "       -L L  : lowest frequency [Hz]           (double)[" << std::setw(5) << std::right << kDefaultLowestFrequency      << "][ 0.0 <= L <  H     ]" << std::endl;  // NOLINT
   *stream << "       -H H  : highest frequency [Hz]          (double)[" << std::setw(5) << std::right << "500*s"                      << "][   L <  H <= 500*s ]" << std::endl;  // NOLINT
-  *stream << "       -f f  : amplitude compression factor    (double)[" << std::setw(5) << std::right << kDefaultCompressionFactor    << "][ 0.0 <  f <=       ]" << std::endl;  // NOLINT
   *stream << "       -q q  : input format                    (   int)[" << std::setw(5) << std::right << kDefaultInputFormat          << "][   0 <= q <= 4     ]" << std::endl;  // NOLINT
   *stream << "                 0 (20*log|X(z)|)" << std::endl;
   *stream << "                 1 (ln|X(z)|)" << std::endl;
@@ -110,14 +110,14 @@ void PrintUsage(std::ostream* stream) {
  *   - FFT length @f$(2 \le N)@f$
  * - @b -c @e int
  *   - liftering parameter @f$(1 \le L)@f$
+ * - @b -f @e double
+ *   - compression factor @f$(0 < f)@f$
  * - @b -s @e double
  *   - sampling rate in kHz @f$(0 < F_s)@f$
  * - @b -L @e double
  *   - lowest frequency in Hz @f$(0 \le F_l < F_h)@f$
  * - @b -H @e double
  *   - highest frequency in Hz @f$(F_l < F_h \le 500F_s)@f$
- * - @b -f @e double
- *   - compression factor @f$(0 < f)@f$
  * - @b -q @e int
  *   - input format
  *     @arg @c 0 amplitude spectrum in dB
@@ -182,10 +182,10 @@ int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
   int fft_length(kDefaultFftLength);
   int liftering_coefficient(kDefaultLifteringCoefficient);
+  double compression_factor(kDefaultCompressionFactor);
   double sampling_rate(kDefaultSamplingRate);
   double lowest_frequency(kDefaultLowestFrequency);
   double highest_frequency(0.0);
-  double compression_factor(kDefaultCompressionFactor);
   bool is_highest_frequency_specified(false);
   InputFormats input_format(kDefaultInputFormat);
   OutputFormats output_format(kDefaultOutputFormat);
@@ -193,7 +193,7 @@ int main(int argc, char* argv[]) {
 
   for (;;) {
     const int option_char(
-        getopt_long(argc, argv, "n:m:l:c:s:L:H:f:q:o:e:h", NULL, NULL));
+        getopt_long(argc, argv, "n:m:l:c:f:s:L:H:q:o:e:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -239,6 +239,17 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
+      case 'f': {
+        if (!sptk::ConvertStringToDouble(optarg, &compression_factor) ||
+            compression_factor <= 0.0) {
+          std::ostringstream error_message;
+          error_message
+              << "The argument for the -f option must be a positive number";
+          sptk::PrintErrorMessage("plp", error_message);
+          return 1;
+        }
+        break;
+      }
       case 's': {
         if (!sptk::ConvertStringToDouble(optarg, &sampling_rate) ||
             sampling_rate <= 0.0) {
@@ -271,17 +282,6 @@ int main(int argc, char* argv[]) {
           return 1;
         }
         is_highest_frequency_specified = true;
-        break;
-      }
-      case 'f': {
-        if (!sptk::ConvertStringToDouble(optarg, &compression_factor) ||
-            compression_factor <= 0.0) {
-          std::ostringstream error_message;
-          error_message
-              << "The argument for the -f option must be a positive number";
-          sptk::PrintErrorMessage("plp", error_message);
-          return 1;
-        }
         break;
       }
       case 'q': {
@@ -405,8 +405,8 @@ int main(int argc, char* argv[]) {
 
   sptk::PerceptualLinearPredictiveCoefficientsAnalysis analysis(
       fft_length, num_channel, num_order, liftering_coefficient,
-      sampling_rate_in_hz, lowest_frequency, highest_frequency, floor,
-      compression_factor);
+      compression_factor, sampling_rate_in_hz, lowest_frequency,
+      highest_frequency, floor);
   sptk::PerceptualLinearPredictiveCoefficientsAnalysis::Buffer
       buffer_for_plp_analysis;
   if (!analysis.IsValid()) {
