@@ -80,6 +80,7 @@ set(CC_SOURCES
   ${SOURCE_DIR}/analysis/mel_filter_bank_analysis.cc
   ${SOURCE_DIR}/analysis/mel_frequency_cepstral_coefficients_analysis.cc
   ${SOURCE_DIR}/analysis/mel_generalized_cepstral_analysis.cc
+  ${SOURCE_DIR}/analysis/perceptual_linear_predictive_coefficients_analysis.cc
   ${SOURCE_DIR}/analysis/pitch_extraction.cc
   ${SOURCE_DIR}/analysis/pitch_extraction_by_dio.cc
   ${SOURCE_DIR}/analysis/pitch_extraction_by_harvest.cc
@@ -177,7 +178,9 @@ set(CC_SOURCES
   ${SOURCE_DIR}/math/gaussian_mixture_modeling.cc
   ${SOURCE_DIR}/math/histogram_calculation.cc
   ${SOURCE_DIR}/math/inverse_discrete_cosine_transform.cc
+  ${SOURCE_DIR}/math/inverse_discrete_fourier_transform.cc
   ${SOURCE_DIR}/math/inverse_fast_fourier_transform.cc
+  ${SOURCE_DIR}/math/inverse_fourier_transform.cc
   ${SOURCE_DIR}/math/levinson_durbin_recursion.cc
   ${SOURCE_DIR}/math/matrix.cc
   ${SOURCE_DIR}/math/matrix2d.cc
@@ -352,6 +355,7 @@ set(MAIN_SOURCES
   ${SOURCE_DIR}/main/pca.cc
   ${SOURCE_DIR}/main/pcas.cc
   ${SOURCE_DIR}/main/phase.cc
+  ${SOURCE_DIR}/main/plp.cc
   ${SOURCE_DIR}/main/pitch.cc
   ${SOURCE_DIR}/main/pitch2sin.cc
   ${SOURCE_DIR}/main/pitch_mark.cc

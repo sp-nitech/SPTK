@@ -14,75 +14,65 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#ifndef SPTK_MATH_INVERSE_FAST_FOURIER_TRANSFORM_H_
-#define SPTK_MATH_INVERSE_FAST_FOURIER_TRANSFORM_H_
+#ifndef SPTK_MATH_INVERSE_DISCRETE_FOURIER_TRANSFORM_H_
+#define SPTK_MATH_INVERSE_DISCRETE_FOURIER_TRANSFORM_H_
 
 #include <vector>  // std::vector
 
-#include "SPTK/math/fast_fourier_transform.h"
+#include "SPTK/math/discrete_fourier_transform.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
 /**
- * Calculate inverse FFT of complex-valued input data.
+ * Calculate inverse DFT of complex-valued input data.
  *
- * The inputs are @f$M@f$-th order complex-valued data:
+ * The inputs are @f$L@f$-length complex-valued data:
  * @f[
  *   \begin{array}{cccc}
- *   \mathrm{Re}(X(0)), & \mathrm{Re}(X(1)), & \ldots, & \mathrm{Re}(X(M)), \\
- *   \mathrm{Im}(X(0)), & \mathrm{Im}(X(1)), & \ldots, & \mathrm{Im}(X(M)).
+ *   \mathrm{Re}(X(0)), & \mathrm{Re}(X(1)), & \ldots, & \mathrm{Re}(X(L-1)), \\
+ *   \mathrm{Im}(X(0)), & \mathrm{Im}(X(1)), & \ldots, & \mathrm{Im}(X(L-1)).
  *   \end{array}
  * @f]
  * The outputs are
  * @f[
  *   \begin{array}{cccc}
  *   \mathrm{Re}(x(0)), & \mathrm{Re}(x(1)), & \ldots, & \mathrm{Re}(x(L-1)), \\
- *   \mathrm{Im}(x(0)), & \mathrm{Im}(x(1)), & \ldots, & \mathrm{Im}(x(L-1)),
+ *   \mathrm{Im}(x(0)), & \mathrm{Im}(x(1)), & \ldots, & \mathrm{Im}(x(L-1)).
  *   \end{array}
  * @f]
- * where @f$L@f$ is the FFT length and must be a power of two.
+ * They are computed as
+ * @f[
+ *   x(n) = \frac{1}{L} \sum_{n=0}^{L-1} X(k) e^{j2\pi nk / L}.
+ * @f]
  */
-class InverseFastFourierTransform {
+class InverseDiscreteFourierTransform {
  public:
   /**
-   * @param[in] fft_length FFT length, @f$L@f$.
+   * @param[in] dft_length DFT length, @f$L@f$.
    */
-  explicit InverseFastFourierTransform(int fft_length);
+  explicit InverseDiscreteFourierTransform(int dft_length);
 
-  /**
-   * @param[in] num_order Order of input, @f$M@f$.
-   * @param[in] fft_length FFT length, @f$L@f$.
-   */
-  InverseFastFourierTransform(int num_order, int fft_length);
-
-  virtual ~InverseFastFourierTransform() {
+  virtual ~InverseDiscreteFourierTransform() {
   }
 
   /**
-   * @return Order of input.
+   * @return DFT length.
    */
-  int GetNumOrder() const {
-    return fast_fourier_transform_.GetNumOrder();
-  }
-
-  /**
-   * @return FFT length.
-   */
-  int GetFftLength() const {
-    return fast_fourier_transform_.GetFftLength();
+  int GetDftLength() const {
+    return dft_length_;
   }
 
   /**
    * @return True if this object is valid.
    */
   bool IsValid() const {
-    return fast_fourier_transform_.IsValid();
+    return is_valid_;
   }
 
   /**
-   * @param[in] real_part_input @f$M@f$-th order real part of input.
-   * @param[in] imag_part_input @f$M@f$-th order imaginary part of input.
+   * @param[in] real_part_input @f$L@f$-length real part of input.
+   * @param[in] imag_part_input @f$L@f$-length imaginary part of input.
    * @param[out] real_part_output @f$L@f$-length real part of output.
    * @param[out] imag_part_output @f$L@f$-length iaginary part of output.
    * @return True on success, false on failure.
@@ -93,19 +83,24 @@ class InverseFastFourierTransform {
            std::vector<double>* imag_part_output) const;
 
   /**
-   * @param[in,out] real_part Real part.
-   * @param[in,out] imag_part Imaginary part.
+   * @param[in,out] real_part @f$L@f$-length real part.
+   * @param[in,out] imag_part @f$L@f$-length imaginary part.
    * @return True on success, false on failure.
    */
   bool Run(std::vector<double>* real_part,
            std::vector<double>* imag_part) const;
 
  private:
-  const FastFourierTransform fast_fourier_transform_;
+  const int dft_length_;
 
-  DISALLOW_COPY_AND_ASSIGN(InverseFastFourierTransform);
+  bool is_valid_;
+
+  std::vector<double> sine_table_;
+  std::vector<double> cosine_table_;
+
+  DISALLOW_COPY_AND_ASSIGN(InverseDiscreteFourierTransform);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_MATH_INVERSE_FAST_FOURIER_TRANSFORM_H_
+#endif  // SPTK_MATH_INVERSE_DISCRETE_FOURIER_TRANSFORM_H_

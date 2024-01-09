@@ -105,6 +105,11 @@ class MelFilterBankAnalysis {
   }
 
   /**
+   * @return Center frequencies in Hz.
+   */
+  bool GetCenterFrequencies(std::vector<double>* center_frequencies) const;
+
+  /**
    * @param[in] power_spectrum @f$(N/2+1)@f$-length power spectrum.
    * @param[out] filter_bank_output @f$C@f$-channel filter-bank outputs.
    * @param[out] energy Signal energy @f$E@f$ (optional).
@@ -123,6 +128,7 @@ class MelFilterBankAnalysis {
 
   int lower_bin_index_;
   int upper_bin_index_;
+  std::vector<double> center_frequencies_;
   std::vector<int> channel_indices_;
   std::vector<double> channel_weights_;
 

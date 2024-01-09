@@ -95,7 +95,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b -s @e double
  *   - sampling rate in kHz @f$(0 < F_s)@f$
  * - @b -L @e double
- *   - lowest frequency in Hz @f$(0.0 \le F_l < F_h)@f$
+ *   - lowest frequency in Hz @f$(0 \le F_l < F_h)@f$
  * - @b -H @e double
  *   - highest frequency in Hz @f$(F_l < F_h \le 500F_s)@f$
  * - @b -q @e int

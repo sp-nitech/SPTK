@@ -14,14 +14,14 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include "SPTK/math/discrete_fourier_transform.h"
+#include "SPTK/math/inverse_discrete_fourier_transform.h"
 
 #include <cmath>    // std::cos, std::sin
 #include <cstddef>  // std::size_t
 
 namespace sptk {
 
-DiscreteFourierTransform::DiscreteFourierTransform(int dft_length)
+InverseDiscreteFourierTransform::InverseDiscreteFourierTransform(int dft_length)
     : dft_length_(dft_length), is_valid_(true) {
   if (dft_length_ <= 0) {
     is_valid_ = false;
@@ -31,13 +31,13 @@ DiscreteFourierTransform::DiscreteFourierTransform(int dft_length)
   sine_table_.resize(dft_length_);
   cosine_table_.resize(dft_length_);
   for (int i(0); i < dft_length_; ++i) {
-    const double argument(-sptk::kTwoPi * i / dft_length_);
+    const double argument(sptk::kTwoPi * i / dft_length_);
     sine_table_[i] = std::sin(argument);
     cosine_table_[i] = std::cos(argument);
   }
 }
 
-bool DiscreteFourierTransform::Run(
+bool InverseDiscreteFourierTransform::Run(
     const std::vector<double>& real_part_input,
     const std::vector<double>& imag_part_input,
     std::vector<double>* real_part_output,
@@ -63,25 +63,25 @@ bool DiscreteFourierTransform::Run(
   double* output_x(&((*real_part_output)[0]));
   double* output_y(&((*imag_part_output)[0]));
 
-  for (int k(0); k < dft_length_; ++k) {
+  for (int n(0); n < dft_length_; ++n) {
     double sum_x(0.0);
     double sum_y(0.0);
-    for (int n(0); n < dft_length_; ++n) {
+    for (int k(0); k < dft_length_; ++k) {
       const int index(k * n % dft_length_);
       sum_x +=
-          input_x[n] * cosine_table_[index] - input_y[n] * sine_table_[index];
+          input_x[k] * cosine_table_[index] + input_y[k] * sine_table_[index];
       sum_y +=
-          input_x[n] * sine_table_[index] + input_y[n] * cosine_table_[index];
+          input_x[k] * sine_table_[index] - input_y[k] * cosine_table_[index];
     }
-    output_x[k] = sum_x;
-    output_y[k] = sum_y;
+    output_x[n] = sum_x / dft_length_;
+    output_y[n] = sum_y / dft_length_;
   }
 
   return true;
 }
 
-bool DiscreteFourierTransform::Run(std::vector<double>* real_part,
-                                   std::vector<double>* imag_part) const {
+bool InverseDiscreteFourierTransform::Run(
+    std::vector<double>* real_part, std::vector<double>* imag_part) const {
   if (NULL == real_part || NULL == imag_part) return false;
   std::vector<double> real_part_input(*real_part);
   std::vector<double> imag_part_input(*imag_part);
