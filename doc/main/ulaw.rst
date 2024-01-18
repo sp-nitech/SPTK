@@ -5,7 +5,7 @@ ulaw
 
 .. doxygenfile:: ulaw.cc
 
-.. seealso:: :ref:`iulaw`
+.. seealso:: :ref:`iulaw`  :ref:`alaw`
 
 .. doxygenclass:: sptk::MuLawCompression
    :members:

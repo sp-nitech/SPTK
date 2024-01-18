@@ -23,7 +23,7 @@ namespace sptk {
 MuLawExpansion::MuLawExpansion(double abs_max_value, double compression_factor)
     : abs_max_value_(abs_max_value),
       compression_factor_(compression_factor),
-      constant_(1.0 / compression_factor_),
+      constant_(abs_max_value_ / compression_factor_),
       is_valid_(true) {
   if (abs_max_value_ <= 0.0 || compression_factor_ <= 0.0) {
     is_valid_ = false;
@@ -37,7 +37,7 @@ bool MuLawExpansion::Run(double input, double* output) const {
   }
 
   const double x(std::fabs(input) / abs_max_value_);
-  *output = (constant_ * abs_max_value_ * sptk::ExtractSign(input) *
+  *output = (constant_ * sptk::ExtractSign(input) *
              (std::pow(1.0 + compression_factor_, x) - 1.0));
 
   return true;

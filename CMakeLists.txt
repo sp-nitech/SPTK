@@ -94,6 +94,8 @@ set(CC_SOURCES
   ${SOURCE_DIR}/check/line_spectral_pairs_stability_check.cc
   ${SOURCE_DIR}/check/linear_predictive_coefficients_stability_check.cc
   ${SOURCE_DIR}/check/mlsa_digital_filter_stability_check.cc
+  ${SOURCE_DIR}/compression/a_law_compression.cc
+  ${SOURCE_DIR}/compression/a_law_expansion.cc
   ${SOURCE_DIR}/compression/dynamic_range_compression.cc
   ${SOURCE_DIR}/compression/huffman_coding.cc
   ${SOURCE_DIR}/compression/huffman_decoding.cc
@@ -262,6 +264,7 @@ set(MAIN_SOURCES
   ${SOURCE_DIR}/main/acorr.cc
   ${SOURCE_DIR}/main/acr2csm.cc
   ${SOURCE_DIR}/main/aeq.cc
+  ${SOURCE_DIR}/main/alaw.cc
   ${SOURCE_DIR}/main/amgcep.cc
   ${SOURCE_DIR}/main/ap.cc
   ${SOURCE_DIR}/main/average.cc
@@ -305,6 +308,7 @@ set(MAIN_SOURCES
   ${SOURCE_DIR}/main/huffman.cc
   ${SOURCE_DIR}/main/huffman_decode.cc
   ${SOURCE_DIR}/main/huffman_encode.cc
+  ${SOURCE_DIR}/main/ialaw.cc
   ${SOURCE_DIR}/main/idct.cc
   ${SOURCE_DIR}/main/ifft.cc
   ${SOURCE_DIR}/main/ifft2.cc

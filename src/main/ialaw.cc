@@ -20,29 +20,29 @@
 #include <sstream>   // std::ostringstream
 
 #include "GETOPT/ya_getopt.h"
-#include "SPTK/compression/mu_law_compression.h"
+#include "SPTK/compression/a_law_expansion.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
 
 const double kDefaultAbsMaxValue(32768.0);
-const double kDefaultCompressionFactor(255);
+const double kDefaultCompressionFactor(87.6);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " ulaw - u-law pulse code modulation" << std::endl;
+  *stream << " ialaw - inverse A-law pulse code modulation" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
-  *stream << "       ulaw [ options ] [ infile ] > stdout" << std::endl;
+  *stream << "       ialaw [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -v v  : absolute maximum of input (double)[" << std::setw(5) << std::right << kDefaultAbsMaxValue       << "][ 0.0 <  v <=   ]" << std::endl;  // NOLINT
-  *stream << "       -u u  : compression factor        (double)[" << std::setw(5) << std::right << kDefaultCompressionFactor << "][ 0.0 <  u <=   ]" << std::endl;  // NOLINT
+  *stream << "       -a a  : compression factor        (double)[" << std::setw(5) << std::right << kDefaultCompressionFactor << "][ 1.0 <= a <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       input sequence                    (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       compressed sequence               (double)" << std::endl;
+  *stream << "       decompressed sequence             (double)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -52,22 +52,22 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a ulaw [ @e option ] [ @e infile ]
+ * @a ialaw [ @e option ] [ @e infile ]
  *
  * - @b -v @e double
  *   - absolute maximum value of input @f$(0 < V)@f$
- * - @b -u @e double
- *   - compression factor @f$(0 < \mu)@f$
+ * - @b -a @e double
+ *   - compression factor @f$(1 \le A)@f$
  * - @b infile @e str
- *   - double-type input data sequence
- * - @b stdout
  *   - double-type compressed data sequence
+ * - @b stdout
+ *   - double-type output data sequence
  *
- * In the below example, 16-bit data read from @c data.short is compressed to
- * 8-bit u-law format.
+ * In the below example, 8-bit compressed and quantized data read from
+ * @c data.alaw is transformed into raw waveform.
  *
  * @code{.sh}
- *   x2x +sd data.short | ulaw | quantize > data.ulaw
+ *   dequantize data.alaw | ialaw > data.raw
  * @endcode
  *
  * @param[in] argc Number of arguments.
@@ -79,7 +79,7 @@ int main(int argc, char* argv[]) {
   double compression_factor(kDefaultCompressionFactor);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "v:u:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "v:a:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -89,18 +89,18 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -v option must be a positive number";
-          sptk::PrintErrorMessage("ulaw", error_message);
+          sptk::PrintErrorMessage("ialaw", error_message);
           return 1;
         }
         break;
       }
-      case 'u': {
+      case 'a': {
         if (!sptk::ConvertStringToDouble(optarg, &compression_factor) ||
-            compression_factor <= 0.0) {
+            compression_factor < 1.0) {
           std::ostringstream error_message;
-          error_message
-              << "The argument for the -u option must be a positive number";
-          sptk::PrintErrorMessage("ulaw", error_message);
+          error_message << "The argument for the -a option must be a number "
+                        << "greater than or equal to one";
+          sptk::PrintErrorMessage("ialaw", error_message);
           return 1;
         }
         break;
@@ -120,7 +120,7 @@ int main(int argc, char* argv[]) {
   if (1 < num_input_files) {
     std::ostringstream error_message;
     error_message << "Too many input files";
-    sptk::PrintErrorMessage("ulaw", error_message);
+    sptk::PrintErrorMessage("ialaw", error_message);
     return 1;
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
@@ -128,7 +128,7 @@ int main(int argc, char* argv[]) {
   if (!sptk::SetBinaryMode()) {
     std::ostringstream error_message;
     error_message << "Cannot set translation mode";
-    sptk::PrintErrorMessage("ulaw", error_message);
+    sptk::PrintErrorMessage("ialaw", error_message);
     return 1;
   }
 
@@ -138,34 +138,34 @@ int main(int argc, char* argv[]) {
     if (ifs.fail()) {
       std::ostringstream error_message;
       error_message << "Cannot open file " << input_file;
-      sptk::PrintErrorMessage("ulaw", error_message);
+      sptk::PrintErrorMessage("ialaw", error_message);
       return 1;
     }
   }
   std::istream& input_stream(ifs.is_open() ? ifs : std::cin);
 
-  sptk::MuLawCompression mu_law_compression(abs_max_value, compression_factor);
-  if (!mu_law_compression.IsValid()) {
+  sptk::ALawExpansion a_law_expansion(abs_max_value, compression_factor);
+  if (!a_law_expansion.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to initialize MuLawCompression";
-    sptk::PrintErrorMessage("ulaw", error_message);
+    error_message << "Failed to initialize ALawExpansion";
+    sptk::PrintErrorMessage("ialaw", error_message);
     return 1;
   }
 
   double data;
 
   while (sptk::ReadStream(&data, &input_stream)) {
-    if (!mu_law_compression.Run(&data)) {
+    if (!a_law_expansion.Run(&data)) {
       std::ostringstream error_message;
-      error_message << "Failed to compress";
-      sptk::PrintErrorMessage("ulaw", error_message);
+      error_message << "Failed to decompress";
+      sptk::PrintErrorMessage("ialaw", error_message);
       return 1;
     }
 
     if (!sptk::WriteStream(data, &std::cout)) {
       std::ostringstream error_message;
-      error_message << "Failed to write compressed data";
-      sptk::PrintErrorMessage("ulaw", error_message);
+      error_message << "Failed to write decompressed data";
+      sptk::PrintErrorMessage("ialaw", error_message);
       return 1;
     }
   }
