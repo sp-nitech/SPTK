@@ -15,6 +15,7 @@
 // ------------------------------------------------------------------------ //
 
 #include <cctype>    // std::isprint
+#include <cstdint>   // std::uint8_t
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setfill, std::setw
 #include <ios>       // std::dec, std::hex, std::oct

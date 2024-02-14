@@ -19,6 +19,7 @@
 #include <algorithm>  // std::copy, std::reverse, std::sort, std::transform
 #include <cmath>      // std::acos, std::fabs, std::pow
 #include <cstddef>    // std::size_t
+#include <cstdint>    // std::uint64_t
 
 namespace {
 
