@@ -62,7 +62,7 @@ bool SpectrumExtractionByWorld::Run(
       f0_floor = f0[i];
     }
   }
-  if (f0_floor < world::GetF0FloorForCheapTrick(sampling_rate_, fft_length_)) {
+  if (f0_floor < world::GetF0FloorForCheapTrick(static_cast<int>(sampling_rate_), fft_length_)) {
     return false;
   }
 
@@ -73,7 +73,7 @@ bool SpectrumExtractionByWorld::Run(
   }
 
   world::CheapTrickOption option;
-  world::InitializeCheapTrickOption(sampling_rate_, &option);
+  world::InitializeCheapTrickOption(static_cast<int>(sampling_rate_), &option);
   option.fft_size = fft_length_;
   option.f0_floor = f0_floor;
 

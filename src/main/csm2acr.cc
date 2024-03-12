@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
   int num_order(kDefaultNumOrder);
 
   for (;;) {
-    const char option_char(getopt_long(argc, argv, "m:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "m:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {

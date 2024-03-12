@@ -294,7 +294,7 @@ int main(int argc, char* argv[]) {
 
   switch (output_format) {
     case kBinarySequence: {
-      int next_pitch_mark(pitch_mark.empty() ? -1 : std::round(pitch_mark[0]));
+      int next_pitch_mark(pitch_mark.empty() ? -1 : static_cast<int>(std::round(pitch_mark[0])));
       for (int i(0), j(1); i < waveform_length; ++i) {
         if (i == next_pitch_mark) {
           if (!sptk::WriteStream(binary_polarity, &std::cout)) {
@@ -304,7 +304,7 @@ int main(int argc, char* argv[]) {
             return 1;
           }
           if (j < num_pitch_marks) {
-            next_pitch_mark = std::round(pitch_mark[j++]);
+            next_pitch_mark = static_cast<int>(std::round(pitch_mark[j++]));
           }
         } else {
           if (!sptk::WriteStream(0.0, &std::cout)) {
@@ -334,7 +334,7 @@ int main(int argc, char* argv[]) {
       const double bias(kSine == output_format ? 0.0 : 0.5 * sptk::kPi);
       for (int n(0), i(0); n <= num_pitch_marks; ++n) {
         const int next_pitch_mark(
-            n < num_pitch_marks ? std::round(pitch_mark[n]) : waveform_length);
+            n < num_pitch_marks ? static_cast<int>(std::round(pitch_mark[n])) : waveform_length);
         // Find the point across voiced region to unvoiced one.
         int j(i);
         for (; j < next_pitch_mark; ++j) {

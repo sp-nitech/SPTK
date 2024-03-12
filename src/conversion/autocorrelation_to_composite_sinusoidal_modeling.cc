@@ -117,7 +117,7 @@ bool AutocorrelationToCompositeSinusoidalModeling::Run(
         const int index((l < 2 * k) ? (2 * k - l) : (l - 2 * k));
         sum += (binomial_coefficient)*input[index];
       }
-      u[l] = sum / std::pow(2.0, l);
+      u[l] = static_cast<double>(sum / std::pow(2.0, l));
     }
 
     for (int i(0); i < num_sine_wave_; ++i) {
