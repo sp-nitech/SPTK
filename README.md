@@ -217,8 +217,8 @@ License
 This software is released under the Apache License 2.0.
 
 
-Reference
----------
+Citation
+--------
 ```bibtex
 @InProceedings{sp-nitech2023sptk,
   author = {Takenori Yoshimura and Takato Fujimoto and Keiichiro Oura and Keiichi Tokuda},
