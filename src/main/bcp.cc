@@ -87,13 +87,13 @@ class BlockCopy : public BlockCopyInterface {
  public:
   BlockCopy(int input_start_number, int input_end_number,
             int input_block_length, int output_start_number,
-            int output_block_length, T pad_value, bool is_ascii = false)
+            int output_block_length, double pad_value, bool is_ascii = false)
       : input_start_number_(input_start_number),
         input_end_number_(input_end_number),
         input_block_length_(input_block_length),
         output_start_number_(output_start_number),
         output_block_length_(output_block_length),
-        pad_value_(pad_value),
+        pad_value_(static_cast<T>(pad_value)),
         is_ascii_(is_ascii) {
   }
 
@@ -125,7 +125,7 @@ class BlockCopy : public BlockCopyInterface {
           }
           if (input_start_number_ <= i && i <= input_end_number_) {
             try {
-              inputs[i] = std::stold(word);
+              inputs[i] = static_cast<T>(std::stold(word));
             } catch (std::invalid_argument&) {
               return false;
             }

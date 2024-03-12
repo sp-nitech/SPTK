@@ -16,7 +16,7 @@
 
 #include "SPTK/analysis/pitch_extraction_by_reaper.h"
 
-#include <algorithm>  // std::copy, std::fill
+#include <algorithm>  // std::copy, std::fill, std::transform
 #include <cmath>      // std::ceil
 #include <cstdint>    // int16_t
 
@@ -54,7 +54,9 @@ bool PitchExtractionByReaper::Get(
 
   reaper::EpochTracker epoch_tracker;
   epoch_tracker.set_unvoiced_cost(static_cast<float>(voicing_threshold_));
-  std::vector<int16_t> integer_waveform(waveform.begin(), waveform.end());
+  std::vector<int16_t> integer_waveform(waveform.size());
+  std::transform(waveform.begin(), waveform.end(), integer_waveform.begin(),
+                 [](double x) { return static_cast<int16_t>(x); });
   if (!epoch_tracker.Init(integer_waveform.data(),
                           static_cast<int32_t>(integer_waveform.size()),
                           static_cast<float>(sampling_rate_),

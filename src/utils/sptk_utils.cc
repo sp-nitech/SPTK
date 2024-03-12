@@ -136,7 +136,8 @@ bool ReadStream(bool zero_padding, int stream_skip, int read_point,
       return false;  // Something wrong!
     }
 
-    std::fill_n(sequence_to_read->begin() + end - num_zeros, num_zeros, 0.0);
+    std::fill_n(sequence_to_read->begin() + end - num_zeros, num_zeros,
+                static_cast<T>(0));
 
     return !input_stream->bad();
   }
@@ -336,7 +337,9 @@ bool ConvertSpecialStringToDouble(const std::string& input, double* output) {
 
   std::string lowercase_input(input);
   std::transform(input.begin(), input.end(), lowercase_input.begin(),
-                 [](unsigned char c) { return std::tolower(c); });
+                 [](unsigned char c) {
+                   return static_cast<unsigned char>(std::tolower(c));
+                 });
   if ("pi" == lowercase_input) {
     *output = sptk::kPi;
     return true;

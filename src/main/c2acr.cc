@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
   int fft_length(kDefaultFftLength);
 
   for (;;) {
-    const char option_char(getopt_long(argc, argv, "m:M:l:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "m:M:l:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
