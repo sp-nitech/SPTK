@@ -16,7 +16,7 @@
 
 PYTHON_VERSION     := 3.8
 SHELLCHECK_VERSION := 0.9.0
-SHFMT_VERSION      := 3.7.0
+SHFMT_VERSION      := 3.8.0
 JOBS               := 4
 
 

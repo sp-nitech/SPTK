@@ -136,7 +136,8 @@ bool ReadStream(bool zero_padding, int stream_skip, int read_point,
       return false;  // Something wrong!
     }
 
-    std::fill_n(sequence_to_read->begin() + end - num_zeros, num_zeros, static_cast<T>(0));
+    std::fill_n(sequence_to_read->begin() + end - num_zeros, num_zeros,
+                static_cast<T>(0));
 
     return !input_stream->bad();
   }

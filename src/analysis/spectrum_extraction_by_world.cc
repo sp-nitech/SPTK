@@ -62,7 +62,8 @@ bool SpectrumExtractionByWorld::Run(
       f0_floor = f0[i];
     }
   }
-  if (f0_floor < world::GetF0FloorForCheapTrick(static_cast<int>(sampling_rate_), fft_length_)) {
+  if (f0_floor < world::GetF0FloorForCheapTrick(
+                     static_cast<int>(sampling_rate_), fft_length_)) {
     return false;
   }
 
