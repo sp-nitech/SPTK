@@ -76,7 +76,7 @@ void PrintUsage(std::ostream* stream) {
  *   - double-type one-hot vector
  *
  * @code{.sh}
- *   step -l 3 | x2x +di | onehot -l 3 | x2x +da
+ *   ramp -l 3 | x2x +di | onehot -l 3 | x2x +da
  *   # 1, 0, 0, 0, 1, 0, 0, 0, 1
  * @endcode
  *

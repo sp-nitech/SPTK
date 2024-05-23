@@ -14,7 +14,7 @@
 # limitations under the License.                                           #
 # ------------------------------------------------------------------------ #
 
-PYTHON_VERSION     := 3.8
+PYTHON_VERSION     := 3.9
 SHELLCHECK_VERSION := 0.10.0
 SHFMT_VERSION      := 3.8.0
 JOBS               := 4
