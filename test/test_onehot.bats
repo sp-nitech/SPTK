@@ -35,7 +35,7 @@ teardown() {
 }
 
 @test "onehot: valgrind" {
-    $sptk3/nrand -l 20 -v 10 | x2x +di -r > $tmp/1
+    $sptk3/nrand -l 20 -v 10 | $sptk3/x2x +di -r > $tmp/1
     run valgrind $sptk4/onehot $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }
