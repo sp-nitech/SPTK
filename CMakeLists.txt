@@ -354,6 +354,7 @@ set(MAIN_SOURCES
   ${SOURCE_DIR}/main/ndps2c.cc
   ${SOURCE_DIR}/main/norm0.cc
   ${SOURCE_DIR}/main/nrand.cc
+  ${SOURCE_DIR}/main/onehot.cc
   ${SOURCE_DIR}/main/par2lar.cc
   ${SOURCE_DIR}/main/par2lpc.cc
   ${SOURCE_DIR}/main/pca.cc
