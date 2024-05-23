@@ -29,13 +29,13 @@ all: release
 
 release:
 	mkdir -p $(BUILDDIR)
-	cd $(BUILDDIR); cmake .. -DCMAKE_INSTALL_PREFIX=.. -DCMAKE_BUILD_TYPE=Release
-	cd $(BUILDDIR); make -j $(JOBS) install
+	cd $(BUILDDIR) && cmake .. -DCMAKE_INSTALL_PREFIX=.. -DCMAKE_BUILD_TYPE=Release
+	cd $(BUILDDIR) && make -j $(JOBS) install
 
 debug:
 	mkdir -p $(BUILDDIR)
-	cd $(BUILDDIR); cmake .. -DCMAKE_INSTALL_PREFIX=.. -DCMAKE_BUILD_TYPE=Debug
-	cd $(BUILDDIR); make -j $(JOBS) install
+	cd $(BUILDDIR) && cmake .. -DCMAKE_INSTALL_PREFIX=.. -DCMAKE_BUILD_TYPE=Debug
+	cd $(BUILDDIR) && make -j $(JOBS) install
 
 doc:
 	@if [ ! -f ./tools/venv/bin/activate ]; then \
@@ -52,13 +52,13 @@ doc:
 		echo ""; \
 		exit 1; \
 	fi
-	cd $(DOCDIR); ../tools/doxygen/build/bin/doxygen
-	. ./tools/venv/bin/activate; cd $(DOCDIR); make html
+	cd $(DOCDIR) && ../tools/doxygen/build/bin/doxygen
+	. ./tools/venv/bin/activate && cd $(DOCDIR) && make html
 
 doc-clean:
 	rm -rf $(DOCDIR)/xml
 	@if [ -f ./tools/venv/bin/activate ]; then \
-		. ./tools/venv/bin/activate; cd $(DOCDIR); make clean; \
+		. ./tools/venv/bin/activate && cd $(DOCDIR) && make clean; \
 	fi
 
 format: format-sh format-py format-cc

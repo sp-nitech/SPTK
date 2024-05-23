@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
       case 'u': {
         if (!sptk::ConvertStringToDouble(optarg, &mean)) {
           std::ostringstream error_message;
-          error_message << "The argument for the -u option must be double";
+          error_message << "The argument for the -u option must be numeric";
           sptk::PrintErrorMessage("nrand", error_message);
           return 1;
         }
