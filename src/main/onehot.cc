@@ -25,10 +25,7 @@
 
 namespace {
 
-enum WarningType { kIgnore = 0, kWarn, kExit, kNumWarningTypes };
-
 const int kDefaultVectorLength(10);
-const WarningType kDefaultWarningType(kIgnore);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -40,11 +37,6 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  options:" << std::endl;
   *stream << "       -l l  : length of vector   (double)[" << std::setw(5) << std::right << kDefaultVectorLength << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -m m  : order of vector    (double)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -e e  : out-of-range error (   int)[" << std::setw(5) << std::right << kDefaultWarningType  << "][ 0 <= e <= 2 ]" << std::endl;  // NOLINT
-  *stream << "                 0 (no warning)" << std::endl;
-  *stream << "                 1 (output the index to stderr)" << std::endl;
-  *stream << "                 2 (output the index to stderr and" << std::endl;
-  *stream << "                    exit immediately)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       0-based index              (   int)[stdin]" << std::endl;
@@ -65,11 +57,6 @@ void PrintUsage(std::ostream* stream) {
  *   - length of vector @f$(1 \le L)@f$
  * - @b -m @e int
  *   - order of vector @f$(0 \le L - 1)@f$
- * - @b -e @e int
- *   - warning type
- *     \arg @c 0 no warning
- *     \arg @c 1 output index
- *     \arg @c 2 output index and exit immediately
  * - @b infile @e str
  *   - int-type 0-based index
  * - @b stdout
@@ -86,10 +73,9 @@ void PrintUsage(std::ostream* stream) {
  */
 int main(int argc, char* argv[]) {
   int vector_length(kDefaultVectorLength);
-  WarningType warning_type(kDefaultWarningType);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:m:e:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -114,21 +100,6 @@ int main(int argc, char* argv[]) {
           return 1;
         }
         ++vector_length;
-        break;
-      }
-      case 'e': {
-        const int min(0);
-        const int max(static_cast<int>(kNumWarningTypes) - 1);
-        int tmp;
-        if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
-            !sptk::IsInRange(tmp, min, max)) {
-          std::ostringstream error_message;
-          error_message << "The argument for the -e option must be an integer "
-                        << "in the range of " << min << " to " << max;
-          sptk::PrintErrorMessage("onehot", error_message);
-          return 1;
-        }
-        warning_type = static_cast<WarningType>(tmp);
         break;
       }
       case 'h': {
@@ -175,44 +146,20 @@ int main(int argc, char* argv[]) {
 
   for (int sample_index(0); sptk::ReadStream(&index, &input_stream);
        ++sample_index) {
-    const bool is_valid(0 <= index && index < vector_length);
-    if (is_valid) {
-      onehot_vector[index] = 1.0;
-    } else {
-      switch (warning_type) {
-        case kIgnore: {
-          // nothing to do
-          break;
-        }
-        case kWarn: {
-          std::ostringstream error_message;
-          error_message << sample_index << "th sample is out of range";
-          sptk::PrintErrorMessage("onehot", error_message);
-          break;
-        }
-        case kExit: {
-          std::ostringstream error_message;
-          error_message << sample_index << "th sample is out of range";
-          sptk::PrintErrorMessage("onehot", error_message);
-          return 1;
-        }
-        default: {
-          std::ostringstream error_message;
-          error_message << "Unknown warning type";
-          sptk::PrintErrorMessage("onehot", error_message);
-          return 1;
-        }
-      }
+    if (index < 0 || vector_length <= index) {
+      std::ostringstream error_message;
+      error_message << sample_index << "th sample is out of range";
+      sptk::PrintErrorMessage("onehot", error_message);
+      return 1;
     }
+    onehot_vector[index] = 1.0;
     if (!sptk::WriteStream(0, vector_length, onehot_vector, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write one-hot vector";
       sptk::PrintErrorMessage("onehot", error_message);
       return 1;
     }
-    if (is_valid) {
-      onehot_vector[index] = 0.0;
-    }
+    onehot_vector[index] = 0.0;
   }
 
   return 0;

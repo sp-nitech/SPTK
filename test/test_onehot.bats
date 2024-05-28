@@ -28,8 +28,8 @@ teardown() {
 }
 
 @test "onehot: compatibility" {
-    echo 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 | $sptk3/x2x +ad > $tmp/1
-    $sptk3/ramp -s -1 -e 3 | $sptk3/x2x +di | $sptk4/onehot -l 3 > $tmp/2
+    echo 1 0 0 0 1 0 0 0 1 | $sptk3/x2x +ad > $tmp/1
+    $sptk3/ramp -s 0 -e 2 | $sptk3/x2x +di | $sptk4/onehot -l 3 > $tmp/2
     run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
