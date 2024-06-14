@@ -25,11 +25,7 @@ all: check doxygen.done
 check: venv_dev bats.done shellcheck.done shfmt.done sptk.done
 
 venv:
-	@if type virtualenv > /dev/null 2>&1; then \
-		test -d venv || virtualenv -p python$(PYTHON_VERSION) venv; \
-	else \
-		test -d venv || python$(PYTHON_VERSION) -m venv venv; \
-	fi
+	test -d venv || python$(PYTHON_VERSION) -m venv venv
 	. ./venv/bin/activate && python -m pip install pip --upgrade
 	. ./venv/bin/activate && python -m pip install -r requirements.txt --upgrade
 	touch venv/bin/activate
