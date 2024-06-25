@@ -33,6 +33,8 @@ const double kDefaultKneeWidth(0.0);
 const double kDefaultAttackTime(1.0);
 const double kDefaultReleaseTime(500.0);
 const double kDefaultMakeUpGain(0.0);
+const sptk::DynamicRangeCompression::DetectorType kDefaultDetectorType(
+    sptk::DynamicRangeCompression::DetectorType::kDecoupled);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -51,6 +53,12 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -R R  : release time [msec]       (double)[" << std::setw(5) << std::right << kDefaultReleaseTime  << "][ 0.0 <  R <=     ]" << std::endl;  // NOLINT
   *stream << "       -m m  : make-up gain              (double)[" << std::setw(5) << std::right << kDefaultMakeUpGain   << "][ 0.0 <= m <=     ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
+  *stream << "     (level 2)" << std::endl;
+  *stream << "       -d d  : peak detector type        (   int)[" << std::setw(5) << std::right << kDefaultDetectorType << "][   0 <= d <= 3   ]" << std::endl;  // NOLINT
+  *stream << "                 0 (branching)" << std::endl;
+  *stream << "                 1 (decoupled)" << std::endl;
+  *stream << "                 2 (branching, smooth)" << std::endl;
+  *stream << "                 3 (decoupled, smooth)" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       input sequence                    (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
@@ -82,6 +90,12 @@ void PrintUsage(std::ostream* stream) {
  *   - release time [msec] @f$(0 < \tau_R)@f$
  * - @b -m @e double
  *   - make-up gain @f$(0 \le M)@f$
+ * - @b -d @e int
+ *   - peak detector type
+ *     \arg @c 0 branching
+ *     \arg @c 1 decoupled
+ *     \arg @c 2 branching (smooth)
+ *     \arg @c 3 decoupled (smooth)
  * - @b infile @e str
  *   - double-type input data sequence
  * - @b stdout
@@ -107,10 +121,12 @@ int main(int argc, char* argv[]) {
   double attack_time(kDefaultAttackTime);
   double release_time(kDefaultReleaseTime);
   double makeup_gain(kDefaultMakeUpGain);
+  sptk::DynamicRangeCompression::DetectorType detector_type(
+      kDefaultDetectorType);
 
   for (;;) {
     const int option_char(
-        getopt_long(argc, argv, "v:s:t:r:w:A:R:m:h", NULL, NULL));
+        getopt_long(argc, argv, "v:s:t:r:w:A:R:m:d:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -199,6 +215,24 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
+      case 'd': {
+        const int min(0);
+        const int max(static_cast<int>(sptk::DynamicRangeCompression::
+                                           DetectorType::kNumDetectorTypes) -
+                      1);
+        int tmp;
+        if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
+            !sptk::IsInRange(tmp, min, max)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -d option must be an integer "
+                        << "in the range of " << min << " to " << max;
+          sptk::PrintErrorMessage("drc", error_message);
+          return 1;
+        }
+        detector_type =
+            static_cast<sptk::DynamicRangeCompression::DetectorType>(tmp);
+        break;
+      }
       case 'h': {
         PrintUsage(&std::cout);
         return 0;
@@ -240,7 +274,7 @@ int main(int argc, char* argv[]) {
 
   sptk::DynamicRangeCompression dynamic_range_compression(
       abs_max_value, 1000.0 * sampling_rate, threshold, ratio, knee_width,
-      attack_time, release_time, makeup_gain);
+      attack_time, release_time, makeup_gain, detector_type);
   sptk::DynamicRangeCompression::Buffer buffer;
   if (!dynamic_range_compression.IsValid()) {
     std::ostringstream error_message;
