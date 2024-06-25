@@ -51,6 +51,7 @@ class DynamicRangeCompression {
     kDecoupled,
     kBranchingSmooth,
     kDecoupledSmooth,
+    kNumDetectorTypes
   };
 
   /**
