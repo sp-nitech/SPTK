@@ -141,6 +141,7 @@ set(CC_SOURCES
   ${SOURCE_DIR}/filter/all_pole_digital_filter.cc
   ${SOURCE_DIR}/filter/all_pole_lattice_digital_filter.cc
   ${SOURCE_DIR}/filter/all_zero_digital_filter.cc
+  ${SOURCE_DIR}/filter/all_zero_lattice_digital_filter.cc
   ${SOURCE_DIR}/filter/infinite_impulse_response_digital_filter.cc
   ${SOURCE_DIR}/filter/inverse_mglsa_digital_filter.cc
   ${SOURCE_DIR}/filter/inverse_pseudo_quadrature_mirror_filter_banks.cc
@@ -313,6 +314,7 @@ set(MAIN_SOURCES
   ${SOURCE_DIR}/main/ifft.cc
   ${SOURCE_DIR}/main/ifft2.cc
   ${SOURCE_DIR}/main/ignorm.cc
+  ${SOURCE_DIR}/main/iltcdf.cc
   ${SOURCE_DIR}/main/imglsadf.cc
   ${SOURCE_DIR}/main/impulse.cc
   ${SOURCE_DIR}/main/imsvq.cc
