@@ -47,7 +47,7 @@ bool AllZeroLatticeDigitalFilter::Run(
   }
 
   if (0 == num_filter_order_) {
-    *filter_output = filter_input / filter_coefficients[0];
+    *filter_output = filter_input * filter_coefficients[0];
     return true;
   }
 
@@ -65,7 +65,7 @@ bool AllZeroLatticeDigitalFilter::Run(
   }
 
   // Save result.
-  *filter_output = sum / filter_coefficients[0];
+  *filter_output = sum * filter_coefficients[0];
 
   return true;
 }

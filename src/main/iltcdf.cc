@@ -208,10 +208,10 @@ int main(int argc, char* argv[]) {
   sptk::InputSourceInterpolation interpolation(
       frame_period, interpolation_period, true, &input_source);
   const sptk::InputSourcePreprocessingForFilterGain::FilterGainType gain_type(
-      gain_flag
-          ? sptk::InputSourcePreprocessingForFilterGain::FilterGainType::kLinear
-          : sptk::InputSourcePreprocessingForFilterGain::FilterGainType::
-                kUnity);
+      gain_flag ? sptk::InputSourcePreprocessingForFilterGain::FilterGainType::
+                      kInverse
+                : sptk::InputSourcePreprocessingForFilterGain::FilterGainType::
+                      kUnity);
   sptk::InputSourcePreprocessingForFilterGain preprocessing(gain_type,
                                                             &interpolation);
   if (!preprocessing.IsValid()) {
