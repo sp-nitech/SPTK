@@ -90,8 +90,8 @@ void PrintUsage(std::ostream* stream) {
  * - @b stdout
  *   - double-type output sequence
  *
- * In the below example, an exciation signal generated from pitch information is
- * passed through the synthesis filter built from LSP coefficients.
+ * In the below example, an excitation signal generated from pitch information
+ * is passed through the synthesis filter built from LSP coefficients.
  *
  * @code{.sh}
  *   excite < data.pitch | lspdf data.lsp > data.syn

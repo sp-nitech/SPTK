@@ -81,6 +81,14 @@ void PrintUsage(std::ostream* stream) {
  * - @b stdout
  *   - double-type output sequence
  *
+ * In the below example, an excitaion signal generated from pitch information is
+ * reconstructed using the synthesis and analysis filters built from PARCOR
+ * coefficients.
+ *
+ * @code{.sh}
+ *   excite < data.pitch | ltcdf data.rc | iltcdf data.rc > data.e
+ * @endcode
+ *
  * @param[in] argc Number of arguments.
  * @param[in] argv Argument vector.
  * @return 0 on success, 1 on failure.
