@@ -35,6 +35,7 @@ class InputSourcePreprocessingForFilterGain : public InputSourceInterface {
   enum FilterGainType {
     kLinear = 0,
     kLog,
+    kInverse,
     kUnity,
     kUnityForAllZeroFilter,
   };

@@ -193,8 +193,8 @@ class InputSourcePreprocessingForMelCepstrum
  * - @b stdout
  *   - double-type output sequence
  *
- * In the below example, an exciation signal generated from pitch information is
- * passed through the MLSA filter built from mel-cepstral coefficients
+ * In the below example, an excitation signal generated from pitch information
+ * is passed through the MLSA filter built from mel-cepstral coefficients
  * @c data.mcep.
  *
  * @code{.sh}

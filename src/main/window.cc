@@ -40,7 +40,7 @@ enum LocalWindowType {
 const int kDefaultFrameLength(256);
 const sptk::DataWindowing::NormalizationType kDefaultNormalizationType(
     sptk::DataWindowing::NormalizationType::kPower);
-const LocalWindowType kDefaultLocalWindowType(kBlackman);
+const LocalWindowType kDefaultWindowType(kBlackman);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -56,7 +56,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 0 (none)" << std::endl;
   *stream << "                 1 (power)" << std::endl;
   *stream << "                 2 (magnitude)" << std::endl;
-  *stream << "       -w w  : window type            (   int)[" << std::setw(5) << std::right << kDefaultLocalWindowType   << "][ 0 <= w <= 5 ]" << std::endl;  // NOLINT
+  *stream << "       -w w  : window type            (   int)[" << std::setw(5) << std::right << kDefaultWindowType        << "][ 0 <= w <= 5 ]" << std::endl;  // NOLINT
   *stream << "                 0 (Blackman)" << std::endl;
   *stream << "                 1 (Hamming)" << std::endl;
   *stream << "                 2 (Hanning)" << std::endl;
@@ -117,7 +117,7 @@ int main(int argc, char* argv[]) {
   bool is_output_length_specified(false);
   sptk::DataWindowing::NormalizationType normalization_type(
       kDefaultNormalizationType);
-  LocalWindowType local_window_type(kDefaultLocalWindowType);
+  LocalWindowType local_window_type(kDefaultWindowType);
 
   for (;;) {
     const int option_char(getopt_long(argc, argv, "l:L:n:w:h", NULL, NULL));

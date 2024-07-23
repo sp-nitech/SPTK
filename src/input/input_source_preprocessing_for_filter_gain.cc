@@ -48,6 +48,11 @@ bool InputSourcePreprocessingForFilterGain::Get(std::vector<double>* buffer) {
       (*buffer)[0] = std::exp((*buffer)[0]);
       break;
     }
+    case kInverse: {
+      if (0.0 == (*buffer)[0]) return false;
+      (*buffer)[0] = 1.0 / (*buffer)[0];
+      break;
+    }
     case kUnity: {
       (*buffer)[0] = 1.0;
       break;
