@@ -110,6 +110,7 @@ format-misc:
 		exit 1; \
 	fi
 	./tools/venv/bin/cmake-format -i CMakeLists.txt
+	./tools/venv/bin/mdformat *.md
 
 test:
 	@if [ ! -x ./tools/bats/bin/bats ]; then \
