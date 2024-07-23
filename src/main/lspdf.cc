@@ -29,12 +29,17 @@
 
 namespace {
 
+enum LocalGainType {
+  kLinear = 0,
+  kLog,
+  kUnity,
+  kNumGainTypes,
+};
+
 const int kDefaultNumFilterOrder(25);
 const int kDefaultFramePeriod(100);
 const int kDefaultInterpolationPeriod(1);
-const sptk::InputSourcePreprocessingForFilterGain::FilterGainType
-    kDefaultGainType(
-        sptk::InputSourcePreprocessingForFilterGain::FilterGainType::kLinear);
+const LocalGainType kDefaultGainType(kLinear);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -105,8 +110,7 @@ int main(int argc, char* argv[]) {
   int num_filter_order(kDefaultNumFilterOrder);
   int frame_period(kDefaultFramePeriod);
   int interpolation_period(kDefaultInterpolationPeriod);
-  sptk::InputSourcePreprocessingForFilterGain::FilterGainType gain_type(
-      kDefaultGainType);
+  LocalGainType local_gain_type(kDefaultGainType);
 
   for (;;) {
     const int option_char(getopt_long(argc, argv, "m:p:i:k:h", NULL, NULL));
@@ -148,8 +152,7 @@ int main(int argc, char* argv[]) {
       }
       case 'k': {
         const int min(0);
-        const int max(static_cast<int>(
-            sptk::InputSourcePreprocessingForFilterGain::kUnity));
+        const int max(static_cast<int>(kNumGainTypes) - 1);
         int tmp;
         if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
             !sptk::IsInRange(tmp, min, max)) {
@@ -159,8 +162,7 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("lspdf", error_message);
           return 1;
         }
-        gain_type = static_cast<
-            sptk::InputSourcePreprocessingForFilterGain::FilterGainType>(tmp);
+        local_gain_type = static_cast<LocalGainType>(tmp);
         break;
       }
       case 'h': {
@@ -229,6 +231,25 @@ int main(int argc, char* argv[]) {
     }
   }
   std::istream& stream_for_filter_input(ifs2.is_open() ? ifs2 : std::cin);
+
+  sptk::InputSourcePreprocessingForFilterGain::FilterGainType gain_type;
+  switch (local_gain_type) {
+    case kLinear: {
+      gain_type = sptk::InputSourcePreprocessingForFilterGain::kLinear;
+      break;
+    }
+    case kLog: {
+      gain_type = sptk::InputSourcePreprocessingForFilterGain::kLog;
+      break;
+    }
+    case kUnity: {
+      gain_type = sptk::InputSourcePreprocessingForFilterGain::kUnity;
+      break;
+    }
+    default: {
+      return 1;
+    }
+  }
 
   // Prepare variables for filtering.
   const int filter_length(num_filter_order + 1);
