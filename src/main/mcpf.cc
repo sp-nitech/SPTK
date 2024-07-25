@@ -40,7 +40,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       mcpf [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of mel-cepstrum      (   int)[" << std::setw(5) << std::right << kDefaultNumOrder              << "][    0 <= m <  l   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of mel-cepstrum      (   int)[" << std::setw(5) << std::right << kDefaultNumOrder              << "][    0 <= m <      ]" << std::endl;  // NOLINT
   *stream << "       -l l  : length of impulse response (   int)[" << std::setw(5) << std::right << kDefaultImpulseResponseLength << "][    2 <= l <=     ]" << std::endl;  // NOLINT
   *stream << "       -s s  : onset index                (   int)[" << std::setw(5) << std::right << kDefaultOnsetIndex            << "][    0 <= s <= m   ]" << std::endl;  // NOLINT
   *stream << "       -a a  : all-pass constant          (double)[" << std::setw(5) << std::right << kDefaultAlpha                 << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
@@ -64,9 +64,9 @@ void PrintUsage(std::ostream* stream) {
  * @a mcpf [ @e option ] [ @e infile ]
  *
  * - @b -m @e int
- *   - order of mel-cepstral coefficients @f$(0 \le M < L)@f$
+ *   - order of mel-cepstral coefficients @f$(0 \le M)@f$
  * - @b -l @e int
- *   - length of impulse response @f$(M < L)@f$
+ *   - length of impulse response
  * - @b -s @e int
  *   - onset index @f$(0 \le S \le M)@f$
  * - @b -a @e double
@@ -106,9 +106,11 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'l': {
-        if (!sptk::ConvertStringToInteger(optarg, &impulse_response_length)) {
+        if (!sptk::ConvertStringToInteger(optarg, &impulse_response_length) ||
+            impulse_response_length <= 0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -l option must be an integer";
+          error_message
+              << "The argument for the -l option must be a positive integer";
           sptk::PrintErrorMessage("mcpf", error_message);
           return 1;
         }
@@ -154,14 +156,6 @@ int main(int argc, char* argv[]) {
         return 1;
       }
     }
-  }
-
-  if (impulse_response_length <= num_order) {
-    std::ostringstream error_message;
-    error_message
-        << "Order of mel-cepstrum must be less than length of impulse response";
-    sptk::PrintErrorMessage("mcpf", error_message);
-    return 1;
   }
 
   if (num_order < onset_index) {

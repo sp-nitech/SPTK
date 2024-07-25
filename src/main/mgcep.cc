@@ -144,7 +144,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b -E @e double
  *   - relative floor in decibels
  * - @b -n @e int
- *   - length of impulse response (valid only for @c -o 4 and @c -o 5)
+ *   - length of impulse response (valid only for @c -o 4)
  * - @b infile @e str
  *   - double-type windowed sequence or spectrum
  * - @b stdout
@@ -313,9 +313,11 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'n': {
-        if (!sptk::ConvertStringToInteger(optarg, &impulse_response_length)) {
+        if (!sptk::ConvertStringToInteger(optarg, &impulse_response_length) ||
+            impulse_response_length <= 0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -n option must be an integer";
+          error_message
+              << "The argument for the -n option must be a positive integer";
           sptk::PrintErrorMessage("mgcep", error_message);
           return 1;
         }

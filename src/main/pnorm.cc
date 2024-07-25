@@ -38,7 +38,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       pnorm [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of mel-cepstrum      (   int)[" << std::setw(5) << std::right << kDefaultNumOrder              << "][    0 <= m <  l   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of mel-cepstrum      (   int)[" << std::setw(5) << std::right << kDefaultNumOrder              << "][    0 <= m <      ]" << std::endl;  // NOLINT
   *stream << "       -l l  : length of impulse response (   int)[" << std::setw(5) << std::right << kDefaultImpulseResponseLength << "][    2 <= l <=     ]" << std::endl;  // NOLINT
   *stream << "       -a a  : all-pass constant          (double)[" << std::setw(5) << std::right << kDefaultAlpha                 << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
@@ -58,9 +58,9 @@ void PrintUsage(std::ostream* stream) {
  * @a pnorm [ @e option ] [ @e infile ]
  *
  * - @b -m @e int
- *   - order of mel-cepstral coefficients @f$(0 \le M < L)@f$
+ *   - order of mel-cepstral coefficients @f$(0 \le M)@f$
  * - @b -l @e int
- *   - length of impulse response @f$(M < L)@f$
+ *   - length of impulse response
  * - @b -a @e double
  *   - alpha @f$(|\alpha|<1)@f$
  * - @b infile @e str
@@ -94,9 +94,11 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'l': {
-        if (!sptk::ConvertStringToInteger(optarg, &impulse_response_length)) {
+        if (!sptk::ConvertStringToInteger(optarg, &impulse_response_length) ||
+            impulse_response_length <= 0) {
           std::ostringstream error_message;
-          error_message << "The argument for the -l option must be an integer";
+          error_message
+              << "The argument for the -l option must be a positive integer";
           sptk::PrintErrorMessage("mcpf", error_message);
           return 1;
         }
@@ -122,14 +124,6 @@ int main(int argc, char* argv[]) {
         return 1;
       }
     }
-  }
-
-  if (impulse_response_length <= num_order) {
-    std::ostringstream error_message;
-    error_message
-        << "Order of mel-cepstrum must be less than length of impulse response";
-    sptk::PrintErrorMessage("pnorm", error_message);
-    return 1;
   }
 
   const int num_input_files(argc - optind);
