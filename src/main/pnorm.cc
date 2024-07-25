@@ -60,7 +60,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b -m @e int
  *   - order of mel-cepstral coefficients @f$(0 \le M)@f$
  * - @b -l @e int
- *   - length of impulse response
+ *   - length of impulse response @f$(2 \le L)@f$
  * - @b -a @e double
  *   - alpha @f$(|\alpha|<1)@f$
  * - @b infile @e str
