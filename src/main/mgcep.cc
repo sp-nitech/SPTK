@@ -46,7 +46,6 @@ enum OutputFormats {
   kGainNormalizedCepstrum,
   kGainNormalizedMlsaFilterCoefficients,
   kPowerNormalizedCepstrum,
-  kPowerNormalizedMlsaFilterCoefficients,
   kNumOutputFormats
 };
 
@@ -84,8 +83,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 1 (mlsa filter coefficients)" << std::endl;
   *stream << "                 2 (gain normalized mel-cepstrum)" << std::endl;
   *stream << "                 3 (gain normalized mlsa filter coefficients)" << std::endl;  // NOLINT
-  *stream << "                 4 (power normalized mel-cepstrum)" << std::endl;
-  *stream << "                 5 (power normalized mlsa filter coefficients)" << std::endl;  // NOLINT
+  *stream << "                 4 (power + power normalized mel-cepstrum)" << std::endl;  // NOLINT
   *stream << "     (level 2)" << std::endl;
   *stream << "       -i i  : maximum number of iterations        (   int)[" << std::setw(5) << std::right << kDefaultNumIteration          << "][    0 <= i <=     ]" << std::endl;  // NOLINT
   *stream << "       -d d  : convergence threshold               (double)[" << std::setw(5) << std::right << kDefaultConvergenceThreshold  << "][  0.0 <= d <=     ]" << std::endl;  // NOLINT
@@ -101,6 +99,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       value of l must be a power of 2" << std::endl;
   *stream << "       if c = 0 or g = 0, standard mel-cepstral analyzer is used" << std::endl;  // NOLINT
   *stream << "       if c > 0 or g != 0, mel-generalized cepstral analyzer is used" << std::endl;  // NOLINT
+  *stream << "       if o = 4, output order is m+1 instead of m" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -136,7 +135,6 @@ void PrintUsage(std::ostream* stream) {
  *     \arg @c 2 gain normalized mel-cepstrum
  *     \arg @c 3 gain normalized MLSA filter coefficients
  *     \arg @c 4 power normalized mel-cepstrum
- *     \arg @c 5 power normalized MLSA filter coefficients
  * - @b -i @e int
  *   - number of iterations @f$(0 \le J)@f$
  * - @b -d @e double
@@ -460,6 +458,18 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
+    // mc -> b
+    if (0.0 != alpha &&
+        (kMlsaFilterCoefficients == output_format ||
+         kGainNormalizedMlsaFilterCoefficients == output_format)) {
+      if (!mel_cepstrum_to_mlsa_digital_filter_coefficients.Run(&output)) {
+        std::ostringstream error_message;
+        error_message << "Failed to convert to MLSA filter coefficients";
+        sptk::PrintErrorMessage("mgcep", error_message);
+        return 1;
+      }
+    }
+
     // gnorm
     if (kGainNormalizedCepstrum == output_format ||
         kGainNormalizedMlsaFilterCoefficients == output_format) {
@@ -472,8 +482,7 @@ int main(int argc, char* argv[]) {
     }
 
     // pnorm
-    if (kPowerNormalizedCepstrum == output_format ||
-        kPowerNormalizedMlsaFilterCoefficients == output_format) {
+    if (kPowerNormalizedCepstrum == output_format) {
       if (!mel_cepstrum_power_normalization.Run(
               &output, &power, &buffer_for_power_normalization)) {
         std::ostringstream error_message;
@@ -484,19 +493,6 @@ int main(int argc, char* argv[]) {
       if (!sptk::WriteStream(power, &std::cout)) {
         std::ostringstream error_message;
         error_message << "Failed to write power";
-        sptk::PrintErrorMessage("mgcep", error_message);
-        return 1;
-      }
-    }
-
-    // mc -> b
-    if (0.0 != alpha &&
-        (kMlsaFilterCoefficients == output_format ||
-         kGainNormalizedMlsaFilterCoefficients == output_format ||
-         kPowerNormalizedMlsaFilterCoefficients == output_format)) {
-      if (!mel_cepstrum_to_mlsa_digital_filter_coefficients.Run(&output)) {
-        std::ostringstream error_message;
-        error_message << "Failed to convert to MLSA filter coefficients";
         sptk::PrintErrorMessage("mgcep", error_message);
         return 1;
       }

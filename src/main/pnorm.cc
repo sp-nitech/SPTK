@@ -174,8 +174,8 @@ int main(int argc, char* argv[]) {
   std::vector<double> mel_cepstrum(length);
   double power;
 
-  while (sptk::ReadStream(false, 0, 0, input_length, &mel_cepstrum,
-                          &input_stream, NULL)) {
+  while (sptk::ReadStream(false, 0, 0, length, &mel_cepstrum, &input_stream,
+                          NULL)) {
     if (!mel_cepstrum_power_normalization.Run(&mel_cepstrum, &power, &buffer)) {
       std::ostringstream error_message;
       error_message << "Failed to normalize mel-cepstrum";
@@ -189,6 +189,7 @@ int main(int argc, char* argv[]) {
       sptk::PrintErrorMessage("pnorm", error_message);
       return 1;
     }
+
     if (!sptk::WriteStream(0, length, mel_cepstrum, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write power-normalized mel-cepstrum";

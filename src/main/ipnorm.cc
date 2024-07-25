@@ -137,8 +137,8 @@ int main(int argc, char* argv[]) {
   double power;
 
   while (sptk::ReadStream(&power, &input_stream) &&
-         sptk::ReadStream(false, 0, 0, input_length, &mel_cepstrum,
-                          &input_stream, NULL)) {
+         sptk::ReadStream(false, 0, 0, length, &mel_cepstrum, &input_stream,
+                          NULL)) {
     if (!mel_cepstrum_inverse_power_normalization.Run(&mel_cepstrum, power)) {
       std::ostringstream error_message;
       error_message << "Failed to denormalize mel-cepstrum";

@@ -55,4 +55,10 @@ bool MelCepstrumInversePowerNormalization::Run(
   return true;
 }
 
+bool MelCepstrumInversePowerNormalization::Run(
+    std::vector<double>* input_and_output, double power) const {
+  if (NULL == input_and_output) return false;
+  return Run(*input_and_output, power, input_and_output);
+}
+
 }  // namespace sptk
