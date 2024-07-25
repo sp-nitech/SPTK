@@ -17,7 +17,7 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
-tmp=test_mgcep
+tmp=test_pnorm
 
 setup() {
     mkdir -p $tmp
@@ -27,26 +27,43 @@ teardown() {
     rm -rf $tmp
 }
 
-@test "mgcep: compatibility (g = 0)" {
-    $sptk3/nrand -s 2 -l 32 | $sptk3/mcep -l 16 -m 4 -j 10 > $tmp/1
-    $sptk3/nrand -s 2 -l 32 | $sptk4/mgcep -l 16 -m 4 -i 10 > $tmp/2
+@test "pnorm: compatibility" {
+    # log P
+    $sptk3/nrand -l 20 |
+        $sptk3/mgc2mgc -m 9 -M 127 -a 0.1 -G 1 -U |
+        $sptk3/sopr -P |
+        $sptk3/vsum -t 128 |
+        $sptk3/sopr -LN > $tmp/1
+    # log sqrt(P)
+    $sptk3/sopr $tmp/1 -m 0.5 > $tmp/2
+    # b0
+    $sptk3/nrand -l 20 |
+        $sptk3/mc2b -m 9 -a 0.1 |
+        $sptk3/bcp +d -n 9 -s 0 -e 0 |
+        $sptk3/vopr -s $tmp/2 > $tmp/3
+    # mc
+    $sptk3/nrand -l 20 |
+        $sptk3/mc2b -m 9 -a 0.1 |
+        $sptk3/bcp +d -n 9 -s 1 |
+        $sptk4/merge $tmp/3 -m 8 -M 0 -s 0 |
+        $sptk3/b2mc -m 9 -a 0.1 |
+        $sptk4/merge $tmp/1 -m 9 -M 0 -s 0 > $tmp/4
+    # mc
+    $sptk3/nrand -l 20 |
+        $sptk4/pnorm -m 9 -l 128 -a 0.1 > $tmp/5
+    run $sptk4/aeq $tmp/4 $tmp/5
+    [ "$status" -eq 0 ]
+}
+
+@test "pnorm: reversibility" {
+    $sptk3/nrand -l 20 > $tmp/1
+    $sptk4/pnorm -m 9 $tmp/1 | $sptk4/ipnorm -m 9 > $tmp/2
     run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
-@test "mgcep: compatibility (g < 0)" {
-    for o in $(seq 0 3); do
-        $sptk3/nrand -s 2 -l 32 | $sptk3/mgcep -l 16 -m 4 -g -0.5 -j 10 -o "$o" > $tmp/1
-        $sptk3/nrand -s 2 -l 32 | $sptk4/mgcep -l 16 -m 4 -g -0.5 -i 10 -o "$o" > $tmp/2
-        run $sptk4/aeq $tmp/1 $tmp/2
-        [ "$status" -eq 0 ]
-    done
-}
-
-@test "mgcep: valgrind" {
-    $sptk3/nrand -l 32 > $tmp/1
-    run valgrind $sptk4/mgcep -l 16 -m 4 -i 3 $tmp/1
-    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
-    run valgrind $sptk4/mgcep -l 16 -m 4 -g -1 -i 3 $tmp/1
+@test "pnorm: valgrind" {
+    $sptk3/nrand -l 20 > $tmp/1
+    run valgrind $sptk4/pnorm -m 9 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

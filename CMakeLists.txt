@@ -109,6 +109,8 @@ set(CC_SOURCES
     ${SOURCE_DIR}/conversion/linear_predictive_coefficients_to_line_spectral_pairs.cc
     ${SOURCE_DIR}/conversion/linear_predictive_coefficients_to_parcor_coefficients.cc
     ${SOURCE_DIR}/conversion/log_area_ratio_to_parcor_coefficients.cc
+    ${SOURCE_DIR}/conversion/mel_cepstrum_inverse_power_normalization.cc
+    ${SOURCE_DIR}/conversion/mel_cepstrum_power_normalization.cc
     ${SOURCE_DIR}/conversion/mel_cepstrum_to_mlsa_digital_filter_coefficients.cc
     ${SOURCE_DIR}/conversion/mel_generalized_cepstrum_to_mel_generalized_cepstrum.cc
     ${SOURCE_DIR}/conversion/mel_generalized_cepstrum_to_spectrum.cc
@@ -298,6 +300,7 @@ set(MAIN_SOURCES
     ${SOURCE_DIR}/main/impulse.cc
     ${SOURCE_DIR}/main/imsvq.cc
     ${SOURCE_DIR}/main/interpolate.cc
+    ${SOURCE_DIR}/main/ipnorm.cc
     ${SOURCE_DIR}/main/ipqmf.cc
     ${SOURCE_DIR}/main/iulaw.cc
     ${SOURCE_DIR}/main/lar2par.cc
@@ -346,6 +349,7 @@ set(MAIN_SOURCES
     ${SOURCE_DIR}/main/pitch2sin.cc
     ${SOURCE_DIR}/main/pitch_mark.cc
     ${SOURCE_DIR}/main/pitch_spec.cc
+    ${SOURCE_DIR}/main/pnorm.cc
     ${SOURCE_DIR}/main/poledf.cc
     ${SOURCE_DIR}/main/pqmf.cc
     ${SOURCE_DIR}/main/quantize.cc

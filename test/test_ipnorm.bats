@@ -17,7 +17,7 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
-tmp=test_mgcep
+tmp=test_ipnorm
 
 setup() {
     mkdir -p $tmp
@@ -27,26 +27,8 @@ teardown() {
     rm -rf $tmp
 }
 
-@test "mgcep: compatibility (g = 0)" {
-    $sptk3/nrand -s 2 -l 32 | $sptk3/mcep -l 16 -m 4 -j 10 > $tmp/1
-    $sptk3/nrand -s 2 -l 32 | $sptk4/mgcep -l 16 -m 4 -i 10 > $tmp/2
-    run $sptk4/aeq $tmp/1 $tmp/2
-    [ "$status" -eq 0 ]
-}
-
-@test "mgcep: compatibility (g < 0)" {
-    for o in $(seq 0 3); do
-        $sptk3/nrand -s 2 -l 32 | $sptk3/mgcep -l 16 -m 4 -g -0.5 -j 10 -o "$o" > $tmp/1
-        $sptk3/nrand -s 2 -l 32 | $sptk4/mgcep -l 16 -m 4 -g -0.5 -i 10 -o "$o" > $tmp/2
-        run $sptk4/aeq $tmp/1 $tmp/2
-        [ "$status" -eq 0 ]
-    done
-}
-
-@test "mgcep: valgrind" {
-    $sptk3/nrand -l 32 > $tmp/1
-    run valgrind $sptk4/mgcep -l 16 -m 4 -i 3 $tmp/1
-    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
-    run valgrind $sptk4/mgcep -l 16 -m 4 -g -1 -i 3 $tmp/1
+@test "ipnorm: valgrind" {
+    $sptk3/nrand -l 20 > $tmp/1
+    run valgrind $sptk4/ipnorm -m 9 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

@@ -34,8 +34,7 @@ MelCepstrumPostfilter::MelCepstrumPostfilter(int num_order,
       mel_cepstrum_to_mlsa_digital_filter_coefficients_(num_order, alpha),
       mlsa_digital_filter_coefficients_to_mel_cepstrum_(num_order, alpha),
       is_valid_(true) {
-  if (!sptk::IsInRange(num_order, 0, impulse_response_length - 1) ||
-      !sptk::IsInRange(onset_index_, 0, num_order) ||
+  if (!sptk::IsInRange(onset_index_, 0, num_order) ||
       !frequency_transform_.IsValid() ||
       !cepstrum_to_autocorrelation_.IsValid() ||
       !mel_cepstrum_to_mlsa_digital_filter_coefficients_.IsValid() ||

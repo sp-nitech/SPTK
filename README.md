@@ -122,25 +122,17 @@ deactivate
 - Some option names
 - No memory leaks
 - Thread-safe
-- New features:
+- New main features:
   - Aperiodicity extraction (`ap`)
-  - Conversion from/to log area ratio (`lar2par` and `par2lar`)
   - Dynamic range compression (`drc`)
-  - Entropy calculation (`entropy`)
-  - Huffman coding (`huffman`, `huffman_encode`, and `huffman_decode`)
   - Magic number interpolation (`magic_intpl`)
   - Median filter (`medfilt`)
-  - Mel-cepstrum postfilter (`mcpf`)
   - Mel-filter-bank extraction (`fbank`)
   - Nonrecursive MLPG (`mlpg -R 1`)
   - Pitch adaptive spectrum estimation (`pitch_spec`)
-  - Pitch extraction by DIO used in WORLD (`pitch -a 3`)
+  - Pitch extraction used in WORLD (`pitch -a 3` and `pitch -a 4`)
   - PLP extraction (`plp`)
-  - Pole-zero plot (`gpolezero`)
-  - Scalar quantization (`quantize` and `dequantize`)
   - Sinusoidal generation from pitch (`pitch2sin`)
-  - Spectrogram plot (`gspecgram`)
-  - Stability check of LPC coefficients (`lpccheck`)
   - Subband decomposition (`pqmf` and `ipqmf`)
   - WORLD synthesis (`world_synth`)
   - Windows build support
