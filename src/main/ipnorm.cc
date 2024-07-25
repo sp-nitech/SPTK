@@ -132,23 +132,21 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  const int input_length(num_order + 2);
-  const int output_length(num_order + 1);
-  std::vector<double> power_normalized_mel_cepstrum(input_length);
-  std::vector<double> mel_cepstrum(output_length);
+  const int length(num_order + 1);
+  std::vector<double> mel_cepstrum(length);
+  double power;
 
-  while (sptk::ReadStream(false, 0, 0, input_length,
-                          &power_normalized_mel_cepstrum, &input_stream,
-                          NULL)) {
-    if (!mel_cepstrum_inverse_power_normalization.Run(
-            power_normalized_mel_cepstrum, &mel_cepstrum)) {
+  while (sptk::ReadStream(&power, &input_stream) &&
+         sptk::ReadStream(false, 0, 0, input_length, &mel_cepstrum,
+                          &input_stream, NULL)) {
+    if (!mel_cepstrum_inverse_power_normalization.Run(&mel_cepstrum, power)) {
       std::ostringstream error_message;
       error_message << "Failed to denormalize mel-cepstrum";
       sptk::PrintErrorMessage("ipnorm", error_message);
       return 1;
     }
 
-    if (!sptk::WriteStream(0, output_length, mel_cepstrum, &std::cout, NULL)) {
+    if (!sptk::WriteStream(0, length, mel_cepstrum, &std::cout, NULL)) {
       std::ostringstream error_message;
       error_message << "Failed to write mel-cepstrum";
       sptk::PrintErrorMessage("ipnorm", error_message);

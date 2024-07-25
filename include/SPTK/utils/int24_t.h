@@ -29,8 +29,9 @@ class int24_t {
   int24_t() {
   }
 
-  explicit int24_t(int initial_value) {
-    *this = initial_value;
+  template <typename T>
+  explicit int24_t(T initial_value) {
+    *this = static_cast<int>(initial_value);
   }
 
   ~int24_t() {

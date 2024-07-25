@@ -111,7 +111,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b -s @e double
  *   - sampling rate in kHz @f$(0 < F_s)@f$
  * - @b -L @e double
- *   - lowest frequency in Hz @f$(0.0 \le F_l < F_h)@f$
+ *   - lowest frequency in Hz @f$(0 \le F_l < F_h)@f$
  * - @b -H @e double
  *   - highest frequency in Hz @f$(F_l < F_h \le 500F_s)@f$
  * - @b -q @e int
@@ -158,6 +158,7 @@ void PrintUsage(std::ostream* stream) {
  *   TARGETRATE   = 100000.0
  *   WINDOWSIZE   = 250000.0
  *   USEHAMMING   = T
+ *   USEPOWER     = F
  *   RAWENERGY    = F
  *   ENORMALIZE   = F
  *   PREEMCOEF    = 0.97
@@ -497,14 +498,14 @@ int main(int argc, char* argv[]) {
                           : NULL,
                       &buffer_for_mfcc_analysis)) {
       std::ostringstream error_message;
-      error_message << "Failed to run mfcc analysis";
+      error_message << "Failed to run MFCC analysis";
       sptk::PrintErrorMessage("mfcc", error_message);
       return 1;
     }
 
     if (!sptk::WriteStream(1, output_length, output, &std::cout, NULL)) {
       std::ostringstream error_message;
-      error_message << "Failed to write filter-bank output";
+      error_message << "Failed to write MFCC";
       sptk::PrintErrorMessage("mfcc", error_message);
       return 1;
     }

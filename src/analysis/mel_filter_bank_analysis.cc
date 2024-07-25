@@ -17,7 +17,7 @@
 #include "SPTK/analysis/mel_filter_bank_analysis.h"
 
 #include <algorithm>  // std::fill, std::max, std::min
-#include <cmath>      // std::log, std::sqrt
+#include <cmath>      // std::exp, std::log, std::sqrt
 #include <cstddef>    // std::size_t
 #include <numeric>    // std::accumulate
 
@@ -25,8 +25,11 @@ namespace {
 
 // Note that HTK use 1127 instead of 1127.01048.
 double HzToMel(double hz) {
-  // return 1127.01048 * std::log(hz / 700.0 + 1.0);
-  return 1127 * std::log(hz / 700.0 + 1.0);
+  return 1127.0 * std::log(hz / 700.0 + 1.0);
+}
+
+double MelToHz(double mel) {
+  return 700.0 * (std::exp(mel / 1127.0) - 1.0);
 }
 
 double SampleMel(int index, int fft_length, double sampling_rate) {
@@ -74,8 +77,8 @@ MelFilterBankAnalysis::MelFilterBankAnalysis(int fft_length, int num_channel,
   const double mel_high(HzToMel(highest_frequency));
 
   // Create vector of filter-bank center frequencies.
-  std::vector<double> center_frequencies(num_channel_ + 1);
-  double* cf(&(center_frequencies[0]));
+  center_frequencies_.resize(num_channel_ + 1);
+  double* cf(&(center_frequencies_[0]));
   {
     const double diff(mel_high - mel_low);
     for (int m(0); m <= num_channel_; ++m) {
@@ -106,6 +109,24 @@ MelFilterBankAnalysis::MelFilterBankAnalysis(int fft_length, int num_channel,
       w[k] = (cf[0] - mel_k) / (cf[0] - mel_low);
     }
   }
+}
+
+bool MelFilterBankAnalysis::GetCenterFrequencies(
+    std::vector<double>* center_frequencies) const {
+  if (!is_valid_ || NULL == center_frequencies) {
+    return false;
+  }
+
+  if (center_frequencies->size() !=
+      static_cast<std::size_t>(num_channel_ + 1)) {
+    center_frequencies->resize(num_channel_ + 1);
+  }
+
+  for (int m(0); m <= num_channel_; ++m) {
+    (*center_frequencies)[m] = MelToHz(center_frequencies_[m]);
+  }
+
+  return true;
 }
 
 bool MelFilterBankAnalysis::Run(const std::vector<double>& power_spectrum,

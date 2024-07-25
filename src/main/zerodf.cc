@@ -85,12 +85,12 @@ void PrintUsage(std::ostream* stream) {
  * - @b stdout
  *   - double-type output sequence
  *
- * In the below example, an exciation signal generated from pitch information is
- * passed through the standard form synthesis filter built from FIR filter
+ * In the below example, an excitation signal generated from pitch information
+ * is passed through the standard form synthesis filter built from FIR filter
  * coefficients.
  *
  * @code{.sh}
- *   excite < data.pitch | poledf data.fir > data.syn
+ *   excite < data.pitch | zerodf data.b > data.syn
  * @endcode
  *
  * @param[in] argc Number of arguments.

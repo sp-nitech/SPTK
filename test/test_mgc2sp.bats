@@ -31,10 +31,9 @@ teardown() {
     $sptk3/step -v 0.1 -l 16 > $tmp/0
     ary=("-o 0" "-o 1" "-o 2" "-o 3" "-p -o 0" "-p -o 1" "-p -o 2")
     for nu in "" "-n" "-u" "-n -u"; do
+        # shellcheck disable=SC2086
         for o in $(seq 0 6); do
-            # shellcheck disable=SC2086
             $sptk3/mgc2sp -m 15 -l 32 -a 0.1 -c 2 ${ary[$o]} $nu $tmp/0 > $tmp/1
-            # shellcheck disable=SC2086
             $sptk4/mgc2sp -m 15 -l 32 -a 0.1 -c 2 -o "$o" $nu $tmp/0 > $tmp/2
             run $sptk4/aeq $tmp/1 $tmp/2
             [ "$status" -eq 0 ]

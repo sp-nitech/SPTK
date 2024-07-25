@@ -106,8 +106,8 @@ class FourierTransform {
   }
 
   /**
-   * @param[in,out] real_part Real part.
-   * @param[in,out] imag_part Imaginary part.
+   * @param[in,out] real_part @f$L@f$-length real part.
+   * @param[in,out] imag_part @f$L@f$-length imaginary part.
    * @return True on success, false on failure.
    */
   bool Run(std::vector<double>* real_part,

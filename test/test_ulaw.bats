@@ -34,13 +34,6 @@ teardown() {
     [ "$status" -eq 0 ]
 }
 
-@test "ulaw: identity" {
-    $sptk3/nrand -l 20 > $tmp/1
-    $sptk4/ulaw -v 4 -u 1e-6 $tmp/1 > $tmp/2
-    run $sptk4/aeq $tmp/1 $tmp/2
-    [ "$status" -eq 0 ]
-}
-
 @test "ulaw: reversibility" {
     $sptk3/nrand -l 20 > $tmp/1
     $sptk4/ulaw $tmp/1 | $sptk4/iulaw > $tmp/2

@@ -34,16 +34,16 @@ namespace sptk {
  *     \tilde{c}(0), & \tilde{c}(1), & \ldots, & \tilde{c}(M),
  *   \end{array}
  * @f]
- * and the output is the @f$(M+1)@f$-th order power-normalized ones:
+ * and the output are the @f$M@f$-th order power-normalized ones:
  * @f[
  *   \begin{array}{ccccc}
- *     \log K, & \tilde{c}'(0), & \tilde{c}'(1), & \ldots, & \tilde{c}'(M),
+ *     \tilde{c}'(0), & \tilde{c}'(1), & \ldots, & \tilde{c}'(M),
  *   \end{array}
  * @f]
- * where @f$K@f$ is the square root of power and
+ * and @f$\log P@f$ where @f$P@f$ is the power and
  * @f[
  *   \tilde{c}'(m) = \left\{ \begin{array}{ll}
- *     \tilde{c}(0) - \log K, & m = 0 \\
+ *     \tilde{c}(0) - \log \sqrt{P}, & m = 0 \\
  *     \tilde{c}(m). & 1 \le m \le M
  *   \end{array} \right.
  * @f]
@@ -98,12 +98,21 @@ class MelCepstrumPowerNormalization {
 
   /**
    * @param[in] mel_cepstrum @f$M@f$-th order mel-cepstral coefficients.
-   * @param[out] power_normalized_mel_cepstrum @f$(M+1)@f$-th order
+   * @param[out] power_normalized_mel_cepstrum @f$M@f$-th order
    *             power-normalized mel-cepstral coefficients.
+   * @param[out] power Logarithm of power.
    * @return True on success, false on failure.
    */
   bool Run(const std::vector<double>& mel_cepstrum,
-           std::vector<double>* power_normalized_mel_cepstrum,
+           std::vector<double>* power_normalized_mel_cepstrum, double* power,
+           MelCepstrumPowerNormalization::Buffer* buffer) const;
+
+  /**
+   * @param[in,out] input_and_output @f$M@f$-th order coefficients.
+   * @param[out] power Logarithm of power.
+   * @return True on success, false on failure.
+   */
+  bool Run(std::vector<double>* input_and_output, double* power,
            MelCepstrumPowerNormalization::Buffer* buffer) const;
 
  private:

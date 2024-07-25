@@ -29,13 +29,13 @@ all: release
 
 release:
 	mkdir -p $(BUILDDIR)
-	cd $(BUILDDIR); cmake .. -DCMAKE_INSTALL_PREFIX=.. -DCMAKE_BUILD_TYPE=Release
-	cd $(BUILDDIR); make -j $(JOBS) install
+	cd $(BUILDDIR) && cmake .. -DCMAKE_INSTALL_PREFIX=.. -DCMAKE_BUILD_TYPE=Release
+	cd $(BUILDDIR) && make -j $(JOBS) install
 
 debug:
 	mkdir -p $(BUILDDIR)
-	cd $(BUILDDIR); cmake .. -DCMAKE_INSTALL_PREFIX=.. -DCMAKE_BUILD_TYPE=Debug
-	cd $(BUILDDIR); make -j $(JOBS) install
+	cd $(BUILDDIR) && cmake .. -DCMAKE_INSTALL_PREFIX=.. -DCMAKE_BUILD_TYPE=Debug
+	cd $(BUILDDIR) && make -j $(JOBS) install
 
 doc:
 	@if [ ! -f ./tools/venv/bin/activate ]; then \
@@ -52,16 +52,16 @@ doc:
 		echo ""; \
 		exit 1; \
 	fi
-	cd $(DOCDIR); ../tools/doxygen/build/bin/doxygen
-	. ./tools/venv/bin/activate; cd $(DOCDIR); make html
+	cd $(DOCDIR) && ../tools/doxygen/build/bin/doxygen
+	. ./tools/venv/bin/activate && cd $(DOCDIR) && make html
 
 doc-clean:
 	rm -rf $(DOCDIR)/xml
 	@if [ -f ./tools/venv/bin/activate ]; then \
-		. ./tools/venv/bin/activate; cd $(DOCDIR); make clean; \
+		. ./tools/venv/bin/activate && cd $(DOCDIR) && make clean; \
 	fi
 
-format: format-sh format-py format-cc
+format: format-sh format-py format-cc format-misc
 
 format-sh:
 	@if [ ! -x ./tools/shellcheck/shellcheck ]; then \
@@ -100,6 +100,17 @@ format-cc:
 	./tools/venv/bin/cpplint --filter=-readability/streams $(wildcard $(SOURCEDIR)/*/*.cc)
 	./tools/venv/bin/cpplint --filter=-readability/streams,-build/include_subdir \
 		--root=$(abspath $(INCLUDEDIR)) $(wildcard $(INCLUDEDIR)/SPTK/*/*.h)
+
+format-misc:
+	@if [ ! -x ./tools/venv/bin/cmake-format ]; then \
+		echo "Please install cmake-format via:"; \
+		echo ""; \
+		echo "  cd tools; make venv_dev"; \
+		echo ""; \
+		exit 1; \
+	fi
+	./tools/venv/bin/cmake-format -i CMakeLists.txt
+	./tools/venv/bin/mdformat *.md
 
 test:
 	@if [ ! -x ./tools/bats/bin/bats ]; then \

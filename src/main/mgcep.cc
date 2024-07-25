@@ -23,6 +23,7 @@
 #include "GETOPT/ya_getopt.h"
 #include "SPTK/analysis/mel_generalized_cepstral_analysis.h"
 #include "SPTK/conversion/generalized_cepstrum_gain_normalization.h"
+#include "SPTK/conversion/mel_cepstrum_power_normalization.h"
 #include "SPTK/conversion/mel_cepstrum_to_mlsa_digital_filter_coefficients.h"
 #include "SPTK/conversion/spectrum_to_spectrum.h"
 #include "SPTK/conversion/waveform_to_spectrum.h"
@@ -44,6 +45,8 @@ enum OutputFormats {
   kMlsaFilterCoefficients,
   kGainNormalizedCepstrum,
   kGainNormalizedMlsaFilterCoefficients,
+  kPowerNormalizedCepstrum,
+  kPowerNormalizedMlsaFilterCoefficients,
   kNumOutputFormats
 };
 
@@ -55,6 +58,7 @@ const InputFormats kDefaultInputFormat(kWaveform);
 const OutputFormats kDefaultOutputFormat(kCepstrum);
 const int kDefaultNumIteration(30);
 const double kDefaultConvergenceThreshold(1e-3);
+const int kDefaultImpulseResponseLength(128);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -64,27 +68,30 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       mgcep [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -m m  : order of mel-generalized cepstrum   (   int)[" << std::setw(5) << std::right << kDefaultNumOrder             << "][    0 <= m <=     ]" << std::endl;  // NOLINT
-  *stream << "       -a a  : all-pass constant                   (double)[" << std::setw(5) << std::right << kDefaultAlpha                << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
-  *stream << "       -g g  : gamma                               (double)[" << std::setw(5) << std::right << kDefaultGamma                << "][ -1.0 <= g <= 0.0 ]" << std::endl;  // NOLINT
-  *stream << "       -c c  : gamma = -1 / c                      (   int)[" << std::setw(5) << std::right << "N/A"                        << "][    0 <= c <=     ]" << std::endl;  // NOLINT
-  *stream << "       -l l  : frame length (FFT length)           (   int)[" << std::setw(5) << std::right << kDefaultFftLength            << "][    2 <= l <=     ]" << std::endl;  // NOLINT
-  *stream << "       -q q  : input format                        (   int)[" << std::setw(5) << std::right << kDefaultInputFormat          << "][    0 <= q <= 4   ]" << std::endl;  // NOLINT
+  *stream << "       -m m  : order of mel-generalized cepstrum   (   int)[" << std::setw(5) << std::right << kDefaultNumOrder              << "][    0 <= m <=     ]" << std::endl;  // NOLINT
+  *stream << "       -a a  : all-pass constant                   (double)[" << std::setw(5) << std::right << kDefaultAlpha                 << "][ -1.0 <  a <  1.0 ]" << std::endl;  // NOLINT
+  *stream << "       -g g  : gamma                               (double)[" << std::setw(5) << std::right << kDefaultGamma                 << "][ -1.0 <= g <= 0.0 ]" << std::endl;  // NOLINT
+  *stream << "       -c c  : gamma = -1 / c                      (   int)[" << std::setw(5) << std::right << "N/A"                         << "][    0 <= c <=     ]" << std::endl;  // NOLINT
+  *stream << "       -l l  : frame length (FFT length)           (   int)[" << std::setw(5) << std::right << kDefaultFftLength             << "][    2 <= l <=     ]" << std::endl;  // NOLINT
+  *stream << "       -q q  : input format                        (   int)[" << std::setw(5) << std::right << kDefaultInputFormat           << "][    0 <= q <= 4   ]" << std::endl;  // NOLINT
   *stream << "                 0 (20*log|X(z)|)" << std::endl;
   *stream << "                 1 (ln|X(z)|)" << std::endl;
   *stream << "                 2 (|X(z)|)" << std::endl;
   *stream << "                 3 (|X(z)|^2)" << std::endl;
   *stream << "                 4 (windowed waveform)" << std::endl;
-  *stream << "       -o o  : output format                       (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat         << "][    0 <= o <= 3   ]" << std::endl;  // NOLINT
+  *stream << "       -o o  : output format                       (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat          << "][    0 <= o <= 4   ]" << std::endl;  // NOLINT
   *stream << "                 0 (mel-cepstrum)" << std::endl;
   *stream << "                 1 (mlsa filter coefficients)" << std::endl;
   *stream << "                 2 (gain normalized mel-cepstrum)" << std::endl;
   *stream << "                 3 (gain normalized mlsa filter coefficients)" << std::endl;  // NOLINT
+  *stream << "                 4 (power normalized mel-cepstrum)" << std::endl;
+  *stream << "                 5 (power normalized mlsa filter coefficients)" << std::endl;  // NOLINT
   *stream << "     (level 2)" << std::endl;
-  *stream << "       -i i  : maximum number of iterations        (   int)[" << std::setw(5) << std::right << kDefaultNumIteration         << "][    0 <= i <=     ]" << std::endl;  // NOLINT
-  *stream << "       -d d  : convergence threshold               (double)[" << std::setw(5) << std::right << kDefaultConvergenceThreshold << "][  0.0 <= d <=     ]" << std::endl;  // NOLINT
-  *stream << "       -e e  : small value added to power spectrum (double)[" << std::setw(5) << std::right << "N/A"                        << "][  0.0 <  e <=     ]" << std::endl;  // NOLINT
-  *stream << "       -E E  : relative floor in decibels          (double)[" << std::setw(5) << std::right << "N/A"                        << "][      <= E <  0.0 ]" << std::endl;  // NOLINT
+  *stream << "       -i i  : maximum number of iterations        (   int)[" << std::setw(5) << std::right << kDefaultNumIteration          << "][    0 <= i <=     ]" << std::endl;  // NOLINT
+  *stream << "       -d d  : convergence threshold               (double)[" << std::setw(5) << std::right << kDefaultConvergenceThreshold  << "][  0.0 <= d <=     ]" << std::endl;  // NOLINT
+  *stream << "       -e e  : small value added to power spectrum (double)[" << std::setw(5) << std::right << "N/A"                         << "][  0.0 <  e <=     ]" << std::endl;  // NOLINT
+  *stream << "       -E E  : relative floor in decibels          (double)[" << std::setw(5) << std::right << "N/A"                         << "][      <= E <  0.0 ]" << std::endl;  // NOLINT
+  *stream << "       -n n  : length of impulse response          (   int)[" << std::setw(5) << std::right << kDefaultImpulseResponseLength << "][    2 <= n <=     ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       windowed data sequence or spectrum          (double)[stdin]" << std::endl;  // NOLINT
@@ -127,7 +134,9 @@ void PrintUsage(std::ostream* stream) {
  *     \arg @c 0 mel-cepstrum
  *     \arg @c 1 MLSA filter coefficients
  *     \arg @c 2 gain normalized mel-cepstrum
- *     \arg @c 3 gain normalized MLSA filter coefficients.
+ *     \arg @c 3 gain normalized MLSA filter coefficients
+ *     \arg @c 4 power normalized mel-cepstrum
+ *     \arg @c 5 power normalized MLSA filter coefficients
  * - @b -i @e int
  *   - number of iterations @f$(0 \le J)@f$
  * - @b -d @e double
@@ -136,6 +145,8 @@ void PrintUsage(std::ostream* stream) {
  *   - small value added to power spectrum
  * - @b -E @e double
  *   - relative floor in decibels
+ * - @b -n @e int
+ *   - length of impulse response (valid only for @c -o 4 and @c -o 5)
  * - @b infile @e str
  *   - double-type windowed sequence or spectrum
  * - @b stdout
@@ -168,10 +179,11 @@ int main(int argc, char* argv[]) {
   double convergence_threshold(kDefaultConvergenceThreshold);
   double epsilon(0.0);
   double relative_floor_in_decibels(sptk::kMin);
+  int impulse_response_length(kDefaultImpulseResponseLength);
 
   for (;;) {
     const int option_char(
-        getopt_long(argc, argv, "m:a:g:c:l:q:o:i:d:e:E:h", NULL, NULL));
+        getopt_long(argc, argv, "m:a:g:c:l:q:o:i:d:e:E:n:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -302,6 +314,15 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
+      case 'n': {
+        if (!sptk::ConvertStringToInteger(optarg, &impulse_response_length)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -n option must be an integer";
+          sptk::PrintErrorMessage("mgcep", error_message);
+          return 1;
+        }
+        break;
+      }
       case 'h': {
         PrintUsage(&std::cout);
         return 0;
@@ -394,12 +415,23 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  sptk::MelCepstrumPowerNormalization mel_cepstrum_power_normalization(
+      num_order, impulse_response_length, alpha);
+  sptk::MelCepstrumPowerNormalization::Buffer buffer_for_power_normalization;
+  if (!mel_cepstrum_power_normalization.IsValid()) {
+    std::ostringstream error_message;
+    error_message << "Failed to set condition for power normalization";
+    sptk::PrintErrorMessage("mgcep", error_message);
+    return 1;
+  }
+
   const int input_length(kWaveform == input_format ? fft_length
                                                    : fft_length / 2 + 1);
   const int output_length(num_order + 1);
   std::vector<double> input(input_length);
   std::vector<double> processed_input(fft_length / 2 + 1);
   std::vector<double> output(output_length);
+  double power;
 
   while (sptk::ReadStream(false, 0, 0, input_length, &input, &input_stream,
                           NULL)) {
@@ -428,22 +460,43 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    if (0.0 != alpha &&
-        (kMlsaFilterCoefficients == output_format ||
-         kGainNormalizedMlsaFilterCoefficients == output_format)) {
-      if (!mel_cepstrum_to_mlsa_digital_filter_coefficients.Run(&output)) {
+    // gnorm
+    if (kGainNormalizedCepstrum == output_format ||
+        kGainNormalizedMlsaFilterCoefficients == output_format) {
+      if (!generalized_cepstrum_gain_normalization.Run(&output)) {
         std::ostringstream error_message;
-        error_message << "Failed to convert to MLSA filter coefficients";
+        error_message << "Failed to gain-normalize cepstrum";
         sptk::PrintErrorMessage("mgcep", error_message);
         return 1;
       }
     }
 
-    if (kGainNormalizedCepstrum == output_format ||
-        kGainNormalizedMlsaFilterCoefficients == output_format) {
-      if (!generalized_cepstrum_gain_normalization.Run(&output)) {
+    // pnorm
+    if (kPowerNormalizedCepstrum == output_format ||
+        kPowerNormalizedMlsaFilterCoefficients == output_format) {
+      if (!mel_cepstrum_power_normalization.Run(
+              &output, &power, &buffer_for_power_normalization)) {
         std::ostringstream error_message;
-        error_message << "Failed to normalize generalized cepstrum";
+        error_message << "Failed to power-normalize cepstrum";
+        sptk::PrintErrorMessage("mgcep", error_message);
+        return 1;
+      }
+      if (!sptk::WriteStream(power, &std::cout)) {
+        std::ostringstream error_message;
+        error_message << "Failed to write power";
+        sptk::PrintErrorMessage("mgcep", error_message);
+        return 1;
+      }
+    }
+
+    // mc -> b
+    if (0.0 != alpha &&
+        (kMlsaFilterCoefficients == output_format ||
+         kGainNormalizedMlsaFilterCoefficients == output_format ||
+         kPowerNormalizedMlsaFilterCoefficients == output_format)) {
+      if (!mel_cepstrum_to_mlsa_digital_filter_coefficients.Run(&output)) {
+        std::ostringstream error_message;
+        error_message << "Failed to convert to MLSA filter coefficients";
         sptk::PrintErrorMessage("mgcep", error_message);
         return 1;
       }

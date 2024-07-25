@@ -35,10 +35,12 @@ teardown() {
 }
 
 @test "mgcep: compatibility (g < 0)" {
-    $sptk3/nrand -s 2 -l 32 | $sptk3/mgcep -l 16 -m 4 -g -0.5 -j 10 > $tmp/1
-    $sptk3/nrand -s 2 -l 32 | $sptk4/mgcep -l 16 -m 4 -g -0.5 -i 10 > $tmp/2
-    run $sptk4/aeq $tmp/1 $tmp/2
-    [ "$status" -eq 0 ]
+    for o in $(seq 0 3); do
+        $sptk3/nrand -s 2 -l 32 | $sptk3/mgcep -l 16 -m 4 -g -0.5 -j 10 -o "$o" > $tmp/1
+        $sptk3/nrand -s 2 -l 32 | $sptk4/mgcep -l 16 -m 4 -g -0.5 -i 10 -o "$o" > $tmp/2
+        run $sptk4/aeq $tmp/1 $tmp/2
+        [ "$status" -eq 0 ]
+    done
 }
 
 @test "mgcep: valgrind" {

@@ -1,15 +1,17 @@
-Installation
-------------
+## Installation
 
 ### Linux / macOS
 
 If you do not care about build options, simply run:
+
 ```sh
 make
 ```
+
 in Terminal.
 
 If you would like to customize build options, follow the below procedure:
+
 ```sh
 mkdir build
 cd build
@@ -20,12 +22,15 @@ make -j 4 install
 ### Windows
 
 If you do not care about build options, simply run:
+
 ```sh
 make.bat
 ```
+
 in DOS prompt.
 
 If you would like to customize build options, follow the below procedure:
+
 ```sh
 mkdir build
 cd build

@@ -343,6 +343,7 @@ int main(int argc, char* argv[]) {
     }
   } else if (kFindValueFromVectorSequenceForEachDimension ==
              way_to_find_value) {
+    bool empty(true);
     while (sptk::ReadStream(false, 0, 0, vector_length, &data, &input_stream,
                             NULL)) {
       for (int vector_index(0); vector_index < vector_length; ++vector_index) {
@@ -354,13 +355,17 @@ int main(int argc, char* argv[]) {
           return 1;
         }
       }
+      if (empty) empty = false;
     }
-    if (!WriteMinMaxValues(minmax_accumulation, buffer, num_best, output_format,
-                           output_stream_pointer)) {
-      std::ostringstream error_message;
-      error_message << "Failed to write values";
-      sptk::PrintErrorMessage("minmax", error_message);
-      return 1;
+    // Write value if at least one data is given.
+    if (!empty) {
+      if (!WriteMinMaxValues(minmax_accumulation, buffer, num_best,
+                             output_format, output_stream_pointer)) {
+        std::ostringstream error_message;
+        error_message << "Failed to write values";
+        sptk::PrintErrorMessage("minmax", error_message);
+        return 1;
+      }
     }
   }
 

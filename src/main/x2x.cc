@@ -122,7 +122,7 @@ class DataTransform : public DataTransformInterface {
         *input_stream >> word;
         if (word.empty()) break;
         try {
-          input_data = std::stold(word);
+          input_data = static_cast<T1>(std::stold(word));
         } catch (std::invalid_argument&) {
           return false;
         }
@@ -133,7 +133,7 @@ class DataTransform : public DataTransformInterface {
       }
 
       // Convert.
-      T2 output_data(input_data);
+      T2 output_data(static_cast<T2>(input_data));
 
       bool is_clipped(false);
       {

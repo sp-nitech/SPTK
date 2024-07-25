@@ -26,14 +26,14 @@ namespace sptk {
 /**
  * Convert power-normalized mel-cepstral coefficients to mel-cepstral ones.
  *
- * The input is the @f$(M+1)@f$-th order power-normalized mel-cepstral
+ * The input are the @f$M@f$-th order power-normalized mel-cepstral
  * coefficients:
  * @f[
  *   \begin{array}{ccccc}
- *     \log K, & \tilde{c}'(0), & \tilde{c}'(1), & \ldots, & \tilde{c}'(M),
+ *     \tilde{c}'(0), & \tilde{c}'(1), & \ldots, & \tilde{c}'(M),
  *   \end{array}
  * @f]
- * where @f$K@f$ is the square root of power and the output is the @f$M@f$-th
+ * and @f$\log P@f$ where @f$P@f$ is the power and the output is the @f$M@f$-th
  * order mel-cepstral coefficients:
  * @f[
  *   \begin{array}{cccc}
@@ -43,7 +43,7 @@ namespace sptk {
  * where
  * @f[
  *   \tilde{c}(m) = \left\{ \begin{array}{ll}
- *     \tilde{c}'(0) + \log K, & m = 0 \\
+ *     \tilde{c}'(0) + \log \sqrt{P}, & m = 0 \\
  *     \tilde{c}'(m). & 1 \le m \le M
  *   \end{array} \right.
  * @f]
@@ -73,13 +73,21 @@ class MelCepstrumInversePowerNormalization {
   }
 
   /**
-   * @param[in] power_normalized_mel_cepstrum @f$(M+1)@f$-th order
+   * @param[in] power_normalized_mel_cepstrum @f$M@f$-th order
    *            power-normalized mel-cepstral coefficients.
+   * @param[in] power Logarithm of power.
    * @param[out] mel_cepstrum @f$M@f$-th order mel-cepstral coefficients.
    * @return True on success, false on failure.
    */
   bool Run(const std::vector<double>& power_normalized_mel_cepstrum,
-           std::vector<double>* mel_cepstrum) const;
+           double power, std::vector<double>* mel_cepstrum) const;
+
+  /**
+   * @param[in,out] input_and_output @f$M@f$-th order coefficients.
+   * @param[in] power Logarithm of power.
+   * @return True on success, false on failure.
+   */
+  bool Run(std::vector<double>* input_and_output, double power) const;
 
  private:
   const int num_order_;

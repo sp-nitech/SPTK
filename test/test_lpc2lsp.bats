@@ -52,7 +52,7 @@ teardown() {
 
 @test "lpc2lsp: reversibility" {
     $sptk3/nrand -l 400 | $sptk3/lpc -l 400 -m 12 > $tmp/1
-    $sptk4/lpc2lsp -m 12 $tmp/1 | $sptk4/lsp2lpc -m 12 > $tmp/2
+    $sptk4/lpc2lsp -m 12 -i 4 $tmp/1 | $sptk4/lsp2lpc -m 12 > $tmp/2
     run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }

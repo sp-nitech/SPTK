@@ -38,19 +38,20 @@ MelCepstrumPowerNormalization::MelCepstrumPowerNormalization(
 
 bool MelCepstrumPowerNormalization::Run(
     const std::vector<double>& mel_cepstrum,
-    std::vector<double>* power_normalized_mel_cepstrum,
+    std::vector<double>* power_normalized_mel_cepstrum, double* power,
     MelCepstrumPowerNormalization::Buffer* buffer) const {
   // Check inputs.
   const int length(GetNumOrder() + 1);
   if (!is_valid_ || mel_cepstrum.size() != static_cast<std::size_t>(length) ||
-      NULL == power_normalized_mel_cepstrum || NULL == buffer) {
+      NULL == power_normalized_mel_cepstrum || NULL == power ||
+      NULL == buffer) {
     return false;
   }
 
   // Prepare memories.
   if (power_normalized_mel_cepstrum->size() !=
-      static_cast<std::size_t>(length + 1)) {
-    power_normalized_mel_cepstrum->resize(length + 1);
+      static_cast<std::size_t>(length)) {
+    power_normalized_mel_cepstrum->resize(length);
   }
 
   // Calculate power of input mel-cepstrum.
@@ -65,13 +66,19 @@ bool MelCepstrumPowerNormalization::Run(
   }
 
   // Convert.
-  const double log_k(0.5 * std::log(buffer->autocorrelation_[0]));
-  (*power_normalized_mel_cepstrum)[0] = log_k;
-  (*power_normalized_mel_cepstrum)[1] = mel_cepstrum[0] - log_k;
+  *power = std::log(buffer->autocorrelation_[0]);
+  (*power_normalized_mel_cepstrum)[0] = mel_cepstrum[0] - 0.5 * (*power);
   std::copy(mel_cepstrum.begin() + 1, mel_cepstrum.end(),
-            power_normalized_mel_cepstrum->begin() + 2);
+            power_normalized_mel_cepstrum->begin() + 1);
 
   return true;
+}
+
+bool MelCepstrumPowerNormalization::Run(
+    std::vector<double>* input_and_output, double* power,
+    MelCepstrumPowerNormalization::Buffer* buffer) const {
+  if (NULL == input_and_output) return false;
+  return Run(*input_and_output, input_and_output, power, buffer);
 }
 
 }  // namespace sptk

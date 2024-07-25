@@ -14,11 +14,12 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <fstream>   // std::ifstream
-#include <iomanip>   // std::setw
-#include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
-#include <sstream>   // std::ostringstream
-#include <vector>    // std::vector
+#include <algorithm>  // std::min
+#include <fstream>    // std::ifstream
+#include <iomanip>    // std::setw
+#include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>    // std::ostringstream
+#include <vector>     // std::vector
 
 #include "GETOPT/ya_getopt.h"
 #include "SPTK/filter/inverse_pseudo_quadrature_mirror_filter_banks.h"
@@ -32,6 +33,7 @@ const double kDefaultAttenuation(100.0);
 const int kDefaultNumIteration(100);
 const double kDefaultConvergenceThreshold(1e-6);
 const double kDefaultInitialStepSize(1e-2);
+const bool kDefaultDelayCompensation(true);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -48,6 +50,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -i i  : number of iterations       (   int)[" << std::setw(5) << std::right << kDefaultNumIteration         << "][   0 <  i <=   ]" << std::endl;  // NOLINT
   *stream << "       -d d  : convergence threshold      (double)[" << std::setw(5) << std::right << kDefaultConvergenceThreshold << "][ 0.0 <= d <=   ]" << std::endl;  // NOLINT
   *stream << "       -s s  : initial step size          (double)[" << std::setw(5) << std::right << kDefaultInitialStepSize      << "][   0 <  s <=   ]" << std::endl;  // NOLINT
+  *stream << "       -r    : disable delay compensation (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(!kDefaultDelayCompensation) << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       filter-bank input                  (double)[stdin]" << std::endl;  // NOLINT
@@ -76,6 +79,8 @@ void PrintUsage(std::ostream* stream) {
  *   - convergence threshold @f$(0 \le \epsilon)@f$
  * - @b -s @e double
  *   - initial step size @f$(0 < \Delta)@f$
+ * - @b -r
+ *   - disable delay compensation
  * - @b infile @e str
  *   - double-type filter-bank input
  * - @b stdout
@@ -99,9 +104,11 @@ int main(int argc, char* argv[]) {
   int num_iteration(kDefaultNumIteration);
   double convergence_threshold(kDefaultConvergenceThreshold);
   double initial_step_size(kDefaultInitialStepSize);
+  bool delay_compensation(kDefaultDelayCompensation);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "k:m:a:i:d:s:h", NULL, NULL));
+    const int option_char(
+        getopt_long(argc, argv, "k:m:a:i:d:s:rh", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -171,6 +178,10 @@ int main(int argc, char* argv[]) {
         }
         break;
       }
+      case 'r': {
+        delay_compensation = false;
+        break;
+      }
       case 'h': {
         PrintUsage(&std::cout);
         return 0;
@@ -227,7 +238,7 @@ int main(int argc, char* argv[]) {
   const int delay(sptk::IsEven(num_filter_order) ? num_filter_order / 2
                                                  : (num_filter_order + 1) / 2);
 
-  int n(0);
+  int num_read(0);
   while (
       sptk::ReadStream(false, 0, 0, num_subband, &input, &input_stream, NULL)) {
     if (!synthesis.Run(input, &output, &buffer)) {
@@ -236,7 +247,7 @@ int main(int argc, char* argv[]) {
       sptk::PrintErrorMessage("ipqmf", error_message);
       return 1;
     }
-    if (delay <= n) {
+    if (!delay_compensation || delay <= num_read++) {
       if (!sptk::WriteStream(output, &std::cout)) {
         std::ostringstream error_message;
         error_message << "Failed to write reconstructed signal";
@@ -244,17 +255,17 @@ int main(int argc, char* argv[]) {
         return 1;
       }
     }
-    ++n;
   }
 
-  for (int i(delay - 1); 0 <= i; --i) {
-    if (!synthesis.Run(input, &output, &buffer)) {
-      std::ostringstream error_message;
-      error_message << "Failed to perform PQMF synthesis";
-      sptk::PrintErrorMessage("ipqmf", error_message);
-      return 1;
-    }
-    if (i < n) {
+  if (delay_compensation) {
+    const int n(std::min(delay, num_read));
+    for (int i(0); i < n; ++i) {
+      if (!synthesis.Run(input, &output, &buffer)) {
+        std::ostringstream error_message;
+        error_message << "Failed to perform PQMF synthesis";
+        sptk::PrintErrorMessage("ipqmf", error_message);
+        return 1;
+      }
       if (!sptk::WriteStream(output, &std::cout)) {
         std::ostringstream error_message;
         error_message << "Failed to write reconstructed signal";

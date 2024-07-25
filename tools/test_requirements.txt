@@ -1,8 +1,10 @@
 black
 breathe
 clang-format
+cmake-format
 cpplint
 flake8
 isort
+mdformat
 sphinx
 sphinx-rtd-theme

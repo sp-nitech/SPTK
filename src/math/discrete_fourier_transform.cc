@@ -27,6 +27,14 @@ DiscreteFourierTransform::DiscreteFourierTransform(int dft_length)
     is_valid_ = false;
     return;
   }
+
+  sine_table_.resize(dft_length_);
+  cosine_table_.resize(dft_length_);
+  for (int i(0); i < dft_length_; ++i) {
+    const double argument(-sptk::kTwoPi * i / dft_length_);
+    sine_table_[i] = std::sin(argument);
+    cosine_table_[i] = std::cos(argument);
+  }
 }
 
 bool DiscreteFourierTransform::Run(
@@ -59,11 +67,11 @@ bool DiscreteFourierTransform::Run(
     double sum_x(0.0);
     double sum_y(0.0);
     for (int n(0); n < dft_length_; ++n) {
-      const double w(-sptk::kTwoPi * (n * k) / dft_length_);
-      const double sin_w(std::sin(w));
-      const double cos_w(std::cos(w));
-      sum_x += input_x[n] * cos_w - input_y[n] * sin_w;
-      sum_y += input_x[n] * sin_w + input_y[n] * cos_w;
+      const int index(k * n % dft_length_);
+      sum_x +=
+          input_x[n] * cosine_table_[index] - input_y[n] * sine_table_[index];
+      sum_y +=
+          input_x[n] * sine_table_[index] + input_y[n] * cosine_table_[index];
     }
     output_x[k] = sum_x;
     output_y[k] = sum_y;

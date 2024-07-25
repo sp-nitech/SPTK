@@ -94,6 +94,9 @@ class DiscreteFourierTransform {
 
   bool is_valid_;
 
+  std::vector<double> sine_table_;
+  std::vector<double> cosine_table_;
+
   DISALLOW_COPY_AND_ASSIGN(DiscreteFourierTransform);
 };
 

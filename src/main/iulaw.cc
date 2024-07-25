@@ -37,7 +37,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       iulaw [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -v v  : absolute maximum of input (double)[" << std::setw(5) << std::right << kDefaultAbsMaxValue       << "][ 0.0 <  v <=   ]" << std::endl;  // NOLINT
-  *stream << "       -u u  : compression factor        (   int)[" << std::setw(5) << std::right << kDefaultCompressionFactor << "][ 0.0 <  u <=   ]" << std::endl;  // NOLINT
+  *stream << "       -u u  : compression factor        (double)[" << std::setw(5) << std::right << kDefaultCompressionFactor << "][ 0.0 <  u <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       input sequence                    (double)[stdin]" << std::endl;  // NOLINT

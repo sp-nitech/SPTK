@@ -51,7 +51,7 @@ LinearPredictiveCoefficientsToLineSpectralPairs::
       num_iteration_(num_iteration),
       convergence_threshold_(convergence_threshold),
       is_valid_(true) {
-  if (num_order_ < 0 || num_split_ <= 0 || num_iteration_ <= 0 ||
+  if (num_order_ < 0 || num_split_ <= 0 || num_iteration_ < 0 ||
       convergence_threshold_ < 0.0) {
     is_valid_ = false;
     return;

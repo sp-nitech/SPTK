@@ -24,7 +24,7 @@
 namespace sptk {
 
 /**
- * Calculate DFT of complex-valued input data.
+ * Calculate FFT of complex-valued input data.
  *
  * The inputs are @f$M@f$-th order complex-valued data:
  * @f[

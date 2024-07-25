@@ -28,8 +28,9 @@ class uint24_t {
   uint24_t() {
   }
 
-  explicit uint24_t(int initial_value) {
-    *this = initial_value;
+  template <typename T>
+  explicit uint24_t(T initial_value) {
+    *this = static_cast<int>(initial_value);
   }
 
   ~uint24_t() {

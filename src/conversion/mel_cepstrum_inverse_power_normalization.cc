@@ -31,25 +31,25 @@ MelCepstrumInversePowerNormalization::MelCepstrumInversePowerNormalization(
 }
 
 bool MelCepstrumInversePowerNormalization::Run(
-    const std::vector<double>& power_normalized_mel_cepstrum,
+    const std::vector<double>& power_normalized_mel_cepstrum, double power,
     std::vector<double>* mel_cepstrum) const {
   // Check inputs.
+  const int length(GetNumOrder() + 1);
   if (!is_valid_ ||
       power_normalized_mel_cepstrum.size() !=
-          static_cast<std::size_t>(num_order_ + 2) ||
+          static_cast<std::size_t>(length) ||
       NULL == mel_cepstrum) {
     return false;
   }
 
   // Prepare memories.
-  if (mel_cepstrum->size() != static_cast<std::size_t>(num_order_ + 1)) {
-    mel_cepstrum->resize(num_order_ + 1);
+  if (mel_cepstrum->size() != static_cast<std::size_t>(length)) {
+    mel_cepstrum->resize(length);
   }
 
   // Convert.
-  const double log_k(power_normalized_mel_cepstrum[0]);
-  (*mel_cepstrum)[0] = power_normalized_mel_cepstrum[1] + log_k;
-  std::copy(power_normalized_mel_cepstrum.begin() + 2,
+  (*mel_cepstrum)[0] = power_normalized_mel_cepstrum[0] + 0.5 * power;
+  std::copy(power_normalized_mel_cepstrum.begin() + 1,
             power_normalized_mel_cepstrum.end(), mel_cepstrum->begin() + 1);
 
   return true;

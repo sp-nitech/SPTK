@@ -64,7 +64,7 @@ void PrintUsage(std::ostream* stream) {
  *   - double-type compressed data sequence
  *
  * In the below example, 16-bit data read from @c data.short is compressed to
- * 8-bit ulaw format.
+ * 8-bit u-law format.
  *
  * @code{.sh}
  *   x2x +sd data.short | ulaw | quantize > data.ulaw
