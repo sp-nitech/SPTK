@@ -83,7 +83,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 1 (mlsa filter coefficients)" << std::endl;
   *stream << "                 2 (gain normalized mel-cepstrum)" << std::endl;
   *stream << "                 3 (gain normalized mlsa filter coefficients)" << std::endl;  // NOLINT
-  *stream << "                 4 (power + power normalized mel-cepstrum)" << std::endl;  // NOLINT
+  *stream << "                 4 (log power + power normalized mel-cepstrum)" << std::endl;  // NOLINT
   *stream << "     (level 2)" << std::endl;
   *stream << "       -i i  : maximum number of iterations        (   int)[" << std::setw(5) << std::right << kDefaultNumIteration          << "][    0 <= i <=     ]" << std::endl;  // NOLINT
   *stream << "       -d d  : convergence threshold               (double)[" << std::setw(5) << std::right << kDefaultConvergenceThreshold  << "][  0.0 <= d <=     ]" << std::endl;  // NOLINT
