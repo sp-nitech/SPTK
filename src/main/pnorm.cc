@@ -46,6 +46,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       mel-cepstrum                       (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
   *stream << "       power-normalized mel-cepstrum      (double)" << std::endl;
+  *stream << "  notice:" << std::endl;
+  *stream << "       value of l must be a power of 2" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
