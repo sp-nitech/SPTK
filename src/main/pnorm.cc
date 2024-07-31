@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
   sptk::MelCepstrumPowerNormalization::Buffer buffer;
   if (!mel_cepstrum_power_normalization.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to initialize MelCepstrumPowerNormalization";
+    error_message << "FFT length must be a power of 2 and greater than 1";
     sptk::PrintErrorMessage("pnorm", error_message);
     return 1;
   }

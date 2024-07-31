@@ -28,8 +28,7 @@ MelCepstrumPowerNormalization::MelCepstrumPowerNormalization(
       cepstrum_to_autocorrelation_(impulse_response_length - 1, 0,
                                    impulse_response_length),
       is_valid_(true) {
-  if (!sptk::IsInRange(num_order, 0, impulse_response_length - 1) ||
-      !frequency_transform_.IsValid() ||
+  if (!frequency_transform_.IsValid() ||
       !cepstrum_to_autocorrelation_.IsValid()) {
     is_valid_ = false;
     return;

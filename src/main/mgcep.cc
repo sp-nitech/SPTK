@@ -96,7 +96,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  stdout:" << std::endl;
   *stream << "       mel-generalized cepstrum                    (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
-  *stream << "       value of l must be a power of 2" << std::endl;
+  *stream << "       value of l and n must be a power of 2" << std::endl;
   *stream << "       if c = 0 or g = 0, standard mel-cepstral analyzer is used" << std::endl;  // NOLINT
   *stream << "       if c > 0 or g != 0, mel-generalized cepstral analyzer is used" << std::endl;  // NOLINT
   *stream << "       if o = 4, output order is m+1 instead of m" << std::endl;
