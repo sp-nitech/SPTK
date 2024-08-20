@@ -52,10 +52,10 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -w w  : floor value of weight     (double)[" << std::setw(5) << std::right << kDefaultWeightFloor          << "][ 0.0 <= w <= 1/k ]" << std::endl;  // NOLINT
   *stream << "       -v v  : floor value of variance   (double)[" << std::setw(5) << std::right << kDefaultVarianceFloor        << "][ 0.0 <= v <=     ]" << std::endl;  // NOLINT
   *stream << "       -M M  : MAP smoothing parameter   (double)[" << std::setw(5) << std::right << kDefaultSmoothingParameter   << "][ 0.0 <= M <= 1.0 ]" << std::endl;  // NOLINT
-  *stream << "       -U U  : input filename of double  (string)[" << std::setw(5) << std::right << "N/A"                        << "]" << std::endl;  //  NOLINT
+  *stream << "       -U U  : input filename of double  (string)[" << std::setw(5) << std::right << "N/A"                        << "]" << std::endl;  // NOLINT
   *stream << "               type initial GMM parameters" << std::endl;
   *stream << "       -S S  : output filename of double (string)[" << std::setw(5) << std::right << "N/A"                        << "]" << std::endl;  // NOLINT
-  *stream << "               type total log-likliehood" << std::endl;
+  *stream << "               type total log-likelihood" << std::endl;
   *stream << "       -f    : use full covariance       (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultFullCovarianceFlag) << "]" << std::endl;  // NOLINT
   *stream << "       -V    : show avg. log-likelihood  (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultShowLikelihoodFlag) << "]" << std::endl;  // NOLINT
   *stream << "     (level 2)" << std::endl;
