@@ -101,6 +101,7 @@ class MelCepstrumPowerNormalization {
    * @param[out] power_normalized_mel_cepstrum @f$M@f$-th order
    *             power-normalized mel-cepstral coefficients.
    * @param[out] power Logarithm of power.
+   * @param[out] buffer Buffer.
    * @return True on success, false on failure.
    */
   bool Run(const std::vector<double>& mel_cepstrum,
@@ -110,6 +111,7 @@ class MelCepstrumPowerNormalization {
   /**
    * @param[in,out] input_and_output @f$M@f$-th order coefficients.
    * @param[out] power Logarithm of power.
+   * @param[out] buffer Buffer.
    * @return True on success, false on failure.
    */
   bool Run(std::vector<double>* input_and_output, double* power,
