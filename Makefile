@@ -83,9 +83,9 @@ format-py:
 		echo ""; \
 		exit 1; \
 	fi
-	./tools/venv/bin/black $(PYTHONDIR)
-	./tools/venv/bin/isort $(PYTHONDIR) --sl --fss --sort-order native --project sptk
-	./tools/venv/bin/flake8 $(PYTHONDIR)
+	./tools/venv/bin/black $(PYTHONDIR) $(DOCDIR)
+	./tools/venv/bin/isort $(PYTHONDIR) $(DOCDIR) --sl --fss --sort-order native --project sptk
+	./tools/venv/bin/flake8 $(PYTHONDIR) $(DOCDIR)
 
 format-cc:
 	@if [ ! -x ./tools/venv/bin/clang-format ] || [ ! -x ./tools/venv/bin/cpplint ]; then \
@@ -126,7 +126,7 @@ test-clean:
 	rm -rf test_*
 
 tool:
-	cd tools; make
+	cd tools && make
 
 clean: doc-clean test-clean
 	rm -rf $(BUILDDIR) $(LIBDIR) $(BINDIR)
