@@ -15,6 +15,8 @@
 # ------------------------------------------------------------------------ #
 
 PYTHON_VERSION     := 3.9
+BATS_VERSION       := 1.11.0
+DOXYGEN_VERSION    := 1.9.1
 SHELLCHECK_VERSION := 0.10.0
 SHFMT_VERSION      := 3.9.0
 JOBS               := 4
@@ -38,12 +40,12 @@ venv_dev:
 
 bats.done:
 	rm -rf bats
-	git clone https://github.com/bats-core/bats-core.git bats -b master --single-branch --depth 1
+	git clone https://github.com/bats-core/bats-core.git bats -b v$(BATS_VERSION) --single-branch --depth 1
 	touch bats.done
 
 doxygen.done:
 	rm -rf doxygen
-	git clone https://github.com/doxygen/doxygen.git -b Release_1_9_1 --single-branch --depth 1
+	git clone https://github.com/doxygen/doxygen.git -b Release_$(subst .,_, $(DOXYGEN_VERSION)) --single-branch --depth 1
 	cd doxygen && mkdir -p build && cd build && cmake -G "Unix Makefiles" .. && make -j $(JOBS)
 	touch doxygen.done
 
