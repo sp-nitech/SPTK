@@ -18,6 +18,7 @@
 
 #include <cmath>    // std::fabs
 #include <cstddef>  // std::size_t
+#include <vector>   // std::vector
 
 namespace {
 

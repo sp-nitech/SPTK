@@ -19,6 +19,7 @@
 #include <algorithm>  // std::find_if
 #include <cstddef>    // std::size_t
 #include <stdexcept>  // std::runtime_error
+#include <vector>     // std::vector
 
 namespace {
 

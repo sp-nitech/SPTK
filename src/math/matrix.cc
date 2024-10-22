@@ -19,6 +19,7 @@
 #include <algorithm>   // std::fill, std::min, std::transform
 #include <functional>  // std::minus, std::negate, std::plus
 #include <stdexcept>   // std::logic_error, std::out_of_range
+#include <vector>      // std::vector
 
 namespace {
 

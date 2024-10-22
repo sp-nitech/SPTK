@@ -19,6 +19,7 @@
 #include <algorithm>  // std::copy, std::reverse_copy, std::transform
 #include <cmath>      // std::exp, std::pow, std::sin
 #include <cstddef>    // std::size_t
+#include <vector>     // std::vector
 
 namespace sptk {
 

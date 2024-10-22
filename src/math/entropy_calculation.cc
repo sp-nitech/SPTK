@@ -17,6 +17,7 @@
 #include "SPTK/math/entropy_calculation.h"
 
 #include <cstddef>  // std::size_t
+#include <vector>   // std::vector
 
 namespace sptk {
 

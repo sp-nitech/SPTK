@@ -16,6 +16,8 @@
 
 #include "SPTK/conversion/mel_generalized_cepstrum_to_spectrum.h"
 
+#include <vector>  // std::vector
+
 namespace sptk {
 
 MelGeneralizedCepstrumToSpectrum::MelGeneralizedCepstrumToSpectrum(

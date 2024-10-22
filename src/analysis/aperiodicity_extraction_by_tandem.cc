@@ -17,6 +17,7 @@
 #include "SPTK/analysis/aperiodicity_extraction_by_tandem.h"
 
 #include <cstddef>  // std::size_t
+#include <vector>   // std::vector
 
 #include "WORLD/world/aperiodicity.h"
 

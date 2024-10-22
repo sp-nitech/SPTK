@@ -17,6 +17,7 @@
 #include "SPTK/math/reverse_levinson_durbin_recursion.h"
 
 #include <cstddef>  // std::size_t
+#include <vector>   // std::vector
 
 namespace sptk {
 

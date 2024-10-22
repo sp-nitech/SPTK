@@ -18,6 +18,8 @@
 
 #include <cstddef>  // std::size_t
 #include <queue>    // std::priority_queue
+#include <string>   // std::string
+#include <vector>   // std::vector
 
 namespace {
 

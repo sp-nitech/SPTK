@@ -19,6 +19,7 @@
 #include <algorithm>  // std::copy, std::transform
 #include <cmath>      // std::fabs
 #include <cstddef>    // std::size_t
+#include <vector>     // std::vector
 
 namespace sptk {
 

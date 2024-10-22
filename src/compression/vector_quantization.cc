@@ -17,6 +17,7 @@
 #include "SPTK/compression/vector_quantization.h"
 
 #include <cstddef>  // std::size_t
+#include <vector>   // std::vector
 
 namespace sptk {
 

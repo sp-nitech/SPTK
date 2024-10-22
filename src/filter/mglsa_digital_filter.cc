@@ -19,6 +19,7 @@
 #include <algorithm>  // std::fill
 #include <cmath>      // std::exp
 #include <cstddef>    // std::size_t
+#include <vector>     // std::vector
 
 namespace sptk {
 

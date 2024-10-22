@@ -16,6 +16,8 @@
 
 #include "SPTK/conversion/waveform_to_spectrum.h"
 
+#include <vector>  // std::vector
+
 namespace sptk {
 
 WaveformToSpectrum::WaveformToSpectrum(

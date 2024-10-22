@@ -16,10 +16,12 @@
 
 #include "SPTK/math/symmetric_matrix.h"
 
-#include <algorithm>  // std::fill, std::swap
+#include <algorithm>  // std::fill
 #include <cmath>      // std::fabs
 #include <cstddef>    // std::size_t
 #include <stdexcept>  // std::out_of_range
+#include <utility>    // std::swap
+#include <vector>     // std::vector
 
 #include "SPTK/math/matrix.h"
 

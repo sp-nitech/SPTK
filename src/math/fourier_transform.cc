@@ -16,6 +16,8 @@
 
 #include "SPTK/math/fourier_transform.h"
 
+#include <vector>  // std::vector
+
 #include "SPTK/math/discrete_fourier_transform.h"
 #include "SPTK/math/fast_fourier_transform.h"
 

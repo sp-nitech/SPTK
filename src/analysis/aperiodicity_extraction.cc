@@ -18,6 +18,7 @@
 
 #include <algorithm>  // std::copy, std::fill, std::min
 #include <cmath>      // std::ceil
+#include <vector>     // std::vector
 
 #include "SPTK/analysis/aperiodicity_extraction_by_tandem.h"
 #include "SPTK/analysis/aperiodicity_extraction_by_world.h"

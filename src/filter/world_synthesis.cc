@@ -17,6 +17,7 @@
 #include "SPTK/filter/world_synthesis.h"
 
 #include <cstddef>  // std::size_t
+#include <vector>   // std::vector
 
 #include "WORLD/world/synthesis.h"
 

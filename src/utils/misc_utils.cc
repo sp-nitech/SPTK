@@ -19,6 +19,7 @@
 #include <algorithm>  // std::fill, std::max, std::min, std::transform
 #include <cmath>      // std::atan, std::log, std::pow, std::sqrt, etc.
 #include <cstddef>    // std::size_t
+#include <vector>     // std::vector
 
 #include "SPTK/math/real_valued_fast_fourier_transform.h"
 #include "SPTK/utils/sptk_utils.h"

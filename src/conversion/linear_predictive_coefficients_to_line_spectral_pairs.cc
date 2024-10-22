@@ -18,6 +18,7 @@
 
 #include <cmath>    // std::acos, std::ceil, std::fabs, std::floor
 #include <cstddef>  // std::size_t
+#include <vector>   // std::vector
 
 namespace {
 

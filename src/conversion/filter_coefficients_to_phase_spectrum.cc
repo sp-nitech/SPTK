@@ -19,6 +19,7 @@
 #include <algorithm>  // std::copy, std::fill
 #include <cmath>      // std::atan2
 #include <cstddef>    // std::size_t
+#include <vector>     // std::vector
 
 namespace sptk {
 

@@ -16,10 +16,12 @@
 
 #include "SPTK/math/principal_component_analysis.h"
 
-#include <algorithm>  // std::sort, std::swap
+#include <algorithm>  // std::sort
 #include <cmath>      // std::fabs, std::sqrt
 #include <cstddef>    // std::size_t
 #include <numeric>    // std::iota
+#include <utility>    // std::swap
+#include <vector>     // std::vector
 
 namespace sptk {
 

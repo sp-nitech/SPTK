@@ -19,6 +19,7 @@
 #include <algorithm>  // std::copy, std::max, std::max_element, std::transform
 #include <cmath>      // std::exp, std::log, std::log10, std::pow, std::sqrt
 #include <cstddef>    // std::size_t
+#include <vector>     // std::vector
 
 namespace {
 

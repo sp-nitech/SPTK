@@ -19,6 +19,7 @@
 #include <cmath>    // std::cos, std::fabs, std::pow, std::sin
 #include <complex>  // std::abs, std::complex
 #include <cstddef>  // std::size_t
+#include <vector>   // std::vector
 
 namespace sptk {
 

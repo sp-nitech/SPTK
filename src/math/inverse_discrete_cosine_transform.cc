@@ -20,6 +20,7 @@
 #include <cmath>       // std::cos, std::sin, std::sqrt
 #include <cstddef>     // std::size_t
 #include <functional>  // std::negate
+#include <vector>      // std::vector
 
 namespace sptk {
 

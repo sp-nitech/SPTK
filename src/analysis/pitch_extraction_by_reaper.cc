@@ -19,6 +19,7 @@
 #include <algorithm>  // std::copy, std::fill, std::transform
 #include <cmath>      // std::ceil
 #include <cstdint>    // int16_t
+#include <vector>     // std::vector
 
 #include "REAPER/epoch_tracker/epoch_tracker.h"
 

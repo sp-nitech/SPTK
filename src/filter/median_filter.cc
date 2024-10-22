@@ -18,6 +18,7 @@
 
 #include <algorithm>  // std::sort
 #include <cstddef>    // std::size_t
+#include <vector>     // std::vector
 
 namespace sptk {
 

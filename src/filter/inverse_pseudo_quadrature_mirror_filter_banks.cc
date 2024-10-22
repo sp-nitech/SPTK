@@ -17,6 +17,7 @@
 #include "SPTK/filter/inverse_pseudo_quadrature_mirror_filter_banks.h"
 
 #include <cstddef>  // std::size_t
+#include <vector>   // std::vector
 
 #include "SPTK/utils/misc_utils.h"
 

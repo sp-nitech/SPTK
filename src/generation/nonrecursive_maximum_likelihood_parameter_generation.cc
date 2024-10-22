@@ -18,6 +18,7 @@
 
 #include <algorithm>  // std::count
 #include <cstddef>    // std::size_t
+#include <vector>     // std::vector
 
 namespace {
 

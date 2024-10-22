@@ -30,6 +30,7 @@
 #include <cstdlib>    // std::strtod, std::strtol
 #include <iomanip>    // std::setw
 #include <iostream>   // std::cerr, std::endl, std::left
+#include <string>     // std::string
 
 #include "SPTK/utils/int24_t.h"
 #include "SPTK/utils/uint24_t.h"

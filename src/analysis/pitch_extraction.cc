@@ -16,6 +16,8 @@
 
 #include "SPTK/analysis/pitch_extraction.h"
 
+#include <vector>  // std::vector
+
 #include "SPTK/analysis/pitch_extraction_by_dio.h"
 #include "SPTK/analysis/pitch_extraction_by_harvest.h"
 #include "SPTK/analysis/pitch_extraction_by_rapt.h"

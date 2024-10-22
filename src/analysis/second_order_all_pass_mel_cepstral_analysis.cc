@@ -21,6 +21,7 @@
 #include <cstddef>     // std::size_t
 #include <functional>  // std::minus, std::plus
 #include <numeric>     // std::inner_product
+#include <vector>      // std::vector
 
 #include "SPTK/math/inverse_fast_fourier_transform.h"
 

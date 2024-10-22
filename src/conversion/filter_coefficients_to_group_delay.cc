@@ -19,6 +19,7 @@
 #include <algorithm>  // std::copy, std::fill, std::reverse_copy
 #include <cmath>      // std::pow
 #include <cstddef>    // std::size_t
+#include <vector>     // std::vector
 
 #include "SPTK/utils/misc_utils.h"
 

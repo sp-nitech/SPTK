@@ -20,6 +20,7 @@
 #include <cmath>       // std::exp, std::fabs, std::pow, std::sqrt
 #include <cstddef>     // std::size_t
 #include <functional>  // std::plus
+#include <vector>      // std::vector
 
 namespace {
 

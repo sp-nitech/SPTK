@@ -16,6 +16,8 @@
 
 #include "SPTK/analysis/adaptive_mel_generalized_cepstral_analysis.h"
 
+#include <vector>  // std::vector
+
 namespace sptk {
 
 AdaptiveMelGeneralizedCepstralAnalysis::AdaptiveMelGeneralizedCepstralAnalysis(

@@ -18,6 +18,7 @@
 
 #include <cmath>    // std::cos, std::sin
 #include <cstddef>  // std::size_t
+#include <vector>   // std::vector
 
 namespace sptk {
 

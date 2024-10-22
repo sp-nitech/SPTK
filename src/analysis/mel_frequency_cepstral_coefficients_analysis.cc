@@ -19,6 +19,7 @@
 #include <algorithm>  // std::transform
 #include <cmath>      // std::sin, std::sqrt
 #include <cstddef>    // std::size_t
+#include <vector>     // std::vector
 
 namespace sptk {
 

@@ -17,6 +17,7 @@
 #include "SPTK/math/dynamic_time_warping.h"
 
 #include <algorithm>  // std::reverse
+#include <vector>     // std::vector
 
 namespace {
 

@@ -18,6 +18,7 @@
 
 #include <cmath>      // std::fabs
 #include <stdexcept>  // std::out_of_range
+#include <vector>     // std::vector
 
 namespace {
 

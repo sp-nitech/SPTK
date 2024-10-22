@@ -20,6 +20,7 @@
 #include <cstddef>    // std::size_t
 #include <string>     // std::string
 #include <utility>    // std::make_pair
+#include <vector>     // std::vector
 
 namespace sptk {
 

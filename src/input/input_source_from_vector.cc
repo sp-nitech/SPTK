@@ -18,6 +18,7 @@
 
 #include <algorithm>  // std::copy, std::fill_n
 #include <cstddef>    // std::size_t
+#include <vector>     // std::vector
 
 namespace sptk {
 

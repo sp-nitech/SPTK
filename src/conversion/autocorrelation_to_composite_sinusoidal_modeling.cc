@@ -20,6 +20,7 @@
 #include <cmath>      // std::acos, std::fabs, std::pow
 #include <cstddef>    // std::size_t
 #include <cstdint>    // std::uint64_t
+#include <vector>     // std::vector
 
 namespace {
 

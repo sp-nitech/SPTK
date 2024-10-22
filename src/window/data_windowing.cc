@@ -20,6 +20,7 @@
 #include <cmath>      // std::sqrt
 #include <cstddef>    // std::size_t
 #include <numeric>    // std::accumulate, std::inner_product
+#include <vector>     // std::vector
 
 namespace sptk {
 

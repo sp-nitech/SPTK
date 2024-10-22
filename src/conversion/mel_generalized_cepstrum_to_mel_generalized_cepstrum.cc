@@ -18,6 +18,7 @@
 
 #include <algorithm>  // std::copy, std::transform
 #include <cstddef>    // std::size_t
+#include <vector>     // std::vector
 
 #include "SPTK/conversion/generalized_cepstrum_gain_normalization.h"
 #include "SPTK/conversion/generalized_cepstrum_inverse_gain_normalization.h"

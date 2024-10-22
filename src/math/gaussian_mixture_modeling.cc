@@ -22,6 +22,7 @@
 #include <iomanip>    // std::setw
 #include <iostream>   // std::cerr, std::endl
 #include <numeric>    // std::accumulate, std::partial_sum
+#include <vector>     // std::vector
 
 #include "SPTK/compression/linde_buzo_gray_algorithm.h"
 #include "SPTK/math/statistics_accumulation.h"

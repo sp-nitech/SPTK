@@ -16,6 +16,8 @@
 
 #include "SPTK/analysis/autocorrelation_analysis.h"
 
+#include <vector>  // std::vector
+
 namespace sptk {
 
 AutocorrelationAnalysis::AutocorrelationAnalysis(int frame_length,
