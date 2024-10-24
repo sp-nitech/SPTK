@@ -101,18 +101,18 @@ class InputSourcePreprocessing : public sptk::InputSourceInterface {
     }
   }
 
-  virtual ~InputSourcePreprocessing() {
+  ~InputSourcePreprocessing() override {
   }
 
-  virtual int GetSize() const {
+  int GetSize() const override {
     return source_ ? source_->GetSize() : 0;
   }
 
-  virtual bool IsValid() const {
+  bool IsValid() const override {
     return is_valid_;
   }
 
-  virtual bool Get(std::vector<double>* buffer) {
+  bool Get(std::vector<double>* buffer) override {
     if (!is_valid_) {
       return false;
     }

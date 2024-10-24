@@ -47,7 +47,7 @@ class InputSourcePreprocessingForFilterGain : public InputSourceInterface {
   InputSourcePreprocessingForFilterGain(FilterGainType gain_type,
                                         InputSourceInterface* source);
 
-  virtual ~InputSourcePreprocessingForFilterGain() {
+  ~InputSourcePreprocessingForFilterGain() override {
   }
 
   /**
@@ -60,14 +60,14 @@ class InputSourcePreprocessingForFilterGain : public InputSourceInterface {
   /**
    * @return Size of data.
    */
-  virtual int GetSize() const {
+  int GetSize() const override {
     return source_ ? source_->GetSize() : 0;
   }
 
   /**
    * @return True if this object is valid.
    */
-  virtual bool IsValid() const {
+  bool IsValid() const override {
     return is_valid_;
   }
 
@@ -75,7 +75,7 @@ class InputSourcePreprocessingForFilterGain : public InputSourceInterface {
    * @param[out] buffer Read data.
    * @return True on success, false on failure.
    */
-  virtual bool Get(std::vector<double>* buffer);
+  bool Get(std::vector<double>* buffer) override;
 
  private:
   const FilterGainType gain_type_;

@@ -281,7 +281,7 @@ bool GaussianMixtureModeling::Run(
     if (0.0 == smoothing_parameter_) {
       for (int k(0); k < num_mixture_; ++k) {
         double* mu(&((*mean_vectors)[k][0]));
-        double z(1.0 / buffer0[k]);
+        const double z(1.0 / buffer0[k]);
         for (int l(0); l <= num_order_; ++l) {
           mu[l] = buffer1[k][l] * z;
         }
@@ -289,7 +289,7 @@ bool GaussianMixtureModeling::Run(
     } else {
       for (int k(0); k < num_mixture_; ++k) {
         double* mu(&((*mean_vectors)[k][0]));
-        double z(1.0 / (buffer0[k] + xi_[k]));
+        const double z(1.0 / (buffer0[k] + xi_[k]));
         for (int l(0); l <= num_order_; ++l) {
           mu[l] = (buffer1[k][l] + xi_[k] * ubm_mean_vectors_[k][l]) * z;
         }
@@ -299,8 +299,8 @@ bool GaussianMixtureModeling::Run(
     // Update covariance matrices.
     if (0.0 == smoothing_parameter_) {
       for (int k(0); k < num_mixture_; ++k) {
-        double* mu(&((*mean_vectors)[k][0]));
-        double z(1.0 / buffer0[k]);
+        const double* mu(&((*mean_vectors)[k][0]));
+        const double z(1.0 / buffer0[k]);
         for (int l(0); l <= num_order_; ++l) {
           for (int m(is_diagonal_ ? l : 0); m <= l; ++m) {
             if (0.0 != mask_[l][m]) {
@@ -312,8 +312,8 @@ bool GaussianMixtureModeling::Run(
       }
     } else {
       for (int k(0); k < num_mixture_; ++k) {
-        double* mu(&((*mean_vectors)[k][0]));
-        double z(1.0 / (buffer0[k] + xi_[k]));
+        const double* mu(&((*mean_vectors)[k][0]));
+        const double z(1.0 / (buffer0[k] + xi_[k]));
         for (int l(0); l <= num_order_; ++l) {
           for (int m(is_diagonal_ ? l : 0); m <= l; ++m) {
             if (0.0 != mask_[l][m]) {
@@ -543,7 +543,7 @@ bool GaussianMixtureModeling::Initialize(
   const int num_data(static_cast<int>(input_vectors.size()));
   std::vector<int> num_data_in_cluster(num_mixture_);
   {
-    int* src(&(codebook_indices[0]));
+    const int* src(&(codebook_indices[0]));
     int* dst(&(num_data_in_cluster[0]));
     for (int t(0); t < num_data; ++t) {
       ++dst[src[t]];
@@ -570,7 +570,7 @@ bool GaussianMixtureModeling::Initialize(
     for (int t(0); t < num_data; ++t) {
       const double* x(&(input_vectors[t][0]));
       const int k(codebook_indices[t]);
-      double* mu(&((*mean_vectors)[k][0]));
+      const double* mu(&((*mean_vectors)[k][0]));
       for (int l(0); l <= num_order_; ++l) {
         const double diff1(x[l] - mu[l]);
         for (int m(is_diagonal_ ? l : 0); m <= l; ++m) {

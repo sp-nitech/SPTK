@@ -33,8 +33,7 @@ class FourierTransform {
    */
   class FourierTransformInterface {
    public:
-    virtual ~FourierTransformInterface() {
-    }
+    virtual ~FourierTransformInterface() = default;
 
     /**
      * @return DFT length.
@@ -72,7 +71,7 @@ class FourierTransform {
    */
   explicit FourierTransform(int length);
 
-  ~FourierTransform() {
+  virtual ~FourierTransform() {
     delete fourier_transform_;
   }
 

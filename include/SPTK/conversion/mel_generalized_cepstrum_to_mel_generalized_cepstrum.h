@@ -123,8 +123,7 @@ class MelGeneralizedCepstrumToMelGeneralizedCepstrum {
    */
   class ModuleInterface {
    public:
-    virtual ~ModuleInterface() {
-    }
+    virtual ~ModuleInterface() = default;
 
     /**
      * @return True if this object is valid.

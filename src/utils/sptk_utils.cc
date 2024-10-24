@@ -256,7 +256,7 @@ bool WriteStream(int write_point, int write_size,
 template <typename T>
 bool SnPrintf(T data, const std::string& print_format, std::size_t buffer_size,
               char* buffer) {
-  if (print_format.empty() || buffer_size <= 0 || NULL == buffer) {
+  if (print_format.empty() || 0 == buffer_size || NULL == buffer) {
     return false;
   }
 
@@ -269,7 +269,7 @@ bool SnPrintf(T data, const std::string& print_format, std::size_t buffer_size,
 template <>
 bool SnPrintf(int24_t data, const std::string& print_format,
               std::size_t buffer_size, char* buffer) {
-  if (print_format.empty() || buffer_size <= 0 || NULL == buffer) {
+  if (print_format.empty() || 0 == buffer_size || NULL == buffer) {
     return false;
   }
 
@@ -284,7 +284,7 @@ bool SnPrintf(int24_t data, const std::string& print_format,
 template <>
 bool SnPrintf(uint24_t data, const std::string& print_format,
               std::size_t buffer_size, char* buffer) {
-  if (print_format.empty() || buffer_size <= 0 || NULL == buffer) {
+  if (print_format.empty() || 0 == buffer_size || NULL == buffer) {
     return false;
   }
 
@@ -438,7 +438,7 @@ double AddInLogSpace(double log_x, double log_y) {
   const double greater((log_x < log_y) ? log_y : log_x);
   const double diff(smaller - greater);
   if (diff < kThresholdOfInformationLossInLogSpace) return greater;
-  return greater + std::log(std::exp(diff) + 1.0);
+  return greater + std::log1p(std::exp(diff));
 }
 
 double Warp(double omega, double alpha) {

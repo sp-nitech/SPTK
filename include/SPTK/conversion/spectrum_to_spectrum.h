@@ -74,8 +74,7 @@ class SpectrumToSpectrum {
    */
   class OperationInterface {
    public:
-    virtual ~OperationInterface() {
-    }
+    virtual ~OperationInterface() = default;
 
     /**
      * @param[in,out] input_and_output Input/output spectrum.

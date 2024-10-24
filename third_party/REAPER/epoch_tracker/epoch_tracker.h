@@ -142,7 +142,11 @@ class EpochTracker {
     debug_name_ = debug_name;
   }
 
+#if 0
   std::string debug_name(void) { return debug_name_; }
+#else
+  const std::string& debug_name(void) { return debug_name_; }
+#endif
 
   // Compute the Hilbert transform of the signal in input, and place
   // the floating-point results in output.  output must be at least

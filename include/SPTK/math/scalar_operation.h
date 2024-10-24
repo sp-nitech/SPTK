@@ -33,8 +33,7 @@ class ScalarOperation {
    */
   class ModuleInterface {
    public:
-    virtual ~ModuleInterface() {
-    }
+    virtual ~ModuleInterface() = default;
 
     /**
      * @param[in,out] number Input/output number.

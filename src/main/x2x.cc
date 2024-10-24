@@ -85,8 +85,8 @@ void PrintUsage(std::ostream* stream) {
 
 class DataTransformInterface {
  public:
-  virtual ~DataTransformInterface() {
-  }
+  virtual ~DataTransformInterface() = default;
+
   virtual bool Run(std::istream* input_stream) const = 0;
 };
 
@@ -108,10 +108,10 @@ class DataTransform : public DataTransformInterface {
         maximum_value_(maximum_value) {
   }
 
-  ~DataTransform() {
+  ~DataTransform() override {
   }
 
-  virtual bool Run(std::istream* input_stream) const {
+  bool Run(std::istream* input_stream) const override {
     char buffer[kBufferSize];
     int index(0);
     for (;; ++index) {

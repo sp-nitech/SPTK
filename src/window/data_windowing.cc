@@ -24,7 +24,7 @@
 
 namespace sptk {
 
-DataWindowing::DataWindowing(WindowInterface* window_interface,
+DataWindowing::DataWindowing(const WindowInterface* window_interface,
                              int output_length,
                              NormalizationType normalization_type)
     : input_length_(window_interface ? window_interface->GetWindowLength() : 0),

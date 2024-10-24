@@ -26,8 +26,7 @@ namespace sptk {
  */
 class InputSourceInterface {
  public:
-  virtual ~InputSourceInterface() {
-  }
+  virtual ~InputSourceInterface() = default;
 
   /**
    * @return Size of data.

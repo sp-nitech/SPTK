@@ -42,7 +42,7 @@ class MedianFilter : public InputSourceInterface {
                InputSourceInterface* input_source, bool apply_each_dimension,
                bool use_magic_number, double magic_number = 0.0);
 
-  virtual ~MedianFilter() {
+  ~MedianFilter() override {
   }
 
   /**
@@ -69,14 +69,14 @@ class MedianFilter : public InputSourceInterface {
   /**
    * @return Output size.
    */
-  virtual int GetSize() const {
+  int GetSize() const override {
     return apply_each_dimension_ ? num_input_order_ + 1 : 1;
   }
 
   /**
    * @return True if this object is valid.
    */
-  virtual bool IsValid() const {
+  bool IsValid() const override {
     return is_valid_;
   }
 
@@ -84,7 +84,7 @@ class MedianFilter : public InputSourceInterface {
    * @param[out] output Filtered input.
    * @return True on success, false on failure.
    */
-  virtual bool Get(std::vector<double>* output);
+  bool Get(std::vector<double>* output) override;
 
  private:
   bool Forward();

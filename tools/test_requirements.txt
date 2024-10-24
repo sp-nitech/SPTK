@@ -2,7 +2,7 @@ black
 breathe
 clang-format
 cmake-format
-cpplint
+cpplint<2.0.0
 flake8
 isort
 mdformat

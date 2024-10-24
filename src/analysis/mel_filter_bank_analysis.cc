@@ -17,7 +17,7 @@
 #include "SPTK/analysis/mel_filter_bank_analysis.h"
 
 #include <algorithm>  // std::fill, std::max, std::min
-#include <cmath>      // std::exp, std::log, std::sqrt
+#include <cmath>      // std::expm1, std::log1p, std::sqrt
 #include <cstddef>    // std::size_t
 #include <numeric>    // std::accumulate
 #include <vector>     // std::vector
@@ -26,11 +26,11 @@ namespace {
 
 // Note that HTK use 1127 instead of 1127.01048.
 double HzToMel(double hz) {
-  return 1127.0 * std::log(hz / 700.0 + 1.0);
+  return 1127.0 * std::log1p(hz / 700.0);
 }
 
 double MelToHz(double mel) {
-  return 700.0 * (std::exp(mel / 1127.0) - 1.0);
+  return 700.0 * (std::expm1(mel / 1127.0));
 }
 
 double SampleMel(int index, int fft_length, double sampling_rate) {

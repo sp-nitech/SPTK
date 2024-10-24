@@ -16,6 +16,7 @@
 
 PYTHON_VERSION     := 3.9
 BATS_VERSION       := 1.11.0
+CPPCHECK_VERSION   := 2.15.0
 DOXYGEN_VERSION    := 1.9.1
 SHELLCHECK_VERSION := 0.10.0
 SHFMT_VERSION      := 3.9.0
@@ -24,7 +25,7 @@ JOBS               := 4
 
 all: check doxygen.done
 
-check: venv_dev bats.done shellcheck.done shfmt.done sptk.done
+check: venv_dev bats.done cppcheck.done shellcheck.done shfmt.done sptk.done
 
 venv:
 	test -d venv || python$(PYTHON_VERSION) -m venv venv
@@ -42,6 +43,12 @@ bats.done:
 	rm -rf bats
 	git clone https://github.com/bats-core/bats-core.git bats -b v$(BATS_VERSION) --single-branch --depth 1
 	touch bats.done
+
+cppcheck.done:
+	rm -rf cppcheck
+	git clone https://github.com/danmar/cppcheck.git -b $(CPPCHECK_VERSION) --single-branch --depth 1
+	cd cppcheck && make -j $(JOBS) MATCHCOMPILER=yes HAVE_RULES=yes CXXFLAGS="-O2 -DNDEBUG -Wall -Wno-sign-compare -Wno-unused-function -Wno-multichar"
+	touch cppcheck.done
 
 doxygen.done:
 	rm -rf doxygen
@@ -72,6 +79,6 @@ sptk.done:
 	touch sptk.done
 
 clean:
-	rm -rf venv bats doxygen shellcheck shfmt sptk *.done
+	rm -rf venv bats cppcheck doxygen shellcheck shfmt sptk *.done
 
 .PHONY: all check venv venv_dev clean

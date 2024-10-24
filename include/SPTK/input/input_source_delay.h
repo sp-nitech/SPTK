@@ -38,7 +38,7 @@ class InputSourceDelay : public InputSourceInterface {
   InputSourceDelay(int delay, bool keep_sequence_length,
                    InputSourceInterface* source);
 
-  virtual ~InputSourceDelay() {
+  ~InputSourceDelay() override {
   }
 
   /**
@@ -58,14 +58,14 @@ class InputSourceDelay : public InputSourceInterface {
   /**
    * @return Size of data.
    */
-  virtual int GetSize() const {
+  int GetSize() const override {
     return source_ ? source_->GetSize() : 0;
   }
 
   /**
    * @return True if this object is valid.
    */
-  virtual bool IsValid() const {
+  bool IsValid() const override {
     return is_valid_;
   }
 
@@ -73,7 +73,7 @@ class InputSourceDelay : public InputSourceInterface {
    * @param[out] buffer Read data.
    * @return True on success, false on failure.
    */
-  virtual bool Get(std::vector<double>* buffer);
+  bool Get(std::vector<double>* buffer) override;
 
  private:
   const int delay_;

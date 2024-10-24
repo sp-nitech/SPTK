@@ -34,7 +34,7 @@ class InverseFourierTransform {
    */
   explicit InverseFourierTransform(int length);
 
-  ~InverseFourierTransform() {
+  virtual ~InverseFourierTransform() {
     delete inverse_fourier_transform_;
   }
 

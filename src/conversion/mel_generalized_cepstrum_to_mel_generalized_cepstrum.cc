@@ -33,12 +33,14 @@ class GainNormalizationModule
   GainNormalizationModule(int num_order, double gamma)
       : generalized_cepstrum_gain_normalization_(num_order, gamma) {
   }
-  virtual bool IsValid() const {
+
+  bool IsValid() const override {
     return generalized_cepstrum_gain_normalization_.IsValid();
   }
-  virtual bool Run(
-      const std::vector<double>& input, std::vector<double>* output,
-      sptk::FrequencyTransform::Buffer* frequency_transform_buffer) const {
+
+  bool Run(const std::vector<double>& input, std::vector<double>* output,
+           sptk::FrequencyTransform::Buffer* frequency_transform_buffer)
+      const override {
     if (!generalized_cepstrum_gain_normalization_.Run(input, output)) {
       return false;
     }
@@ -59,12 +61,14 @@ class InverseGainNormalizationModule
   InverseGainNormalizationModule(int num_order, double gamma)
       : generalized_cepstrum_inverse_gain_normalization_(num_order, gamma) {
   }
-  virtual bool IsValid() const {
+
+  bool IsValid() const override {
     return generalized_cepstrum_inverse_gain_normalization_.IsValid();
   }
-  virtual bool Run(
-      const std::vector<double>& input, std::vector<double>* output,
-      sptk::FrequencyTransform::Buffer* frequency_transform_buffer) const {
+
+  bool Run(const std::vector<double>& input, std::vector<double>* output,
+           sptk::FrequencyTransform::Buffer* frequency_transform_buffer)
+      const override {
     if (!generalized_cepstrum_inverse_gain_normalization_.Run(input, output)) {
       return false;
     }
@@ -88,12 +92,14 @@ class FrequencyTransformModule
       : frequency_transform_(num_input_order, num_output_order,
                              alpha_transform) {
   }
-  virtual bool IsValid() const {
+
+  bool IsValid() const override {
     return frequency_transform_.IsValid();
   }
-  virtual bool Run(
-      const std::vector<double>& input, std::vector<double>* output,
-      sptk::FrequencyTransform::Buffer* frequency_transform_buffer) const {
+
+  bool Run(const std::vector<double>& input, std::vector<double>* output,
+           sptk::FrequencyTransform::Buffer* frequency_transform_buffer)
+      const override {
     if (!frequency_transform_.Run(input, output, frequency_transform_buffer)) {
       return false;
     }
@@ -119,12 +125,14 @@ class MelGeneralizedCepstrumToMelGeneralizedCepstrumModule
         input_gamma_(input_gamma),
         output_gamma_(output_gamma) {
   }
-  virtual bool IsValid() const {
+
+  bool IsValid() const override {
     return true;
   }
-  virtual bool Run(
-      const std::vector<double>& input, std::vector<double>* output,
-      sptk::FrequencyTransform::Buffer* frequency_transform_buffer) const {
+
+  bool Run(const std::vector<double>& input, std::vector<double>* output,
+           sptk::FrequencyTransform::Buffer* frequency_transform_buffer)
+      const override {
     if (output->size() != static_cast<std::size_t>(num_output_order_ + 1)) {
       output->resize(num_output_order_ + 1);
     }
@@ -167,12 +175,14 @@ class GammaDivisionModule
   GammaDivisionModule(int num_order, double gamma)
       : num_order_(num_order), gamma_(gamma) {
   }
-  virtual bool IsValid() const {
+
+  bool IsValid() const override {
     return true;
   }
-  virtual bool Run(
-      const std::vector<double>& input, std::vector<double>* output,
-      sptk::FrequencyTransform::Buffer* frequency_transform_buffer) const {
+
+  bool Run(const std::vector<double>& input, std::vector<double>* output,
+           sptk::FrequencyTransform::Buffer* frequency_transform_buffer)
+      const override {
     if (output->size() != static_cast<std::size_t>(num_order_ + 1)) {
       output->resize(num_order_ + 1);
     }
@@ -197,12 +207,14 @@ class GammaMultiplicationModule
   GammaMultiplicationModule(int num_order, double gamma)
       : num_order_(num_order), gamma_(gamma) {
   }
-  virtual bool IsValid() const {
+
+  bool IsValid() const override {
     return true;
   }
-  virtual bool Run(
-      const std::vector<double>& input, std::vector<double>* output,
-      sptk::FrequencyTransform::Buffer* frequency_transform_buffer) const {
+
+  bool Run(const std::vector<double>& input, std::vector<double>* output,
+           sptk::FrequencyTransform::Buffer* frequency_transform_buffer)
+      const override {
     if (output->size() != static_cast<std::size_t>(num_order_ + 1)) {
       output->resize(num_order_ + 1);
     }

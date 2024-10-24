@@ -140,8 +140,8 @@ bool ComputeSecondOrderRegressionCoefficients(
  * @return True on success, false on failure.
  */
 bool ComputeLowerAndUpperBounds(double confidence_level, int num_data,
-                                const std::vector<double> mean,
-                                const std::vector<double> variance,
+                                const std::vector<double>& mean,
+                                const std::vector<double>& variance,
                                 std::vector<double>* lower_bound,
                                 std::vector<double>* upper_bound);
 

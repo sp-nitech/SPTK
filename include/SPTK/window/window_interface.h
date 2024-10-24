@@ -26,8 +26,7 @@ namespace sptk {
  */
 class WindowInterface {
  public:
-  virtual ~WindowInterface() {
-  }
+  virtual ~WindowInterface() = default;
 
   /**
    * @return Window length.

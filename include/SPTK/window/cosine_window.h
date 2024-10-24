@@ -37,13 +37,13 @@ class CosineWindow : public WindowInterface {
   CosineWindow(int window_length, const std::vector<double>& alpha,
                bool periodic);
 
-  virtual ~CosineWindow() {
+  ~CosineWindow() override {
   }
 
   /**
    * @return Window length.
    */
-  virtual int GetWindowLength() const {
+  int GetWindowLength() const override {
     return window_length_;
   }
 
@@ -57,14 +57,14 @@ class CosineWindow : public WindowInterface {
   /**
    * @return True if this object is valid.
    */
-  virtual bool IsValid() const {
+  bool IsValid() const override {
     return is_valid_;
   }
 
   /**
    * @return Cosine window.
    */
-  virtual const std::vector<double>& Get() const {
+  const std::vector<double>& Get() const override {
     return window_;
   }
 

@@ -69,8 +69,7 @@ void PrintUsage(std::ostream* stream) {
 
 class BinaryCutInterface {
  public:
-  virtual ~BinaryCutInterface() {
-  }
+  virtual ~BinaryCutInterface() = default;
 
   virtual bool Run(std::istream* input_stream) const = 0;
 };
@@ -84,10 +83,10 @@ class BinaryCut : public BinaryCutInterface {
         block_length_(block_length) {
   }
 
-  ~BinaryCut() {
+  ~BinaryCut() override {
   }
 
-  virtual bool Run(std::istream* input_stream) const {
+  bool Run(std::istream* input_stream) const override {
     std::vector<T> data(block_length_);
 
     // Skip data.

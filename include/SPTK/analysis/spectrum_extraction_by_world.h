@@ -37,7 +37,7 @@ class SpectrumExtractionByWorld : public SpectrumExtractionInterface {
   SpectrumExtractionByWorld(int fft_length, int frame_shift,
                             double sampling_rate);
 
-  virtual ~SpectrumExtractionByWorld() {
+  ~SpectrumExtractionByWorld() override {
   }
 
   /**
@@ -50,7 +50,7 @@ class SpectrumExtractionByWorld : public SpectrumExtractionInterface {
   /**
    * @return Frame shift.
    */
-  virtual int GetFrameShift() const {
+  int GetFrameShift() const override {
     return frame_shift_;
   }
 
@@ -64,7 +64,7 @@ class SpectrumExtractionByWorld : public SpectrumExtractionInterface {
   /**
    * @return True if this object is valid.
    */
-  virtual bool IsValid() const {
+  bool IsValid() const override {
     return is_valid_;
   }
 
@@ -74,9 +74,8 @@ class SpectrumExtractionByWorld : public SpectrumExtractionInterface {
    * @param[out] spectrum Power spectrum.
    * @return True on success, false on failure.
    */
-  virtual bool Run(const std::vector<double>& waveform,
-                   const std::vector<double>& f0,
-                   std::vector<std::vector<double> >* spectrum) const;
+  bool Run(const std::vector<double>& waveform, const std::vector<double>& f0,
+           std::vector<std::vector<double> >* spectrum) const override;
 
  private:
   const int fft_length_;

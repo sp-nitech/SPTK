@@ -52,13 +52,13 @@ class StandardWindow : public WindowInterface {
    */
   StandardWindow(int window_length, WindowType window_type, bool periodic);
 
-  virtual ~StandardWindow() {
+  ~StandardWindow() override {
   }
 
   /**
    * @return Window length.
    */
-  virtual int GetWindowLength() const {
+  int GetWindowLength() const override {
     return window_length_;
   }
 
@@ -79,14 +79,14 @@ class StandardWindow : public WindowInterface {
   /**
    * @return True if this object is valid.
    */
-  virtual bool IsValid() const {
+  bool IsValid() const override {
     return is_valid_;
   }
 
   /**
    * @return Window.
    */
-  virtual const std::vector<double>& Get() const {
+  const std::vector<double>& Get() const override {
     return window_;
   }
 

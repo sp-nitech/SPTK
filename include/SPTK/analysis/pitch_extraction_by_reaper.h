@@ -40,7 +40,7 @@ class PitchExtractionByReaper : public PitchExtractionInterface {
                           double lower_f0, double upper_f0,
                           double voicing_threshold);
 
-  virtual ~PitchExtractionByReaper() {
+  ~PitchExtractionByReaper() override {
   }
 
   /**
@@ -81,7 +81,7 @@ class PitchExtractionByReaper : public PitchExtractionInterface {
   /**
    * @return True if this object is valid.
    */
-  virtual bool IsValid() const {
+  bool IsValid() const override {
     return is_valid_;
   }
 
@@ -92,9 +92,9 @@ class PitchExtractionByReaper : public PitchExtractionInterface {
    * @param[out] polarity Polarity.
    * @return True on success, false on failure.
    */
-  virtual bool Get(const std::vector<double>& waveform, std::vector<double>* f0,
-                   std::vector<double>* epochs,
-                   PitchExtractionInterface::Polarity* polarity) const;
+  bool Get(const std::vector<double>& waveform, std::vector<double>* f0,
+           std::vector<double>* epochs,
+           PitchExtractionInterface::Polarity* polarity) const override;
 
  private:
   const int frame_shift_;

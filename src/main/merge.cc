@@ -84,8 +84,7 @@ void PrintUsage(std::ostream* stream) {
 
 class VectorMergeInterface {
  public:
-  virtual ~VectorMergeInterface() {
-  }
+  virtual ~VectorMergeInterface() = default;
 
   virtual bool Run(std::istream* input_stream, std::istream* insert_stream,
                    bool* eof_reached) const = 0;
@@ -112,11 +111,11 @@ class VectorMerge : public VectorMergeInterface {
     }
   }
 
-  ~VectorMerge() {
+  ~VectorMerge() override {
   }
 
-  virtual bool Run(std::istream* input_stream, std::istream* insert_stream,
-                   bool* eof_reached) const {
+  bool Run(std::istream* input_stream, std::istream* insert_stream,
+           bool* eof_reached) const override {
     if (recursive_ && !has_vector_) {
       return true;
     }

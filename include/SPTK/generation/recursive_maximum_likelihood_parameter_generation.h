@@ -76,7 +76,7 @@ class RecursiveMaximumLikelihoodParameterGeneration
       const std::vector<std::vector<double> >& window_coefficients,
       InputSourceInterface* input_source);
 
-  virtual ~RecursiveMaximumLikelihoodParameterGeneration() {
+  ~RecursiveMaximumLikelihoodParameterGeneration() override {
   }
 
   /**
@@ -96,14 +96,14 @@ class RecursiveMaximumLikelihoodParameterGeneration
   /**
    * @return Output size.
    */
-  virtual int GetSize() const {
+  int GetSize() const override {
     return num_order_ + 1;
   }
 
   /**
    * @return True if this object is valid.
    */
-  virtual bool IsValid() const {
+  bool IsValid() const override {
     return is_valid_;
   }
 
@@ -111,7 +111,7 @@ class RecursiveMaximumLikelihoodParameterGeneration
    * @param[out] smoothed_static_parameters Smoothed static parameters.
    * @return True on success, false on failure.
    */
-  virtual bool Get(std::vector<double>* smoothed_static_parameters);
+  bool Get(std::vector<double>* smoothed_static_parameters) override;
 
  private:
   struct Buffer {
@@ -125,7 +125,7 @@ class RecursiveMaximumLikelihoodParameterGeneration
     std::vector<std::vector<double> > c;
   };
 
-  bool Forward();
+  void Forward();
 
   const int num_order_;
   const int num_past_frame_;

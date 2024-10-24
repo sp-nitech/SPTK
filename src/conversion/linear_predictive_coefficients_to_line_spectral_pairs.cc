@@ -116,7 +116,7 @@ bool LinearPredictiveCoefficientsToLineSpectralPairs::Run(
     c2[0] *= 0.5;
   }
 
-  std::vector<double>* c(&buffer->c1_);
+  const std::vector<double>* c(&buffer->c1_);
   int order(0);
   double x_prev(1.0);
   double y_prev(CalculateChebyshevPolynomial(*c, x_prev));

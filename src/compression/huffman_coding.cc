@@ -78,7 +78,7 @@ struct Compare {
   }
 };
 
-void Encode(const Node* node, std::string code,
+void Encode(const Node* node, const std::string& code,
             std::vector<std::string>* codewords) {
   if (NULL == node) return;
 

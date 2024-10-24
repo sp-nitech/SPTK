@@ -24,8 +24,7 @@ namespace sptk {
  */
 class RandomGenerationInterface {
  public:
-  virtual ~RandomGenerationInterface() {
-  }
+  virtual ~RandomGenerationInterface() = default;
 
   /**
    * Reset state.

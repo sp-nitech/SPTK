@@ -30,27 +30,27 @@ class FastFourierTransformWrapper
       : fast_fourier_tranform_(fft_length) {
   }
 
-  virtual ~FastFourierTransformWrapper() {
+  ~FastFourierTransformWrapper() override {
   }
 
-  virtual int GetLength() const {
+  int GetLength() const override {
     return fast_fourier_tranform_.GetFftLength();
   }
 
-  virtual bool IsValid() const {
+  bool IsValid() const override {
     return fast_fourier_tranform_.IsValid();
   }
 
-  virtual bool Run(const std::vector<double>& real_part_input,
-                   const std::vector<double>& imag_part_input,
-                   std::vector<double>* real_part_output,
-                   std::vector<double>* imag_part_output) const {
+  bool Run(const std::vector<double>& real_part_input,
+           const std::vector<double>& imag_part_input,
+           std::vector<double>* real_part_output,
+           std::vector<double>* imag_part_output) const override {
     return fast_fourier_tranform_.Run(real_part_input, imag_part_input,
                                       real_part_output, imag_part_output);
   }
 
-  virtual bool Run(std::vector<double>* real_part,
-                   std::vector<double>* imag_part) const {
+  bool Run(std::vector<double>* real_part,
+           std::vector<double>* imag_part) const override {
     return fast_fourier_tranform_.Run(real_part, imag_part);
   }
 
@@ -67,27 +67,27 @@ class DiscreteFourierTransformWrapper
       : discrete_fourier_tranform_(dft_length) {
   }
 
-  virtual ~DiscreteFourierTransformWrapper() {
+  ~DiscreteFourierTransformWrapper() override {
   }
 
-  virtual int GetLength() const {
+  int GetLength() const override {
     return discrete_fourier_tranform_.GetDftLength();
   }
 
-  virtual bool IsValid() const {
+  bool IsValid() const override {
     return discrete_fourier_tranform_.IsValid();
   }
 
-  virtual bool Run(const std::vector<double>& real_part_input,
-                   const std::vector<double>& imag_part_input,
-                   std::vector<double>* real_part_output,
-                   std::vector<double>* imag_part_output) const {
+  bool Run(const std::vector<double>& real_part_input,
+           const std::vector<double>& imag_part_input,
+           std::vector<double>* real_part_output,
+           std::vector<double>* imag_part_output) const override {
     return discrete_fourier_tranform_.Run(real_part_input, imag_part_input,
                                           real_part_output, imag_part_output);
   }
 
-  virtual bool Run(std::vector<double>* real_part,
-                   std::vector<double>* imag_part) const {
+  bool Run(std::vector<double>* real_part,
+           std::vector<double>* imag_part) const override {
     return discrete_fourier_tranform_.Run(real_part, imag_part);
   }
 
