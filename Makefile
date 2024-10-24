@@ -61,6 +61,14 @@ doc-clean:
 		. ./tools/venv/bin/activate && cd $(DOCDIR) && make clean; \
 	fi
 
+example:
+	@for task in egs/*; do \
+		for kind in $$task/*; do \
+			echo "Checking example in $$kind..."; \
+			cd $$kind && ./run.sh && cd - > /dev/null; \
+		done; \
+	done
+
 format: format-sh format-py format-cc format-misc
 
 format-sh:
@@ -153,4 +161,4 @@ tool:
 clean: doc-clean test-clean
 	rm -rf $(BUILDDIR) $(LIBDIR) $(BINDIR)
 
-.PHONY: all build doc doc-clean format test test-clean tool clean
+.PHONY: all build doc doc-clean example format test test-clean tool clean
