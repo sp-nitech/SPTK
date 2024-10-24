@@ -32,8 +32,8 @@ namespace world {
 // Output:
 //   y                    : Calculated speech
 //-----------------------------------------------------------------------------
-void Synthesis(const double *f0, int f0_length, 
-    const double * const *spectrogram, const double * const *aperiodicity, 
+void Synthesis(const double *f0, int f0_length,
+    const double * const *spectrogram, const double * const *aperiodicity,
     int fft_size, double frame_period, int fs, int y_length, double *y);
 
 #if 0

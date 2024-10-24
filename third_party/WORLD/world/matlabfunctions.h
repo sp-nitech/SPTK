@@ -6,15 +6,17 @@
 #ifndef WORLD_MATLABFUNCTIONS_H_
 #define WORLD_MATLABFUNCTIONS_H_
 
+#include <stdint.h>
+
 #include "world/common.h"
+#if 0
 #include "world/macrodefinitions.h"
 
-#if 1
+WORLD_BEGIN_C_DECLS
+#else
 namespace sptk {
 namespace world {
 #endif
-
-WORLD_BEGIN_C_DECLS
 
 //-----------------------------------------------------------------------------
 // fftshift() swaps the left and right halves of input vector.
@@ -130,19 +132,32 @@ void diff(const double *x, int x_length, double *y);
 void interp1Q(double x, double shift, const double *y, int x_length,
   const double *xi, int xi_length, double *yi);
 
+typedef struct {
+  uint32_t g_randn_x;
+  uint32_t g_randn_y;
+  uint32_t g_randn_z;
+  uint32_t g_randn_w;
+} RandnState;
+
 //-----------------------------------------------------------------------------
 // randn() generates pseudorandom numbers based on xorshift method.
+//
+// Input:
+//   state  : State of the pseudorandom number generator
 //
 // Output:
 //   A generated pseudorandom number
 //-----------------------------------------------------------------------------
-double randn(void);
+double randn(RandnState *state);
 
 //-----------------------------------------------------------------------------
 // randn_reseed() forces to seed the pseudorandom generator using initial
 // values.
+//
+// Input:
+//   state  : State of the pseudorandom number generator
 //-----------------------------------------------------------------------------
-void randn_reseed(void);
+void randn_reseed(RandnState *state);
 
 //-----------------------------------------------------------------------------
 // fast_fftfilt() carries out the convolution on the frequency domain.
@@ -168,11 +183,11 @@ void fast_fftfilt(const double *x, int x_length, const double *h, int h_length,
 // inv() calculates the inverse matrix of input square matrix.
 //
 // Input:
-//   r     : Input square matrix;
+//   r     : Input square matrix
 //   n     : Number of dimensions of the input
 //
 // Output:
-//   invr  : Calculated inverse matrix.
+//   invr  : Calculated inverse matrix
 //-----------------------------------------------------------------------------
 void inv(double **r, int n, double **invr);
 #endif
@@ -189,9 +204,9 @@ void inv(double **r, int n, double **invr);
 //-----------------------------------------------------------------------------
 double matlab_std(const double *x, int x_length);
 
+#if 0
 WORLD_END_C_DECLS
-
-#if 1
+#else
 }  // namespace world
 }  // namespace sptk
 #endif

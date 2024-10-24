@@ -9,14 +9,14 @@
 #ifndef WORLD_FFT_H_
 #define WORLD_FFT_H_
 
+#if 0
 #include "world/macrodefinitions.h"
 
-#if 1
+WORLD_BEGIN_C_DECLS
+#else
 namespace sptk {
 namespace world {
 #endif
-
-WORLD_BEGIN_C_DECLS
 
 // Commands for FFT (This is the same as FFTW)
 #define FFT_FORWARD 1
@@ -48,9 +48,9 @@ fft_plan fft_plan_dft_r2c_1d(int n, double *in, fft_complex *out,
 void fft_execute(fft_plan p);
 void fft_destroy_plan(fft_plan p);
 
+#if 0
 WORLD_END_C_DECLS
-
-#if 1
+#else
 }  // namespace world
 }  // namespace sptk
 #endif
