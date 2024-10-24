@@ -5,4 +5,6 @@ pcas
 
 .. doxygenfile:: pcas.cc
 
-.. seealso:: :ref:`pca`
+.. seealso::
+
+    :ref:`pca`

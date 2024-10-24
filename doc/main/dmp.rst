@@ -5,4 +5,6 @@ dmp
 
 .. doxygenfile:: dmp.cc
 
-.. seealso:: :ref:`fd`  :ref:`x2x`
+.. seealso::
+
+    :ref:`fd` :ref:`x2x`

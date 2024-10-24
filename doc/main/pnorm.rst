@@ -5,7 +5,9 @@ pnorm
 
 .. doxygenfile:: pnorm.cc
 
-.. seealso:: :ref:`ipnorm`
+.. seealso::
+
+    :ref:`ipnorm`
 
 .. doxygenclass:: sptk::MelCepstrumPowerNormalization
-   :members:
+    :members:

@@ -5,7 +5,9 @@ huffman
 
 .. doxygenfile:: huffman.cc
 
-.. seealso:: :ref:`huffman_encode`  :ref:`huffman_decode`
+.. seealso::
+
+    :ref:`huffman_encode` :ref:`huffman_decode`
 
 .. doxygenclass:: sptk::HuffmanCoding
-   :members:
+    :members:

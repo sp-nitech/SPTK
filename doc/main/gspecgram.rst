@@ -5,4 +5,6 @@ gspecgram
 
 .. doxygenfile:: gspecgram.py
 
-.. seealso:: :ref:`fdrw`  :ref:`grlogsp`
+.. seealso::
+
+    :ref:`fdrw` :ref:`grlogsp`

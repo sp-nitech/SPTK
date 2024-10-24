@@ -5,7 +5,9 @@ ipqmf
 
 .. doxygenfile:: ipqmf.cc
 
-.. seealso:: :ref:`pqmf`
+.. seealso::
+
+    :ref:`pqmf`
 
 .. doxygenclass:: sptk::InversePseudoQuadratureMirrorFilterBanks
-   :members:
+    :members:

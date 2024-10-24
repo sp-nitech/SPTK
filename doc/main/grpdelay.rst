@@ -5,7 +5,9 @@ grpdelay
 
 .. doxygenfile:: grpdelay.cc
 
-.. seealso:: :ref:`phase`
+.. seealso::
+
+    :ref:`phase`
 
 .. doxygenclass:: sptk::FilterCoefficientsToGroupDelay
-   :members:
+    :members:

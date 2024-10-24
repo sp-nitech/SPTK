@@ -5,4 +5,6 @@ median
 
 .. doxygenfile:: median.cc
 
-.. seealso:: :ref:`vstat`  :ref:`medfilt`
+.. seealso::
+
+    :ref:`vstat` :ref:`medfilt`

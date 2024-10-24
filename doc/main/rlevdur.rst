@@ -5,7 +5,9 @@ rlevdur
 
 .. doxygenfile:: rlevdur.cc
 
-.. seealso:: :ref:`levdur`
+.. seealso::
+
+    :ref:`levdur`
 
 .. doxygenclass:: sptk::ReverseLevinsonDurbinRecursion
-   :members:
+    :members:

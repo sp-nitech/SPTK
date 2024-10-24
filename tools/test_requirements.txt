@@ -3,6 +3,7 @@ breathe
 clang-format
 cmake-format
 cpplint<2.0.0
+docstrfmt
 flake8
 isort
 mdformat

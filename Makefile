@@ -123,8 +123,8 @@ format-cc:
 		-Iinclude -Ithird_party src
 
 format-misc:
-	@if [ ! -x ./tools/venv/bin/cmake-format ]; then \
-		echo "Please install cmake-format via:"; \
+	@if [ ! -x ./tools/venv/bin/cmake-format ] || [ ! -x ./tools/venv/bin/mdformat ] || [ ! -x ./tools/venv/bin/docstrfmt ]; then \
+		echo "Please install cmake-format, mdformat, and docstrfmt via:"; \
 		echo ""; \
 		echo "  cd tools; make venv_dev"; \
 		echo ""; \
@@ -132,6 +132,7 @@ format-misc:
 	fi
 	./tools/venv/bin/cmake-format -i CMakeLists.txt
 	./tools/venv/bin/mdformat *.md
+	cd $(DOCDIR) && ../tools/venv/bin/docstrfmt .
 
 test:
 	@if [ ! -x ./tools/bats/bin/bats ]; then \

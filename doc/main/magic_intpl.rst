@@ -5,4 +5,6 @@ magic_intpl
 
 .. doxygenfile:: magic_intpl.cc
 
-.. seealso:: :ref:`pitch`
+.. seealso::
+
+    :ref:`pitch`

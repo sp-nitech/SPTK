@@ -5,7 +5,9 @@ fbank
 
 .. doxygenfile:: fbank.cc
 
-.. seealso:: :ref:`mfcc`
+.. seealso::
+
+    :ref:`mfcc`
 
 .. doxygenclass:: sptk::MelFilterBankAnalysis
-   :members:
+    :members:

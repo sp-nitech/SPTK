@@ -5,4 +5,6 @@ merge
 
 .. doxygenfile:: merge.cc
 
-.. seealso:: :ref:`bcp`
+.. seealso::
+
+    :ref:`bcp`

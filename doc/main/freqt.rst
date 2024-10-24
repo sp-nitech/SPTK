@@ -5,7 +5,9 @@ freqt
 
 .. doxygenfile:: freqt.cc
 
-.. seealso:: :ref:`mgc2mgc`
+.. seealso::
+
+    :ref:`mgc2mgc`
 
 .. doxygenclass:: sptk::FrequencyTransform
-   :members:
+    :members:

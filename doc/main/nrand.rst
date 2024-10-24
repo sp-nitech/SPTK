@@ -5,7 +5,9 @@ nrand
 
 .. doxygenfile:: nrand.cc
 
-.. seealso:: :ref:`mseq`
+.. seealso::
+
+    :ref:`mseq`
 
 .. doxygenclass:: sptk::NormalDistributedRandomValueGeneration
-   :members:
+    :members:

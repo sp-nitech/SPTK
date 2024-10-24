@@ -5,10 +5,12 @@ dtw
 
 .. doxygenfile:: dtw.cc
 
-.. seealso:: :ref:`dtw_merge`
+.. seealso::
+
+    :ref:`dtw_merge`
 
 .. doxygenclass:: sptk::DynamicTimeWarping
-   :members:
+    :members:
 
 .. doxygenclass:: sptk::DistanceCalculation
-   :members:
+    :members:

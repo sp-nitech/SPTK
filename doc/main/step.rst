@@ -5,4 +5,6 @@ step
 
 .. doxygenfile:: step.cc
 
-.. seealso:: :ref:`impulse`  :ref:`ramp`  :ref:`train`  :ref:`sin`
+.. seealso::
+
+    :ref:`impulse` :ref:`ramp` :ref:`train` :ref:`sin`

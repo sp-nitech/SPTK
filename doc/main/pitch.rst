@@ -5,7 +5,9 @@ pitch
 
 .. doxygenfile:: pitch.cc
 
-.. seealso:: :ref:`pitch_mark`  :ref:`excite`
+.. seealso::
+
+    :ref:`pitch_mark` :ref:`excite`
 
 .. doxygenclass:: sptk::PitchExtraction
-   :members:
+    :members:

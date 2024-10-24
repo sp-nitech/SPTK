@@ -5,7 +5,9 @@ pca
 
 .. doxygenfile:: pca.cc
 
-.. seealso:: :ref:`pcas`
+.. seealso::
+
+    :ref:`pcas`
 
 .. doxygenclass:: sptk::PrincipalComponentAnalysis
-   :members:
+    :members:

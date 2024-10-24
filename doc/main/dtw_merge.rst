@@ -5,4 +5,6 @@ dtw_merge
 
 .. doxygenfile:: dtw_merge.cc
 
-.. seealso:: :ref:`dtw`
+.. seealso::
+
+    :ref:`dtw`

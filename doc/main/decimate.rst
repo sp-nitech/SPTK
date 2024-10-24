@@ -5,4 +5,6 @@ decimate
 
 .. doxygenfile:: decimate.cc
 
-.. seealso:: :ref:`interpolate`
+.. seealso::
+
+    :ref:`interpolate`

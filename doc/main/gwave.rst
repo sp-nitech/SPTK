@@ -5,4 +5,6 @@ gwave
 
 .. doxygenfile:: gwave.py
 
-.. seealso:: :ref:`fdrw`
+.. seealso::
+
+    :ref:`fdrw`

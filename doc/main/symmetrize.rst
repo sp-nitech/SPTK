@@ -5,7 +5,9 @@ symmetrize
 
 .. doxygenfile:: symmetrize.cc
 
-.. seealso:: :ref:`transpose`
+.. seealso::
+
+    :ref:`transpose`
 
 .. doxygenclass:: sptk::DataSymmetrizing
-   :members:
+    :members:

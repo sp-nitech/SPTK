@@ -5,13 +5,15 @@ smcep
 
 .. doxygenfile:: smcep.cc
 
-.. seealso:: :ref:`mgcep`
+.. seealso::
+
+    :ref:`mgcep`
 
 .. doxygenclass:: sptk::SecondOrderAllPassMelCepstralAnalysis
-   :members:
+    :members:
 
 .. doxygenclass:: sptk::SecondOrderAllPassFrequencyTransform
-   :members:
+    :members:
 
 .. doxygenclass:: sptk::SecondOrderAllPassInverseFrequencyTransform
-   :members:
+    :members:

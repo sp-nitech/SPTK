@@ -5,7 +5,9 @@ c2ndps
 
 .. doxygenfile:: c2ndps.cc
 
-.. seealso:: :ref:`ndps2c`
+.. seealso::
+
+    :ref:`ndps2c`
 
 .. doxygenclass:: sptk::CepstrumToNegativeDerivativeOfPhaseSpectrum
-   :members:
+    :members:

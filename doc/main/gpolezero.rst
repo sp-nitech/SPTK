@@ -5,4 +5,6 @@ gpolezero
 
 .. doxygenfile:: gpolezero.py
 
-.. seealso:: :ref:`fdrw`
+.. seealso::
+
+    :ref:`fdrw`

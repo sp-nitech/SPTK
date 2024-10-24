@@ -5,4 +5,6 @@ train
 
 .. doxygenfile:: train.cc
 
-.. seealso:: :ref:`excite`
+.. seealso::
+
+    :ref:`excite`

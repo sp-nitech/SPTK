@@ -5,4 +5,6 @@ clip
 
 .. doxygenfile:: clip.cc
 
-.. seealso:: :ref:`sopr`
+.. seealso::
+
+    :ref:`sopr`
