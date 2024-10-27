@@ -5,4 +5,6 @@ rmse
 
 .. doxygenfile:: rmse.cc
 
-.. seealso:: :ref:`cdist`
+.. seealso::
+
+    :ref:`cdist`

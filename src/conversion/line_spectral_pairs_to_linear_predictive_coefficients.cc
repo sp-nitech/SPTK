@@ -19,6 +19,7 @@
 #include <algorithm>  // std::fill_n
 #include <cmath>      // std::ceil, std::cos, std::floor
 #include <cstddef>    // std::size_t
+#include <vector>     // std::vector
 
 namespace sptk {
 

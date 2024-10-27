@@ -37,7 +37,7 @@ class AperiodicityExtractionByTandem : public AperiodicityExtractionInterface {
   AperiodicityExtractionByTandem(int fft_length, int frame_shift,
                                  double sampling_rate);
 
-  virtual ~AperiodicityExtractionByTandem() {
+  ~AperiodicityExtractionByTandem() override {
   }
 
   /**
@@ -50,7 +50,7 @@ class AperiodicityExtractionByTandem : public AperiodicityExtractionInterface {
   /**
    * @return Frame shift.
    */
-  virtual int GetFrameShift() const {
+  int GetFrameShift() const override {
     return frame_shift_;
   }
 
@@ -64,7 +64,7 @@ class AperiodicityExtractionByTandem : public AperiodicityExtractionInterface {
   /**
    * @return True if this object is valid.
    */
-  virtual bool IsValid() const {
+  bool IsValid() const override {
     return is_valid_;
   }
 
@@ -74,9 +74,8 @@ class AperiodicityExtractionByTandem : public AperiodicityExtractionInterface {
    * @param[out] aperiodicity Aperiodicity measure.
    * @return True on success, false on failure.
    */
-  virtual bool Run(const std::vector<double>& waveform,
-                   const std::vector<double>& f0,
-                   std::vector<std::vector<double> >* aperiodicity) const;
+  bool Run(const std::vector<double>& waveform, const std::vector<double>& f0,
+           std::vector<std::vector<double> >* aperiodicity) const override;
 
  private:
   const int fft_length_;

@@ -5,13 +5,15 @@ acorr
 
 .. doxygenfile:: acorr.cc
 
-.. seealso:: :ref:`c2acr`  :ref:`levdur`  :ref:`lpc`
+.. seealso::
+
+    :ref:`c2acr` :ref:`levdur` :ref:`lpc`
 
 .. doxygenclass:: sptk::AutocorrelationAnalysis
-   :members:
+    :members:
 
 .. doxygenclass:: sptk::WaveformToAutocorrelation
-   :members:
+    :members:
 
 .. doxygenclass:: sptk::SpectrumToAutocorrelation
-   :members:
+    :members:

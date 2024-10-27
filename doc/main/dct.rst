@@ -5,7 +5,9 @@ dct
 
 .. doxygenfile:: dct.cc
 
-.. seealso:: :ref:`idct`
+.. seealso::
+
+    :ref:`idct`
 
 .. doxygenclass:: sptk::DiscreteCosineTransform
-   :members:
+    :members:

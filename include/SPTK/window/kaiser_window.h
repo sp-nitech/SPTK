@@ -36,7 +36,7 @@ class KaiserWindow : public WindowInterface {
    */
   KaiserWindow(int window_length, double beta, bool periodic);
 
-  virtual ~KaiserWindow() {
+  ~KaiserWindow() override {
   }
 
   /**
@@ -48,7 +48,7 @@ class KaiserWindow : public WindowInterface {
   /**
    * @return Window length.
    */
-  virtual int GetWindowLength() const {
+  int GetWindowLength() const override {
     return window_length_;
   }
 
@@ -69,14 +69,14 @@ class KaiserWindow : public WindowInterface {
   /**
    * @return True if this object is valid.
    */
-  virtual bool IsValid() const {
+  bool IsValid() const override {
     return is_valid_;
   }
 
   /**
    * @return Kaiser window.
    */
-  virtual const std::vector<double>& Get() const {
+  const std::vector<double>& Get() const override {
     return window_;
   }
 

@@ -36,13 +36,13 @@ class InputSourceFromMatrix : public InputSourceInterface {
    */
   InputSourceFromMatrix(int row_size, int col_size, double** input_matrix);
 
-  virtual ~InputSourceFromMatrix() {
+  ~InputSourceFromMatrix() override {
   }
 
   /**
    * @return Size of data.
    */
-  virtual int GetSize() const {
+  int GetSize() const override {
     return row_size_;
   }
 
@@ -63,7 +63,7 @@ class InputSourceFromMatrix : public InputSourceInterface {
   /**
    * @return True if this object is valid.
    */
-  virtual bool IsValid() const {
+  bool IsValid() const override {
     return is_valid_;
   }
 
@@ -71,7 +71,7 @@ class InputSourceFromMatrix : public InputSourceInterface {
    * @param[out] buffer Read data.
    * @return True on success, false on failure.
    */
-  virtual bool Get(std::vector<double>* buffer);
+  bool Get(std::vector<double>* buffer) override;
 
  private:
   const int row_size_;

@@ -5,7 +5,9 @@ delta
 
 .. doxygenfile:: delta.cc
 
-.. seealso:: :ref:`mlpg`
+.. seealso::
+
+    :ref:`mlpg`
 
 .. doxygenclass:: sptk::DeltaCalculation
-   :members:
+    :members:

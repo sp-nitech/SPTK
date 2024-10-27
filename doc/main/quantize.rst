@@ -5,7 +5,9 @@ quantize
 
 .. doxygenfile:: quantize.cc
 
-.. seealso:: :ref:`dequantize`
+.. seealso::
+
+    :ref:`dequantize`
 
 .. doxygenclass:: sptk::UniformQuantization
-   :members:
+    :members:

@@ -304,9 +304,7 @@ int main(int argc, char* argv[]) {
       return 1;
     }
   }
-  std::ostream& output_stream(ofs);
-  std::ostream* output_stream_pointer(NULL == position_file ? NULL
-                                                            : &output_stream);
+  std::ostream* output_stream_pointer(NULL == position_file ? NULL : &ofs);
 
   sptk::MinMaxAccumulation minmax_accumulation(num_best);
   std::vector<sptk::MinMaxAccumulation::Buffer> buffer(
@@ -355,7 +353,7 @@ int main(int argc, char* argv[]) {
           return 1;
         }
       }
-      if (empty) empty = false;
+      empty = false;
     }
     // Write value if at least one data is given.
     if (!empty) {

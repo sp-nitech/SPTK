@@ -5,7 +5,9 @@ sopr
 
 .. doxygenfile:: sopr.cc
 
-.. seealso:: :ref:`vopr`
+.. seealso::
+
+    :ref:`vopr`
 
 .. doxygenclass:: sptk::ScalarOperation
-   :members:
+    :members:

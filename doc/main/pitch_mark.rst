@@ -5,4 +5,6 @@ pitch_mark
 
 .. doxygenfile:: pitch_mark.cc
 
-.. seealso:: :ref:`pitch`
+.. seealso::
+
+    :ref:`pitch`

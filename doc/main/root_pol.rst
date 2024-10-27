@@ -5,7 +5,9 @@ root_pol
 
 .. doxygenfile:: root_pol.cc
 
-.. seealso:: :ref:`gpolezero`
+.. seealso::
+
+    :ref:`gpolezero`
 
 .. doxygenclass:: sptk::DurandKernerMethod
-   :members:
+    :members:

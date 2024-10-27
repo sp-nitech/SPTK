@@ -18,6 +18,7 @@
 
 #include <algorithm>  // std::fill, std::max
 #include <cstddef>    // std::size_t
+#include <vector>     // std::vector
 
 namespace {
 

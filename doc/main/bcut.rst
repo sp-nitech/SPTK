@@ -5,4 +5,6 @@ bcut
 
 .. doxygenfile:: bcut.cc
 
-.. seealso:: :ref:`bcp`  :ref:`merge`
+.. seealso::
+
+    :ref:`bcp` :ref:`merge`

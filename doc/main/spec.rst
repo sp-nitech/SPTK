@@ -5,13 +5,15 @@ spec
 
 .. doxygenfile:: spec.cc
 
-.. seealso:: :ref:`fftr`  :ref:`phase`  :ref:`grpdelay`  :ref:`glogsp`  :ref:`grlogsp`
+.. seealso::
+
+    :ref:`fftr` :ref:`phase` :ref:`grpdelay` :ref:`glogsp` :ref:`grlogsp`
 
 .. doxygenclass:: sptk::WaveformToSpectrum
-   :members:
+    :members:
 
 .. doxygenclass:: sptk::FilterCoefficientsToSpectrum
-   :members:
+    :members:
 
 .. doxygenclass:: sptk::SpectrumToSpectrum
-   :members:
+    :members:

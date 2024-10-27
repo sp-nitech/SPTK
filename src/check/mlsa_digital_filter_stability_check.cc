@@ -20,6 +20,7 @@
 #include <cmath>      // std::pow, std::sqrt
 #include <cstddef>    // std::size_t
 #include <numeric>    // std::accumulate
+#include <vector>     // std::vector
 
 namespace sptk {
 

@@ -5,10 +5,12 @@ mglsadf
 
 .. doxygenfile:: mglsadf.cc
 
-.. seealso:: :ref:`imglsadf`  :ref:`mgcep`
+.. seealso::
+
+    :ref:`imglsadf` :ref:`mgcep`
 
 .. doxygenclass:: sptk::MlsaDigitalFilter
-   :members:
+    :members:
 
 .. doxygenclass:: sptk::MglsaDigitalFilter
-   :members:
+    :members:

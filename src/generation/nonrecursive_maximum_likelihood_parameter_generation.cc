@@ -18,6 +18,7 @@
 
 #include <algorithm>  // std::count
 #include <cstddef>    // std::size_t
+#include <vector>     // std::vector
 
 namespace {
 
@@ -286,7 +287,7 @@ bool NonrecursiveMaximumLikelihoodParameterGeneration::Run(
 
   // Forward substitution to solve a set of linear equations.
   {
-    double* r(&(wum[0]));
+    const double* r(&(wum[0]));
     double* g(&(gg[0]));
     for (int t(0); t < wuw_height; ++t) {
       g[t] = r[t];
@@ -298,7 +299,7 @@ bool NonrecursiveMaximumLikelihoodParameterGeneration::Run(
 
   // Backward substitution to solve a set of linear equations.
   {
-    double* g(&(gg[0]));
+    const double* g(&(gg[0]));
     double* c(&(cc[0]));
     for (int t(wuw_height - 1); 0 <= t; --t) {
       c[t] = g[t] / wuw[t][0];
@@ -310,7 +311,7 @@ bool NonrecursiveMaximumLikelihoodParameterGeneration::Run(
 
   // Store generated parameters.
   {
-    double* c(&(cc[0]));
+    const double* c(&(cc[0]));
     int u(0);
     for (int absolute_t(0); absolute_t < sequence_length; ++absolute_t) {
       double* C(&((*smoothed_static_parameters)[absolute_t][0]));

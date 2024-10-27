@@ -5,7 +5,9 @@ excite
 
 .. doxygenfile:: excite.cc
 
-.. seealso:: :ref:`train`  :ref:`nrand`  :ref:`pitch`
+.. seealso::
+
+    :ref:`train` :ref:`nrand` :ref:`pitch`
 
 .. doxygenclass:: sptk::ExcitationGeneration
-   :members:
+    :members:

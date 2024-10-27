@@ -5,7 +5,9 @@ ifft
 
 .. doxygenfile:: ifft.cc
 
-.. seealso:: :ref:`fft`  :ref:`fftr`
+.. seealso::
+
+    :ref:`fft` :ref:`fftr`
 
 .. doxygenclass:: sptk::InverseFastFourierTransform
-   :members:
+    :members:

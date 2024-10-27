@@ -5,7 +5,9 @@ poledf
 
 .. doxygenfile:: poledf.cc
 
-.. seealso:: :ref:`acorr`  :ref:`lpc`
+.. seealso::
+
+    :ref:`acorr` :ref:`lpc`
 
 .. doxygenclass:: sptk::AllPoleDigitalFilter
-   :members:
+    :members:

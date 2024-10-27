@@ -18,6 +18,7 @@
 
 #include <algorithm>  // std::copy, std::fill
 #include <cmath>      // std::ceil
+#include <vector>     // std::vector
 
 #include "WORLD/world/harvest.h"
 

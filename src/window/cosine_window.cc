@@ -16,7 +16,8 @@
 
 #include "SPTK/window/cosine_window.h"
 
-#include <cmath>  // std::cos
+#include <cmath>   // std::cos
+#include <vector>  // std::vector
 
 namespace sptk {
 

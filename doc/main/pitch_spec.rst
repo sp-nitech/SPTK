@@ -5,7 +5,9 @@ pitch_spec
 
 .. doxygenfile:: pitch_spec.cc
 
-.. seealso:: :ref:`spec`  :ref:`pitch`
+.. seealso::
+
+    :ref:`spec` :ref:`pitch`
 
 .. doxygenclass:: sptk::SpectrumExtraction
-   :members:
+    :members:

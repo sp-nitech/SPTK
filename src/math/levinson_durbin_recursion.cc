@@ -18,6 +18,7 @@
 
 #include <cmath>    // std::fabs, std::isnan, std::sqrt
 #include <cstddef>  // std::size_t
+#include <vector>   // std::vector
 
 namespace sptk {
 

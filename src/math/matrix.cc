@@ -19,6 +19,7 @@
 #include <algorithm>   // std::fill, std::min, std::transform
 #include <functional>  // std::minus, std::negate, std::plus
 #include <stdexcept>   // std::logic_error, std::out_of_range
+#include <vector>      // std::vector
 
 namespace {
 
@@ -42,20 +43,19 @@ Matrix::Matrix(int num_row, int num_column)
 
 Matrix::Matrix(int num_row, int num_column, const std::vector<double>& vector)
     : num_row_(num_row < 0 ? 0 : num_row),
-      num_column_(num_column < 0 ? 0 : num_column) {
-  data_ = vector;
-  index_.resize(num_row_);
-
+      num_column_(num_column < 0 ? 0 : num_column),
+      data_(vector),
+      index_(num_row_) {
   for (int i(0); i < num_row_; ++i) {
     index_[i] = &data_[i * num_column_];
   }
 }
 
 Matrix::Matrix(const Matrix& matrix)
-    : num_row_(matrix.num_row_), num_column_(matrix.num_column_) {
-  data_ = matrix.data_;
-  index_.resize(num_row_);
-
+    : num_row_(matrix.num_row_),
+      num_column_(matrix.num_column_),
+      data_(matrix.data_),
+      index_(num_row_) {
   for (int i(0); i < num_row_; ++i) {
     index_[i] = &data_[i * num_column_];
   }

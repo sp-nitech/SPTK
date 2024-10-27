@@ -16,7 +16,7 @@
 
 #include "SPTK/compression/mu_law_compression.h"
 
-#include <cmath>  // std::fabs, std::log
+#include <cmath>  // std::fabs, std::log1p
 
 namespace sptk {
 
@@ -39,7 +39,7 @@ bool MuLawCompression::Run(double input, double* output) const {
 
   const double x(std::fabs(input) / abs_max_value_);
   *output = (constant_ * sptk::ExtractSign(input) *
-             std::log(1.0 + compression_factor_ * x));
+             std::log1p(compression_factor_ * x));
 
   return true;
 }

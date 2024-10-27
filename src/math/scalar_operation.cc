@@ -22,8 +22,7 @@ namespace {
 
 class OperationInterface {
  public:
-  virtual ~OperationInterface() {
-  }
+  virtual ~OperationInterface() = default;
 
   virtual bool Run(double* number) const = 0;
 };
@@ -38,11 +37,11 @@ class OperationPerformer : public sptk::ScalarOperation::ModuleInterface {
       : operation_(operation) {
   }
 
-  virtual ~OperationPerformer() {
+  ~OperationPerformer() override {
     delete operation_;
   }
 
-  virtual bool Run(double* number, bool* is_magic_number) const {
+  bool Run(double* number, bool* is_magic_number) const override {
     if (*is_magic_number) {
       return true;
     }
@@ -59,7 +58,7 @@ class Addition : public OperationInterface {
   explicit Addition(double addend) : addend_(addend) {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number += addend_;
     return true;
   }
@@ -74,7 +73,7 @@ class Subtraction : public OperationInterface {
   explicit Subtraction(double subtrahend) : subtrahend_(subtrahend) {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number -= subtrahend_;
     return true;
   }
@@ -89,7 +88,7 @@ class Multiplication : public OperationInterface {
   explicit Multiplication(double multiplier) : multiplier_(multiplier) {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number *= multiplier_;
     return true;
   }
@@ -104,7 +103,7 @@ class Division : public OperationInterface {
   explicit Division(double divisor) : multiplier_(1.0 / divisor) {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number *= multiplier_;
     return true;
   }
@@ -119,7 +118,7 @@ class Modulo : public OperationInterface {
   explicit Modulo(double divisor) : divisor_(divisor) {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = std::fmod(*number, divisor_);
     return true;
   }
@@ -134,7 +133,7 @@ class Power : public OperationInterface {
   explicit Power(double exponent) : exponent_(exponent) {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = std::pow(*number, exponent_);
     return true;
   }
@@ -149,7 +148,7 @@ class LowerBounding : public OperationInterface {
   explicit LowerBounding(double lower_bound) : lower_bound_(lower_bound) {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     if (*number < lower_bound_) *number = lower_bound_;
     return true;
   }
@@ -164,7 +163,7 @@ class UpperBounding : public OperationInterface {
   explicit UpperBounding(double upper_bound) : upper_bound_(upper_bound) {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     if (upper_bound_ < *number) *number = upper_bound_;
     return true;
   }
@@ -179,7 +178,7 @@ class Absolute : public OperationInterface {
   Absolute() {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = std::fabs(*number);
     return true;
   }
@@ -193,7 +192,7 @@ class Reciprocal : public OperationInterface {
   Reciprocal() {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = 1.0 / *number;
     return true;
   }
@@ -207,7 +206,7 @@ class Square : public OperationInterface {
   Square() {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number *= *number;
     return true;
   }
@@ -221,7 +220,7 @@ class SquareRoot : public OperationInterface {
   SquareRoot() {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = std::sqrt(*number);
     return true;
   }
@@ -235,7 +234,7 @@ class NaturalLogarithm : public OperationInterface {
   NaturalLogarithm() {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = std::log(*number);
     return true;
   }
@@ -249,7 +248,7 @@ class Logarithm : public OperationInterface {
   explicit Logarithm(double base) : multiplier_(1.0 / std::log(base)) {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = std::log(*number) * multiplier_;
     return true;
   }
@@ -264,7 +263,7 @@ class NaturalExponential : public OperationInterface {
   NaturalExponential() {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = std::exp(*number);
     return true;
   }
@@ -278,7 +277,7 @@ class Exponential : public OperationInterface {
   explicit Exponential(double base) : base_(base) {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = std::pow(base_, *number);
     return true;
   }
@@ -293,7 +292,7 @@ class Flooring : public OperationInterface {
   Flooring() {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = std::floor(*number);
     return true;
   }
@@ -307,7 +306,7 @@ class Ceiling : public OperationInterface {
   Ceiling() {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = std::ceil(*number);
     return true;
   }
@@ -321,7 +320,7 @@ class Rounding : public OperationInterface {
   Rounding() {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = std::round(*number);
     return true;
   }
@@ -335,7 +334,7 @@ class RoundingUp : public OperationInterface {
   RoundingUp() {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = (*number < 0.0) ? std::floor(*number) : std::ceil(*number);
     return true;
   }
@@ -349,7 +348,7 @@ class RoundingDown : public OperationInterface {
   RoundingDown() {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = std::trunc(*number);
     return true;
   }
@@ -363,7 +362,7 @@ class UnitStep : public OperationInterface {
   UnitStep() {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = (*number < 0.0) ? 0.0 : 1.0;
     return true;
   }
@@ -377,7 +376,7 @@ class Sign : public OperationInterface {
   Sign() {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = sptk::ExtractSign(*number);
     return true;
   }
@@ -391,7 +390,7 @@ class Sine : public OperationInterface {
   Sine() {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = std::sin(*number);
     return true;
   }
@@ -405,7 +404,7 @@ class Cosine : public OperationInterface {
   Cosine() {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = std::cos(*number);
     return true;
   }
@@ -419,7 +418,7 @@ class Tangent : public OperationInterface {
   Tangent() {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = std::tan(*number);
     return true;
   }
@@ -433,7 +432,7 @@ class Arctangent : public OperationInterface {
   Arctangent() {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = std::atan(*number);
     return true;
   }
@@ -447,7 +446,7 @@ class HyperbolicTangent : public OperationInterface {
   HyperbolicTangent() {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = std::tanh(*number);
     return true;
   }
@@ -461,7 +460,7 @@ class HyperbolicArctangent : public OperationInterface {
   HyperbolicArctangent() {
   }
 
-  virtual bool Run(double* number) const {
+  bool Run(double* number) const override {
     *number = std::atanh(*number);
     return true;
   }
@@ -476,7 +475,7 @@ class MagicNumberRemover : public sptk::ScalarOperation::ModuleInterface {
       : magic_number_(magic_number) {
   }
 
-  virtual bool Run(double* number, bool* is_magic_number) const {
+  bool Run(double* number, bool* is_magic_number) const override {
     if (*is_magic_number) {
       return false;
     }
@@ -497,7 +496,7 @@ class MagicNumberReplacer : public sptk::ScalarOperation::ModuleInterface {
       : replacement_number_(replacement_number) {
   }
 
-  virtual bool Run(double* number, bool* is_magic_number) const {
+  bool Run(double* number, bool* is_magic_number) const override {
     if (*is_magic_number) {
       *number = replacement_number_;
       *is_magic_number = false;

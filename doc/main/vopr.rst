@@ -5,4 +5,6 @@ vopr
 
 .. doxygenfile:: vopr.cc
 
-.. seealso:: :ref:`sopr`
+.. seealso::
+
+    :ref:`sopr`

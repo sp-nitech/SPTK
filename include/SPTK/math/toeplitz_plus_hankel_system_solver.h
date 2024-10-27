@@ -118,8 +118,8 @@ class ToeplitzPlusHankelSystemSolver {
    * @param[in] coefficients_modification If true, perform coefficients
    *            modification.
    */
-  ToeplitzPlusHankelSystemSolver(int num_order,
-                                 bool coefficients_modification = true);
+  explicit ToeplitzPlusHankelSystemSolver(
+      int num_order, bool coefficients_modification = true);
 
   virtual ~ToeplitzPlusHankelSystemSolver() {
   }

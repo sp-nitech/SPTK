@@ -6,4 +6,4 @@ zcross
 .. doxygenfile:: zcross.cc
 
 .. doxygenclass:: sptk::ZeroCrossingAnalysis
-   :members:
+    :members:

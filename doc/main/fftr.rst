@@ -5,10 +5,12 @@ fftr
 
 .. doxygenfile:: fftr.cc
 
-.. seealso:: :ref:`fft`  :ref:`ifft`  :ref:`spec`  :ref:`phase`  :ref:`grpdelay`
+.. seealso::
+
+    :ref:`fft` :ref:`ifft` :ref:`spec` :ref:`phase` :ref:`grpdelay`
 
 .. doxygenclass:: sptk::RealValuedFastFourierTransform
-   :members:
+    :members:
 
 .. doxygenclass:: sptk::RealValuedInverseFastFourierTransform
-   :members:
+    :members:

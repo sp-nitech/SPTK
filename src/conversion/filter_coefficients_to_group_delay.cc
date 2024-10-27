@@ -19,6 +19,7 @@
 #include <algorithm>  // std::copy, std::fill, std::reverse_copy
 #include <cmath>      // std::pow
 #include <cstddef>    // std::size_t
+#include <vector>     // std::vector
 
 #include "SPTK/utils/misc_utils.h"
 
@@ -95,7 +96,7 @@ bool FilterCoefficientsToGroupDelay::Run(
 
   // Make ramped polynomial.
   {
-    double* src(&buffer->convolved_coefficients_[0]);
+    const double* src(&buffer->convolved_coefficients_[0]);
     double* dst(&buffer->real_part2_[0]);
     for (int i(0); i < coefficients_length; ++i) {
       dst[i] = i * src[i];
@@ -117,10 +118,10 @@ bool FilterCoefficientsToGroupDelay::Run(
   }
 
   double* output(&((*group_delay)[0]));
-  double* xr(&buffer->real_part1_[0]);
-  double* yr(&buffer->real_part2_[0]);
-  double* xi(&buffer->imag_part1_[0]);
-  double* yi(&buffer->imag_part2_[0]);
+  const double* xr(&buffer->real_part1_[0]);
+  const double* yr(&buffer->real_part2_[0]);
+  const double* xi(&buffer->imag_part1_[0]);
+  const double* yi(&buffer->imag_part2_[0]);
 
   for (int i(0); i < output_length; ++i) {
     double denominator(xr[i] * xr[i] + xi[i] * xi[i]);

@@ -37,13 +37,13 @@ class InputSourceFromVector : public InputSourceInterface {
   InputSourceFromVector(bool zero_padding, int read_size,
                         std::vector<double>* input_vector);
 
-  virtual ~InputSourceFromVector() {
+  ~InputSourceFromVector() override {
   }
 
   /**
    * @return Size of data.
    */
-  virtual int GetSize() const {
+  int GetSize() const override {
     return read_size_;
   }
 
@@ -57,7 +57,7 @@ class InputSourceFromVector : public InputSourceInterface {
   /**
    * @return True if this object is valid.
    */
-  virtual bool IsValid() const {
+  bool IsValid() const override {
     return is_valid_;
   }
 
@@ -65,7 +65,7 @@ class InputSourceFromVector : public InputSourceInterface {
    * @param[out] buffer Read data.
    * @return True on success, false on failure.
    */
-  virtual bool Get(std::vector<double>* buffer);
+  bool Get(std::vector<double>* buffer) override;
 
  private:
   const bool zero_padding_;

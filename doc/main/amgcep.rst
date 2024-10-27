@@ -5,10 +5,12 @@ amgcep
 
 .. doxygenfile:: amgcep.cc
 
-.. seealso:: :ref:`mglsadf`  :ref:`imglsadf`
+.. seealso::
+
+    :ref:`mglsadf` :ref:`imglsadf`
 
 .. doxygenclass:: sptk::AdaptiveMelCepstralAnalysis
-   :members:
+    :members:
 
 .. doxygenclass:: sptk::AdaptiveGeneralizedCepstralAnalysis
-   :members:
+    :members:

@@ -5,10 +5,12 @@ mgcep
 
 .. doxygenfile:: mgcep.cc
 
-.. seealso:: :ref:`fftcep`  :ref:`mglsadf`  :ref:`imglsadf`  :ref:`mgc2mgc`  :ref:`smcep`
+.. seealso::
+
+    :ref:`fftcep` :ref:`mglsadf` :ref:`imglsadf` :ref:`mgc2mgc` :ref:`smcep`
 
 .. doxygenclass:: sptk::MelCepstralAnalysis
-   :members:
+    :members:
 
 .. doxygenclass:: sptk::MelGeneralizedCepstralAnalysis
-   :members:
+    :members:

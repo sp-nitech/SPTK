@@ -16,6 +16,7 @@
 
 #include <algorithm>  // std::reverse
 #include <cstdint>    // int16_t, int32_t, int64_t, etc.
+#include <cstdio>     // EOF
 #include <cstring>    // std::strncmp
 #include <fstream>    // std::ifstream
 #include <iomanip>    // std::setw
@@ -69,8 +70,7 @@ void PrintUsage(std::ostream* stream) {
 
 class ByteSwapInterface {
  public:
-  virtual ~ByteSwapInterface() {
-  }
+  virtual ~ByteSwapInterface() = default;
 
   virtual bool Run(std::istream* input_stream) const = 0;
 };
@@ -85,10 +85,10 @@ class ByteSwap : public ByteSwapInterface {
         end_offset_(end_offset) {
   }
 
-  ~ByteSwap() {
+  ~ByteSwap() override {
   }
 
-  virtual bool Run(std::istream* input_stream) const {
+  bool Run(std::istream* input_stream) const override {
     // Skip data.
     const int data_size(static_cast<int>(sizeof(T)));
     const int skip_size(start_address_ + data_size * start_offset_);
@@ -101,8 +101,8 @@ class ByteSwap : public ByteSwapInterface {
     } else {
       input_stream->seekg(skip_size);
     }
-    input_stream->peek();
-    if (!input_stream->good()) {
+    const int c(input_stream->peek());
+    if (EOF == c || input_stream->fail()) {
       return false;
     }
 

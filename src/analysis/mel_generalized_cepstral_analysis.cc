@@ -20,6 +20,7 @@
 #include <cmath>       // std::exp, std::fabs, std::pow, std::sqrt
 #include <cstddef>     // std::size_t
 #include <functional>  // std::plus
+#include <vector>      // std::vector
 
 namespace {
 
@@ -302,8 +303,8 @@ bool MelGeneralizedCepstralAnalysis::NewtonRaphsonMethod(
                    [](double x, double d) { return x / std::exp(d + d); });
   } else {
     const double* pg(&buffer->periodogram_[0]);
-    double* c_re(&buffer->real_[0]);
-    double* c_im(&buffer->imag_[0]);
+    const double* c_re(&buffer->real_[0]);
+    const double* c_im(&buffer->imag_[0]);
     double* p_re(&buffer->p_real_[0]);
     double* q_re(&buffer->q_real_[0]);
     double* q_im(&buffer->q_imag_[0]);
@@ -402,8 +403,8 @@ bool MelGeneralizedCepstralAnalysis::NewtonRaphsonMethod(
     *epsilon = buffer->r_[0];
   } else if (-1.0 != gamma) {
     double sum(0.0);
-    double* r(&buffer->r_[0]);
-    double* b(&buffer->b_[0]);
+    const double* r(&buffer->r_[0]);
+    const double* b(&buffer->b_[0]);
     for (int m(1); m <= num_order_; ++m) {
       sum += r[m] * b[m];
     }
@@ -433,8 +434,8 @@ bool MelGeneralizedCepstralAnalysis::NewtonRaphsonMethod(
   // updated b'.
   if (-1.0 == gamma) {
     double sum(0.0);
-    double* r(&buffer->r_[0]);
-    double* b(&buffer->b_[0]);
+    const double* r(&buffer->r_[0]);
+    const double* b(&buffer->b_[0]);
     for (int m(1); m <= num_order_; ++m) {
       sum += r[m] * b[m];
     }

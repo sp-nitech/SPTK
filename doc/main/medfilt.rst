@@ -5,7 +5,9 @@ medfilt
 
 .. doxygenfile:: medfilt.cc
 
-.. seealso:: :ref:`median`
+.. seealso::
+
+    :ref:`median`
 
 .. doxygenclass:: sptk::MedianFilter
-   :members:
+    :members:

@@ -19,6 +19,7 @@
 #include <algorithm>  // std::copy, std::reverse_copy
 #include <cmath>      // std::cos, std::sin, std::sqrt
 #include <cstddef>    // std::size_t
+#include <vector>     // std::vector
 
 namespace sptk {
 
@@ -87,12 +88,14 @@ bool DiscreteCosineTransform::Run(
     return false;
   }
 
-  const double* cosine_table(&(cosine_table_[0]));
-  const double* sine_table(&(sine_table_[0]));
   double* discrete_cosine_transform_real_part_output(&((*real_part_output)[0]));
   double* discrete_cosine_transform_imag_part_output(&((*imag_part_output)[0]));
-  double* fourier_transform_real_part(&buffer->fourier_transform_real_part_[0]);
-  double* fourier_transform_imag_part(&buffer->fourier_transform_imag_part_[0]);
+  const double* fourier_transform_real_part(
+      &buffer->fourier_transform_real_part_[0]);
+  const double* fourier_transform_imag_part(
+      &buffer->fourier_transform_imag_part_[0]);
+  const double* cosine_table(&(cosine_table_[0]));
+  const double* sine_table(&(sine_table_[0]));
 
   for (int i(0); i < dct_length_; ++i) {
     discrete_cosine_transform_real_part_output[i] =

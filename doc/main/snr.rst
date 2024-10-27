@@ -5,4 +5,6 @@ snr
 
 .. doxygenfile:: snr.cc
 
-.. seealso:: :ref:`rmse`
+.. seealso::
+
+    :ref:`rmse`

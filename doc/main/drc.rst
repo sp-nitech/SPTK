@@ -6,4 +6,4 @@ drc
 .. doxygenfile:: drc.cc
 
 .. doxygenclass:: sptk::DynamicRangeCompression
-   :members:
+    :members:

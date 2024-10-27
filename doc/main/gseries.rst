@@ -5,4 +5,6 @@ gseries
 
 .. doxygenfile:: gseries.py
 
-.. seealso:: :ref:`fdrw`
+.. seealso::
+
+    :ref:`fdrw`

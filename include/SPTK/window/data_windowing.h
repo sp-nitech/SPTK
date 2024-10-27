@@ -75,7 +75,7 @@ class DataWindowing {
    * @param[in] output_length Output length, @f$L_2@f$.
    * @param[in] normalization_type Type of normalization.
    */
-  DataWindowing(WindowInterface* window, int output_length,
+  DataWindowing(const WindowInterface* window, int output_length,
                 NormalizationType normalization_type);
 
   virtual ~DataWindowing() {

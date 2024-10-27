@@ -64,8 +64,7 @@ void PrintUsage(std::ostream* stream) {
 
 class DataDumpInterface {
  public:
-  virtual ~DataDumpInterface() {
-  }
+  virtual ~DataDumpInterface() = default;
 
   virtual bool Run(std::istream* input_stream) const = 0;
 };
@@ -80,10 +79,10 @@ class DataDump : public DataDumpInterface {
         maximum_index_(maximum_index) {
   }
 
-  ~DataDump() {
+  ~DataDump() override {
   }
 
-  virtual bool Run(std::istream* input_stream) const {
+  bool Run(std::istream* input_stream) const override {
     char buffer[kBufferSize];
     T data;
     for (int index(minimum_index_); sptk::ReadStream(&data, input_stream);

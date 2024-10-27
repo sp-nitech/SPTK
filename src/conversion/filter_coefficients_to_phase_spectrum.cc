@@ -19,6 +19,7 @@
 #include <algorithm>  // std::copy, std::fill
 #include <cmath>      // std::atan2
 #include <cstddef>    // std::size_t
+#include <vector>     // std::vector
 
 namespace sptk {
 
@@ -92,10 +93,10 @@ bool FilterCoefficientsToPhaseSpectrum::Run(
   }
 
   double* output(&((*phase_spectrum)[0]));
-  double* xr(&buffer->real_part1_[0]);
-  double* yr(&buffer->real_part2_[0]);
-  double* xi(&buffer->imag_part1_[0]);
-  double* yi(&buffer->imag_part2_[0]);
+  const double* xr(&buffer->real_part1_[0]);
+  const double* yr(&buffer->real_part2_[0]);
+  const double* xi(&buffer->imag_part1_[0]);
+  const double* yi(&buffer->imag_part2_[0]);
 
   const double inverse_pi(1.0 / sptk::kPi);
   double offset(0.0);

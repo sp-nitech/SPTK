@@ -46,7 +46,7 @@ class ZeroCrossingAnalysis {
    */
   class Buffer {
    public:
-    Buffer() : is_first_frame_(true) {
+    Buffer() : is_first_frame_(true), latest_signal_(0.0) {
     }
 
     virtual ~Buffer() {

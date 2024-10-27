@@ -18,6 +18,7 @@
 
 #include <algorithm>  // std::copy, std::reverse_copy
 #include <cstddef>    // std::size_t
+#include <vector>     // std::vector
 
 namespace sptk {
 
@@ -70,7 +71,7 @@ bool NegativeDerivativeOfPhaseSpectrumToCepstrum::Run(
     return false;
   }
 
-  double* v(&buffer->fast_fourier_transform_real_part_[0]);
+  const double* v(&buffer->fast_fourier_transform_real_part_[0]);
   double* c(&((*cepstrum)[0]));
 
   c[0] = 0.0;

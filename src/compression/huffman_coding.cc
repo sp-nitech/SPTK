@@ -18,6 +18,8 @@
 
 #include <cstddef>  // std::size_t
 #include <queue>    // std::priority_queue
+#include <string>   // std::string
+#include <vector>   // std::vector
 
 namespace {
 
@@ -76,7 +78,7 @@ struct Compare {
   }
 };
 
-void Encode(const Node* node, std::string code,
+void Encode(const Node* node, const std::string& code,
             std::vector<std::string>* codewords) {
   if (NULL == node) return;
 

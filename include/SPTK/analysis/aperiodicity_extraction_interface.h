@@ -26,8 +26,7 @@ namespace sptk {
  */
 class AperiodicityExtractionInterface {
  public:
-  virtual ~AperiodicityExtractionInterface() {
-  }
+  virtual ~AperiodicityExtractionInterface() = default;
 
   /**
    * @return Frame shift in point.

@@ -76,8 +76,7 @@ void PrintUsage(std::ostream* stream) {
 
 class BlockCopyInterface {
  public:
-  virtual ~BlockCopyInterface() {
-  }
+  virtual ~BlockCopyInterface() = default;
 
   virtual bool Run(std::istream* input_stream) const = 0;
 };
@@ -97,10 +96,10 @@ class BlockCopy : public BlockCopyInterface {
         is_ascii_(is_ascii) {
   }
 
-  ~BlockCopy() {
+  ~BlockCopy() override {
   }
 
-  virtual bool Run(std::istream* input_stream) const {
+  bool Run(std::istream* input_stream) const override {
     const int copy_length(input_end_number_ - input_start_number_ + 1);
     const int left_pad_length(output_start_number_);
     const int right_pad_length(output_block_length_ - output_start_number_ -

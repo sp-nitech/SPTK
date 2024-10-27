@@ -35,13 +35,13 @@ class NormalDistributedRandomValueGeneration
    */
   explicit NormalDistributedRandomValueGeneration(int seed);
 
-  virtual ~NormalDistributedRandomValueGeneration() {
+  ~NormalDistributedRandomValueGeneration() override {
   }
 
   /**
    * Reset internal state.
    */
-  virtual void Reset();
+  void Reset() override;
 
   /**
    * Get random number.
@@ -49,7 +49,7 @@ class NormalDistributedRandomValueGeneration
    * @param[out] output Random number.
    * @return True on success, false on failure.
    */
-  virtual bool Get(double* output);
+  bool Get(double* output) override;
 
   /**
    * @return Random seed.

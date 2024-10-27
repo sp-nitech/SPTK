@@ -17,6 +17,7 @@
 #include "SPTK/math/symmetric_system_solver.h"
 
 #include <cstddef>  // std::size_t
+#include <vector>   // std::vector
 
 namespace sptk {
 

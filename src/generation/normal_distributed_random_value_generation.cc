@@ -38,8 +38,12 @@ namespace sptk {
 
 NormalDistributedRandomValueGeneration::NormalDistributedRandomValueGeneration(
     int seed)
-    : seed_(seed), switch_(true) {
-  next_ = static_cast<std::uint64_t>(seed_);
+    : seed_(seed),
+      next_(static_cast<std::uint64_t>(seed_)),
+      switch_(true),
+      r1_(0.0),
+      r2_(0.0),
+      s_(0.0) {
 }
 
 void NormalDistributedRandomValueGeneration::Reset() {

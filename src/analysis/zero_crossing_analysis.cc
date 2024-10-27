@@ -17,6 +17,7 @@
 #include "SPTK/analysis/zero_crossing_analysis.h"
 
 #include <cstddef>  // std::size_t
+#include <vector>   // std::vector
 
 namespace {
 

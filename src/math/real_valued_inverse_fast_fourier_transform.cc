@@ -17,6 +17,7 @@
 #include "SPTK/math/real_valued_inverse_fast_fourier_transform.h"
 
 #include <algorithm>  // std::transform
+#include <vector>     // std::vector
 
 namespace sptk {
 

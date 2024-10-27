@@ -40,7 +40,7 @@ class InfiniteImpulseResponseDigitalFilter {
    */
   class Buffer {
    public:
-    Buffer() {
+    Buffer() : p_(0) {
     }
 
     virtual ~Buffer() {

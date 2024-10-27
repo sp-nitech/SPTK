@@ -17,6 +17,7 @@
 #include "SPTK/analysis/spectrum_extraction_by_world.h"
 
 #include <cstddef>  // std::size_t
+#include <vector>   // std::vector
 
 #include "WORLD/world/cheaptrick.h"
 #include "WORLD/world/constantnumbers.h"

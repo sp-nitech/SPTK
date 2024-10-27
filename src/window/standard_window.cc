@@ -18,6 +18,7 @@
 
 #include <algorithm>  // std::fill
 #include <cmath>      // std::round
+#include <vector>     // std::vector
 
 #include "SPTK/window/cosine_window.h"
 

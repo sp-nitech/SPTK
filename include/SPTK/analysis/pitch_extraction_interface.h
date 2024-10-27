@@ -35,8 +35,7 @@ class PitchExtractionInterface {
     kNegative,
   };
 
-  virtual ~PitchExtractionInterface() {
-  }
+  virtual ~PitchExtractionInterface() = default;
 
   /**
    * @return True if this object is valid.

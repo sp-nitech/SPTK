@@ -74,7 +74,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -m    : multiplication                          [       a * b ]" << std::endl;  // NOLINT
   *stream << "       -d    : division                                [       a / b ]" << std::endl;  // NOLINT
   *stream << "       -ATAN : arctangent                              [ atan(b / a) ]" << std::endl;  // NOLINT
-  *stream << "       -QM   : quadratic mean                          [ sqrt(a^2 + b^2 / 2) ]" << std::endl;  // NOLINT
+  *stream << "       -QM   : quadratic mean                          [ sqrt((a^2+b^2) / 2) ]" << std::endl;  // NOLINT
   *stream << "       -AM   : arithmetic mean                         [ (a + b) / 2 ]" << std::endl;  // NOLINT
   *stream << "       -GM   : geometric mean                          [ sqrt(a * b) ]" << std::endl;  // NOLINT
   *stream << "       -HM   : harmonic mean                           [ 2 / (1 / a + 1 / b) ]" << std::endl;  // NOLINT

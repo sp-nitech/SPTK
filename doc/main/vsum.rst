@@ -5,4 +5,6 @@ vsum
 
 .. doxygenfile:: vsum.cc
 
-.. seealso:: :ref:`average`  :ref:`vstat`
+.. seealso::
+
+    :ref:`average` :ref:`vstat`

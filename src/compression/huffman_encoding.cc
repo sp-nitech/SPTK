@@ -20,6 +20,7 @@
 #include <cstddef>    // std::size_t
 #include <string>     // std::string
 #include <utility>    // std::make_pair
+#include <vector>     // std::vector
 
 namespace sptk {
 
@@ -35,7 +36,7 @@ HuffmanEncoding::HuffmanEncoding(std::ifstream* input_stream)
     std::string bits;
     while (*input_stream >> symbol >> bits) {
       std::vector<bool> codeword;
-      for (char& bit : bits) {
+      for (const char& bit : bits) {
         codeword.push_back('1' == bit ? true : false);
       }
       codebook_.insert(std::make_pair(symbol, codeword));

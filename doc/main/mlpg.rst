@@ -5,10 +5,12 @@ mlpg
 
 .. doxygenfile:: mlpg.cc
 
-.. seealso:: :ref:`delta`
+.. seealso::
+
+    :ref:`delta`
 
 .. doxygenclass:: sptk::RecursiveMaximumLikelihoodParameterGeneration
-   :members:
+    :members:
 
 .. doxygenclass:: sptk::NonrecursiveMaximumLikelihoodParameterGeneration
-   :members:
+    :members:

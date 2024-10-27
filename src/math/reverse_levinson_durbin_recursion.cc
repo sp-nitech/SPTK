@@ -17,6 +17,7 @@
 #include "SPTK/math/reverse_levinson_durbin_recursion.h"
 
 #include <cstddef>  // std::size_t
+#include <vector>   // std::vector
 
 namespace sptk {
 
@@ -65,7 +66,7 @@ bool ReverseLevinsonDurbinRecursion::Run(
   e[num_order_] = a[0] * a[0];
 
   for (int i(num_order_ - 1); 0 <= i; --i) {
-    double* u(&(buffer->u_[i + 1][0]));
+    const double* u(&(buffer->u_[i + 1][0]));
     const double t(1.0 / (1.0 - u[0] * u[0]));
     for (int j(0); j < i; ++j) {
       buffer->u_[i][j] = (u[j + 1] - u[0] * u[i - j]) * t;

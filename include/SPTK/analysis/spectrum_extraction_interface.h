@@ -26,8 +26,7 @@ namespace sptk {
  */
 class SpectrumExtractionInterface {
  public:
-  virtual ~SpectrumExtractionInterface() {
-  }
+  virtual ~SpectrumExtractionInterface() = default;
 
   /**
    * @return Frame shift in point.

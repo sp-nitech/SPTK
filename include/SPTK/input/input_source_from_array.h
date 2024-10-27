@@ -38,13 +38,13 @@ class InputSourceFromArray : public InputSourceInterface {
   InputSourceFromArray(bool zero_padding, int read_size, int array_size,
                        double* input_array);
 
-  virtual ~InputSourceFromArray() {
+  ~InputSourceFromArray() override {
   }
 
   /**
    * @return Size of data.
    */
-  virtual int GetSize() const {
+  int GetSize() const override {
     return read_size_;
   }
 
@@ -58,7 +58,7 @@ class InputSourceFromArray : public InputSourceInterface {
   /**
    * @return True if this object is valid.
    */
-  virtual bool IsValid() const {
+  bool IsValid() const override {
     return is_valid_;
   }
 
@@ -66,7 +66,7 @@ class InputSourceFromArray : public InputSourceInterface {
    * @param[out] buffer Read data.
    * @return True on success, false on failure.
    */
-  virtual bool Get(std::vector<double>* buffer);
+  bool Get(std::vector<double>* buffer) override;
 
  private:
   const bool zero_padding_;

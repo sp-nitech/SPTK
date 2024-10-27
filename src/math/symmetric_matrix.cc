@@ -16,10 +16,12 @@
 
 #include "SPTK/math/symmetric_matrix.h"
 
-#include <algorithm>  // std::fill, std::swap
+#include <algorithm>  // std::fill
 #include <cmath>      // std::fabs
 #include <cstddef>    // std::size_t
 #include <stdexcept>  // std::out_of_range
+#include <utility>    // std::swap
+#include <vector>     // std::vector
 
 #include "SPTK/math/matrix.h"
 
@@ -59,10 +61,9 @@ SymmetricMatrix::SymmetricMatrix(int num_dimension)
 }
 
 SymmetricMatrix::SymmetricMatrix(const SymmetricMatrix& matrix)
-    : num_dimension_(matrix.num_dimension_) {
-  data_ = matrix.data_;
-  index_.resize(num_dimension_);
-
+    : num_dimension_(matrix.num_dimension_),
+      data_(matrix.data_),
+      index_(num_dimension_) {
   for (int i(0), j(0); i < num_dimension_; ++i, j += i) {
     index_[i] = &data_[j];
   }

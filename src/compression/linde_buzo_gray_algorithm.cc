@@ -18,6 +18,7 @@
 
 #include <cmath>    // std::fabs
 #include <cstddef>  // std::size_t
+#include <vector>   // std::vector
 
 #include "SPTK/generation/normal_distributed_random_value_generation.h"
 

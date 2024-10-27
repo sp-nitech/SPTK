@@ -5,7 +5,9 @@ ap
 
 .. doxygenfile:: ap.cc
 
-.. seealso:: :ref:`pitch`
+.. seealso::
+
+    :ref:`pitch`
 
 .. doxygenclass:: sptk::AperiodicityExtraction
-   :members:
+    :members:

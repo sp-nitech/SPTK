@@ -64,7 +64,7 @@ class DeltaCalculation : public InputSourceInterface {
                    InputSourceInterface* input_source, bool use_magic_number,
                    double magic_number = 0.0);
 
-  virtual ~DeltaCalculation() {
+  ~DeltaCalculation() override {
   }
 
   /**
@@ -84,14 +84,14 @@ class DeltaCalculation : public InputSourceInterface {
   /**
    * @return Output size.
    */
-  virtual int GetSize() const {
+  int GetSize() const override {
     return (num_order_ + 1) * num_delta_;
   }
 
   /**
    * @return True if this object is valid.
    */
-  virtual bool IsValid() const {
+  bool IsValid() const override {
     return is_valid_;
   }
 
@@ -99,7 +99,7 @@ class DeltaCalculation : public InputSourceInterface {
    * @param[out] delta Delta components.
    * @return True on success, false on failure.
    */
-  virtual bool Get(std::vector<double>* delta);
+  bool Get(std::vector<double>* delta) override;
 
  private:
   struct Buffer {

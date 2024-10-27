@@ -159,6 +159,7 @@ int main(int argc, char* argv[]) {
       sptk::PrintErrorMessage("onehot", error_message);
       return 1;
     }
+    // cppcheck-suppress unreadVariable
     onehot_vector[index] = 0.0;
   }
 

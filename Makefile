@@ -61,6 +61,14 @@ doc-clean:
 		. ./tools/venv/bin/activate && cd $(DOCDIR) && make clean; \
 	fi
 
+example:
+	@for task in egs/*; do \
+		for kind in $$task/*; do \
+			echo "Checking example in $$kind..."; \
+			cd $$kind && ./run.sh && cd - > /dev/null; \
+		done; \
+	done
+
 format: format-sh format-py format-cc format-misc
 
 format-sh:
@@ -73,6 +81,13 @@ format-sh:
 	fi
 	./tools/shellcheck/shellcheck egs/*/*/run.sh
 	./tools/shellcheck/shellcheck -x test/*.bats
+	@if [ ! -x ./tools/shfmt/shfmt ]; then \
+		echo "Please install shfmt via:"; \
+		echo ""; \
+		echo "  cd tools; make shfmt.done"; \
+		echo ""; \
+		exit 1; \
+	fi
 	./tools/shfmt/shfmt -i 4 -ci -sr -kp -w egs/*/*/run.sh test/*.bats
 
 format-py:
@@ -100,10 +115,24 @@ format-cc:
 	./tools/venv/bin/cpplint --filter=-readability/streams $(wildcard $(SOURCEDIR)/*/*.cc)
 	./tools/venv/bin/cpplint --filter=-readability/streams,-build/include_subdir \
 		--root=$(abspath $(INCLUDEDIR)) $(wildcard $(INCLUDEDIR)/SPTK/*/*.h)
+	@if [ ! -x ./tools/cppcheck/cppcheck ]; then \
+		echo "Please install cppcheck via:"; \
+		echo ""; \
+		echo "  cd tools; make cppcheck.done"; \
+		echo ""; \
+		exit 1; \
+	fi
+	mkdir -p $(BUILDDIR)/cppcheck
+	./tools/cppcheck/cppcheck -j $(JOBS) --enable=all --check-level=exhaustive --std=c++11 \
+		--suppress=checkersReport --suppress=constParameterPointer --suppress=missingIncludeSystem \
+		--suppress=unmatchedSuppression --suppress=unusedFunction --suppress=useStlAlgorithm \
+		--suppress=variableScope --inline-suppr --error-exitcode=1 \
+		--cppcheck-build-dir=$(BUILDDIR)/cppcheck --checkers-report=$(BUILDDIR)/cppcheck/report.txt \
+		-Iinclude -Ithird_party src
 
 format-misc:
-	@if [ ! -x ./tools/venv/bin/cmake-format ]; then \
-		echo "Please install cmake-format via:"; \
+	@if [ ! -x ./tools/venv/bin/cmake-format ] || [ ! -x ./tools/venv/bin/mdformat ] || [ ! -x ./tools/venv/bin/docstrfmt ]; then \
+		echo "Please install cmake-format, mdformat, and docstrfmt via:"; \
 		echo ""; \
 		echo "  cd tools; make venv_dev"; \
 		echo ""; \
@@ -111,6 +140,7 @@ format-misc:
 	fi
 	./tools/venv/bin/cmake-format -i CMakeLists.txt
 	./tools/venv/bin/mdformat *.md
+	cd $(DOCDIR) && ../tools/venv/bin/docstrfmt .
 
 test:
 	@if [ ! -x ./tools/bats/bin/bats ]; then \
@@ -131,4 +161,4 @@ tool:
 clean: doc-clean test-clean
 	rm -rf $(BUILDDIR) $(LIBDIR) $(BINDIR)
 
-.PHONY: all build doc doc-clean format test test-clean tool clean
+.PHONY: all build doc doc-clean example format test test-clean tool clean

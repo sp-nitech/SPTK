@@ -5,7 +5,9 @@ dfs
 
 .. doxygenfile:: dfs.cc
 
-.. seealso:: :ref:`df2`
+.. seealso::
+
+    :ref:`df2`
 
 .. doxygenclass:: sptk::InfiniteImpulseResponseDigitalFilter
-   :members:
+    :members:

@@ -5,10 +5,12 @@ imsvq
 
 .. doxygenfile:: imsvq.cc
 
-.. seealso:: :ref:`msvq`  :ref:`lbg`
+.. seealso::
+
+    :ref:`msvq` :ref:`lbg`
 
 .. doxygenclass:: sptk::InverseMultistageVectorQuantization
-   :members:
+    :members:
 
 .. doxygenclass:: sptk::InverseVectorQuantization
-   :members:
+    :members:

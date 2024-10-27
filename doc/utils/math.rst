@@ -2,19 +2,19 @@ math
 ====
 
 .. doxygenclass:: sptk::Matrix
-   :members:
+    :members:
 
 .. doxygenclass:: sptk::Matrix2D
-   :members:
+    :members:
 
 .. doxygenclass:: sptk::SymmetricMatrix
-   :members:
+    :members:
 
 .. doxygenclass:: sptk::SymmetricSystemSolver
-   :members:
+    :members:
 
 .. doxygenclass:: sptk::ToeplitzPlusHankelSystemSolver
-   :members:
+    :members:
 
 .. doxygenclass:: sptk::VandermondeSystemSolver
-   :members:
+    :members:

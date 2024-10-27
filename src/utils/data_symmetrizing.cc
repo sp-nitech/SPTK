@@ -18,6 +18,7 @@
 
 #include <algorithm>  // std::copy, std::reverse_copy
 #include <cstddef>    // std::size_t
+#include <vector>     // std::vector
 
 namespace {
 

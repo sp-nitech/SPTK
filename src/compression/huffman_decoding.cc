@@ -36,7 +36,7 @@ HuffmanDecoding::HuffmanDecoding(std::ifstream* input_stream)
     std::string bits;
     while (*input_stream >> symbol >> bits) {
       Node* node(root_);
-      for (char& bit : bits) {
+      for (const char& bit : bits) {
         const bool right('1' == bit ? true : false);
         Node* next_node(right ? node->right : node->left);
         if (NULL == next_node) {

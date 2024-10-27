@@ -5,7 +5,9 @@ lsp2lpc
 
 .. doxygenfile:: lsp2lpc.cc
 
-.. seealso:: :ref:`lpc2lsp`
+.. seealso::
+
+    :ref:`lpc2lsp`
 
 .. doxygenclass:: sptk::LineSpectralPairsToLinearPredictiveCoefficients
-   :members:
+    :members:

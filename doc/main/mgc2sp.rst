@@ -5,7 +5,9 @@ mgc2sp
 
 .. doxygenfile:: mgc2sp.cc
 
-.. seealso:: :ref:`mgc2mgc`  :ref:`fftr`
+.. seealso::
+
+    :ref:`mgc2mgc` :ref:`fftr`
 
 .. doxygenclass:: sptk::MelGeneralizedCepstrumToSpectrum
-   :members:
+    :members:

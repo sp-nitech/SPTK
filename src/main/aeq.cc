@@ -140,7 +140,6 @@ int main(int argc, char* argv[]) {
         }
         error_type = static_cast<ErrorTypes>(tmp);
         break;
-        break;
       }
       case 'L': {
         enable_check_length = false;

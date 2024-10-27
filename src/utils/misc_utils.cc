@@ -19,6 +19,7 @@
 #include <algorithm>  // std::fill, std::max, std::min, std::transform
 #include <cmath>      // std::atan, std::log, std::pow, std::sqrt, etc.
 #include <cstddef>    // std::size_t
+#include <vector>     // std::vector
 
 #include "SPTK/math/real_valued_fast_fourier_transform.h"
 #include "SPTK/utils/sptk_utils.h"
@@ -232,7 +233,7 @@ bool MakePseudoQuadratureMirrorFilterBanks(
     int sign(inverse ? -1 : 1);
     for (int k(0); k < num_subband; ++k) {
       (*filter_banks)[k].resize(filter_size);
-      double* p(&(prototype_filter[0]));
+      const double* p(&(prototype_filter[0]));
       double* h(&((*filter_banks)[k][0]));
       for (int n(0); n < filter_size; ++n) {
         const double a((2 * k + 1) * sptk::kPi / (2 * num_subband) *
@@ -311,8 +312,8 @@ bool ComputeSecondOrderRegressionCoefficients(
 }
 
 bool ComputeLowerAndUpperBounds(double confidence_level, int num_data,
-                                const std::vector<double> mean,
-                                const std::vector<double> variance,
+                                const std::vector<double>& mean,
+                                const std::vector<double>& variance,
                                 std::vector<double>* lower_bound,
                                 std::vector<double>* upper_bound) {
   if (confidence_level <= 0.0 || 100.0 <= confidence_level || num_data <= 0 ||

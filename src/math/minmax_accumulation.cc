@@ -18,7 +18,8 @@
 
 #include <cstddef>   // std::size_t
 #include <iterator>  // std::advance
-#include <utility>   // std::make_pair
+#include <list>      // std::list
+#include <utility>   // std::make_pair, std::pair
 
 namespace {
 

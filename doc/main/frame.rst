@@ -5,4 +5,6 @@ frame
 
 .. doxygenfile:: frame.cc
 
-.. seealso:: :ref:`window`
+.. seealso::
+
+    :ref:`window`

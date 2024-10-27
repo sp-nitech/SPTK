@@ -5,7 +5,9 @@ fft
 
 .. doxygenfile:: fft.cc
 
-.. seealso:: :ref:`fftr`  :ref:`ifft`  :ref:`phase`  :ref:`grpdelay`
+.. seealso::
+
+    :ref:`fftr` :ref:`ifft` :ref:`phase` :ref:`grpdelay`
 
 .. doxygenclass:: sptk::FastFourierTransform
-   :members:
+    :members:

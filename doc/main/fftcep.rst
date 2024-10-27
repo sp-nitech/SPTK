@@ -5,7 +5,9 @@ fftcep
 
 .. doxygenfile:: fftcep.cc
 
-.. seealso:: :ref:`mgcep`
+.. seealso::
+
+    :ref:`mgcep`
 
 .. doxygenclass:: sptk::FastFourierTransformCepstralAnalysis
-   :members:
+    :members:

@@ -5,7 +5,9 @@ df2
 
 .. doxygenfile:: df2.cc
 
-.. seealso:: :ref:`dfs`
+.. seealso::
+
+    :ref:`dfs`
 
 .. doxygenclass:: sptk::SecondOrderDigitalFilter
-   :members:
+    :members:
