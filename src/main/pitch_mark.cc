@@ -35,6 +35,7 @@ enum OutputFormats {
   kPositionInSamples,
   kSine,
   kCosine,
+  kSawtooth,
   kNumOutputFormats
 };
 
@@ -64,6 +65,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 2 (position in samples)" << std::endl;
   *stream << "                 3 (sine waveform)" << std::endl;
   *stream << "                 4 (cosine waveform)" << std::endl;
+  *stream << "                 5 (sawtooth waveform)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       waveform                              (double)[stdin]" << std::endl;  // NOLINT
@@ -99,6 +101,7 @@ void PrintUsage(std::ostream* stream) {
  *     @arg @c 2 position in samples
  *     @arg @c 3 sine waveform
  *     @arg @c 4 cosine waveform
+ *     @arg @c 5 sawtooth waveform
  * - @b infile @e str
  *   - double-type waveform
  * - @b stdout
@@ -262,7 +265,8 @@ int main(int argc, char* argv[]) {
   if (waveform.empty()) return 0;
 
   const bool sinusoidal_output(kSine == output_format ||
-                               kCosine == output_format);
+                               kCosine == output_format ||
+                               kSawtooth == output_format);
   std::vector<double> f0;
   std::vector<double> pitch_mark;
   sptk::PitchExtractionInterface::Polarity polarity;
@@ -332,8 +336,8 @@ int main(int argc, char* argv[]) {
       break;
     }
     case kSine:
-    case kCosine: {
-      const double bias(kSine == output_format ? 0.0 : 0.5 * sptk::kPi);
+    case kCosine:
+    case kSawtooth: {
       for (int n(0), i(0); n <= num_pitch_marks; ++n) {
         const int next_pitch_mark(
             n < num_pitch_marks ? static_cast<int>(std::round(pitch_mark[n]))
@@ -352,10 +356,27 @@ int main(int argc, char* argv[]) {
               std::accumulate(f0.begin() + i, f0.begin() + j, 0.0));
           const double multiplier(sptk::kTwoPi / sum_f0);
 
-          double phase(bias);
+          double phase(0.0);
           for (int k(i); k < j; ++k) {
-            const double output(binary_polarity * std::sin(phase));
-            if (!sptk::WriteStream(output, &std::cout)) {
+            double value;
+            switch (output_format) {
+              case kSine: {
+                value = std::sin(phase);
+                break;
+              }
+              case kCosine: {
+                value = std::cos(phase);
+                break;
+              }
+              case kSawtooth: {
+                value = std::fmod(phase, sptk::kTwoPi) / sptk::kPi - 1.0;
+                break;
+              }
+              default: {
+                return 1;
+              }
+            }
+            if (!sptk::WriteStream(binary_polarity * value, &std::cout)) {
               std::ostringstream error_message;
               error_message << "Failed to write sinusoidal sequence";
               sptk::PrintErrorMessage("pitch_mark", error_message);
@@ -380,7 +401,7 @@ int main(int argc, char* argv[]) {
       break;
     }
     default: {
-      break;
+      return 1;
     }
   }
 
