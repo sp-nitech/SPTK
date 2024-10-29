@@ -16,7 +16,7 @@
 
 #include "SPTK/filter/median_filter.h"
 
-#include <algorithm>  // std::sort
+#include <algorithm>  // std::partial_sort
 #include <cstddef>    // std::size_t
 #include <vector>     // std::vector
 
@@ -90,8 +90,9 @@ bool MedianFilter::Get(std::vector<double>* output) {
       continue;
     }
 
-    std::sort(flat_.begin(), flat_.begin() + num_valid_numbers);
     const int half_size(num_valid_numbers / 2);
+    std::partial_sort(flat_.begin(), flat_.begin() + half_size + 1,
+                      flat_.begin() + num_valid_numbers);
     if (IsEven(num_valid_numbers)) {
       (*output)[m] = 0.5 * (flat_[half_size - 1] + flat_[half_size]);
     } else {
