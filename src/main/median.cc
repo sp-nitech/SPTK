@@ -14,7 +14,7 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <algorithm>  // std::sort
+#include <algorithm>  // std::partial_sort
 #include <fstream>    // std::ifstream
 #include <iomanip>    // std::setw
 #include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -61,7 +61,9 @@ bool OutputMedian(const std::vector<std::vector<double> >& input_vectors) {
     for (int i(0); i < num_vector; ++i) {
       vector_for_sort[i] = input_vectors[i][data_index];
     }
-    std::sort(vector_for_sort.begin(), vector_for_sort.end());
+    std::partial_sort(vector_for_sort.begin(),
+                      vector_for_sort.begin() + half_num_vector + 1,
+                      vector_for_sort.end());
     const double median(0 == num_vector % 2
                             ? (vector_for_sort[half_num_vector - 1] +
                                vector_for_sort[half_num_vector]) *
