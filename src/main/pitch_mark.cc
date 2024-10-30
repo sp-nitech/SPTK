@@ -35,7 +35,8 @@ enum OutputFormats {
   kPositionInSamples,
   kSine,
   kCosine,
-  kSawtooth,
+  kBipolarSawtooth,
+  kUnipolarSawtooth,
   kNumOutputFormats
 };
 
@@ -65,7 +66,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 2 (position in samples)" << std::endl;
   *stream << "                 3 (sine waveform)" << std::endl;
   *stream << "                 4 (cosine waveform)" << std::endl;
-  *stream << "                 5 (sawtooth waveform)" << std::endl;
+  *stream << "                 5 (sawtooth waveform (bipolar))" << std::endl;
+  *stream << "                 6 (sawtooth waveform (unipolar))" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       waveform                              (double)[stdin]" << std::endl;  // NOLINT
@@ -101,7 +103,8 @@ void PrintUsage(std::ostream* stream) {
  *     @arg @c 2 position in samples
  *     @arg @c 3 sine waveform
  *     @arg @c 4 cosine waveform
- *     @arg @c 5 sawtooth waveform
+ *     @arg @c 5 bipolar sawtooth waveform
+ *     @arg @c 6 unipolar sawtooth waveform
  * - @b infile @e str
  *   - double-type waveform
  * - @b stdout
@@ -264,14 +267,14 @@ int main(int argc, char* argv[]) {
   }
   if (waveform.empty()) return 0;
 
-  const bool sinusoidal_output(kSine == output_format ||
-                               kCosine == output_format ||
-                               kSawtooth == output_format);
+  const bool waveform_output(kBinarySequence != output_format &&
+                             kPositionInSeconds != output_format &&
+                             kPositionInSamples != output_format);
   std::vector<double> f0;
   std::vector<double> pitch_mark;
   sptk::PitchExtractionInterface::Polarity polarity;
-  if (!pitch_extraction.Run(waveform, sinusoidal_output ? &f0 : NULL,
-                            &pitch_mark, &polarity)) {
+  if (!pitch_extraction.Run(waveform, waveform_output ? &f0 : NULL, &pitch_mark,
+                            &polarity)) {
     std::ostringstream error_message;
     error_message << "Failed to extract pitch mark";
     sptk::PrintErrorMessage("pitch_mark", error_message);
@@ -337,7 +340,8 @@ int main(int argc, char* argv[]) {
     }
     case kSine:
     case kCosine:
-    case kSawtooth: {
+    case kBipolarSawtooth:
+    case kUnipolarSawtooth: {
       for (int n(0), i(0); n <= num_pitch_marks; ++n) {
         const int next_pitch_mark(
             n < num_pitch_marks ? static_cast<int>(std::round(pitch_mark[n]))
@@ -368,8 +372,12 @@ int main(int argc, char* argv[]) {
                 value = std::cos(phase);
                 break;
               }
-              case kSawtooth: {
+              case kBipolarSawtooth: {
                 value = std::fmod(phase, sptk::kTwoPi) / sptk::kPi - 1.0;
+                break;
+              }
+              case kUnipolarSawtooth: {
+                value = std::fmod(phase, sptk::kTwoPi) / sptk::kTwoPi;
                 break;
               }
               default: {
