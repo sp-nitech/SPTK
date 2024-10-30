@@ -17,7 +17,7 @@
 
 sptk3=tools/sptk/bin
 sptk4=bin
-tmp=test_minmax
+tmp=test_mode
 
 setup() {
     mkdir -p $tmp
@@ -27,32 +27,25 @@ teardown() {
     rm -rf $tmp
 }
 
-@test "minmax: compatibility" {
-    $sptk3/nrand -l 20 | $sptk3/minmax -l 1 -o 0 > $tmp/1
-    $sptk3/nrand -l 20 | $sptk4/minmax -l 1 -o 0 -w 1 > $tmp/2
-    run $sptk4/aeq $tmp/1 $tmp/2
+@test "mode: compatibility" {
+    echo 0 1 0 1 1 2 | $sptk3/x2x +ad | $sptk4/mode -b 3 -c $tmp/3 > $tmp/1
+    echo 1 0 2 | $sptk3/x2x +ad > $tmp/2
+    echo 3 2 1 | $sptk3/x2x +ai > $tmp/4
+    run diff $tmp/1 $tmp/2
+    [ "$status" -eq 0 ]
+    run diff $tmp/3 $tmp/4
     [ "$status" -eq 0 ]
 
-    $sptk3/nrand -l 20 | $sptk3/minmax -l 10 -b 2 -o 0 > $tmp/1
-    $sptk3/nrand -l 20 | $sptk4/minmax -l 10 -b 2 -o 0 -w 0 > $tmp/2
-    run $sptk4/aeq $tmp/1 $tmp/2
-    [ "$status" -eq 0 ]
-
-    $sptk3/nrand -l 20 | $sptk3/sopr -FIX | $sptk3/minmax -b 2 > $tmp/1
-    $sptk3/nrand -l 20 | $sptk3/sopr -FIX | $sptk4/minmax -b 2 > $tmp/2
-    run $sptk4/aeq $tmp/1 $tmp/2
-    [ "$status" -eq 0 ]
-
-    $sptk3/nrand -l 20 | $sptk3/minmax -b 2 -d | cut -d: -f2 | $sptk3/x2x +ai > $tmp/1
-    $sptk3/nrand -l 20 | $sptk4/minmax -b 2 -p $tmp/2 > /dev/null
-    run $sptk4/aeq $tmp/1 $tmp/2
+    echo 0 3 3 4 8 8 8 1 | $sptk3/x2x +ad | $sptk4/mode -l 4 -w 0 > $tmp/1
+    echo 3 8 | $sptk3/x2x +ad > $tmp/2
+    run diff $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
-@test "minmax: valgrind" {
-    $sptk3/nrand -l 20 > $tmp/1
-    run valgrind $sptk4/minmax -l 1 -o 0 -w 0 $tmp/1
+@test "mode: valgrind" {
+    $sptk3/nrand -l 20 | $sptk3/sopr -FIX > $tmp/1
+    run valgrind $sptk4/mode -l 1 -o 0 -w 0 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
-    run valgrind $sptk4/minmax -l 1 -o 0 -w 1 $tmp/1
+    run valgrind $sptk4/mode -l 1 -o 0 -w 1 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

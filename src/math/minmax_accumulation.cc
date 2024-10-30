@@ -18,22 +18,8 @@
 
 #include <cstddef>   // std::size_t
 #include <iterator>  // std::advance
-#include <list>      // std::list
+#include <map>       // std::multimap
 #include <utility>   // std::make_pair, std::pair
-
-namespace {
-
-bool CompareToSortInAscendingOrder(const std::pair<int, double>& a,
-                                   const std::pair<int, double>& b) {
-  return a.second < b.second;
-}
-
-bool CompareToSortInDescendingOrder(const std::pair<int, double>& a,
-                                    const std::pair<int, double>& b) {
-  return b.second < a.second;
-}
-
-}  // namespace
 
 namespace sptk {
 
@@ -45,38 +31,38 @@ MinMaxAccumulation::MinMaxAccumulation(int num_best)
   }
 }
 
-bool MinMaxAccumulation::GetMinimum(const MinMaxAccumulation::Buffer& buffer,
-                                    int rank, int* position,
-                                    double* value) const {
+bool MinMaxAccumulation::GetMinimum(int rank,
+                                    const MinMaxAccumulation::Buffer& buffer,
+                                    double* value, int* position) const {
   if (rank <= 0 || buffer.minimum_.size() < static_cast<std::size_t>(rank)) {
     return false;
   }
-  std::list<std::pair<int, double> >::const_iterator itr(
-      buffer.minimum_.begin());
+  std::multimap<double, int>::const_reverse_iterator itr(
+      buffer.minimum_.rbegin());
   std::advance(itr, rank - 1);
-  if (NULL != position) {
-    *position = (*itr).first;
-  }
   if (NULL != value) {
-    *value = (*itr).second;
+    *value = itr->first;
+  }
+  if (NULL != position) {
+    *position = itr->second;
   }
   return true;
 }
 
-bool MinMaxAccumulation::GetMaximum(const MinMaxAccumulation::Buffer& buffer,
-                                    int rank, int* position,
-                                    double* value) const {
+bool MinMaxAccumulation::GetMaximum(int rank,
+                                    const MinMaxAccumulation::Buffer& buffer,
+                                    double* value, int* position) const {
   if (rank <= 0 || buffer.maximum_.size() < static_cast<std::size_t>(rank)) {
     return false;
   }
-  std::list<std::pair<int, double> >::const_iterator itr(
-      buffer.maximum_.begin());
+  std::multimap<double, int>::const_reverse_iterator itr(
+      buffer.maximum_.rbegin());
   std::advance(itr, rank - 1);
-  if (NULL != position) {
-    *position = (*itr).first;
-  }
   if (NULL != value) {
-    *value = (*itr).second;
+    *value = itr->first;
+  }
+  if (NULL != position) {
+    *position = itr->second;
   }
   return true;
 }
@@ -91,30 +77,21 @@ bool MinMaxAccumulation::Run(double data,
     return false;
   }
 
-  std::pair<int, double> new_pair(std::make_pair(buffer->position_, data));
+  const std::pair<double, int> new_pair(
+      std::make_pair(data, buffer->position_));
 
   if (buffer->minimum_.size() < static_cast<std::size_t>(num_best_)) {
-    buffer->minimum_.push_front(new_pair);
-    buffer->minimum_.sort(CompareToSortInAscendingOrder);
-  } else if (data <= buffer->minimum_.begin()->second) {
-    buffer->minimum_.push_front(new_pair);
-    buffer->minimum_.pop_back();
-  } else if (data < buffer->minimum_.rbegin()->second) {
-    buffer->minimum_.push_front(new_pair);
-    buffer->minimum_.sort(CompareToSortInAscendingOrder);
-    buffer->minimum_.pop_back();
+    buffer->minimum_.insert(new_pair);
+  } else if (data < buffer->minimum_.begin()->first) {
+    buffer->minimum_.erase(buffer->minimum_.begin());
+    buffer->minimum_.insert(new_pair);
   }
 
   if (buffer->maximum_.size() < static_cast<std::size_t>(num_best_)) {
-    buffer->maximum_.push_front(new_pair);
-    buffer->maximum_.sort(CompareToSortInDescendingOrder);
-  } else if (buffer->maximum_.begin()->second <= data) {
-    buffer->maximum_.push_front(new_pair);
-    buffer->maximum_.pop_back();
-  } else if (buffer->maximum_.rbegin()->second < data) {
-    buffer->maximum_.push_front(new_pair);
-    buffer->maximum_.sort(CompareToSortInDescendingOrder);
-    buffer->maximum_.pop_back();
+    buffer->maximum_.insert(new_pair);
+  } else if (buffer->maximum_.begin()->first < data) {
+    buffer->maximum_.erase(buffer->maximum_.begin());
+    buffer->maximum_.insert(new_pair);
   }
 
   ++(buffer->position_);

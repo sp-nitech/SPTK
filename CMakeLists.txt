@@ -174,6 +174,7 @@ set(CC_SOURCES
     ${SOURCE_DIR}/math/matrix.cc
     ${SOURCE_DIR}/math/matrix2d.cc
     ${SOURCE_DIR}/math/minmax_accumulation.cc
+    ${SOURCE_DIR}/math/mode_accumulation.cc
     ${SOURCE_DIR}/math/principal_component_analysis.cc
     ${SOURCE_DIR}/math/real_valued_fast_fourier_transform.cc
     ${SOURCE_DIR}/math/real_valued_inverse_fast_fourier_transform.cc
@@ -331,6 +332,7 @@ set(MAIN_SOURCES
     ${SOURCE_DIR}/main/minmax.cc
     ${SOURCE_DIR}/main/mlpg.cc
     ${SOURCE_DIR}/main/mlsacheck.cc
+    ${SOURCE_DIR}/main/mode.cc
     ${SOURCE_DIR}/main/mpir2c.cc
     ${SOURCE_DIR}/main/mseq.cc
     ${SOURCE_DIR}/main/msvq.cc
