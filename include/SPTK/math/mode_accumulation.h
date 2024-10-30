@@ -14,27 +14,27 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#ifndef SPTK_MATH_MINMAX_ACCUMULATION_H_
-#define SPTK_MATH_MINMAX_ACCUMULATION_H_
+#ifndef SPTK_MATH_MODE_ACCUMULATION_H_
+#define SPTK_MATH_MODE_ACCUMULATION_H_
 
-#include <functional>  // std::greater, std::less
-#include <map>         // std::multimap
+#include <map>            // std::multimap
+#include <unordered_map>  // std::unordered_map
 
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
 /**
- * Compute minimum and maximum given data sequence.
+ * Compute mode given data sequence.
  */
-class MinMaxAccumulation {
+class ModeAccumulation {
  public:
   /**
-   * Buffer for MinMaxAccumulation.
+   * Buffer for ModeAccumulation.
    */
   class Buffer {
    public:
-    Buffer() : position_(0) {
+    Buffer() {
     }
 
     virtual ~Buffer() {
@@ -42,29 +42,27 @@ class MinMaxAccumulation {
 
    private:
     void Clear() {
-      position_ = 0;
-      minimum_.clear();
+      count_.clear();
       maximum_.clear();
     }
 
-    int position_;
-    std::multimap<double, int, std::greater<double> > minimum_;
-    std::multimap<double, int, std::less<double> > maximum_;
+    std::unordered_map<double, int> count_;
+    std::multimap<int, double> maximum_;
 
-    friend class MinMaxAccumulation;
+    friend class ModeAccumulation;
     DISALLOW_COPY_AND_ASSIGN(Buffer);
   };
 
   /**
-   * @param[in] num_best Number of minimum/maximum numbers.
+   * @param[in] num_best Number of modes.
    */
-  explicit MinMaxAccumulation(int num_best);
+  explicit ModeAccumulation(int num_best);
 
-  virtual ~MinMaxAccumulation() {
+  virtual ~ModeAccumulation() {
   }
 
   /**
-   * @return Number of minimum/maximum numbers.
+   * @return Number of modes.
    */
   int GetNumBest() const {
     return num_best_;
@@ -78,53 +76,41 @@ class MinMaxAccumulation {
   }
 
   /**
-   * Get @f$n@f$-th minimum value and its position.
+   * Get @f$n@f$-th mode value and its count.
    *
    * @param[in] rank Rank @f$n@f$.
    * @param[in] buffer Buffer.
-   * @param[out] value Minimum value.
-   * @param[out] position Position of the minimum value.
+   * @param[out] value Mode value.
+   * @param[out] count Count of the mode value.
    * @return True on success, false on failure.
    */
-  bool GetMinimum(int rank, const MinMaxAccumulation::Buffer& buffer,
-                  double* value, int* position) const;
-
-  /**
-   * Get @f$n@f$-th maximum value and its position.
-   *
-   * @param[in] rank Rank @f$n@f$.
-   * @param[in] buffer Buffer.
-   * @param[out] value Maximum value.
-   * @param[out] position Position of the maximum value.
-   * @return True on success, false on failure.
-   */
-  bool GetMaximum(int rank, const MinMaxAccumulation::Buffer& buffer,
-                  double* value, int* position) const;
+  bool GetMode(int rank, const ModeAccumulation::Buffer& buffer, double* value,
+               int* count) const;
 
   /**
    * Clear buffer.
    *
    * @param[out] buffer Buffer.
    */
-  void Clear(MinMaxAccumulation::Buffer* buffer) const;
+  void Clear(ModeAccumulation::Buffer* buffer) const;
 
   /**
-   * Accumulate minimum and maximum.
+   * Accumulate mode.
    *
    * @param[in] data Input data.
    * @param[in,out] buffer Buffer.
    * @return True on success, false on failure.
    */
-  bool Run(double data, MinMaxAccumulation::Buffer* buffer) const;
+  bool Run(double data, ModeAccumulation::Buffer* buffer) const;
 
  private:
   const int num_best_;
 
   bool is_valid_;
 
-  DISALLOW_COPY_AND_ASSIGN(MinMaxAccumulation);
+  DISALLOW_COPY_AND_ASSIGN(ModeAccumulation);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_MATH_MINMAX_ACCUMULATION_H_
+#endif  // SPTK_MATH_MODE_ACCUMULATION_H_
