@@ -187,8 +187,9 @@ bool StatisticsAccumulation::GetFullCovariance(
     full_covariance->Resize(num_order_ + 1);
   }
 
+  const double z(1.0 / buffer.zeroth_order_statistics_);
+
   if (numerically_stable_) {
-    const double z(1.0 / buffer.zeroth_order_statistics_);
     for (int i(0); i <= num_order_; ++i) {
       for (int j(0); j <= i; ++j) {
         (*full_covariance)[i][j] = z * buffer.second_order_statistics_[i][j];
@@ -199,7 +200,6 @@ bool StatisticsAccumulation::GetFullCovariance(
     if (!GetMean(buffer, &mean)) {
       return false;
     }
-    const double z(1.0 / buffer.zeroth_order_statistics_);
     const double* mu(&(mean[0]));
     for (int i(0); i <= num_order_; ++i) {
       for (int j(0); j <= i; ++j) {
@@ -269,32 +269,58 @@ void StatisticsAccumulation::Clear(
 bool StatisticsAccumulation::Run(const std::vector<double>& data,
                                  StatisticsAccumulation::Buffer* buffer) const {
   // Check inputs.
-  const int length(num_order_ + 1);
-  if (!is_valid_ || data.size() != static_cast<std::size_t>(length) ||
-      NULL == buffer) {
+  const std::size_t length(num_order_ + 1);
+  if (!is_valid_ || data.size() != length || NULL == buffer) {
     return false;
   }
 
   // Prepare memories.
-  if (1 <= num_statistics_order_ && buffer->first_order_statistics_.size() !=
-                                        static_cast<std::size_t>(length)) {
+  if (1 <= num_statistics_order_ &&
+      buffer->first_order_statistics_.size() != length) {
     buffer->first_order_statistics_.resize(length);
-    if (numerically_stable_) buffer->delta_.resize(length);
   }
   if (2 <= num_statistics_order_ &&
-      buffer->second_order_statistics_.GetNumDimension() != length) {
+      buffer->second_order_statistics_.GetNumDimension() !=
+          static_cast<int>(length)) {
     buffer->second_order_statistics_.Resize(length);
+  }
+  if (numerically_stable_ && buffer->delta_.size() != length) {
+    buffer->delta_.resize(length);
   }
 
   // Accumulate 0th order statistics.
   ++(buffer->zeroth_order_statistics_);
 
+  // Compute delta.
+  if (1 <= num_statistics_order_ && numerically_stable_) {
+    std::transform(data.begin(), data.end(),
+                   buffer->first_order_statistics_.begin(),
+                   buffer->delta_.begin(), std::minus<double>());
+  }
+  const double* delta(&(buffer->delta_[0]));
+
+  // Accumulate 2nd order statistics.
+  if (2 <= num_statistics_order_) {
+    if (numerically_stable_) {
+      const double n(static_cast<double>(buffer->zeroth_order_statistics_));
+      const double z((n - 1) / n);
+      for (int i(0); i <= num_order_; ++i) {
+        for (int j(diagonal_ ? i : 0); j <= i; ++j) {
+          buffer->second_order_statistics_[i][j] += z * delta[i] * delta[j];
+        }
+      }
+    } else {
+      for (int i(0); i <= num_order_; ++i) {
+        for (int j(diagonal_ ? i : 0); j <= i; ++j) {
+          buffer->second_order_statistics_[i][j] += data[i] * data[j];
+        }
+      }
+    }
+  }
+
   // Accumulate 1st order statistics.
   if (1 <= num_statistics_order_) {
     if (numerically_stable_) {
-      std::transform(data.begin(), data.end(),
-                     buffer->first_order_statistics_.begin(),
-                     buffer->delta_.begin(), std::minus<double>());
       const double z(1.0 / buffer->zeroth_order_statistics_);
       std::transform(buffer->delta_.begin(), buffer->delta_.end(),
                      buffer->first_order_statistics_.begin(),
@@ -307,26 +333,6 @@ bool StatisticsAccumulation::Run(const std::vector<double>& data,
     }
   }
 
-  // Accumulate 2nd order statistics.
-  if (2 <= num_statistics_order_) {
-    if (numerically_stable_) {
-      const double z(static_cast<double>(buffer->zeroth_order_statistics_ - 1) /
-                     buffer->zeroth_order_statistics_);
-      for (int i(0); i < length; ++i) {
-        for (int j(diagonal_ ? i : 0); j <= i; ++j) {
-          buffer->second_order_statistics_[i][j] +=
-              z * buffer->delta_[i] * buffer->delta_[j];
-        }
-      }
-    } else {
-      for (int i(0); i < length; ++i) {
-        for (int j(diagonal_ ? i : 0); j <= i; ++j) {
-          buffer->second_order_statistics_[i][j] += data[i] * data[j];
-        }
-      }
-    }
-  }
-
   return true;
 }
 
@@ -334,56 +340,53 @@ bool StatisticsAccumulation::Merge(
     int num_data, const std::vector<double>& first,
     const SymmetricMatrix& second,
     StatisticsAccumulation::Buffer* buffer) const {
-  if (!is_valid_ || NULL == buffer) {
+  if (!is_valid_ || num_data <= 0 || NULL == buffer) {
     return false;
   }
 
+  const std::size_t length(num_order_ + 1);
+  if (1 <= num_statistics_order_ && first.size() != length) {
+    return false;
+  }
+  if (2 <= num_statistics_order_ &&
+      second.GetNumDimension() != static_cast<int>(length)) {
+    return false;
+  }
+
+  // Copy statistics if the buffer is empty.
   if (0 == buffer->zeroth_order_statistics_) {
     buffer->zeroth_order_statistics_ = num_data;
-    buffer->first_order_statistics_ = first;
-    buffer->second_order_statistics_ = second;
+    if (!first.empty()) buffer->first_order_statistics_ = first;
+    if (!second.Empty()) buffer->second_order_statistics_ = second;
     return true;
   }
 
-  if (num_data <= 0 || first.size() != buffer->first_order_statistics_.size() ||
-      second.GetNumDimension() !=
-          buffer->second_order_statistics_.GetNumDimension()) {
-    return false;
-  }
-
-  // Save the current statistics.
-  const int m(buffer->zeroth_order_statistics_);
-  std::vector<double> prev_first_order_statistics(
-      buffer->first_order_statistics_);
-
-  const int n(num_data);
-  const int mn(m + n);
-  buffer->zeroth_order_statistics_ = mn;
-
-  if (1 <= num_statistics_order_) {
-    if (numerically_stable_) {
-      const double a(static_cast<double>(n) / mn);
-      const double b(static_cast<double>(m) / mn);
-      std::transform(first.begin(), first.end(),
-                     buffer->first_order_statistics_.begin(),
-                     buffer->first_order_statistics_.begin(),
-                     [a, b](double x, double y) { return a * x + b * y; });
-    } else {
-      std::transform(
-          first.begin(), first.end(), buffer->first_order_statistics_.begin(),
-          buffer->first_order_statistics_.begin(), std::plus<double>());
+  // Compute delta.
+  if (numerically_stable_) {
+    if (buffer->delta_.size() != length) {
+      buffer->delta_.resize(length);
     }
+    std::transform(buffer->first_order_statistics_.begin(),
+                   buffer->first_order_statistics_.end(), first.begin(),
+                   buffer->delta_.begin(), std::minus<double>());
   }
+  const double* delta(&(buffer->delta_[0]));
 
-  if (2 <= num_statistics_order_) {
+  const double m(static_cast<double>(buffer->zeroth_order_statistics_));
+  const double n(static_cast<double>(num_data));
+  const double mpn(m + n);
+  const double mn(m * n);
+  buffer->zeroth_order_statistics_ = mpn;
+
+  // Merge 2nd order statistics.
+  if (!second.Empty()) {
     if (numerically_stable_) {
-      const double* mu1(&(prev_first_order_statistics[0]));
-      const double* mu2(&(first[0]));
-      const double c(static_cast<double>(m * n) / mn);
+      const double c(mn / mpn);
       for (int i(0); i <= num_order_; ++i) {
         for (int j(diagonal_ ? i : 0); j <= i; ++j) {
-          buffer->second_order_statistics_[i][j] +=
-              second[i][j] + c * (mu1[i] - mu2[i]) * (mu1[j] - mu2[j]);
+          const double term1(second[i][j]);
+          const double term2(c * delta[i] * delta[j]);
+          buffer->second_order_statistics_[i][j] += term1 + term2;
         }
       }
     } else {
@@ -392,6 +395,22 @@ bool StatisticsAccumulation::Merge(
           buffer->second_order_statistics_[i][j] += second[i][j];
         }
       }
+    }
+  }
+
+  // Merge 1st order statistics.
+  if (!first.empty()) {
+    if (numerically_stable_) {
+      const double a(n / mpn);
+      const double b(m / mpn);
+      std::transform(first.begin(), first.end(),
+                     buffer->first_order_statistics_.begin(),
+                     buffer->first_order_statistics_.begin(),
+                     [a, b](double x, double y) { return a * x + b * y; });
+    } else {
+      std::transform(
+          first.begin(), first.end(), buffer->first_order_statistics_.begin(),
+          buffer->first_order_statistics_.begin(), std::plus<double>());
     }
   }
 

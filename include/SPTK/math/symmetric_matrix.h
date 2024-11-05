@@ -127,6 +127,15 @@ class SymmetricMatrix {
   const double& At(int row, int column) const;
 
   /**
+   * Check whether the matrix is empty.
+   *
+   * @return True if the matrix is empty.
+   */
+  bool Empty() const {
+    return 0 == num_dimension_;
+  }
+
+  /**
    * Overwrite all elements with a value.
    *
    * @param[in] value Value.

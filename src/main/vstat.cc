@@ -566,7 +566,7 @@ int main(int argc, char* argv[]) {
             !second.SetDiagonal(tmp)) {
           std::ostringstream error_message;
           error_message << "Failed to read statistics (second order) in "
-                        << file;
+                        << file << " (expected diagonal matrix)";
           sptk::PrintErrorMessage("vstat", error_message);
           return 1;
         }
@@ -574,7 +574,7 @@ int main(int argc, char* argv[]) {
         if (!sptk::ReadStream(&second, &ifs2)) {
           std::ostringstream error_message;
           error_message << "Failed to read statistics (second order) in "
-                        << file;
+                        << file << " (expected full matrix)";
           sptk::PrintErrorMessage("vstat", error_message);
           return 1;
         }
