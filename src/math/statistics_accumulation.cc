@@ -401,12 +401,10 @@ bool StatisticsAccumulation::Merge(
   // Merge 1st order statistics.
   if (!first.empty()) {
     if (numerically_stable_) {
-      const double a(n / mpn);
-      const double b(m / mpn);
-      std::transform(first.begin(), first.end(),
-                     buffer->first_order_statistics_.begin(),
-                     buffer->first_order_statistics_.begin(),
-                     [a, b](double x, double y) { return a * x + b * y; });
+      const double c(m / mpn);
+      std::transform(buffer->delta_.begin(), buffer->delta_.end(),
+                     first.begin(), buffer->first_order_statistics_.begin(),
+                     [c](double x, double y) { return c * x + y; });
     } else {
       std::transform(
           first.begin(), first.end(), buffer->first_order_statistics_.begin(),
