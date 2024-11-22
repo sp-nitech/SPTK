@@ -28,6 +28,7 @@ namespace {
 
 const int kMagicNumberForEndOfFile(-1);
 const int kDefaultVectorLength(1);
+const bool kDefaultCumulativeModeFlag(false);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -40,6 +41,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -l l  : length of vector   (   int)[" << std::setw(5) << std::right << kDefaultVectorLength << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -m m  : order of vector    (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
   *stream << "       -t t  : output interval    (   int)[" << std::setw(5) << std::right << "EOF"                << "][ 1 <= t <=   ]" << std::endl;  // NOLINT
+  *stream << "       -c    : cumulative mode    (  bool)[" << std::setw(5) << std::right << std::right << sptk::ConvertBooleanToString(kDefaultCumulativeModeFlag) << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       vectors                    (double)[stdin]" << std::endl;
@@ -62,6 +64,8 @@ void PrintUsage(std::ostream* stream) {
  *   - order of vector @f$(0 \le L - 1)@f$
  * - @b -t @e int
  *   - output interval @f$(1 \le T)@f$
+ * - @b -c
+ *   - cumulative mode
  * - @b infile @e str
  *   - double-type vectors
  * - @b stdout
@@ -103,6 +107,14 @@ void PrintUsage(std::ostream* stream) {
  *   # 12
  * @endcode
  *
+ * @code{.sh}
+ *   echo 0 1 2 3 | x2x +ad | vsum -c -t 1 | x2x +da
+ *   # 0
+ *   # 1
+ *   # 3
+ *   # 6
+ * @endcode
+ *
  * @param[in] argc Number of arguments.
  * @param[in] argv Argument vector.
  * @return 0 on success, 1 on failure.
@@ -110,9 +122,10 @@ void PrintUsage(std::ostream* stream) {
 int main(int argc, char* argv[]) {
   int vector_length(kDefaultVectorLength);
   int output_interval(kMagicNumberForEndOfFile);
+  bool cumulative_mode_flag(kDefaultCumulativeModeFlag);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:m:t:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:m:t:ch", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -148,6 +161,10 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("vsum", error_message);
           return 1;
         }
+        break;
+      }
+      case 'c': {
+        cumulative_mode_flag = true;
         break;
       }
       case 'h': {
@@ -224,7 +241,9 @@ int main(int argc, char* argv[]) {
         sptk::PrintErrorMessage("vsum", error_message);
         return 1;
       }
-      accumulation.Clear(&buffer);
+      if (!cumulative_mode_flag) {
+        accumulation.Clear(&buffer);
+      }
     }
   }
 
