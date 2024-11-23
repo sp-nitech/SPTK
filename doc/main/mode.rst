@@ -7,7 +7,7 @@ mode
 
 .. seealso::
 
-    :ref:`minmax`
+    :ref:`minmax` :ref:`median`
 
 .. doxygenclass:: sptk::ModeAccumulation
     :members:

@@ -176,6 +176,7 @@ set(CC_SOURCES
     ${SOURCE_DIR}/math/minmax_accumulation.cc
     ${SOURCE_DIR}/math/mode_accumulation.cc
     ${SOURCE_DIR}/math/principal_component_analysis.cc
+    ${SOURCE_DIR}/math/product_accumulation.cc
     ${SOURCE_DIR}/math/real_valued_fast_fourier_transform.cc
     ${SOURCE_DIR}/math/real_valued_inverse_fast_fourier_transform.cc
     ${SOURCE_DIR}/math/reverse_levinson_durbin_recursion.cc
@@ -373,6 +374,7 @@ set(MAIN_SOURCES
     ${SOURCE_DIR}/main/ulaw.cc
     ${SOURCE_DIR}/main/vc.cc
     ${SOURCE_DIR}/main/vopr.cc
+    ${SOURCE_DIR}/main/vprod.cc
     ${SOURCE_DIR}/main/vstat.cc
     ${SOURCE_DIR}/main/vsum.cc
     ${SOURCE_DIR}/main/window.cc

@@ -7,4 +7,4 @@ vsum
 
 .. seealso::
 
-    :ref:`average` :ref:`vstat`
+    :ref:`average` :ref:`vstat` :ref:`vprod`
