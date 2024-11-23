@@ -21,7 +21,7 @@
 #include <vector>    // std::vector
 
 #include "GETOPT/ya_getopt.h"
-#include "SPTK/math/statistics_accumulation.h"
+#include "SPTK/math/product_accumulation.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
@@ -33,10 +33,10 @@ const bool kDefaultCumulativeModeFlag(false);
 void PrintUsage(std::ostream* stream) {
   // clang-format off
   *stream << std::endl;
-  *stream << " vsum - summation of vectors" << std::endl;
+  *stream << " vprod - product of vectors" << std::endl;
   *stream << std::endl;
   *stream << "  usage:" << std::endl;
-  *stream << "       vsum [ options ] [ infile ] > stdout" << std::endl;
+  *stream << "       vprod [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
   *stream << "       -l l  : length of vector   (   int)[" << std::setw(5) << std::right << kDefaultVectorLength << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
   *stream << "       -m m  : order of vector    (   int)[" << std::setw(5) << std::right << "l-1"                << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
@@ -46,7 +46,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  infile:" << std::endl;
   *stream << "       vectors                    (double)[stdin]" << std::endl;
   *stream << "  stdout:" << std::endl;
-  *stream << "       summation of vectors       (double)" << std::endl;
+  *stream << "       product of vectors         (double)" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -56,7 +56,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a vsum [ @e option ] [ @e infile ]
+ * @a vprod [ @e option ] [ @e infile ]
  *
  * - @b -l @e int
  *   - length of vector @f$(1 \le L)@f$
@@ -69,7 +69,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b infile @e str
  *   - double-type vectors
  * - @b stdout
- *   - double-type summation
+ *   - double-type product
  *
  * The input of this command is
  * @f[
@@ -82,37 +82,28 @@ void PrintUsage(std::ostream* stream) {
  * and the output is
  * @f[
  *   \begin{array}{ccc}
- *     \underbrace{s_{0}(1), \; \ldots, \; s_{0}(L)}_L, &
- *     \underbrace{s_{T}(1), \; \ldots, \; s_{T}(L)}_L, &
+ *     \underbrace{p_{0}(1), \; \ldots, \; p_{0}(L)}_L, &
+ *     \underbrace{p_{T}(1), \; \ldots, \; p_{T}(L)}_L, &
  *     \ldots,
  *   \end{array}
  * @f]
  * where
  * @f[
- *   s_t(l) = \sum_{\tau=1}^{T} x_{t+\tau}(l).
+ *   p_t(l) = \prod_{\tau=1}^{T} x_{t+\tau}(l).
  * @f]
- * If @f$T@f$ is not given, the summation of the whole input is computed.
+ * If @f$T@f$ is not given, the product of the whole input is computed.
  *
  * @code{.sh}
- *   echo 0 1 2 3 4 5 6 7 8 9 | x2x +ad | vsum -l 2 | x2x +da
- *   # 20
- *   # 25
+ *   echo 1 2 3 4 5 | x2x +ad | vprod | x2x +da
+ *   # 120
  * @endcode
  *
  * @code{.sh}
- *   echo 0 1 2 3 4 5 6 7 | x2x +ad | vsum -l 2 -t 2 | x2x +da
+ *   echo 2 3 4 5 | x2x +ad | vprod -c -t 1 | x2x +da
  *   # 2
- *   # 4
- *   # 10
- *   # 12
- * @endcode
- *
- * @code{.sh}
- *   echo 0 1 2 3 | x2x +ad | vsum -c -t 1 | x2x +da
- *   # 0
- *   # 1
- *   # 3
  *   # 6
+ *   # 24
+ *   # 120
  * @endcode
  *
  * @param[in] argc Number of arguments.
@@ -135,7 +126,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -l option must be a positive integer";
-          sptk::PrintErrorMessage("vsum", error_message);
+          sptk::PrintErrorMessage("vprod", error_message);
           return 1;
         }
         break;
@@ -146,7 +137,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message << "The argument for the -m option must be a "
                         << "non-negative integer";
-          sptk::PrintErrorMessage("vsum", error_message);
+          sptk::PrintErrorMessage("vprod", error_message);
           return 1;
         }
         ++vector_length;
@@ -158,7 +149,7 @@ int main(int argc, char* argv[]) {
           std::ostringstream error_message;
           error_message
               << "The argument for the -t option must be a positive integer";
-          sptk::PrintErrorMessage("vsum", error_message);
+          sptk::PrintErrorMessage("vprod", error_message);
           return 1;
         }
         break;
@@ -182,7 +173,7 @@ int main(int argc, char* argv[]) {
   if (1 < num_input_files) {
     std::ostringstream error_message;
     error_message << "Too many input files";
-    sptk::PrintErrorMessage("vsum", error_message);
+    sptk::PrintErrorMessage("vprod", error_message);
     return 1;
   }
   const char* input_file(0 == num_input_files ? NULL : argv[optind]);
@@ -190,7 +181,7 @@ int main(int argc, char* argv[]) {
   if (!sptk::SetBinaryMode()) {
     std::ostringstream error_message;
     error_message << "Cannot set translation mode";
-    sptk::PrintErrorMessage("vsum", error_message);
+    sptk::PrintErrorMessage("vprod", error_message);
     return 1;
   }
 
@@ -200,45 +191,45 @@ int main(int argc, char* argv[]) {
     if (ifs.fail()) {
       std::ostringstream error_message;
       error_message << "Cannot open file " << input_file;
-      sptk::PrintErrorMessage("vsum", error_message);
+      sptk::PrintErrorMessage("vprod", error_message);
       return 1;
     }
   }
   std::istream& input_stream(ifs.is_open() ? ifs : std::cin);
 
-  sptk::StatisticsAccumulation accumulation(vector_length - 1, 1);
-  sptk::StatisticsAccumulation::Buffer buffer;
+  sptk::ProductAccumulation accumulation(vector_length - 1);
+  sptk::ProductAccumulation::Buffer buffer;
   if (!accumulation.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to initialize StatisticsAccumulation";
-    sptk::PrintErrorMessage("vsum", error_message);
+    error_message << "Failed to initialize ProductAccumulation";
+    sptk::PrintErrorMessage("vprod", error_message);
     return 1;
   }
 
   std::vector<double> data(vector_length);
-  std::vector<double> sum(vector_length);
+  std::vector<double> product(vector_length);
   for (int vector_index(1);
        sptk::ReadStream(false, 0, 0, vector_length, &data, &input_stream, NULL);
        ++vector_index) {
     if (!accumulation.Run(data, &buffer)) {
       std::ostringstream error_message;
-      error_message << "Failed to accumulate statistics";
-      sptk::PrintErrorMessage("vsum", error_message);
+      error_message << "Failed to accumulate product";
+      sptk::PrintErrorMessage("vprod", error_message);
       return 1;
     }
 
     if (kMagicNumberForEndOfFile != output_interval &&
         0 == vector_index % output_interval) {
-      if (!accumulation.GetSum(buffer, &sum)) {
+      if (!accumulation.GetProduct(buffer, &product)) {
         std::ostringstream error_message;
-        error_message << "Failed to accumulate statistics";
-        sptk::PrintErrorMessage("vsum", error_message);
+        error_message << "Failed to accumulate product";
+        sptk::PrintErrorMessage("vprod", error_message);
         return 1;
       }
-      if (!sptk::WriteStream(0, vector_length, sum, &std::cout, NULL)) {
+      if (!sptk::WriteStream(0, vector_length, product, &std::cout, NULL)) {
         std::ostringstream error_message;
-        error_message << "Failed to write statistics";
-        sptk::PrintErrorMessage("vsum", error_message);
+        error_message << "Failed to write product";
+        sptk::PrintErrorMessage("vprod", error_message);
         return 1;
       }
       if (!cumulative_mode_flag) {
@@ -250,22 +241,22 @@ int main(int argc, char* argv[]) {
   int num_data;
   if (!accumulation.GetNumData(buffer, &num_data)) {
     std::ostringstream error_message;
-    error_message << "Failed to accumulate statistics";
-    sptk::PrintErrorMessage("vsum", error_message);
+    error_message << "Failed to accumulate product";
+    sptk::PrintErrorMessage("vprod", error_message);
     return 1;
   }
 
   if (kMagicNumberForEndOfFile == output_interval && 0 < num_data) {
-    if (!accumulation.GetSum(buffer, &sum)) {
+    if (!accumulation.GetProduct(buffer, &product)) {
       std::ostringstream error_message;
-      error_message << "Failed to compute summation";
-      sptk::PrintErrorMessage("vsum", error_message);
+      error_message << "Failed to compute product";
+      sptk::PrintErrorMessage("vprod", error_message);
       return 1;
     }
-    if (!sptk::WriteStream(0, vector_length, sum, &std::cout, NULL)) {
+    if (!sptk::WriteStream(0, vector_length, product, &std::cout, NULL)) {
       std::ostringstream error_message;
-      error_message << "Failed to write summation";
-      sptk::PrintErrorMessage("vsum", error_message);
+      error_message << "Failed to write prodct";
+      sptk::PrintErrorMessage("vprod", error_message);
       return 1;
     }
   }
