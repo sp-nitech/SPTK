@@ -45,7 +45,7 @@ const int kDefaultVectorLength(1);
 const double kDefaultConfidenceLevel(95.0);
 const OutputFormats kDefaultOutputFormat(kMeanAndCovariance);
 const bool kDefaultOutputOnlyDiagonalElementsFlag(false);
-const bool kDefaultNeumericallyStableFlag(false);
+const bool kDefaultNumericallyStableFlag(false);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -71,7 +71,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -s s  : statistics file      (string)[" << std::setw(5) << std::right << "N/A"                   << "]" << std::endl;  // NOLINT
   *stream << "       -d    : output only diagonal (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultOutputOnlyDiagonalElementsFlag) << "]" << std::endl;  // NOLINT
   *stream << "               elements" << std::endl;
-  *stream << "       -e    : use a neumerically   (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultNeumericallyStableFlag)         << "]" << std::endl;  // NOLINT
+  *stream << "       -e    : use a numerically    (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultNumericallyStableFlag)          << "]" << std::endl;  // NOLINT
   *stream << "               stable algorithm" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
@@ -391,7 +391,7 @@ int main(int argc, char* argv[]) {
   OutputFormats output_format(kDefaultOutputFormat);
   std::vector<const char*> statistics_file;
   bool outputs_only_diagonal_elements(kDefaultOutputOnlyDiagonalElementsFlag);
-  bool neumerically_stable(kDefaultNeumericallyStableFlag);
+  bool numerically_stable(kDefaultNumericallyStableFlag);
 
   for (;;) {
     const int option_char(
@@ -468,7 +468,7 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'e': {
-        neumerically_stable = true;
+        numerically_stable = true;
         break;
       }
       case 'h': {
@@ -530,7 +530,7 @@ int main(int argc, char* argv[]) {
 
   sptk::StatisticsAccumulation accumulation(vector_length - 1,
                                             kMean == output_format ? 1 : 2,
-                                            diagonal, neumerically_stable);
+                                            diagonal, numerically_stable);
   sptk::StatisticsAccumulation::Buffer buffer;
   if (!accumulation.IsValid()) {
     std::ostringstream error_message;
