@@ -115,6 +115,12 @@ void PrintUsage(std::ostream* stream) {
  *   # 6
  * @endcode
  *
+ * The above line is equivalent to the following line.
+ *
+ * @code{.sh}
+ *   echo 0 1 2 3 | x2x +ad | dfs -a 1 -1 | x2x +da
+ * @endcode
+ *
  * @param[in] argc Number of arguments.
  * @param[in] argv Argument vector.
  * @return 0 on success, 1 on failure.
