@@ -29,14 +29,17 @@
 
 namespace {
 
+enum LongOptions {
+  kMagic = 1000,
+};
+
 enum OutputFormats {
   kBinarySequence = 0,
   kPositionInSeconds,
   kPositionInSamples,
   kSine,
   kCosine,
-  kBipolarSawtooth,
-  kUnipolarSawtooth,
+  kSawtooth,
   kNumOutputFormats
 };
 
@@ -45,6 +48,7 @@ const double kDefaultLowerF0(60.0);
 const double kDefaultUpperF0(240.0);
 const double kDefaultVoicingThreshold(0.9);
 const OutputFormats kDefaultOutputFormat(kBinarySequence);
+const double kDefaultMagicNumber(0.0);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -54,29 +58,31 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       pitch_mark [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -s s  : sampling rate [kHz]           (double)[" << std::setw(5) << std::right << kDefaultSamplingRate     << "][  6.0 <  s <= 98.0  ]" << std::endl;  // NOLINT
-  *stream << "       -L L  : minimum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultLowerF0          << "][ 10.0 <  L <  H     ]" << std::endl;  // NOLINT
-  *stream << "               to search for [Hz]" << std::endl;
-  *stream << "       -H H  : maximum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultUpperF0          << "][    L <  H <  500*s ]" << std::endl;  // NOLINT
-  *stream << "               to search for [Hz]" << std::endl;
-  *stream << "       -t t  : voicing threshold             (double)[" << std::setw(5) << std::right << kDefaultVoicingThreshold << "][ -0.5 <= t <= 1.6   ]" << std::endl;  // NOLINT
-  *stream << "       -o o  : output format                 (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat     << "][    0 <= o <= 4     ]" << std::endl;  // NOLINT
-  *stream << "                 0 (binary sequence)" << std::endl;
-  *stream << "                 1 (position in seconds)" << std::endl;
-  *stream << "                 2 (position in samples)" << std::endl;
-  *stream << "                 3 (sine waveform)" << std::endl;
-  *stream << "                 4 (cosine waveform)" << std::endl;
-  *stream << "                 5 (sawtooth waveform (bipolar))" << std::endl;
-  *stream << "                 6 (sawtooth waveform (unipolar))" << std::endl;
-  *stream << "       -h    : print this message" << std::endl;
+  *stream << "       -s s          : sampling rate [kHz]           (double)[" << std::setw(5) << std::right << kDefaultSamplingRate     << "][  6.0 <  s <= 98.0  ]" << std::endl;  // NOLINT
+  *stream << "       -L L          : minimum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultLowerF0          << "][ 10.0 <  L <  H     ]" << std::endl;  // NOLINT
+  *stream << "                       to search for [Hz]" << std::endl;
+  *stream << "       -H H          : maximum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultUpperF0          << "][    L <  H <  500*s ]" << std::endl;  // NOLINT
+  *stream << "                       to search for [Hz]" << std::endl;
+  *stream << "       -t t          : voicing threshold             (double)[" << std::setw(5) << std::right << kDefaultVoicingThreshold << "][ -0.5 <= t <= 1.6   ]" << std::endl;  // NOLINT
+  *stream << "       -o o          : output format                 (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat     << "][    0 <= o <= 4     ]" << std::endl;  // NOLINT
+  *stream << "                         0 (binary sequence)" << std::endl;
+  *stream << "                         1 (position in seconds)" << std::endl;
+  *stream << "                         2 (position in samples)" << std::endl;
+  *stream << "                         3 (sine waveform)" << std::endl;
+  *stream << "                         4 (cosine waveform)" << std::endl;
+  *stream << "                         5 (sawtooth waveform)" << std::endl;
+  *stream << "       -magic magic  : magic number representing     (double)[" << std::setw(5) << std::right << kDefaultMagicNumber      << "]" << std::endl;  // NOLINT
+  *stream << "                       unvoiced region" << std::endl;
+  *stream << "       -h            : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       waveform                              (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       waveform                                      (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       pitch mark                            (double)" << std::endl;  // NOLINT
+  *stream << "       pitch mark                                    (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
   *stream << "       if t is raised, the number of pitch marks increase" << std::endl;  // NOLINT
   *stream << "       the value of t should be in the recommended range but values outside the range can be given" << std::endl;  // NOLINT
   *stream << "       if o = 0, value 1 or -1 indicating pitch mark is outputted considering polarity" << std::endl;  // NOLINT
+  *stream << "       -magic option is valid only o >= 3" << std::endl;
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -103,8 +109,9 @@ void PrintUsage(std::ostream* stream) {
  *     @arg @c 2 position in samples
  *     @arg @c 3 sine waveform
  *     @arg @c 4 cosine waveform
- *     @arg @c 5 bipolar sawtooth waveform
- *     @arg @c 6 unipolar sawtooth waveform
+ *     @arg @c 5 sawtooth waveform
+ * - @b -magic @e double
+ *   - magic number representing unvoiced region
  * - @b infile @e str
  *   - double-type waveform
  * - @b stdout
@@ -128,9 +135,16 @@ int main(int argc, char* argv[]) {
   double upper_f0(kDefaultUpperF0);
   double voicing_threshold(kDefaultVoicingThreshold);
   OutputFormats output_format(kDefaultOutputFormat);
+  double magic_number(kDefaultMagicNumber);
+
+  const struct option long_options[] = {
+      {"magic", required_argument, NULL, kMagic},
+      {0, 0, 0, 0},
+  };
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "s:L:H:t:o:h", NULL, NULL));
+    const int option_char(
+        getopt_long_only(argc, argv, "s:L:H:t:o:h", long_options, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -191,6 +205,16 @@ int main(int argc, char* argv[]) {
           return 1;
         }
         output_format = static_cast<OutputFormats>(tmp);
+        break;
+      }
+      case kMagic: {
+        if (!sptk::ConvertStringToDouble(optarg, &magic_number)) {
+          std::ostringstream error_message;
+          error_message
+              << "The argument for the -magic option must be a number";
+          sptk::PrintErrorMessage("pitch_mark", error_message);
+          return 1;
+        }
         break;
       }
       case 'h': {
@@ -340,8 +364,7 @@ int main(int argc, char* argv[]) {
     }
     case kSine:
     case kCosine:
-    case kBipolarSawtooth:
-    case kUnipolarSawtooth: {
+    case kSawtooth: {
       for (int n(0), i(0); n <= num_pitch_marks; ++n) {
         const int next_pitch_mark(
             n < num_pitch_marks ? static_cast<int>(std::round(pitch_mark[n]))
@@ -372,12 +395,8 @@ int main(int argc, char* argv[]) {
                 value = std::cos(phase);
                 break;
               }
-              case kBipolarSawtooth: {
+              case kSawtooth: {
                 value = std::fmod(phase, sptk::kTwoPi) / sptk::kPi - 1.0;
-                break;
-              }
-              case kUnipolarSawtooth: {
-                value = std::fmod(phase, sptk::kTwoPi) / sptk::kTwoPi;
                 break;
               }
               default: {
@@ -396,7 +415,7 @@ int main(int argc, char* argv[]) {
 
         // Output unvoiced sequence.
         for (int k(j); k < next_pitch_mark; ++k) {
-          if (!sptk::WriteStream(0.0, &std::cout)) {
+          if (!sptk::WriteStream(magic_number, &std::cout)) {
             std::ostringstream error_message;
             error_message << "Failed to write sinusoidal sequence";
             sptk::PrintErrorMessage("pitch_mark", error_message);
