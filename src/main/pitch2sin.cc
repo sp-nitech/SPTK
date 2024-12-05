@@ -20,19 +20,20 @@
 #include <sstream>   // std::ostringstream
 
 #include "GETOPT/ya_getopt.h"
-#include "SPTK/generation/sinusoidal_generation.h"
+#include "SPTK/generation/periodic_waveform_generation.h"
 #include "SPTK/input/input_source_from_stream.h"
 #include "SPTK/input/input_source_interpolation_with_magic_number.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
 
-enum OutputFormats { kSine = 0, kCosine, kNumOutputFormats };
+enum OutputFormats { kSine = 0, kCosine, kSawtooth, kNumOutputFormats };
 
 const int kDefaultFramePeriod(100);
 const int kDefaultInterpolationPeriod(1);
 const OutputFormats kDefaultOutputFormat(kSine);
 const bool kDefaultStrictFlag(false);
+const double kDefaultUnvoicedValue(0.0);
 const double kMagicNumberForUnvoicedFrame(0.0);
 
 void PrintUsage(std::ostream* stream) {
@@ -45,9 +46,12 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  options:" << std::endl;
   *stream << "       -p p  : frame period         (   int)[" << std::setw(5) << std::right << kDefaultFramePeriod         << "][ 1 <= p <=     ]" << std::endl;  // NOLINT
   *stream << "       -i i  : interpolation period (   int)[" << std::setw(5) << std::right << kDefaultInterpolationPeriod << "][ 0 <= i <= p/2 ]" << std::endl;  // NOLINT
-  *stream << "       -o o  : output format        (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat        << "][ 0 <= o <= 1   ]" << std::endl;  // NOLINT
+  *stream << "       -o o  : output format        (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat        << "][ 0 <= o <= 2   ]" << std::endl;  // NOLINT
   *stream << "                 0 (sine)" << std::endl;
   *stream << "                 1 (cosine)" << std::endl;
+  *stream << "                 2 (sawtooth)" << std::endl;
+  *stream << "       -u u  : value on unvoiced    (double)[" << std::setw(5) << std::right << kDefaultUnvoicedValue       << "][   <= u <=     ]" << std::endl;  // NOLINT
+  *stream << "               region" << std::endl;
   *stream << "       -s    : strictly drop signal (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultStrictFlag) << "]" << std::endl;  // NOLINT
   *stream << "               in unvoiced region" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
@@ -77,6 +81,9 @@ void PrintUsage(std::ostream* stream) {
  *   - output format
  *     \arg @c 0 sine
  *     \arg @c 1 cosine
+ *     \arg @c 2 sawtooth
+ * - @b -u @e double
+ *   - value on unvoiced region
  * - @b -s
  *   - strictly drop sinusoidal in unvoiced region
  * - @b infile @e str
@@ -98,10 +105,11 @@ int main(int argc, char* argv[]) {
   int frame_period(kDefaultFramePeriod);
   int interpolation_period(kDefaultInterpolationPeriod);
   OutputFormats output_format(kDefaultOutputFormat);
+  double unvoiced_value(kDefaultUnvoicedValue);
   bool strict(kDefaultStrictFlag);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "p:i:o:sh", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "p:i:o:u:sh", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -140,6 +148,15 @@ int main(int argc, char* argv[]) {
           return 1;
         }
         output_format = static_cast<OutputFormats>(tmp);
+        break;
+      }
+      case 'u': {
+        if (!sptk::ConvertStringToDouble(optarg, &unvoiced_value)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -u option must be a number";
+          sptk::PrintErrorMessage("pitch2sin", error_message);
+          return 1;
+        }
         break;
       }
       case 's': {
@@ -205,22 +222,23 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  sptk::SinusoidalGeneration sinusoidal_generation(
-      strict, &input_source_interpolation_with_magic_number);
-  if (!sinusoidal_generation.IsValid()) {
+  sptk::PeriodicWaveformGeneration waveform_generation(
+      unvoiced_value, strict, &input_source_interpolation_with_magic_number);
+  if (!waveform_generation.IsValid()) {
     std::ostringstream error_message;
-    error_message << "Failed to initialize SinusoidalGeneration";
+    error_message << "Failed to initialize PeriodicWaveformGeneration";
     sptk::PrintErrorMessage("pitch2sin", error_message);
     return 1;
   }
 
-  double sinusoidal;
-  while (sinusoidal_generation.Get(
-      kSine == output_format ? &sinusoidal : NULL,
-      kCosine == output_format ? &sinusoidal : NULL, NULL)) {
-    if (!sptk::WriteStream(sinusoidal, &std::cout)) {
+  double signal;
+  while (waveform_generation.Get(kSine == output_format ? &signal : NULL,
+                                 kCosine == output_format ? &signal : NULL,
+                                 kSawtooth == output_format ? &signal : NULL,
+                                 NULL)) {
+    if (!sptk::WriteStream(signal, &std::cout)) {
       std::ostringstream error_message;
-      error_message << "Failed to write sinusoidal";
+      error_message << "Failed to write a periodic waveform";
       sptk::PrintErrorMessage("pitch2sin", error_message);
       return 1;
     }
