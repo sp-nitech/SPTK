@@ -70,9 +70,9 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -u u  : value on unvoiced region      (double)[" << std::setw(5) << std::right << kDefaultUnvoicedValue    << "][      <= u <=       ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       waveform                                      (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       waveform                              (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       pitch mark                                    (double)" << std::endl;  // NOLINT
+  *stream << "       pitch mark                            (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
   *stream << "       if t is raised, the number of pitch marks increase" << std::endl;  // NOLINT
   *stream << "       the value of t should be in the recommended range but values outside the range can be given" << std::endl;  // NOLINT
