@@ -14,16 +14,18 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include "SPTK/generation/sinusoidal_generation.h"
+#include "SPTK/generation/periodic_waveform_generation.h"
 
 #include <cmath>   // std::cos, std::sin
 #include <vector>  // std::vector
 
 namespace sptk {
 
-SinusoidalGeneration::SinusoidalGeneration(
-    bool strict, InputSourceInterpolationWithMagicNumber* input_source)
-    : strict_(strict),
+PeriodicWaveformGeneration::PeriodicWaveformGeneration(
+    double unvoiced_value, bool strict,
+    InputSourceInterpolationWithMagicNumber* input_source)
+    : unvoiced_value_(unvoiced_value),
+      strict_(strict),
       input_source_(input_source),
       is_valid_(true),
       phase_(0.0),
@@ -35,7 +37,8 @@ SinusoidalGeneration::SinusoidalGeneration(
   }
 }
 
-bool SinusoidalGeneration::Get(double* sin, double* cos, double* pitch) {
+bool PeriodicWaveformGeneration::Get(double* sin, double* cos, double* sawtooth,
+                                     double* pitch) {
   if (!is_valid_) {
     return false;
   }
@@ -64,10 +67,13 @@ bool SinusoidalGeneration::Get(double* sin, double* cos, double* pitch) {
   if (input_source_->GetMagicNumber() == pitch_in_current_point) {
     phase_ = 0.0;
     if (sin) {
-      *sin = 0.0;
+      *sin = unvoiced_value_;
     }
     if (cos) {
-      *cos = 0.0;
+      *cos = unvoiced_value_;
+    }
+    if (sawtooth) {
+      *sawtooth = unvoiced_value_;
     }
     return true;
   }
@@ -77,6 +83,9 @@ bool SinusoidalGeneration::Get(double* sin, double* cos, double* pitch) {
   }
   if (cos) {
     *cos = std::cos(phase_);
+  }
+  if (sawtooth) {
+    *sawtooth = phase_ / sptk::kPi - 1.0;
   }
 
   if (!strict_) {

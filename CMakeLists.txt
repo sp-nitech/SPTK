@@ -143,8 +143,8 @@ set(CC_SOURCES
     ${SOURCE_DIR}/generation/m_sequence_generation.cc
     ${SOURCE_DIR}/generation/nonrecursive_maximum_likelihood_parameter_generation.cc
     ${SOURCE_DIR}/generation/normal_distributed_random_value_generation.cc
+    ${SOURCE_DIR}/generation/periodic_waveform_generation.cc
     ${SOURCE_DIR}/generation/recursive_maximum_likelihood_parameter_generation.cc
-    ${SOURCE_DIR}/generation/sinusoidal_generation.cc
     ${SOURCE_DIR}/input/input_source_delay.cc
     ${SOURCE_DIR}/input/input_source_filling_magic_number.cc
     ${SOURCE_DIR}/input/input_source_from_array.cc
