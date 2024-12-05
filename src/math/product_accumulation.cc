@@ -57,7 +57,8 @@ bool ProductAccumulation::GetProduct(const ProductAccumulation::Buffer& buffer,
 
   if (numerically_stable_) {
     std::transform(buffer.interim_.begin(), buffer.interim_.end(),
-                   product->begin(), [](double x) { return std::exp(x - 1.0); });
+                   product->begin(),
+                   [](double x) { return std::exp(x - 1.0); });
   } else {
     std::copy(buffer.interim_.begin(), buffer.interim_.end(), product->begin());
   }

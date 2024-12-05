@@ -282,7 +282,7 @@ bool StatisticsAccumulation::Run(const std::vector<double>& data,
   if (2 <= num_statistics_order_ &&
       buffer->second_order_statistics_.GetNumDimension() !=
           static_cast<int>(length)) {
-    buffer->second_order_statistics_.Resize(length);
+    buffer->second_order_statistics_.Resize(static_cast<int>(length));
   }
   if (numerically_stable_ && buffer->delta_.size() != length) {
     buffer->delta_.resize(length);
@@ -376,7 +376,7 @@ bool StatisticsAccumulation::Merge(
   const double n(static_cast<double>(num_data));
   const double mpn(m + n);
   const double mn(m * n);
-  buffer->zeroth_order_statistics_ = mpn;
+  buffer->zeroth_order_statistics_ += num_data;
 
   // Merge 2nd order statistics.
   if (!second.Empty()) {
