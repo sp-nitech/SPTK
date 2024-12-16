@@ -20,7 +20,7 @@ JOBS               := 4
 
 all: check doxygen.done
 
-check: venv_dev bats.done shellcheck.done sptk.done
+check: sptk.done
 
 venv:
 	@if type virtualenv > /dev/null 2>&1; then \
