@@ -18,6 +18,7 @@
 #define SPTK_UTILS_UINT24_T_H_
 
 #include <cstdint>  // std::uint8_t
+#include <limits>   // std::numeric_limits
 
 namespace sptk {
 
@@ -175,5 +176,22 @@ class uint24_t {
 };
 
 }  // namespace sptk
+
+namespace std {
+
+template <>
+struct numeric_limits<sptk::uint24_t> {
+  static const bool is_specialized = true;
+
+  static sptk::uint24_t min() {
+    return sptk::uint24_t(0);
+  }
+
+  static sptk::uint24_t max() {
+    return sptk::uint24_t(sptk::UINT24_MAX);
+  }
+};
+
+}  // namespace std
 
 #endif  // SPTK_UTILS_UINT24_T_H_
