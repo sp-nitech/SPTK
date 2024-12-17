@@ -655,7 +655,7 @@ class DataTransformWrapper {
       data_transform_ = new DataTransform<std::uint8_t, std::int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output,
-          std::numeric_limits<std::uint8_t>::min(),
+          std::int8_t(std::numeric_limits<std::uint8_t>::min()),
           std::numeric_limits<std::int8_t>::max());
     } else if ("C" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<std::uint8_t, std::int16_t>(
@@ -716,13 +716,13 @@ class DataTransformWrapper {
       data_transform_ = new DataTransform<std::uint16_t, std::int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output,
-          std::numeric_limits<std::uint16_t>::min(),
+          std::int8_t(std::numeric_limits<std::uint16_t>::min()),
           std::numeric_limits<std::int8_t>::max());
     } else if ("S" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<std::uint16_t, std::int16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output,
-          std::numeric_limits<std::uint16_t>::min(),
+          std::int16_t(std::numeric_limits<std::uint16_t>::min()),
           std::numeric_limits<std::int16_t>::max());
     } else if ("S" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<std::uint16_t, sptk::int24_t>(
@@ -781,13 +781,13 @@ class DataTransformWrapper {
       data_transform_ = new DataTransform<sptk::uint24_t, std::int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output,
-          std::numeric_limits<sptk::uint24_t>::min(),
+          std::int8_t(std::numeric_limits<sptk::uint24_t>::min()),
           std::numeric_limits<std::int8_t>::max());
     } else if ("H" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, std::int16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output,
-          std::numeric_limits<sptk::uint24_t>::min(),
+          std::int16_t(std::numeric_limits<sptk::uint24_t>::min()),
           std::numeric_limits<std::int16_t>::max());
     } else if ("H" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<sptk::uint24_t, sptk::int24_t>(
@@ -849,13 +849,13 @@ class DataTransformWrapper {
       data_transform_ = new DataTransform<std::uint32_t, std::int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output,
-          std::numeric_limits<std::uint32_t>::min(),
+          std::int8_t(std::numeric_limits<std::uint32_t>::min()),
           std::numeric_limits<std::int8_t>::max());
     } else if ("I" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<std::uint32_t, std::int16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output,
-          std::numeric_limits<std::uint32_t>::min(),
+          std::int16_t(std::numeric_limits<std::uint32_t>::min()),
           std::numeric_limits<std::int16_t>::max());
     } else if ("I" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<std::uint32_t, sptk::int24_t>(
@@ -867,7 +867,7 @@ class DataTransformWrapper {
       data_transform_ = new DataTransform<std::uint32_t, std::int32_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output,
-          std::numeric_limits<std::uint32_t>::min(),
+          std::int32_t(std::numeric_limits<std::uint32_t>::min()),
           std::numeric_limits<std::int32_t>::max());
     } else if ("I" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<std::uint32_t, std::int64_t>(
@@ -922,13 +922,13 @@ class DataTransformWrapper {
       data_transform_ = new DataTransform<std::uint64_t, std::int8_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output,
-          std::numeric_limits<std::uint64_t>::min(),
+          std::int8_t(std::numeric_limits<std::uint64_t>::min()),
           std::numeric_limits<std::int8_t>::max());
     } else if ("L" == input_data_type && "s" == output_data_type) {
       data_transform_ = new DataTransform<std::uint64_t, std::int16_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output,
-          std::numeric_limits<std::uint64_t>::min(),
+          std::int16_t(std::numeric_limits<std::uint64_t>::min()),
           std::numeric_limits<std::int16_t>::max());
     } else if ("L" == input_data_type && "h" == output_data_type) {
       data_transform_ = new DataTransform<std::uint64_t, sptk::int24_t>(
@@ -940,13 +940,13 @@ class DataTransformWrapper {
       data_transform_ = new DataTransform<std::uint64_t, std::int32_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output,
-          std::numeric_limits<std::uint64_t>::min(),
+          std::int32_t(std::numeric_limits<std::uint64_t>::min()),
           std::numeric_limits<std::int32_t>::max());
     } else if ("L" == input_data_type && "l" == output_data_type) {
       data_transform_ = new DataTransform<std::uint64_t, std::int64_t>(
           print_format, num_column, input_numeric_type, warning_type, rounding,
           is_ascii_input, is_ascii_output,
-          std::numeric_limits<std::uint64_t>::min(),
+          std::int64_t(std::numeric_limits<std::uint64_t>::min()),
           std::numeric_limits<std::int64_t>::max());
     } else if ("L" == input_data_type && "C" == output_data_type) {
       data_transform_ = new DataTransform<std::uint64_t, std::uint8_t>(

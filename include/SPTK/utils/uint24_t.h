@@ -27,6 +27,7 @@ static const int UINT24_MAX(16777215);
 class uint24_t {
  public:
   uint24_t() {
+    *this = 0;
   }
 
   template <typename T>

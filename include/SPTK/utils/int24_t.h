@@ -28,6 +28,7 @@ static const int INT24_MIN(-8388608);
 class int24_t {
  public:
   int24_t() {
+    *this = 0;
   }
 
   template <typename T>
