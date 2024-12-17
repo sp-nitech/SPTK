@@ -538,7 +538,7 @@ template bool ReadStream<int24_t>(int24_t*, std::istream*);
 template bool ReadStream<std::int32_t>(std::int32_t*, std::istream*);
 template bool ReadStream<std::int64_t>(std::int64_t*, std::istream*);
 template bool ReadStream<std::uint8_t>(std::uint8_t*, std::istream*);
-template bool ReadStream<std::uint16_t>(uint16_t*, std::istream*);
+template bool ReadStream<std::uint16_t>(std::uint16_t*, std::istream*);
 template bool ReadStream<uint24_t>(uint24_t*, std::istream*);
 template bool ReadStream<std::uint32_t>(std::uint32_t*, std::istream*);
 template bool ReadStream<std::uint64_t>(std::uint64_t*, std::istream*);
