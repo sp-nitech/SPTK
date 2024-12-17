@@ -24,12 +24,12 @@
 
 namespace {
 
-uint64_t CalculateBinomialCoefficient(int n, int k) {
+std::uint64_t CalculateBinomialCoefficient(int n, int k) {
   if (0 == k || n == k) {
     return 1;
   }
 
-  std::vector<uint64_t> buffer(n);
+  std::vector<std::uint64_t> buffer(n);
   for (int i(0); i < n; ++i) {
     buffer[i] = 1;
     for (int j(i - 1); 0 < j; --j) {
@@ -114,7 +114,8 @@ bool AutocorrelationToCompositeSinusoidalModeling::Run(
     for (int l(0); l < length; ++l) {
       long double sum(0.0);
       for (int k(0); k <= l; ++k) {
-        const uint64_t binomial_coefficient(CalculateBinomialCoefficient(l, k));
+        const std::uint64_t binomial_coefficient(
+            CalculateBinomialCoefficient(l, k));
         const int index((l < 2 * k) ? (2 * k - l) : (l - 2 * k));
         sum += (binomial_coefficient)*input[index];
       }

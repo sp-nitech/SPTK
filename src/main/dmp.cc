@@ -14,6 +14,7 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
+#include <cstdint>   // std::int8_t, std::int16_t, std::int32_t, etc.
 #include <cstring>   // std::strncmp
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
@@ -122,43 +123,43 @@ class DataDumpWrapper {
     if ("c" == data_type) {
       if (print_format.empty()) print_format = "%d";
       data_dump_ =
-          new DataDump<int8_t>(print_format, minimum_index, maximum_index);
+          new DataDump<std::int8_t>(print_format, minimum_index, maximum_index);
     } else if ("s" == data_type) {
       if (print_format.empty()) print_format = "%d";
-      data_dump_ =
-          new DataDump<int16_t>(print_format, minimum_index, maximum_index);
+      data_dump_ = new DataDump<std::int16_t>(print_format, minimum_index,
+                                              maximum_index);
     } else if ("h" == data_type) {
       if (print_format.empty()) print_format = "%d";
       data_dump_ = new DataDump<sptk::int24_t>(print_format, minimum_index,
                                                maximum_index);
     } else if ("i" == data_type) {
       if (print_format.empty()) print_format = "%d";
-      data_dump_ =
-          new DataDump<int32_t>(print_format, minimum_index, maximum_index);
+      data_dump_ = new DataDump<std::int32_t>(print_format, minimum_index,
+                                              maximum_index);
     } else if ("l" == data_type) {
       if (print_format.empty()) print_format = "%lld";
-      data_dump_ =
-          new DataDump<int64_t>(print_format, minimum_index, maximum_index);
+      data_dump_ = new DataDump<std::int64_t>(print_format, minimum_index,
+                                              maximum_index);
     } else if ("C" == data_type) {
       if (print_format.empty()) print_format = "%u";
-      data_dump_ =
-          new DataDump<uint8_t>(print_format, minimum_index, maximum_index);
+      data_dump_ = new DataDump<std::uint8_t>(print_format, minimum_index,
+                                              maximum_index);
     } else if ("S" == data_type) {
       if (print_format.empty()) print_format = "%u";
-      data_dump_ =
-          new DataDump<uint16_t>(print_format, minimum_index, maximum_index);
+      data_dump_ = new DataDump<std::uint16_t>(print_format, minimum_index,
+                                               maximum_index);
     } else if ("H" == data_type) {
       if (print_format.empty()) print_format = "%u";
       data_dump_ = new DataDump<sptk::uint24_t>(print_format, minimum_index,
                                                 maximum_index);
     } else if ("I" == data_type) {
       if (print_format.empty()) print_format = "%u";
-      data_dump_ =
-          new DataDump<uint32_t>(print_format, minimum_index, maximum_index);
+      data_dump_ = new DataDump<std::uint32_t>(print_format, minimum_index,
+                                               maximum_index);
     } else if ("L" == data_type) {
       if (print_format.empty()) print_format = "%llu";
-      data_dump_ =
-          new DataDump<uint64_t>(print_format, minimum_index, maximum_index);
+      data_dump_ = new DataDump<std::uint64_t>(print_format, minimum_index,
+                                               maximum_index);
     } else if ("f" == data_type) {
       if (print_format.empty()) print_format = "%g";
       data_dump_ =

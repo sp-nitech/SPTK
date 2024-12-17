@@ -16,9 +16,10 @@
 
 #include "SPTK/analysis/pitch_extraction_by_reaper.h"
 
+#include <stdint.h>  // int16_t, int32_t
+
 #include <algorithm>  // std::copy, std::fill, std::transform
 #include <cmath>      // std::ceil
-#include <cstdint>    // int16_t
 #include <vector>     // std::vector
 
 #include "REAPER/epoch_tracker/epoch_tracker.h"

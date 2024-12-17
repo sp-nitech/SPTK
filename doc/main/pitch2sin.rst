@@ -9,5 +9,5 @@ pitch2sin
 
     :ref:`pitch` :ref:`excite`
 
-.. doxygenclass:: sptk::SinusoidalGeneration
+.. doxygenclass:: sptk::PeriodicWaveformGeneration
     :members:

@@ -15,7 +15,7 @@
 // ------------------------------------------------------------------------ //
 
 #include <algorithm>  // std::reverse
-#include <cstdint>    // int16_t, int32_t, int64_t, etc.
+#include <cstdint>    // std::int16_t, std::int32_t, std::int64_t, etc.
 #include <cstdio>     // EOF
 #include <cstring>    // std::strncmp
 #include <fstream>    // std::ifstream
@@ -138,29 +138,29 @@ class ByteSwapWrapper {
                   int start_offset, int end_address, int end_offset)
       : byte_swap_(NULL) {
     if ("s" == data_type) {
-      byte_swap_ = new ByteSwap<int16_t>(start_address, start_offset,
-                                         end_address, end_offset);
+      byte_swap_ = new ByteSwap<std::int16_t>(start_address, start_offset,
+                                              end_address, end_offset);
     } else if ("h" == data_type) {
       byte_swap_ = new ByteSwap<sptk::int24_t>(start_address, start_offset,
                                                end_address, end_offset);
     } else if ("i" == data_type) {
-      byte_swap_ = new ByteSwap<int32_t>(start_address, start_offset,
-                                         end_address, end_offset);
+      byte_swap_ = new ByteSwap<std::int32_t>(start_address, start_offset,
+                                              end_address, end_offset);
     } else if ("l" == data_type) {
-      byte_swap_ = new ByteSwap<int64_t>(start_address, start_offset,
-                                         end_address, end_offset);
+      byte_swap_ = new ByteSwap<std::int64_t>(start_address, start_offset,
+                                              end_address, end_offset);
     } else if ("S" == data_type) {
-      byte_swap_ = new ByteSwap<uint16_t>(start_address, start_offset,
-                                          end_address, end_offset);
+      byte_swap_ = new ByteSwap<std::uint16_t>(start_address, start_offset,
+                                               end_address, end_offset);
     } else if ("H" == data_type) {
       byte_swap_ = new ByteSwap<sptk::uint24_t>(start_address, start_offset,
                                                 end_address, end_offset);
     } else if ("I" == data_type) {
-      byte_swap_ = new ByteSwap<uint32_t>(start_address, start_offset,
-                                          end_address, end_offset);
+      byte_swap_ = new ByteSwap<std::uint32_t>(start_address, start_offset,
+                                               end_address, end_offset);
     } else if ("L" == data_type) {
-      byte_swap_ = new ByteSwap<uint64_t>(start_address, start_offset,
-                                          end_address, end_offset);
+      byte_swap_ = new ByteSwap<std::uint64_t>(start_address, start_offset,
+                                               end_address, end_offset);
     } else if ("f" == data_type) {
       byte_swap_ = new ByteSwap<float>(start_address, start_offset, end_address,
                                        end_offset);

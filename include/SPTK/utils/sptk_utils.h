@@ -36,7 +36,7 @@
 namespace sptk {
 
 //! Version of SPTK.
-static const char* const kVersion("4.2");
+static const char* const kVersion("4.3");
 //! @f$\pi@f$
 static const double kPi(3.141592653589793);
 //! @f$2\pi@f$

@@ -17,7 +17,7 @@
 #include "SPTK/analysis/mel_filter_bank_analysis.h"
 
 #include <algorithm>  // std::fill, std::max, std::min
-#include <cmath>      // std::expm1, std::log1p, std::sqrt
+#include <cmath>      // std::expm1, std::log, std::log1p, std::sqrt
 #include <cstddef>    // std::size_t
 #include <numeric>    // std::accumulate
 #include <vector>     // std::vector

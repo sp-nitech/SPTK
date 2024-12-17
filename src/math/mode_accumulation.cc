@@ -38,7 +38,8 @@ bool ModeAccumulation::GetMode(int rank, const ModeAccumulation::Buffer& buffer,
     return false;
   }
 
-  std::map<int, double>::const_reverse_iterator itr(buffer.maximum_.rbegin());
+  std::multimap<int, double>::const_reverse_iterator itr(
+      buffer.maximum_.rbegin());
   std::advance(itr, rank - 1);
   if (NULL != value) {
     *value = itr->second;

@@ -16,7 +16,8 @@
 
 #include "SPTK/generation/normal_distributed_random_value_generation.h"
 
-#include <cmath>  // std::log, std::sqrt
+#include <cmath>    // std::log, std::sqrt
+#include <cstdint>  // std::uint64_t
 
 namespace {
 

@@ -14,7 +14,7 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <cstdint>   // int8_t, int16_t, int32_t, int64_t, etc.
+#include <cstdint>   // std::int8_t, std::int16_t, std::int32_t, etc.
 #include <cstring>   // std::strncmp
 #include <fstream>   // std::ifstream
 #include <iomanip>   // std::setw
@@ -127,34 +127,34 @@ class BinaryCutWrapper {
       : binary_cut_(NULL) {
     if ("c" == data_type) {
       binary_cut_ =
-          new BinaryCut<int8_t>(start_number, end_number, block_length);
+          new BinaryCut<std::int8_t>(start_number, end_number, block_length);
     } else if ("s" == data_type) {
       binary_cut_ =
-          new BinaryCut<int16_t>(start_number, end_number, block_length);
+          new BinaryCut<std::int16_t>(start_number, end_number, block_length);
     } else if ("h" == data_type) {
       binary_cut_ =
           new BinaryCut<sptk::int24_t>(start_number, end_number, block_length);
     } else if ("i" == data_type) {
       binary_cut_ =
-          new BinaryCut<int32_t>(start_number, end_number, block_length);
+          new BinaryCut<std::int32_t>(start_number, end_number, block_length);
     } else if ("l" == data_type) {
       binary_cut_ =
-          new BinaryCut<int64_t>(start_number, end_number, block_length);
+          new BinaryCut<std::int64_t>(start_number, end_number, block_length);
     } else if ("C" == data_type) {
       binary_cut_ =
-          new BinaryCut<uint8_t>(start_number, end_number, block_length);
+          new BinaryCut<std::uint8_t>(start_number, end_number, block_length);
     } else if ("S" == data_type) {
       binary_cut_ =
-          new BinaryCut<uint16_t>(start_number, end_number, block_length);
+          new BinaryCut<std::uint16_t>(start_number, end_number, block_length);
     } else if ("H" == data_type) {
       binary_cut_ =
           new BinaryCut<sptk::uint24_t>(start_number, end_number, block_length);
     } else if ("I" == data_type) {
       binary_cut_ =
-          new BinaryCut<uint32_t>(start_number, end_number, block_length);
+          new BinaryCut<std::uint32_t>(start_number, end_number, block_length);
     } else if ("L" == data_type) {
       binary_cut_ =
-          new BinaryCut<uint64_t>(start_number, end_number, block_length);
+          new BinaryCut<std::uint64_t>(start_number, end_number, block_length);
     } else if ("f" == data_type) {
       binary_cut_ =
           new BinaryCut<float>(start_number, end_number, block_length);
