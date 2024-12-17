@@ -24,7 +24,7 @@ MuLawCompression::MuLawCompression(double abs_max_value,
                                    double compression_factor)
     : abs_max_value_(abs_max_value),
       compression_factor_(compression_factor),
-      constant_(abs_max_value_ / std::log(1.0 + compression_factor_)),
+      constant_(abs_max_value_ / std::log1p(compression_factor_)),
       is_valid_(true) {
   if (abs_max_value_ <= 0.0 || compression_factor_ <= 0.0) {
     is_valid_ = false;
