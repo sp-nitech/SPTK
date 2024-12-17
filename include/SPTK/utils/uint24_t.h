@@ -17,7 +17,7 @@
 #ifndef SPTK_UTILS_UINT24_T_H_
 #define SPTK_UTILS_UINT24_T_H_
 
-#include <cstdint>  // uint8_t
+#include <cstdint>  // std::uint8_t
 
 namespace sptk {
 
@@ -52,9 +52,9 @@ class uint24_t {
   }
 
   uint24_t& operator=(int input) {
-    value[0] = (reinterpret_cast<uint8_t*>(&input))[0];
-    value[1] = (reinterpret_cast<uint8_t*>(&input))[1];
-    value[2] = (reinterpret_cast<uint8_t*>(&input))[2];
+    value[0] = (reinterpret_cast<std::uint8_t*>(&input))[0];
+    value[1] = (reinterpret_cast<std::uint8_t*>(&input))[1];
+    value[2] = (reinterpret_cast<std::uint8_t*>(&input))[2];
     return *this;
   }
 
@@ -171,7 +171,7 @@ class uint24_t {
   }
 
  protected:
-  uint8_t value[3];
+  std::uint8_t value[3];
 };
 
 }  // namespace sptk

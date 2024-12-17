@@ -189,7 +189,7 @@ int main(int argc, char* argv[]) {
   }
   std::istream& input_stream(ifs.is_open() ? ifs : std::cin);
 
-  uint8_t data;
+  std::uint8_t data;
   std::ostringstream stored_characters;
 
   for (int index(start_index); sptk::ReadStream(&data, &input_stream);

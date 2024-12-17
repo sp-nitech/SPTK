@@ -15,7 +15,7 @@
 // ------------------------------------------------------------------------ //
 
 #include <algorithm>  // std::copy
-#include <cstdint>    // int8_t, int16_t, int32_t, int64_t, etc.
+#include <cstdint>    // std::int8_t, std::int16_t, std::int32_t, etc.
 #include <cstring>    // std::strncmp
 #include <fstream>    // std::ifstream
 #include <iomanip>    // std::setw
@@ -184,45 +184,45 @@ class VectorMergeWrapper {
                      bool overwrite_mode, std::istream* insert_stream)
       : merge_(NULL) {
     if ("c" == data_type) {
-      merge_ =
-          new VectorMerge<int8_t>(insert_point, input_length, insert_length,
-                                  recursive, overwrite_mode, insert_stream);
+      merge_ = new VectorMerge<std::int8_t>(insert_point, input_length,
+                                            insert_length, recursive,
+                                            overwrite_mode, insert_stream);
     } else if ("s" == data_type) {
-      merge_ =
-          new VectorMerge<int16_t>(insert_point, input_length, insert_length,
-                                   recursive, overwrite_mode, insert_stream);
+      merge_ = new VectorMerge<std::int16_t>(insert_point, input_length,
+                                             insert_length, recursive,
+                                             overwrite_mode, insert_stream);
     } else if ("h" == data_type) {
       merge_ = new VectorMerge<sptk::int24_t>(insert_point, input_length,
                                               insert_length, recursive,
                                               overwrite_mode, insert_stream);
     } else if ("i" == data_type) {
-      merge_ =
-          new VectorMerge<int32_t>(insert_point, input_length, insert_length,
-                                   recursive, overwrite_mode, insert_stream);
+      merge_ = new VectorMerge<std::int32_t>(insert_point, input_length,
+                                             insert_length, recursive,
+                                             overwrite_mode, insert_stream);
     } else if ("l" == data_type) {
-      merge_ =
-          new VectorMerge<int64_t>(insert_point, input_length, insert_length,
-                                   recursive, overwrite_mode, insert_stream);
+      merge_ = new VectorMerge<std::int64_t>(insert_point, input_length,
+                                             insert_length, recursive,
+                                             overwrite_mode, insert_stream);
     } else if ("C" == data_type) {
-      merge_ =
-          new VectorMerge<uint8_t>(insert_point, input_length, insert_length,
-                                   recursive, overwrite_mode, insert_stream);
+      merge_ = new VectorMerge<std::uint8_t>(insert_point, input_length,
+                                             insert_length, recursive,
+                                             overwrite_mode, insert_stream);
     } else if ("S" == data_type) {
-      merge_ =
-          new VectorMerge<uint16_t>(insert_point, input_length, insert_length,
-                                    recursive, overwrite_mode, insert_stream);
+      merge_ = new VectorMerge<std::uint16_t>(insert_point, input_length,
+                                              insert_length, recursive,
+                                              overwrite_mode, insert_stream);
     } else if ("H" == data_type) {
       merge_ = new VectorMerge<sptk::uint24_t>(insert_point, input_length,
                                                insert_length, recursive,
                                                overwrite_mode, insert_stream);
     } else if ("I" == data_type) {
-      merge_ =
-          new VectorMerge<uint32_t>(insert_point, input_length, insert_length,
-                                    recursive, overwrite_mode, insert_stream);
+      merge_ = new VectorMerge<std::uint32_t>(insert_point, input_length,
+                                              insert_length, recursive,
+                                              overwrite_mode, insert_stream);
     } else if ("L" == data_type) {
-      merge_ =
-          new VectorMerge<uint64_t>(insert_point, input_length, insert_length,
-                                    recursive, overwrite_mode, insert_stream);
+      merge_ = new VectorMerge<std::uint64_t>(insert_point, input_length,
+                                              insert_length, recursive,
+                                              overwrite_mode, insert_stream);
     } else if ("f" == data_type) {
       merge_ = new VectorMerge<float>(insert_point, input_length, insert_length,
                                       recursive, overwrite_mode, insert_stream);
