@@ -16,7 +16,7 @@
 
 #include "SPTK/compression/a_law_expansion.h"
 
-#include <cmath>  // std::exp, std::fabs, std::pow
+#include <cmath>  // std::exp, std::fabs, std::log
 
 namespace sptk {
 

@@ -15,7 +15,7 @@
 // ------------------------------------------------------------------------ //
 
 #include <algorithm>  // std::max
-#include <cstdint>    // int8_t, int16_t, int32_t, int64_t, etc.
+#include <cstdint>    // std::int8_t, std::int16_t, std::int32_t, etc.
 #include <cstring>    // std::strncmp
 #include <fstream>    // std::ifstream
 #include <iomanip>    // std::setprecision, std::setw
@@ -189,11 +189,11 @@ class BlockCopyWrapper {
                    double pad_value)
       : block_copy_(NULL) {
     if ("c" == data_type) {
-      block_copy_ = new BlockCopy<int8_t>(
+      block_copy_ = new BlockCopy<std::int8_t>(
           input_start_number, input_end_number, input_block_length,
           output_start_number, output_block_length, pad_value);
     } else if ("s" == data_type) {
-      block_copy_ = new BlockCopy<int16_t>(
+      block_copy_ = new BlockCopy<std::int16_t>(
           input_start_number, input_end_number, input_block_length,
           output_start_number, output_block_length, pad_value);
     } else if ("h" == data_type) {
@@ -201,19 +201,19 @@ class BlockCopyWrapper {
           input_start_number, input_end_number, input_block_length,
           output_start_number, output_block_length, sptk::int24_t(pad_value));
     } else if ("i" == data_type) {
-      block_copy_ = new BlockCopy<int32_t>(
+      block_copy_ = new BlockCopy<std::int32_t>(
           input_start_number, input_end_number, input_block_length,
           output_start_number, output_block_length, pad_value);
     } else if ("l" == data_type) {
-      block_copy_ = new BlockCopy<int64_t>(
+      block_copy_ = new BlockCopy<std::int64_t>(
           input_start_number, input_end_number, input_block_length,
           output_start_number, output_block_length, pad_value);
     } else if ("C" == data_type) {
-      block_copy_ = new BlockCopy<uint8_t>(
+      block_copy_ = new BlockCopy<std::uint8_t>(
           input_start_number, input_end_number, input_block_length,
           output_start_number, output_block_length, pad_value);
     } else if ("S" == data_type) {
-      block_copy_ = new BlockCopy<uint16_t>(
+      block_copy_ = new BlockCopy<std::uint16_t>(
           input_start_number, input_end_number, input_block_length,
           output_start_number, output_block_length, pad_value);
     } else if ("H" == data_type) {
@@ -221,11 +221,11 @@ class BlockCopyWrapper {
           input_start_number, input_end_number, input_block_length,
           output_start_number, output_block_length, sptk::uint24_t(pad_value));
     } else if ("I" == data_type) {
-      block_copy_ = new BlockCopy<uint32_t>(
+      block_copy_ = new BlockCopy<std::uint32_t>(
           input_start_number, input_end_number, input_block_length,
           output_start_number, output_block_length, pad_value);
     } else if ("L" == data_type) {
-      block_copy_ = new BlockCopy<uint64_t>(
+      block_copy_ = new BlockCopy<std::uint64_t>(
           input_start_number, input_end_number, input_block_length,
           output_start_number, output_block_length, pad_value);
     } else if ("f" == data_type) {
