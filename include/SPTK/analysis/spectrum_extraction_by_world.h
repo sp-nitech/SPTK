@@ -33,9 +33,10 @@ class SpectrumExtractionByWorld : public SpectrumExtractionInterface {
    * @param[in] fft_length FFT length.
    * @param[in] frame_shift Frame shift in point.
    * @param[in] sampling_rate Sampling rate in Hz.
+   * @param[in] f0_refinement Whether to refine F0.
    */
   SpectrumExtractionByWorld(int fft_length, int frame_shift,
-                            double sampling_rate);
+                            double sampling_rate, bool f0_refinement);
 
   ~SpectrumExtractionByWorld() override {
   }
@@ -81,6 +82,7 @@ class SpectrumExtractionByWorld : public SpectrumExtractionInterface {
   const int fft_length_;
   const int frame_shift_;
   const double sampling_rate_;
+  const bool f0_refinement_;
 
   bool is_valid_;
 

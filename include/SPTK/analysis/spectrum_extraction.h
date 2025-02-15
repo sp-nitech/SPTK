@@ -45,10 +45,11 @@ class SpectrumExtraction {
    * @param[in] fft_length FFT length.
    * @param[in] frame_shift Frame shift in point.
    * @param[in] sampling_rate Sampling rate in Hz.
+   * @param[in] f0_refinement Whether to refine F0.
    * @param[in] algorithm Algorithm used for spectrum extraction.
    */
   SpectrumExtraction(int fft_length, int frame_shift, double sampling_rate,
-                     Algorithms algorithm);
+                     bool f0_refinement, Algorithms algorithm);
 
   virtual ~SpectrumExtraction() {
     delete spectrum_extraction_;

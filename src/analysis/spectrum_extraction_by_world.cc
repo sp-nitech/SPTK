@@ -27,10 +27,12 @@ namespace sptk {
 
 SpectrumExtractionByWorld::SpectrumExtractionByWorld(int fft_length,
                                                      int frame_shift,
-                                                     double sampling_rate)
+                                                     double sampling_rate,
+                                                     bool f0_refinement)
     : fft_length_(fft_length),
       frame_shift_(frame_shift),
       sampling_rate_(sampling_rate),
+      f0_refinement_(f0_refinement),
       is_valid_(true) {
   if (!sptk::IsPowerOfTwo(fft_length_) || fft_length <= 3 ||
       frame_shift_ <= 0 || !sptk::IsInRange(sampling_rate_, 8000.0, 98000.0)) {
@@ -98,14 +100,17 @@ bool SpectrumExtractionByWorld::Run(
 
   // Modify F0 for pitch-adaptive spectrum estimation.
   std::vector<double> modified_f0(f0_length);
-  world::StoneMask(waveform.data(), static_cast<int>(waveform.size()),
-                   static_cast<int>(sampling_rate_), time_axis.data(),
-                   f0.data(), f0_length, modified_f0.data());
+  if (f0_refinement_) {
+    world::StoneMask(waveform.data(), static_cast<int>(waveform.size()),
+                     static_cast<int>(sampling_rate_), time_axis.data(),
+                     f0.data(), f0_length, modified_f0.data());
+  }
 
   // Estimate spectrum.
   world::CheapTrick(waveform.data(), static_cast<int>(waveform.size()),
                     static_cast<int>(sampling_rate_), time_axis.data(),
-                    modified_f0.data(), f0_length, &option, pointers.data());
+                    f0_refinement_ ? modified_f0.data() : f0.data(), f0_length,
+                    &option, pointers.data());
 
   return true;
 }

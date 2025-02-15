@@ -39,6 +39,7 @@ const double kDefaultSamplingRate(16.0);
 const InputFormats kDefaultInputFormat(kPitch);
 const sptk::SpectrumToSpectrum::InputOutputFormats kDefaultOutputFormat(
     sptk::SpectrumToSpectrum::kLogAmplitudeSpectrumInDecibels);
+const bool kDefaultF0Refinement(true);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -63,6 +64,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 1 (ln|H(z)|)" << std::endl;
   *stream << "                 2 (|H(z)|)" << std::endl;
   *stream << "                 3 (|H(z)|^2)" << std::endl;
+  *stream << "       -x    : skip f0 refinement  (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(!kDefaultF0Refinement) << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       waveform                    (double)[stdin]" << std::endl;
@@ -104,6 +106,8 @@ void PrintUsage(std::ostream* stream) {
  *     \arg @c 1 @f$\log |H(z)|@f$
  *     \arg @c 2 @f$|H(z)|@f$
  *     \arg @c 3 @f$|H(z)|^2@f$
+ * - @b -x
+ *   - disable f0 refinement
  * - @b infile @e str
  *   - double-type waveform
  * - @b f0file @e str
@@ -130,9 +134,11 @@ int main(int argc, char* argv[]) {
   InputFormats input_format(kDefaultInputFormat);
   sptk::SpectrumToSpectrum::InputOutputFormats output_format(
       kDefaultOutputFormat);
+  bool f0_refinement(kDefaultF0Refinement);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "a:l:p:s:q:o:h", NULL, NULL));
+    const int option_char(
+        getopt_long(argc, argv, "a:l:p:s:q:o:xh", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -220,6 +226,10 @@ int main(int argc, char* argv[]) {
         }
         output_format =
             static_cast<sptk::SpectrumToSpectrum::InputOutputFormats>(tmp);
+        break;
+      }
+      case 'x': {
+        f0_refinement = false;
         break;
       }
       case 'h': {
@@ -320,8 +330,8 @@ int main(int argc, char* argv[]) {
   }
   if (waveform.empty()) return 0;
 
-  sptk::SpectrumExtraction spectrum_extraction(fft_length, frame_shift,
-                                               sampling_rate_in_hz, algorithm);
+  sptk::SpectrumExtraction spectrum_extraction(
+      fft_length, frame_shift, sampling_rate_in_hz, f0_refinement, algorithm);
   if (!spectrum_extraction.IsValid()) {
     std::ostringstream error_message;
     error_message << "FFT length must be a power of 2";

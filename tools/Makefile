@@ -14,8 +14,8 @@
 # limitations under the License.                                           #
 # ------------------------------------------------------------------------ #
 
-PYTHON_VERSION     := 3.9
-BATS_VERSION       := 1.11.0
+PYTHON_VERSION     := 3.10
+BATS_VERSION       := 1.11.1
 CPPCHECK_VERSION   := 2.16.0
 DOXYGEN_VERSION    := 1.9.1
 SHELLCHECK_VERSION := 0.10.0

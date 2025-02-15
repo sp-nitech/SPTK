@@ -25,12 +25,12 @@
 namespace sptk {
 
 SpectrumExtraction::SpectrumExtraction(
-    int fft_length, int frame_shift, double sampling_rate,
+    int fft_length, int frame_shift, double sampling_rate, bool f0_refinement,
     SpectrumExtraction::Algorithms algorithm) {
   switch (algorithm) {
     case kWorld: {
-      spectrum_extraction_ =
-          new SpectrumExtractionByWorld(fft_length, frame_shift, sampling_rate);
+      spectrum_extraction_ = new SpectrumExtractionByWorld(
+          fft_length, frame_shift, sampling_rate, f0_refinement);
       break;
     }
     default: {
