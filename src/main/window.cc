@@ -34,6 +34,7 @@ enum LocalWindowType {
   kBartlett,
   kTrapezoidal,
   kRectangular,
+  kNuttall,
   kNumWindowTypes
 };
 
@@ -63,6 +64,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 3 (Bartlett)" << std::endl;
   *stream << "                 4 (trapezoidal)" << std::endl;
   *stream << "                 5 (rectangular)" << std::endl;
+  *stream << "                 6 (Nuttall)" << std::endl;
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       data sequence                  (double)[stdin]" << std::endl;  // NOLINT
@@ -96,6 +98,7 @@ void PrintUsage(std::ostream* stream) {
  *     \arg @c 3 Bartlett
  *     \arg @c 4 Trapezoidal
  *     \arg @c 5 Rectangular
+ *     \arg @c 6 Nuttall
  * - @b infile @e str
  *   - double-type data sequence
  * - @b stdout
@@ -254,6 +257,10 @@ int main(int argc, char* argv[]) {
     }
     case kRectangular: {
       window_type = sptk::StandardWindow::kRectangular;
+      break;
+    }
+    case kNuttall: {
+      window_type = sptk::StandardWindow::kNuttall;
       break;
     }
     default: {

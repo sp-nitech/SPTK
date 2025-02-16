@@ -78,7 +78,7 @@ void MakeHanning(bool periodic, std::vector<double>* window) {
 
 void MakeNuttall(bool periodic, std::vector<double>* window) {
   sptk::CosineWindow maker(static_cast<int>(window->size()),
-                           {0.3635819, 0.4891775, 0.1365995, 0.0106411},
+                           {0.355768, 0.487396, 0.144232, 0.012604},
                            periodic);
   *window = maker.Get();
 }
