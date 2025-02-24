@@ -427,6 +427,34 @@ class Tangent : public OperationInterface {
   DISALLOW_COPY_AND_ASSIGN(Tangent);
 };
 
+class Arcsine : public OperationInterface {
+ public:
+  Arcsine() {
+  }
+
+  bool Run(double* number) const override {
+    *number = std::asin(*number);
+    return true;
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(Arcsine);
+};
+
+class Arccosine : public OperationInterface {
+ public:
+  Arccosine() {
+  }
+
+  bool Run(double* number) const override {
+    *number = std::acos(*number);
+    return true;
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(Arccosine);
+};
+
 class Arctangent : public OperationInterface {
  public:
   Arctangent() {
@@ -643,6 +671,16 @@ bool ScalarOperation::AddCosineOperation() {
 
 bool ScalarOperation::AddTangentOperation() {
   modules_.push_back(new OperationPerformer(new Tangent()));
+  return true;
+}
+
+bool ScalarOperation::AddArcsineOperation() {
+  modules_.push_back(new OperationPerformer(new Arcsine()));
+  return true;
+}
+
+bool ScalarOperation::AddArccosineOperation() {
+  modules_.push_back(new OperationPerformer(new Arccosine()));
   return true;
 }
 

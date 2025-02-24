@@ -48,6 +48,8 @@ enum LongOptions {
   kSIN,
   kCOS,
   kTAN,
+  kASIN,
+  kACOS,
   kATAN,
   kTANH,
   kATANH,
@@ -94,6 +96,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -SIN         : sine                                [     sin(x) ]" << std::endl;  // NOLINT
   *stream << "       -COS         : cosine                              [     cos(x) ]" << std::endl;  // NOLINT
   *stream << "       -TAN         : tangent                             [     tan(x) ]" << std::endl;  // NOLINT
+  *stream << "       -ASIN        : arcsine                             [    asin(x) ]" << std::endl;  // NOLINT
+  *stream << "       -ACOS        : arccosine                           [    acos(x) ]" << std::endl;  // NOLINT
   *stream << "       -ATAN        : arctangent                          [    atan(x) ]" << std::endl;  // NOLINT
   *stream << "       -TANH        : hyperbolic tangent                  [    tanh(x) ]" << std::endl;  // NOLINT
   *stream << "       -ATANH       : hyperbolic arctangent               [   atanh(x) ]" << std::endl;  // NOLINT
@@ -207,6 +211,10 @@ void PrintGeneralErrorMessage(const char* option) {
  *   - cosine
  * - @b -TAN
  *   - tangent
+ * - @b -ASIN
+ *   - arcsine
+ * - @b -ACOS
+ *   - arccosine
  * - @b -ATAN
  *   - arctangent
  * - @b -TANH
@@ -259,6 +267,8 @@ int main(int argc, char* argv[]) {
       {"SIN", no_argument, NULL, kSIN},
       {"COS", no_argument, NULL, kCOS},
       {"TAN", no_argument, NULL, kTAN},
+      {"ASIN", no_argument, NULL, kASIN},
+      {"ACOS", no_argument, NULL, kACOS},
       {"ATAN", no_argument, NULL, kATAN},
       {"TANH", no_argument, NULL, kTANH},
       {"ATANH", no_argument, NULL, kATANH},
@@ -544,6 +554,20 @@ int main(int argc, char* argv[]) {
       case kTAN: {
         if (!scalar_operation.AddTangentOperation()) {
           PrintGeneralErrorMessage("TAN");
+          return 1;
+        }
+        break;
+      }
+      case kASIN: {
+        if (!scalar_operation.AddArcsineOperation()) {
+          PrintGeneralErrorMessage("ASIN");
+          return 1;
+        }
+        break;
+      }
+      case kACOS: {
+        if (!scalar_operation.AddArccosineOperation()) {
+          PrintGeneralErrorMessage("ACOS");
           return 1;
         }
         break;

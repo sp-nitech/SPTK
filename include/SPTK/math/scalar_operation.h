@@ -246,6 +246,20 @@ class ScalarOperation {
   bool AddTangentOperation();
 
   /**
+   * @f$\sin^{-1} x@f$
+   *
+   * @return True on success, false on failure.
+   */
+  bool AddArcsineOperation();
+
+  /**
+   * @f$\cos^{-1} x@f$
+   *
+   * @return True on success, false on failure.
+   */
+  bool AddArccosineOperation();
+
+  /**
    * @f$\tan^{-1} x@f$
    *
    * @return True on success, false on failure.
