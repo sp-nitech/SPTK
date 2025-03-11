@@ -131,7 +131,7 @@ MelGeneralizedCepstralAnalysis::MelGeneralizedCepstralAnalysis(
       convergence_threshold_ < 0.0 || !fourier_transform_.IsValid() ||
       !inverse_fourier_transform_.IsValid() ||
       !complex_valued_inverse_fourier_transform_.IsValid() ||
-      !toeplitz_plus_hankel_system_solver_.IsValid() ||
+      (!toeplitz_plus_hankel_system_solver_.IsValid() && 0.0 != gamma) ||
       !generalized_cepstrum_gain_normalization_.IsValid() ||
       !generalized_cepstrum_inverse_gain_normalization_.IsValid() ||
       !mel_cepstrum_to_mlsa_digital_filter_coefficients_.IsValid() ||
