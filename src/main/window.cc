@@ -42,6 +42,7 @@ const int kDefaultFrameLength(256);
 const sptk::DataWindowing::NormalizationType kDefaultNormalizationType(
     sptk::DataWindowing::NormalizationType::kPower);
 const LocalWindowType kDefaultWindowType(kBlackman);
+const bool kDefaultPeriodicFlag(false);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -65,6 +66,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 4 (trapezoidal)" << std::endl;
   *stream << "                 5 (rectangular)" << std::endl;
   *stream << "                 6 (Nuttall)" << std::endl;
+  *stream << "       -p    : use periodic window    (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(kDefaultPeriodicFlag) << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       data sequence                  (double)[stdin]" << std::endl;  // NOLINT
@@ -99,6 +101,8 @@ void PrintUsage(std::ostream* stream) {
  *     \arg @c 4 Trapezoidal
  *     \arg @c 5 Rectangular
  *     \arg @c 6 Nuttall
+ * - @b -p
+ *   - use periodic window instead of symmetric one
  * - @b infile @e str
  *   - double-type data sequence
  * - @b stdout
@@ -121,9 +125,10 @@ int main(int argc, char* argv[]) {
   sptk::DataWindowing::NormalizationType normalization_type(
       kDefaultNormalizationType);
   LocalWindowType local_window_type(kDefaultWindowType);
+  bool periodic(kDefaultPeriodicFlag);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "l:L:n:w:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "l:L:n:w:ph", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -181,6 +186,10 @@ int main(int argc, char* argv[]) {
           return 1;
         }
         local_window_type = static_cast<LocalWindowType>(tmp);
+        break;
+      }
+      case 'p': {
+        periodic = true;
         break;
       }
       case 'h': {
@@ -268,7 +277,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  sptk::StandardWindow standard_window(input_length, window_type, false);
+  sptk::StandardWindow standard_window(input_length, window_type, periodic);
   sptk::DataWindowing data_windowing(&standard_window, output_length,
                                      normalization_type);
   if (!data_windowing.IsValid()) {

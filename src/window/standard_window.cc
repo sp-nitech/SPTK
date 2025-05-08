@@ -16,7 +16,7 @@
 
 #include "SPTK/window/standard_window.h"
 
-#include <algorithm>  // std::fill
+#include <algorithm>  // std::fill, std::min
 #include <cmath>      // std::round
 #include <vector>     // std::vector
 
@@ -26,7 +26,7 @@ namespace {
 
 void MakeBartlett(bool periodic, std::vector<double>* window) {
   const int size(static_cast<int>(window->size()));
-  const int center(sptk::IsEven(size) ? size / 2 : (size + 1) / 2);
+  const int center((sptk::IsEven(size) ? size : (size + 1)) / 2);
   const double slope(2.0 / (periodic ? size : size - 1));
   double* w(&((*window)[0]));
   for (int i(0); i < center; ++i) {
@@ -87,16 +87,11 @@ void MakeRectangular(std::vector<double>* window) {
 }
 
 void MakeTrapezoidal(bool periodic, std::vector<double>* window) {
+  MakeBartlett(periodic, window);
   const int size(static_cast<int>(window->size()));
-  const int quarter_size(static_cast<int>(std::round(0.25 * size)));
-  const double slope(4.0 / (periodic ? size : size - 1));
   double* w(&((*window)[0]));
-  for (int i(0); i < quarter_size; ++i) {
-    w[i] = slope * i;
-  }
-  std::fill(window->begin() + quarter_size, window->end() - quarter_size, 1.0);
-  for (int i(size - quarter_size); i < size; ++i) {
-    w[i] = 4.0 - slope * i;
+  for (int i(0); i < size; ++i) {
+    w[i] = std::min(2.0 * w[i], 1.0);
   }
 }
 
