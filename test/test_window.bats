@@ -28,18 +28,20 @@ teardown() {
 }
 
 @test "window: compatibility" {
-    $sptk3/nrand -l 20 > $tmp/1
-    for w in $(seq 0 5); do
-        $sptk3/window -w "$w" $tmp/1 > $tmp/2
-        $sptk4/window -w "$w" $tmp/1 > $tmp/3
-        run $sptk4/aeq $tmp/2 $tmp/3
-        [ "$status" -eq 0 ]
-    done
-    for n in $(seq 0 2); do
-        $sptk3/window -n "$n" $tmp/1 > $tmp/2
-        $sptk4/window -n "$n" $tmp/1 > $tmp/3
-        run $sptk4/aeq $tmp/2 $tmp/3
-        [ "$status" -eq 0 ]
+    for l in 19 20; do
+        $sptk3/nrand -l $l > $tmp/1
+        for w in $(seq 0 5); do
+            $sptk3/window -w "$w" $tmp/1 > $tmp/2
+            $sptk4/window -w "$w" $tmp/1 > $tmp/3
+            run $sptk4/aeq $tmp/2 $tmp/3
+            [ "$status" -eq 0 ]
+        done
+        for n in $(seq 0 2); do
+            $sptk3/window -n "$n" $tmp/1 > $tmp/2
+            $sptk4/window -n "$n" $tmp/1 > $tmp/3
+            run $sptk4/aeq $tmp/2 $tmp/3
+            [ "$status" -eq 0 ]
+        done
     done
 }
 
