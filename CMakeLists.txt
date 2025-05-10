@@ -60,6 +60,7 @@ set(CC_SOURCES
     ${SOURCE_DIR}/analysis/aperiodicity_extraction_by_world.cc
     ${SOURCE_DIR}/analysis/autocorrelation_analysis.cc
     ${SOURCE_DIR}/analysis/fast_fourier_transform_cepstral_analysis.cc
+    ${SOURCE_DIR}/analysis/goertzel_analysis.cc
     ${SOURCE_DIR}/analysis/mel_cepstral_analysis.cc
     ${SOURCE_DIR}/analysis/mel_filter_bank_analysis.cc
     ${SOURCE_DIR}/analysis/mel_frequency_cepstral_coefficients_analysis.cc
@@ -287,6 +288,7 @@ set(MAIN_SOURCES
     ${SOURCE_DIR}/main/gmm.cc
     ${SOURCE_DIR}/main/gmmp.cc
     ${SOURCE_DIR}/main/gnorm.cc
+    ${SOURCE_DIR}/main/goertzel.cc
     ${SOURCE_DIR}/main/grpdelay.cc
     ${SOURCE_DIR}/main/histogram.cc
     ${SOURCE_DIR}/main/huffman.cc
