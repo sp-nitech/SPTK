@@ -119,7 +119,7 @@ void PrintUsage(std::ostream* stream) {
  *   - double-type spectrum
  *
  * In the following example, 12-th order mel-generalized cepstral coefficients
- * in @c data.mgcep are converted to log magnitude spectrum.
+ * in @c data.mgcep are converted to log amplitude spectrum.
  *
  * @code{.sh}
  *   mgc2sp -m 12 -a 0.35 -c 2 < data.mgcep > data.spec
