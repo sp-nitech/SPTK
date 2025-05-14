@@ -36,6 +36,7 @@ enum OutputFormats {
   kSine,
   kCosine,
   kSawtooth,
+  kPulseSequence,
   kNumOutputFormats
 };
 
@@ -67,6 +68,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 3 (sine waveform)" << std::endl;
   *stream << "                 4 (cosine waveform)" << std::endl;
   *stream << "                 5 (sawtooth waveform)" << std::endl;
+  *stream << "                 6 (pulse sequence)" << std::endl;
   *stream << "       -u u  : value on unvoiced region      (double)[" << std::setw(5) << std::right << kDefaultUnvoicedValue    << "][      <= u <=       ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
@@ -105,6 +107,7 @@ void PrintUsage(std::ostream* stream) {
  *     @arg @c 3 sine waveform
  *     @arg @c 4 cosine waveform
  *     @arg @c 5 sawtooth waveform
+ *     @arg @c 6 pulse sequence
  * - @b -u @e double
  *   - value on unvoiced region
  * - @b infile @e str
@@ -279,13 +282,13 @@ int main(int argc, char* argv[]) {
   }
   if (waveform.empty()) return 0;
 
-  const bool waveform_output(kBinarySequence != output_format &&
-                             kPositionInSeconds != output_format &&
-                             kPositionInSamples != output_format);
+  const bool require_f0(kSine == output_format || kCosine == output_format ||
+                        kSawtooth == output_format ||
+                        kPulseSequence == output_format);
   std::vector<double> f0;
   std::vector<double> pitch_mark;
   sptk::PitchExtractionInterface::Polarity polarity;
-  if (!pitch_extraction.Run(waveform, waveform_output ? &f0 : NULL, &pitch_mark,
+  if (!pitch_extraction.Run(waveform, require_f0 ? &f0 : NULL, &pitch_mark,
                             &polarity)) {
     std::ostringstream error_message;
     error_message << "Failed to extract pitch mark";
@@ -312,13 +315,28 @@ int main(int argc, char* argv[]) {
   const int num_pitch_marks(static_cast<int>(pitch_mark.size()));
 
   switch (output_format) {
-    case kBinarySequence: {
+    case kBinarySequence:
+    case kPulseSequence: {
       int next_pitch_mark(pitch_mark.empty()
                               ? -1
                               : static_cast<int>(std::round(pitch_mark[0])));
       for (int i(0), j(1); i < waveform_length; ++i) {
         if (i == next_pitch_mark) {
-          if (!sptk::WriteStream(binary_polarity, &std::cout)) {
+          double value;
+          switch (output_format) {
+            case kBinarySequence: {
+              value = 1.0;
+              break;
+            }
+            case kPulseSequence: {
+              value = std::sqrt(sampling_rate_in_hz / f0[i]);
+              break;
+            }
+            default: {
+              return 1;
+            }
+          }
+          if (!sptk::WriteStream(binary_polarity * value, &std::cout)) {
             std::ostringstream error_message;
             error_message << "Failed to write pitch mark";
             sptk::PrintErrorMessage("pitch_mark", error_message);
@@ -328,7 +346,8 @@ int main(int argc, char* argv[]) {
             next_pitch_mark = static_cast<int>(std::round(pitch_mark[j++]));
           }
         } else {
-          if (!sptk::WriteStream(0.0, &std::cout)) {
+          const double value(f0.empty() || 0.0 != f0[i] ? 0.0 : unvoiced_value);
+          if (!sptk::WriteStream(value, &std::cout)) {
             std::ostringstream error_message;
             error_message << "Failed to write pitch mark";
             sptk::PrintErrorMessage("pitch_mark", error_message);
