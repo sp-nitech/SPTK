@@ -46,6 +46,7 @@ const double kDefaultUpperF0(240.0);
 const double kDefaultVoicingThreshold(0.9);
 const OutputFormats kDefaultOutputFormat(kBinarySequence);
 const double kDefaultUnvoicedValue(0.0);
+const bool kDefaultPolarityFlag(true);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -70,6 +71,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 5 (sawtooth waveform)" << std::endl;
   *stream << "                 6 (pulse sequence)" << std::endl;
   *stream << "       -u u  : value on unvoiced region      (double)[" << std::setw(5) << std::right << kDefaultUnvoicedValue    << "][      <= u <=       ]" << std::endl;  // NOLINT
+  *stream << "       -n    : ignore polarity               (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(!kDefaultPolarityFlag) << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       waveform                              (double)[stdin]" << std::endl;  // NOLINT
@@ -110,6 +112,8 @@ void PrintUsage(std::ostream* stream) {
  *     @arg @c 6 pulse sequence
  * - @b -u @e double
  *   - value on unvoiced region
+ * - @b -n
+ *   - do not consider polarity
  * - @b infile @e str
  *   - double-type waveform
  * - @b stdout
@@ -134,9 +138,11 @@ int main(int argc, char* argv[]) {
   double voicing_threshold(kDefaultVoicingThreshold);
   OutputFormats output_format(kDefaultOutputFormat);
   double unvoiced_value(kDefaultUnvoicedValue);
+  bool polarity_flag(kDefaultPolarityFlag);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "s:L:H:t:o:u:h", NULL, NULL));
+    const int option_char(
+        getopt_long(argc, argv, "s:L:H:t:o:u:nh", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -206,6 +212,10 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("pitch_mark", error_message);
           return 1;
         }
+        break;
+      }
+      case 'n': {
+        polarity_flag = false;
         break;
       }
       case 'h': {
@@ -297,29 +307,33 @@ int main(int argc, char* argv[]) {
   }
 
   if (kPositionInSeconds != output_format) {
-    std::transform(
-        pitch_mark.begin(), pitch_mark.end(), pitch_mark.begin(),
-        [sampling_rate_in_hz](double x) { return x * sampling_rate_in_hz; });
+    std::transform(pitch_mark.begin(), pitch_mark.end(), pitch_mark.begin(),
+                   [sampling_rate_in_hz](double x) {
+                     return std::round(x * sampling_rate_in_hz);
+                   });
   }
 
-  if (sptk::PitchExtractionInterface::Polarity::kUnknown == polarity) {
+  if (polarity_flag &&
+      sptk::PitchExtractionInterface::Polarity::kUnknown == polarity) {
     std::ostringstream error_message;
     error_message << "Failed to detect polarity";
     sptk::PrintErrorMessage("pitch_mark", error_message);
     return 1;
   }
   const double binary_polarity(
-      sptk::PitchExtractionInterface::Polarity::kPositive == polarity ? 1.0
-                                                                      : -1.0);
+      (polarity_flag ||
+       sptk::PitchExtractionInterface::Polarity::kPositive == polarity)
+          ? 1.0
+          : -1.0);
+
   const int waveform_length(static_cast<int>(waveform.size()));
   const int num_pitch_marks(static_cast<int>(pitch_mark.size()));
 
   switch (output_format) {
     case kBinarySequence:
     case kPulseSequence: {
-      int next_pitch_mark(pitch_mark.empty()
-                              ? -1
-                              : static_cast<int>(std::round(pitch_mark[0])));
+      int next_pitch_mark(pitch_mark.empty() ? -1
+                                             : static_cast<int>(pitch_mark[0]));
       for (int i(0), j(1); i < waveform_length; ++i) {
         if (i == next_pitch_mark) {
           double value;
@@ -329,7 +343,16 @@ int main(int argc, char* argv[]) {
               break;
             }
             case kPulseSequence: {
-              value = std::sqrt(sampling_rate_in_hz / f0[i]);
+              const int after_next_pitch_mark(
+                  (j < num_pitch_marks) ? static_cast<int>(pitch_mark[j]) : -1);
+              const int pitch(after_next_pitch_mark - next_pitch_mark);
+              if (pitch <= sampling_rate_in_hz / lower_f0) {
+                value = std::sqrt(pitch);
+              } else if (0.0 != f0[i]) {
+                value = std::sqrt(sampling_rate_in_hz / f0[i]);
+              } else {
+                value = 0.0;
+              }
               break;
             }
             default: {
@@ -343,7 +366,7 @@ int main(int argc, char* argv[]) {
             return 1;
           }
           if (j < num_pitch_marks) {
-            next_pitch_mark = static_cast<int>(std::round(pitch_mark[j++]));
+            next_pitch_mark = static_cast<int>(pitch_mark[j++]);
           }
         } else {
           const double value(f0.empty() || 0.0 != f0[i] ? 0.0 : unvoiced_value);
@@ -373,9 +396,9 @@ int main(int argc, char* argv[]) {
     case kCosine:
     case kSawtooth: {
       for (int n(0), i(0); n <= num_pitch_marks; ++n) {
-        const int next_pitch_mark(
-            n < num_pitch_marks ? static_cast<int>(std::round(pitch_mark[n]))
-                                : waveform_length);
+        const int next_pitch_mark(n < num_pitch_marks
+                                      ? static_cast<int>(pitch_mark[n])
+                                      : waveform_length);
         // Find the point across voiced region to unvoiced one.
         int j(i);
         for (; j < next_pitch_mark; ++j) {
