@@ -346,7 +346,8 @@ int main(int argc, char* argv[]) {
               const int after_next_pitch_mark(
                   (j < num_pitch_marks) ? static_cast<int>(pitch_mark[j]) : -1);
               const int pitch(after_next_pitch_mark - next_pitch_mark);
-              if (pitch <= sampling_rate_in_hz / lower_f0) {
+              if (sampling_rate_in_hz / upper_f0 <= pitch &&
+                  pitch <= sampling_rate_in_hz / lower_f0) {
                 value = std::sqrt(pitch);
               } else if (0.0 != f0[i]) {
                 value = std::sqrt(sampling_rate_in_hz / f0[i]);
