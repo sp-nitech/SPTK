@@ -321,7 +321,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
   const double binary_polarity(
-      (polarity_flag ||
+      (!polarity_flag ||
        sptk::PitchExtractionInterface::Polarity::kPositive == polarity)
           ? 1.0
           : -1.0);
