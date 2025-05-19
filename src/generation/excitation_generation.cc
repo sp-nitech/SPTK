@@ -23,9 +23,11 @@ namespace sptk {
 
 ExcitationGeneration::ExcitationGeneration(
     InputSourceInterpolationWithMagicNumber* input_source,
-    RandomGenerationInterface* random_generation)
+    RandomGenerationInterface* random_generation,
+    NormalizationType normalization_type)
     : input_source_(input_source),
       random_generation_(random_generation),
+      normalization_type_(normalization_type),
       is_valid_(true),
       phase_(1.0) {
   if (NULL == input_source_ || !input_source_->IsValid()) {
@@ -79,7 +81,15 @@ bool ExcitationGeneration::Get(double* excitation, double* pulse, double* noise,
   double pulse_in_current_point;
   if (1.0 <= phase_) {
     phase_ -= 1.0;
-    pulse_in_current_point = std::sqrt(pitch_in_current_point);
+    if (kNone == normalization_type_) {
+      pulse_in_current_point = 1.0;
+    } else if (kPower == normalization_type_) {
+      pulse_in_current_point = std::sqrt(pitch_in_current_point);
+    } else if (kMagnitude == normalization_type_) {
+      pulse_in_current_point = pitch_in_current_point;
+    } else {
+      return false;
+    }
   } else {
     pulse_in_current_point = 0.0;
   }

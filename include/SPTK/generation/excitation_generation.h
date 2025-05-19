@@ -33,11 +33,22 @@ namespace sptk {
 class ExcitationGeneration {
  public:
   /**
+   * Normalization type.
+   */
+  enum NormalizationType {
+    kNone = 0,
+    kPower,
+    kMagnitude,
+    kNumNormalizationTypes
+  };
+
+  /**
    * @param[in] input_source Input source.
    * @param[in] random_generation Random value generator.
    */
   ExcitationGeneration(InputSourceInterpolationWithMagicNumber* input_source,
-                       RandomGenerationInterface* random_generation);
+                       RandomGenerationInterface* random_generation,
+                       NormalizationType normalization_type = kPower);
 
   virtual ~ExcitationGeneration() {
   }
@@ -63,6 +74,7 @@ class ExcitationGeneration {
  private:
   InputSourceInterpolationWithMagicNumber* input_source_;
   RandomGenerationInterface* random_generation_;
+  const NormalizationType normalization_type_;
 
   bool is_valid_;
 

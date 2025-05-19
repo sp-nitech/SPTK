@@ -30,21 +30,28 @@
 namespace {
 
 enum OutputFormats {
-  kBinarySequence = 0,
+  kPulseSequence = 0,
   kPositionInSeconds,
   kPositionInSamples,
   kSine,
   kCosine,
   kSawtooth,
-  kPulseSequence,
   kNumOutputFormats
+};
+
+enum NormalizationType {
+  kNone = 0,
+  kPower,
+  kMagnitude,
+  kNumNormalizationTypes
 };
 
 const double kDefaultSamplingRate(16.0);
 const double kDefaultLowerF0(60.0);
 const double kDefaultUpperF0(240.0);
 const double kDefaultVoicingThreshold(0.9);
-const OutputFormats kDefaultOutputFormat(kBinarySequence);
+const OutputFormats kDefaultOutputFormat(kPulseSequence);
+const NormalizationType kDefaultNormalizationType(kNone);
 const double kDefaultUnvoicedValue(0.0);
 const bool kDefaultPolarityFlag(true);
 
@@ -56,22 +63,25 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       pitch_mark [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -s s  : sampling rate [kHz]           (double)[" << std::setw(5) << std::right << kDefaultSamplingRate     << "][  6.0 <  s <= 98.0  ]" << std::endl;  // NOLINT
-  *stream << "       -L L  : minimum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultLowerF0          << "][ 10.0 <  L <  H     ]" << std::endl;  // NOLINT
+  *stream << "       -s s  : sampling rate [kHz]           (double)[" << std::setw(5) << std::right << kDefaultSamplingRate      << "][  6.0 <  s <= 98.0  ]" << std::endl;  // NOLINT
+  *stream << "       -L L  : minimum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultLowerF0           << "][ 10.0 <  L <  H     ]" << std::endl;  // NOLINT
   *stream << "               to search for [Hz]" << std::endl;
-  *stream << "       -H H  : maximum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultUpperF0          << "][    L <  H <  500*s ]" << std::endl;  // NOLINT
+  *stream << "       -H H  : maximum fundamental frequency (double)[" << std::setw(5) << std::right << kDefaultUpperF0           << "][    L <  H <  500*s ]" << std::endl;  // NOLINT
   *stream << "               to search for [Hz]" << std::endl;
-  *stream << "       -t t  : voicing threshold             (double)[" << std::setw(5) << std::right << kDefaultVoicingThreshold << "][ -0.5 <= t <= 1.6   ]" << std::endl;  // NOLINT
-  *stream << "       -o o  : output format                 (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat     << "][    0 <= o <= 5     ]" << std::endl;  // NOLINT
-  *stream << "                 0 (binary sequence)" << std::endl;
+  *stream << "       -t t  : voicing threshold             (double)[" << std::setw(5) << std::right << kDefaultVoicingThreshold  << "][ -0.5 <= t <= 1.6   ]" << std::endl;  // NOLINT
+  *stream << "       -o o  : output format                 (   int)[" << std::setw(5) << std::right << kDefaultOutputFormat      << "][    0 <= o <= 5     ]" << std::endl;  // NOLINT
+  *stream << "                 0 (pulse sequence)" << std::endl;
   *stream << "                 1 (position in seconds)" << std::endl;
   *stream << "                 2 (position in samples)" << std::endl;
   *stream << "                 3 (sine waveform)" << std::endl;
   *stream << "                 4 (cosine waveform)" << std::endl;
   *stream << "                 5 (sawtooth waveform)" << std::endl;
-  *stream << "                 6 (pulse sequence)" << std::endl;
-  *stream << "       -u u  : value on unvoiced region      (double)[" << std::setw(5) << std::right << kDefaultUnvoicedValue    << "][      <= u <=       ]" << std::endl;  // NOLINT
-  *stream << "       -n    : ignore polarity               (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(!kDefaultPolarityFlag) << "]" << std::endl;  // NOLINT
+  *stream << "       -N N  : normalization type            (   int)[" << std::setw(5) << std::right << kDefaultNormalizationType << "][    0 <= N <= 2     ]" << std::endl;  // NOLINT
+  *stream << "                 0 (none)" << std::endl;
+  *stream << "                 1 (power)" << std::endl;
+  *stream << "                 2 (magnitude)" << std::endl;
+  *stream << "       -u u  : value on unvoiced region      (double)[" << std::setw(5) << std::right << kDefaultUnvoicedValue     << "][      <= u <=       ]" << std::endl;  // NOLINT
+  *stream << "       -a    : ignore polarity               (  bool)[" << std::setw(5) << std::right << sptk::ConvertBooleanToString(!kDefaultPolarityFlag) << "]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
   *stream << "       waveform                              (double)[stdin]" << std::endl;  // NOLINT
@@ -80,8 +90,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  notice:" << std::endl;
   *stream << "       if t is raised, the number of pitch marks increase" << std::endl;  // NOLINT
   *stream << "       the value of t should be in the recommended range but values outside the range can be given" << std::endl;  // NOLINT
-  *stream << "       if o = 0, value 1 or -1 indicating pitch mark is outputted considering polarity" << std::endl;  // NOLINT
-  *stream << "       -u option is valid only o >= 3" << std::endl;
+  *stream << "       -N option is valid only if o = 0" << std::endl;
+  *stream << "       -u and -a options are valid only if o != 1 and o != 2" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -103,16 +113,20 @@ void PrintUsage(std::ostream* stream) {
  *   - voicing threshold @f$(-0.5 \le T \le 1.6)@f$
  * - @b -o @e int
  *   - output format
- *     @arg @c 0 binary sequence
+ *     @arg @c 0 pulse sequence
  *     @arg @c 1 position in seconds
  *     @arg @c 2 position in samples
  *     @arg @c 3 sine waveform
  *     @arg @c 4 cosine waveform
  *     @arg @c 5 sawtooth waveform
- *     @arg @c 6 pulse sequence
+ * - @b -N @e int
+ *   - normalization type
+ *     \arg @c 0 none
+ *     \arg @c 1 power
+ *     \arg @c 2 magnitude
  * - @b -u @e double
  *   - value on unvoiced region
- * - @b -n
+ * - @b -a
  *   - do not consider polarity
  * - @b infile @e str
  *   - double-type waveform
@@ -137,12 +151,14 @@ int main(int argc, char* argv[]) {
   double upper_f0(kDefaultUpperF0);
   double voicing_threshold(kDefaultVoicingThreshold);
   OutputFormats output_format(kDefaultOutputFormat);
+  NormalizationType normalization_type(kDefaultNormalizationType);
   double unvoiced_value(kDefaultUnvoicedValue);
+  bool is_unvoiced_value_specified(false);
   bool polarity_flag(kDefaultPolarityFlag);
 
   for (;;) {
     const int option_char(
-        getopt_long(argc, argv, "s:L:H:t:o:u:nh", NULL, NULL));
+        getopt_long(argc, argv, "s:L:H:t:o:N:u:ah", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -205,6 +221,22 @@ int main(int argc, char* argv[]) {
         output_format = static_cast<OutputFormats>(tmp);
         break;
       }
+      case 'N': {
+        const int min(0);
+        const int max(
+            static_cast<int>(NormalizationType::kNumNormalizationTypes) - 1);
+        int tmp;
+        if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
+            !sptk::IsInRange(tmp, min, max)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -N option must be an integer "
+                        << "in the range of " << min << " to " << max;
+          sptk::PrintErrorMessage("pitch_mark", error_message);
+          return 1;
+        }
+        normalization_type = static_cast<NormalizationType>(tmp);
+        break;
+      }
       case 'u': {
         if (!sptk::ConvertStringToDouble(optarg, &unvoiced_value)) {
           std::ostringstream error_message;
@@ -212,9 +244,10 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("pitch_mark", error_message);
           return 1;
         }
+        is_unvoiced_value_specified = true;
         break;
       }
-      case 'n': {
+      case 'a': {
         polarity_flag = false;
         break;
       }
@@ -292,9 +325,11 @@ int main(int argc, char* argv[]) {
   }
   if (waveform.empty()) return 0;
 
-  const bool require_f0(kSine == output_format || kCosine == output_format ||
-                        kSawtooth == output_format ||
-                        kPulseSequence == output_format);
+  const bool require_f0(
+      (kPulseSequence == output_format &&
+       (kNone != normalization_type || is_unvoiced_value_specified)) ||
+      kSine == output_format || kCosine == output_format ||
+      kSawtooth == output_format);
   std::vector<double> f0;
   std::vector<double> pitch_mark;
   sptk::PitchExtractionInterface::Polarity polarity;
@@ -330,34 +365,28 @@ int main(int argc, char* argv[]) {
   const int num_pitch_marks(static_cast<int>(pitch_mark.size()));
 
   switch (output_format) {
-    case kBinarySequence:
     case kPulseSequence: {
       int next_pitch_mark(pitch_mark.empty() ? -1
                                              : static_cast<int>(pitch_mark[0]));
       for (int i(0), j(1); i < waveform_length; ++i) {
         if (i == next_pitch_mark) {
           double value;
-          switch (output_format) {
-            case kBinarySequence: {
-              value = 1.0;
-              break;
+          if (kNone == normalization_type) {
+            value = 1.0;
+          } else {
+            const int after_next_pitch_mark(
+                (j < num_pitch_marks) ? static_cast<int>(pitch_mark[j]) : -1);
+            const int pitch(after_next_pitch_mark - next_pitch_mark);
+            if (sampling_rate_in_hz / upper_f0 <= pitch &&
+                pitch <= sampling_rate_in_hz / lower_f0) {
+              value = pitch;
+            } else if (0.0 != f0[i]) {
+              value = sampling_rate_in_hz / f0[i];
+            } else {
+              value = 0.0;
             }
-            case kPulseSequence: {
-              const int after_next_pitch_mark(
-                  (j < num_pitch_marks) ? static_cast<int>(pitch_mark[j]) : -1);
-              const int pitch(after_next_pitch_mark - next_pitch_mark);
-              if (sampling_rate_in_hz / upper_f0 <= pitch &&
-                  pitch <= sampling_rate_in_hz / lower_f0) {
-                value = std::sqrt(pitch);
-              } else if (0.0 != f0[i]) {
-                value = std::sqrt(sampling_rate_in_hz / f0[i]);
-              } else {
-                value = 0.0;
-              }
-              break;
-            }
-            default: {
-              return 1;
+            if (kPower == normalization_type) {
+              value = std::sqrt(value);
             }
           }
           if (!sptk::WriteStream(binary_polarity * value, &std::cout)) {
