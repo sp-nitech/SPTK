@@ -17,7 +17,6 @@
 #include "SPTK/window/standard_window.h"
 
 #include <algorithm>  // std::fill, std::min
-#include <cmath>      // std::round
 #include <vector>     // std::vector
 
 #include "SPTK/window/cosine_window.h"

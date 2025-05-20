@@ -35,6 +35,8 @@ enum NoiseType { kZero = 0, kGaussian, kMSequence, kNumNoiseTypes };
 const int kDefaultFramePeriod(100);
 const int kDefaultInterpolationPeriod(1);
 const NoiseType kDefaultNoiseType(NoiseType::kMSequence);
+const sptk::ExcitationGeneration::NormalizationType kDefaultNormalizationType(
+    sptk::ExcitationGeneration::NormalizationType::kPower);
 const int kDefaultSeed(1);
 const double kMagicNumberForUnvoicedFrame(0.0);
 
@@ -48,6 +50,10 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  options:" << std::endl;
   *stream << "       -p p  : frame period               (   int)[" << std::setw(5) << std::right << kDefaultFramePeriod         << "][ 1 <= p <=     ]" << std::endl;  // NOLINT
   *stream << "       -i i  : interpolation period       (   int)[" << std::setw(5) << std::right << kDefaultInterpolationPeriod << "][ 0 <= i <= p/2 ]" << std::endl;  // NOLINT
+  *stream << "       -N N  : normalization type         (   int)[" << std::setw(5) << std::right << kDefaultNormalizationType   << "][ 0 <= N <= 2   ]" << std::endl;  // NOLINT
+  *stream << "                 0 (none)" << std::endl;
+  *stream << "                 1 (power)" << std::endl;
+  *stream << "                 2 (magnitude)" << std::endl;
   *stream << "       -n n  : noise type                 (   int)[" << std::setw(5) << std::right << kDefaultNoiseType           << "][ 0 <= n <= 2   ]" << std::endl;  // NOLINT
   *stream << "                 0 (none)" << std::endl;
   *stream << "                 1 (Gaussian)" << std::endl;
@@ -60,7 +66,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       excitation                         (double)" << std::endl;
   *stream << "  notice:" << std::endl;
   *stream << "       if i = 0, don't interpolate pitch" << std::endl;
-  *stream << "       s is valid only if n = 1" << std::endl;
+  *stream << "       -s option is valid only if n = 1" << std::endl;
   *stream << "       magic number for unvoiced frame is " << kMagicNumberForUnvoicedFrame << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
@@ -77,6 +83,11 @@ void PrintUsage(std::ostream* stream) {
  *   - frame_period @f$(1 \le P)@f$
  * - @b -i @e int
  *   - interpolation period @f$(0 \le I \le P/2)@f$
+ * - @b -N @e int
+ *   - normalization type
+ *     \arg @c 0 none
+ *     \arg @c 1 power
+ *     \arg @c 2 magnitude
  * - @b -n @e int
  *   - noise type
  *     \arg @c 0 none
@@ -110,11 +121,13 @@ void PrintUsage(std::ostream* stream) {
 int main(int argc, char* argv[]) {
   int frame_period(kDefaultFramePeriod);
   int interpolation_period(kDefaultInterpolationPeriod);
+  sptk::ExcitationGeneration::NormalizationType normalization_type(
+      kDefaultNormalizationType);
   NoiseType noise_type(kDefaultNoiseType);
   int seed(kDefaultSeed);
 
   for (;;) {
-    const int option_char(getopt_long(argc, argv, "p:i:n:s:h", NULL, NULL));
+    const int option_char(getopt_long(argc, argv, "p:i:N:n:s:h", NULL, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -138,6 +151,25 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("excite", error_message);
           return 1;
         }
+        break;
+      }
+      case 'N': {
+        const int min(0);
+        const int max(
+            static_cast<int>(sptk::ExcitationGeneration::NormalizationType::
+                                 kNumNormalizationTypes) -
+            1);
+        int tmp;
+        if (!sptk::ConvertStringToInteger(optarg, &tmp) ||
+            !sptk::IsInRange(tmp, min, max)) {
+          std::ostringstream error_message;
+          error_message << "The argument for the -N option must be an integer "
+                        << "in the range of " << min << " to " << max;
+          sptk::PrintErrorMessage("excite", error_message);
+          return 1;
+        }
+        normalization_type =
+            static_cast<sptk::ExcitationGeneration::NormalizationType>(tmp);
         break;
       }
       case 'n': {
@@ -243,7 +275,8 @@ int main(int argc, char* argv[]) {
       }
     }
     sptk::ExcitationGeneration excitation_generation(
-        &input_source_interpolation_with_magic_number, random_generation);
+        &input_source_interpolation_with_magic_number, random_generation,
+        normalization_type);
 
     if (!excitation_generation.IsValid()) {
       std::ostringstream error_message;

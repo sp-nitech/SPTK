@@ -16,7 +16,7 @@
 
 #include "SPTK/analysis/goertzel_analysis.h"
 
-#include <cmath>    // std::round
+#include <cmath>    // std::cos, std::round, std::sin
 #include <cstddef>  // std::size_t
 #include <vector>   // std::vector
 
