@@ -20,6 +20,7 @@
 #include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <numeric>    // std::accumulate
 #include <sstream>    // std::ostringstream
+#include <string>     // std::char_traits
 #include <vector>     // std::vector
 
 #include "GETOPT/ya_getopt.h"
@@ -274,7 +275,7 @@ int main(int argc, char* argv[]) {
   // Extract the remaining frames.
   const int overlap(frame_length - frame_period);
   if (0 < overlap) {
-    bool is_eof(input_stream.peek() == std::ios::traits_type::eof());
+    bool is_eof(input_stream.peek() == std::char_traits<char>::eof());
     int last_data_position_in_frame(center + actual_read_size - 1);
     while (center <= last_data_position_in_frame) {
       if (is_eof) {
@@ -302,7 +303,7 @@ int main(int argc, char* argv[]) {
           return 1;
         }
 
-        if (input_stream.peek() == std::iostream::traits_type::eof()) {
+        if (input_stream.peek() == std::char_traits<char>::eof()) {
           last_data_position_in_frame = overlap + actual_read_size - 1;
           is_eof = true;
         }

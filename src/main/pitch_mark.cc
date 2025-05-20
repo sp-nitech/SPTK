@@ -15,7 +15,7 @@
 // ------------------------------------------------------------------------ //
 
 #include <algorithm>  // std::transform
-#include <cmath>      // std::cos, std::fmod, std::round, std::sin
+#include <cmath>      // std::cos, std::fmod, std::round, std::sin, std::sqrt
 #include <fstream>    // std::ifstream
 #include <iomanip>    // std::setw
 #include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
