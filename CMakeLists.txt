@@ -276,6 +276,7 @@ set(MAIN_SOURCES
     ${SOURCE_DIR}/main/entropy.cc
     ${SOURCE_DIR}/main/excite.cc
     ${SOURCE_DIR}/main/extract.cc
+    ${SOURCE_DIR}/main/f0eval.cc
     ${SOURCE_DIR}/main/fbank.cc
     ${SOURCE_DIR}/main/fd.cc
     ${SOURCE_DIR}/main/fft.cc

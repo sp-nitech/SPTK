@@ -7,4 +7,4 @@ rmse
 
 .. seealso::
 
-    :ref:`cdist`
+    :ref:`cdist` :ref:`f0eval`

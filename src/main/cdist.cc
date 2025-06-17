@@ -336,7 +336,7 @@ int main(int argc, char* argv[]) {
   int num_data;
   if (!statistics_accumulation.GetNumData(buffer, &num_data)) {
     std::ostringstream error_message;
-    error_message << "Failed to accumulate statistics";
+    error_message << "Failed to get statistics";
     sptk::PrintErrorMessage("cdist", error_message);
     return 1;
   }
