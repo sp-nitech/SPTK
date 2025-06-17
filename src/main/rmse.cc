@@ -239,19 +239,17 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  const int read_size(
-      kMagicNumberForEndOfFile == vector_length ? 1 : vector_length);
-  std::vector<double> data1(read_size);
-  std::vector<double> data2(read_size);
-  while (
-      sptk::ReadStream(false, 0, 0, read_size, &data1, &input_stream1, NULL) &&
-      sptk::ReadStream(false, 0, 0, read_size, &data2, &input_stream2, NULL)) {
-    for (int i(0); i < read_size; ++i) {
+  if (kMagicNumberForEndOfFile == vector_length) {
+    // Accumulate squared error for each frame.
+    double data1;
+    double data2;
+    std::vector<double> squared_error(1);
+    while (sptk::ReadStream(&data1, &input_stream1) &&
+           sptk::ReadStream(&data2, &input_stream2)) {
       if (!use_magic_number ||
-          (magic_number != data1[i] && magic_number != data2[i])) {
-        const double error(data1[i] - data2[i]);
-        if (!accumulation.Run(std::vector<double>{error * error},
-                              &buffer_for_mean_squared_error)) {
+          (magic_number != data1 && magic_number != data2)) {
+        squared_error[0] = (data1 - data2) * (data1 - data2);
+        if (!accumulation.Run(squared_error, &buffer_for_mean_squared_error)) {
           std::ostringstream error_message;
           error_message << "Failed to accumulate statistics";
           sptk::PrintErrorMessage("rmse", error_message);
@@ -260,17 +258,54 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    if (kMagicNumberForEndOfFile != vector_length) {
+    // Output RMSE.
+    std::vector<double> mean_squared_error(1);
+    if (accumulation.GetMean(buffer_for_mean_squared_error,
+                             &mean_squared_error)) {
+      const double root_mean_squared_error(std::sqrt(mean_squared_error[0]));
+      if (!sptk::WriteStream(root_mean_squared_error, &std::cout)) {
+        std::ostringstream error_message;
+        error_message << "Failed to write root mean squared error";
+        sptk::PrintErrorMessage("rmse", error_message);
+        return 1;
+      }
+    }
+  } else {
+    std::vector<double> data1(vector_length);
+    std::vector<double> data2(vector_length);
+    std::vector<double> squared_error(1);
+    while (sptk::ReadStream(false, 0, 0, vector_length, &data1, &input_stream1,
+                            NULL) &&
+           sptk::ReadStream(false, 0, 0, vector_length, &data2, &input_stream2,
+                            NULL)) {
+      // Compute squared error at a frame.
+      for (int i(0); i < vector_length; ++i) {
+        if (!use_magic_number ||
+            (magic_number != data1[i] && magic_number != data2[i])) {
+          squared_error[0] = (data1[i] - data2[i]) * (data1[i] - data2[i]);
+          if (!accumulation.Run(squared_error,
+                                &buffer_for_mean_squared_error)) {
+            std::ostringstream error_message;
+            error_message << "Failed to accumulate statistics";
+            sptk::PrintErrorMessage("rmse", error_message);
+            return 1;
+          }
+        }
+      }
+
+      // Compute RMSE.
       std::vector<double> mean_squared_error(1);
       if (!accumulation.GetMean(buffer_for_mean_squared_error,
                                 &mean_squared_error)) {
         std::ostringstream error_message;
-        error_message << "Failed to get mean squared error";
+        error_message << "Failed to compute RMSE due to lack of data";
         sptk::PrintErrorMessage("rmse", error_message);
         return 1;
       }
-
       const double root_mean_squared_error(std::sqrt(mean_squared_error[0]));
+      accumulation.Clear(&buffer_for_mean_squared_error);
+
+      // Output or accumulate RMSE.
       if (output_frame_by_frame) {
         if (!sptk::WriteStream(root_mean_squared_error, &std::cout)) {
           std::ostringstream error_message;
@@ -287,41 +322,17 @@ int main(int argc, char* argv[]) {
           return 1;
         }
       }
-      accumulation.Clear(&buffer_for_mean_squared_error);
-    }
-  }
-
-  if (kMagicNumberForEndOfFile == vector_length) {
-    std::vector<double> mean_squared_error(1);
-    if (!accumulation.GetMean(buffer_for_mean_squared_error,
-                              &mean_squared_error)) {
-      std::ostringstream error_message;
-      error_message << "Failed to get mean squared error";
-      sptk::PrintErrorMessage("rmse", error_message);
-      return 1;
     }
 
-    const double root_mean_squared_error(std::sqrt(mean_squared_error[0]));
-    if (!sptk::WriteStream(root_mean_squared_error, &std::cout)) {
-      std::ostringstream error_message;
-      error_message << "Failed to write root mean squared error";
-      sptk::PrintErrorMessage("rmse", error_message);
-      return 1;
-    }
-  } else if (!output_frame_by_frame) {
+    // Output mean of RMSE.
     std::vector<double> mean(1);
-    if (!accumulation.GetMean(buffer_for_mean, &mean)) {
-      std::ostringstream error_message;
-      error_message << "Failed to get root mean squared error";
-      sptk::PrintErrorMessage("rmse", error_message);
-      return 1;
-    }
-
-    if (!sptk::WriteStream(mean[0], &std::cout)) {
-      std::ostringstream error_message;
-      error_message << "Failed to write root mean squared error";
-      sptk::PrintErrorMessage("rmse", error_message);
-      return 1;
+    if (accumulation.GetMean(buffer_for_mean, &mean)) {
+      if (!sptk::WriteStream(mean[0], &std::cout)) {
+        std::ostringstream error_message;
+        error_message << "Failed to write root mean squared error";
+        sptk::PrintErrorMessage("rmse", error_message);
+        return 1;
+      }
     }
   }
 
