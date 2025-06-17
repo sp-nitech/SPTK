@@ -34,7 +34,7 @@ enum OutputFormats {
   kNumOutputFormats
 };
 
-const InputFormats kDefaultInputFormat(kLogF0);
+const InputFormats kDefaultInputFormat(kPitch);
 const OutputFormats kDefaultOutputFormat(kF0ErrorAndVuvError);
 const double kDefaultSamplingRate(16.0);
 
@@ -57,16 +57,17 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -s s  : sampling rate [kHz] (double)[" << std::setw(5) << std::right << kDefaultSamplingRate << "][ 0 <  s <=   ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  file1:" << std::endl;
-  *stream << "       f0 sequence                 (double)" << std::endl;
+  *stream << "       pitch                       (double)" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       f0 sequence                 (double)[stdin]" << std::endl;
+  *stream << "       pitch                       (double)[stdin]" << std::endl;
   *stream << "  stdout:" << std::endl;
-  *stream << "       F0 metrics                  (double)" << std::endl;
+  *stream << "       metrics                     (double)" << std::endl;
   *stream << "  notice:" << std::endl;
   *stream << "       F0 RMSE is measured in cents" << std::endl;
   *stream << "       V/UV error is measured in percent" << std::endl;
   *stream << "       -q 0 and -q 1 options treat unvoiced frames as 0.0" << std::endl;  // NOLINT
   *stream << "       -q 2 option treats unvoiced frames as -1e+10" << std::endl;  // NOLINT
+  *stream << "       -s option is used only when -q 0 option is specified" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -91,9 +92,9 @@ void PrintUsage(std::ostream* stream) {
  * - @b -s @e double
  *   - sampling rate [kHz] @f$(0 < F_s)@f$
  * - @b file1 @e str
- *   - double-type f0 sequence
+ *   - double-type pitch
  * - @b infile @e str
- *   - double-type f0 sequence
+ *   - double-type pitch
  * - @b stdout
  *   - double-type F0 RMSE [cent] and/or voiced/unvoiced error [%]
  *
