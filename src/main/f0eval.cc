@@ -77,7 +77,7 @@ void PrintUsage(std::ostream* stream) {
 }  // namespace
 
 /**
- * @a f0eval [ @e option ] [ @e infile ]
+ * @a f0eval [ @e option ] file1 [ @e infile ]
  *
  * - @b -q @e int
  *   - input format
