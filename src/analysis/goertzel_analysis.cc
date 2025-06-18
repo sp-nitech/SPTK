@@ -31,7 +31,7 @@ GoertzelAnalysis::GoertzelAnalysis(double sampling_rate,
     return;
   }
 
-  const int table_size(frequencies.size());
+  const int table_size(static_cast<int>(frequencies.size()));
   sine_table_.resize(table_size);
   cosine_table_.resize(table_size);
   for (int k(0); k < table_size; ++k) {
@@ -55,7 +55,7 @@ bool GoertzelAnalysis::Run(const std::vector<double>& signals,
   }
 
   // Prepare memories.
-  const int table_size(sine_table_.size());
+  const int table_size(static_cast<int>(sine_table_.size()));
   if (real_part->size() != static_cast<std::size_t>(table_size)) {
     real_part->resize(table_size);
   }
@@ -63,7 +63,7 @@ bool GoertzelAnalysis::Run(const std::vector<double>& signals,
     imag_part->resize(table_size);
   }
 
-  const int signal_size(signals.size());
+  const int signal_size(static_cast<int>(signals.size()));
   const double* x(&(signals[0]));
   double* real(&((*real_part)[0]));
   double* imag(&((*imag_part)[0]));
