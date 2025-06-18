@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.1...3.5)
 
+cmake_policy(SET CMP0077 NEW)
+
 project(SPTK VERSION 4.3)
+
+option(SPTK_INSTALL "Install SPTK library" ON)
+option(SPTK_BUILD_COMMANDS "Build SPTK commands" ON)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.5.0)
@@ -213,37 +218,39 @@ target_include_directories(
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
-install(
-  TARGETS sptk
-  EXPORT ${PROJECT_NAME}Targets
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  INCLUDES
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+if(SPTK_INSTALL)
+  install(
+    TARGETS sptk
+    EXPORT ${PROJECT_NAME}Targets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/SPTK
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+  install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/SPTK
+          DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-install(
-  EXPORT ${PROJECT_NAME}Targets
-  FILE ${PROJECT_NAME}Targets.cmake
-  NAMESPACE ${PROJECT_NAME}::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+  install(
+    EXPORT ${PROJECT_NAME}Targets
+    FILE ${PROJECT_NAME}Targets.cmake
+    NAMESPACE ${PROJECT_NAME}::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
 
-configure_package_config_file(
-  ${PROJECT_SOURCE_DIR}/Config.cmake.in
-  ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
-  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+  configure_package_config_file(
+    ${PROJECT_SOURCE_DIR}/Config.cmake.in
+    ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
 
-write_basic_package_version_file(
-  ${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
-  VERSION ${PROJECT_VERSION}
-  COMPATIBILITY SameMajorVersion)
+  write_basic_package_version_file(
+    ${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion)
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
-              ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+                ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+endif()
 
 set(MAIN_SOURCES
     ${SOURCE_DIR}/main/acorr.cc
@@ -386,6 +393,17 @@ set(MAIN_SOURCES
     ${SOURCE_DIR}/main/zcross.cc
     ${SOURCE_DIR}/main/zerodf.cc)
 
+if(SPTK_BUILD_COMMANDS)
+  foreach(SOURCE ${MAIN_SOURCES})
+    get_filename_component(BIN ${SOURCE} NAME_WE)
+    add_executable(${BIN} ${SOURCE})
+    target_link_libraries(${BIN} sptk)
+    if(SPTK_INSTALL)
+      install(TARGETS ${BIN} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+    endif()
+  endforeach()
+endif()
+
 set(PYTHON_SOURCES
     ${SOURCE_DIR}/draw/fdrw.py
     ${SOURCE_DIR}/draw/glogsp.py
@@ -395,14 +413,7 @@ set(PYTHON_SOURCES
     ${SOURCE_DIR}/draw/gspecgram.py
     ${SOURCE_DIR}/draw/gwave.py)
 
-foreach(SOURCE ${MAIN_SOURCES})
-  get_filename_component(BIN ${SOURCE} NAME_WE)
-  add_executable(${BIN} ${SOURCE})
-  target_link_libraries(${BIN} sptk)
-  install(TARGETS ${BIN} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-endforeach()
-
-if(NOT WIN32)
+if(NOT WIN32 AND SPTK_INSTALL)
   foreach(SOURCE ${PYTHON_SOURCES})
     get_filename_component(BIN ${SOURCE} NAME_WE)
     execute_process(COMMAND ln -snf ${SOURCE}
