@@ -393,15 +393,6 @@ set(MAIN_SOURCES
     ${SOURCE_DIR}/main/zcross.cc
     ${SOURCE_DIR}/main/zerodf.cc)
 
-set(PYTHON_SOURCES
-    ${SOURCE_DIR}/draw/fdrw.py
-    ${SOURCE_DIR}/draw/glogsp.py
-    ${SOURCE_DIR}/draw/gpolezero.py
-    ${SOURCE_DIR}/draw/grlogsp.py
-    ${SOURCE_DIR}/draw/gseries.py
-    ${SOURCE_DIR}/draw/gspecgram.py
-    ${SOURCE_DIR}/draw/gwave.py)
-
 if(BUILD_SPTK_COMMANDS)
   foreach(SOURCE ${MAIN_SOURCES})
     get_filename_component(BIN ${SOURCE} NAME_WE)
@@ -413,7 +404,16 @@ if(BUILD_SPTK_COMMANDS)
   endforeach()
 endif()
 
-if(NOT WIN32)
+set(PYTHON_SOURCES
+    ${SOURCE_DIR}/draw/fdrw.py
+    ${SOURCE_DIR}/draw/glogsp.py
+    ${SOURCE_DIR}/draw/gpolezero.py
+    ${SOURCE_DIR}/draw/grlogsp.py
+    ${SOURCE_DIR}/draw/gseries.py
+    ${SOURCE_DIR}/draw/gspecgram.py
+    ${SOURCE_DIR}/draw/gwave.py)
+
+if(NOT WIN32 AND SPTK_INSTALL)
   foreach(SOURCE ${PYTHON_SOURCES})
     get_filename_component(BIN ${SOURCE} NAME_WE)
     execute_process(COMMAND ln -snf ${SOURCE}
