@@ -4,7 +4,7 @@ cmake_policy(SET CMP0077 NEW)
 
 project(SPTK VERSION 4.3)
 
-option(SPTK_INSTALL "Install SPTK library" ON) 
+option(SPTK_INSTALL "Install SPTK library" ON)
 option(SPTK_BUILD_COMMANDS "Build SPTK commands" ON)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -393,7 +393,7 @@ set(MAIN_SOURCES
     ${SOURCE_DIR}/main/zcross.cc
     ${SOURCE_DIR}/main/zerodf.cc)
 
-if(BUILD_SPTK_COMMANDS)
+if(SPTK_BUILD_COMMANDS)
   foreach(SOURCE ${MAIN_SOURCES})
     get_filename_component(BIN ${SOURCE} NAME_WE)
     add_executable(${BIN} ${SOURCE})
