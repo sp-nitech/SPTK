@@ -77,6 +77,7 @@ void EpochTracker::SetParameters(void) {
   // Internal feature-computation parameters:
   // For internal feature computations
   internal_frame_interval_ = kInternalFrameInterval;
+#if 0
   // for the high-pass filter
   corner_frequency_ = 80.0;
   filter_duration_ = 0.05;
@@ -139,6 +140,70 @@ void EpochTracker::SetParameters(void) {
   // pad time in seconds to add to the last measured period during
   // output of periodically-resampled data
   endpoint_padding_ = 0.01;
+#else
+  // for the high-pass filter
+  corner_frequency_ = 80.0f;
+  filter_duration_ = 0.05f;
+  // for the LPC inverse filter.
+  frame_duration_ = 0.02f;  // window size (sec)
+  lpc_frame_interval_ = 0.01f;  // (sec)
+  preemphasis_ = 0.98f;  // preemphasis for LPC analysis
+  noise_floor_ = 70.0f;  // SNR in dB simulated during LPC analysis.
+  // for computing LPC residual peak quality.
+  peak_delay_ = 0.0004f;  // for measuring prominence
+  skew_delay_ = 0.00015f;  // for measuring shape
+  peak_val_wt_ = 0.1f;
+  peak_prominence_wt_ = 0.3f;
+  peak_skew_wt_ = 0.1f;
+  peak_quality_floor_ = 0.01f;
+  // for computing voice-transition pseudo-probabilities
+  time_span_ = 0.020f;  // the interval (sec) centered on the
+  // measurement point, used to compute parameter
+  // deltas.
+  level_change_den_ = 30.0f;  // max. dB level change expected over
+  // time_span_ for bandpassed RMS for
+  // computing pseudo-probability of
+  // voicing.
+  min_rms_db_ = 20.0f;  // level floor in dB
+  // window size for computing amplitude-normalizing RMS
+  ref_dur_ = 0.02f;
+  // low and high frequency limits for bandpassed RMS used in voicing indicator
+  min_freq_for_rms_ = 100.0f;
+  max_freq_for_rms_ = 1000.0f;
+  // duration of integrator for bandpassed RMS
+  rms_window_dur_ = 0.025f;
+  // window duration, in seconds, for NCCF computations
+  correlation_dur_ = 0.0075f;
+  // ignore any NCCF peaks less than this
+  correlation_thresh_ = 0.2f;
+
+  // Parametrs used by the dynamic-programming tracker:
+  // reward for inserting another period
+  reward_ = -1.5f;
+  // weight given to deviation of inter-pulse interval from the
+  // closest NCCF peak lag
+  period_deviation_wt_ = 1.0f;
+  // weight given to the quality of the residual peak
+  peak_quality_wt_ = 1.3f;
+  // cost of the unvoiced hypothesis
+  unvoiced_cost_ = kUnvoicedCost;
+  // cost of high NCCF values in hypothetical unvoiced regions
+  nccf_uv_peak_wt_ = 0.9f;
+  // weight given to period length
+  period_wt_ = 0.0002f;
+  // weight given to the pseudo-probability of voicing feature
+  level_wt_ = 0.8f;
+  // weight given to period-length differences between adjacent periods.
+  freq_trans_wt_ = 1.8f;
+  // cost of switching between voicing states; modulated by voicing
+  // onset/offset probs.
+  voice_transition_factor_ = 1.4f;
+
+  // Parameters used to generate final outputs:
+  // pad time in seconds to add to the last measured period during
+  // output of periodically-resampled data
+  endpoint_padding_ = 0.01f;
+#endif
 }
 
 bool EpochTracker::Init(const int16_t* input, int32_t n_input, float sample_rate,
@@ -264,7 +329,11 @@ static void MakeDeltas(float* now, float* next, int32_t size, int32_t n_steps,
 
 bool EpochTracker::GetLpcResidual(const std::vector<float>& input, float sample_rate,
                                   std::vector<float>* output) {
+#if 0
   int32_t n_input = input.size();
+#else
+  int32_t n_input = static_cast<int32_t>(input.size());
+#endif
   if (!((n_input > 0) && (sample_rate > 0.0) && output)) {
     return false;
   }
@@ -359,7 +428,11 @@ void EpochTracker::GetResidualPulses(void) {
   int32_t peak_ind = RoundUp(peak_delay_ * sample_rate_);
   int32_t skew_ind = RoundUp(skew_delay_ * sample_rate_);
   float min_peak = -1.0;  // minimum value that will be considered as a peak
+#if 0
   int32_t limit = norm_residual_.size() - peak_ind;
+#else
+  int32_t limit = static_cast<int32_t>(norm_residual_.size()) - peak_ind;
+#endif
   resid_peaks_.resize(0);
   peaks_debug_.resize(residual_.size());
   for (size_t i = 0; i < peaks_debug_.size(); ++i) {
@@ -378,7 +451,11 @@ void EpochTracker::GetResidualPulses(void) {
       }
       float vm_skew = norm_residual_[i - skew_ind];
       float vp_skew = norm_residual_[i + skew_ind];
+#if 0
       float sharp = (0.5 * (vp_peak + vm_peak)) - val;
+#else
+      float sharp = (0.5f * (vp_peak + vm_peak)) - val;
+#endif
       float skew = -(vm_skew - vp_skew);
       ResidPeak p;
       p.resid_index = i;
@@ -400,7 +477,11 @@ void EpochTracker::GetResidualPulses(void) {
 
 
 void EpochTracker::GetVoiceTransitionFeatures(void) {
+#if 0
   int32_t frame_offset = RoundUp(0.5 * time_span_ / internal_frame_interval_);
+#else
+  int32_t frame_offset = RoundUp(0.5f * time_span_ / internal_frame_interval_);
+#endif
   if (frame_offset <= 0) {
     frame_offset = 1;
   }
@@ -480,8 +561,13 @@ void EpochTracker::GetRmsVoicingModulator(void) {
 
 int32_t EpochTracker::FindNccfPeaks(const std::vector<float>& input, float thresh,
                                     std::vector<int16_t>* output) {
+#if 0
   int32_t limit = input.size() - 1;
   uint32_t n_peaks = 0;
+#else
+  int32_t limit = static_cast<int32_t>(input.size()) - 1;
+  int16_t n_peaks = 0;
+#endif
   float max_val = 0.0;
   int16_t max_index = 1;
   int16_t max_out_index = 0;
@@ -543,7 +629,11 @@ void EpochTracker::CrossCorrelation(const std::vector<float>& data, int32_t star
     }
     if (lag_energy <= 0.0)
       lag_energy = 1.0;
+#if 0
     (*corr)[oind] = sum / sqrt(energy * lag_energy);
+#else
+    (*corr)[oind] = static_cast<float>(sum / sqrt(energy * lag_energy));
+#endif
     lag_energy -= input[lag] * input[lag];  // Discard old sample.
     lag_energy += input[lag_ind] * input[lag_ind];  // Pick up the new sample.
   }
@@ -561,17 +651,29 @@ void EpochTracker::GetPulseCorrelations(float window_dur, float peak_thresh) {
 
   std::vector<float> mixture;
   mixture.resize(residual_.size());
+#if 0
   const float kMinCorrelationStep = 0.001;  // Pulse separation
   // before computing new
   // correlation values.
   const float kResidFract = 0.7;  // Fraction of the residual to use.
   const float kPcmFract = 1.0 - kResidFract;  // Fraction of the input to use.
+#else
+  const float kMinCorrelationStep = 0.001f;  // Pulse separation
+  // before computing new
+  // correlation values.
+  const float kResidFract = 0.7f;  // Fraction of the residual to use.
+  const float kPcmFract = 1.0f - kResidFract;  // Fraction of the input to use.
+#endif
   for (size_t i = 0; i < residual_.size(); ++i) {
     mixture[i] = (kResidFract * residual_[i]) + (kPcmFract * signal_[i]);
   }
 
   int32_t min_step = RoundUp(sample_rate_ * kMinCorrelationStep);
+#if 0
   int32_t old_start = - (2.0 * min_step);
+#else
+  int32_t old_start = - (2 * min_step);
+#endif
   for (size_t peak = 0; peak < resid_peaks_.size(); ++peak) {
     int32_t start = resid_peaks_[peak].resid_index - half_wind;
     if (start < 0) {
@@ -588,7 +690,11 @@ void EpochTracker::GetPulseCorrelations(float window_dur, float peak_thresh) {
                     &(resid_peaks_[peak].nccf_periods));
       // Turn the peak indices from FindNccfPeaks into NCCF period hyps.
       for (size_t i = 0; i < resid_peaks_[peak].nccf_periods.size(); ++i) {
+#if 0
         resid_peaks_[peak].nccf_periods[i] += first_nccf_lag_;
+#else
+        resid_peaks_[peak].nccf_periods[i] += static_cast<int16_t>(first_nccf_lag_);
+#endif
       }
       old_start = start;
     }
@@ -600,9 +706,17 @@ void EpochTracker::Window(const std::vector<float>& input, int32_t offset, size_
                           float* output) {
   if (size != window_.size()) {
     window_.resize(size);
+#if 0
     float arg = 2.0 * M_PI / size;
+#else
+    double arg = 2.0 * M_PI / size;
+#endif
     for (size_t i = 0; i < size; ++i) {
+#if 0
       window_[i] = 0.5 - (0.5 * cos((i + 0.5) * arg));
+#else
+      window_[i] = static_cast<float>(0.5 - (0.5 * cos((i + 0.5) * arg)));
+#endif
     }
   }
   const float* data = (&(input.front())) + offset;
@@ -628,7 +742,11 @@ bool EpochTracker::GetBandpassedRmsSignal(const std::vector<float>& input,
     return false;
   }
   output_rms->resize(n_frames);
+#if 0
   FFT ft(FFT::fft_pow2_from_window_size(frame_size));
+#else
+  FFT ft(FFT::fft_pow2_from_window_size(static_cast<int>(frame_size)));
+#endif
   int32_t fft_size = ft.get_fftSize();
   int32_t first_bin = RoundUp(fft_size * low_limit / sample_rate);
   int32_t last_bin = RoundUp(fft_size * high_limit / sample_rate);
@@ -639,6 +757,7 @@ bool EpochTracker::GetBandpassedRmsSignal(const std::vector<float>& input,
     first_frame++;
   }
   for (size_t frame = first_frame; frame < n_frames; ++frame) {
+#if 0
     Window(input, (frame - first_frame) * frame_step, frame_size, re);
     for (size_t i = 0; i < frame_size; ++i) {
       im[i] = 0.0;
@@ -649,6 +768,18 @@ bool EpochTracker::GetBandpassedRmsSignal(const std::vector<float>& input,
     ft.fft(re, im);
     float rms = 20.0 *
         log10(1.0 + ft.get_band_rms(re, im, first_bin, last_bin));
+#else
+    Window(input, static_cast<int32_t>((frame - first_frame) * frame_step), frame_size, re);
+    for (size_t i = 0; i < frame_size; ++i) {
+      im[i] = 0.0f;
+    }
+    for (size_t i = frame_size; i < static_cast<size_t>(fft_size); ++i) {
+      re[i] = im[i] = 0.0f;
+    }
+    ft.fft(re, im);
+    float rms = static_cast<float>(20.0 *
+        log10(1.0 + ft.get_band_rms(re, im, first_bin, last_bin)));
+#endif
     (*output_rms)[frame] = rms;
     if (frame == first_frame) {
       for (size_t bframe = 0; bframe < first_frame; ++bframe) {
@@ -664,7 +795,11 @@ bool EpochTracker::GetBandpassedRmsSignal(const std::vector<float>& input,
 
 void EpochTracker::GetSymmetryStats(const std::vector<float>& data, float* pos_rms,
                                     float* neg_rms, float* mean) {
+#if 0
   int32_t n_input = data.size();
+#else
+  int32_t n_input = static_cast<int32_t>(data.size());
+#endif
   double p_sum = 0.0;
   double n_sum = 0.0;
   double sum = 0.0;
@@ -673,7 +808,11 @@ void EpochTracker::GetSymmetryStats(const std::vector<float>& data, float* pos_r
   for (int32_t i = 0; i < n_input; ++i) {
     sum += data[i];
   }
+#if 0
   *mean = sum / n_input;
+#else
+  *mean = static_cast<float>(sum / n_input);
+#endif
   for (int32_t i = 0; i < n_input; ++i) {
     double val = data[i] - *mean;
     if (val > 0.0) {
@@ -686,15 +825,24 @@ void EpochTracker::GetSymmetryStats(const std::vector<float>& data, float* pos_r
       }
     }
   }
+#if 0
   *pos_rms = sqrt(p_sum / n_p);
   *neg_rms = sqrt(n_sum / n_n);
+#else
+  *pos_rms = static_cast<float>(sqrt(p_sum / n_p));
+  *neg_rms = static_cast<float>(sqrt(n_sum / n_n));
+#endif
 }
 
 
 void EpochTracker::NormalizeAmplitude(const std::vector<float>& input,
                                       float sample_rate,
                                       std::vector<float>* output) {
+#if 0
   int32_t n_input = input.size();
+#else
+  int32_t n_input = static_cast<int32_t>(input.size());
+#endif
   int32_t ref_size = RoundUp(sample_rate * ref_dur_);
   std::vector<float> wind;
 
@@ -722,14 +870,22 @@ void EpochTracker::NormalizeAmplitude(const std::vector<float>& input,
       old_inv_rms = inv_rms;
     }
     for (int i = 0; i < frame_limit; ++i, ++data_p) {
+#if 0
       (*output)[data_p] = input[data_p] * old_inv_rms;
+#else
+      (*output)[data_p] = static_cast<float>(input[data_p] * old_inv_rms);
+#endif
       old_inv_rms += delta_inv_rms;
     }
     frame_limit = frame_step;
     frame_p += frame_step;
   }
   for ( ; data_p < n_input; ++data_p) {
+#if 0
     (*output)[data_p] = input[data_p] * old_inv_rms;
+#else
+    (*output)[data_p] = static_cast<float>(input[data_p] * old_inv_rms);
+#endif
   }
 }
 
@@ -772,7 +928,11 @@ bool EpochTracker::ComputeFeatures(void) {
     fprintf(stderr, "Failure in GetLpcResidual\n");
     return false;
   }
+#if 0
   n_feature_frames_ = bandpassed_rms_.size();
+#else
+  n_feature_frames_ = static_cast<int32_t>(bandpassed_rms_.size());
+#endif
   float mean = 0.0;
   GetSymmetryStats(residual_, &positive_rms_, &negative_rms_, &mean);
 #if 0
@@ -813,11 +973,20 @@ void EpochTracker::CreatePeriodLattice(void) {
 
   //  For each pulse in the normalized residual...
   for (size_t peak = 0; peak < resid_peaks_.size(); ++peak) {
+#if 0
     size_t frame_index = resid_peaks_[peak].frame_index;
     size_t resid_index = resid_peaks_[peak].resid_index;
+#else
+    int32_t frame_index = resid_peaks_[peak].frame_index;
+    int32_t resid_index = resid_peaks_[peak].resid_index;
+#endif
     int32_t min_period = resid_index + low_period;
     int32_t max_period = resid_index + high_period;
+#if 0
     float lowest_cost = 1.0e30;
+#else
+    float lowest_cost = 1.0e30f;
+#endif
     float time = resid_index / sample_rate_;
     int32_t best_nccf_period = resid_peaks_[peak].nccf_periods[0];
     float best_cc_val =
@@ -826,7 +995,11 @@ void EpochTracker::CreatePeriodLattice(void) {
     best_corr_.push_back(best_cc_val);
     EpochCand* uv_cand = new EpochCand;  // pre-allocate an unvoiced candidate.
     uv_cand->voiced = false;
+#if 0
     uv_cand->start_peak = peak;
+#else
+    uv_cand->start_peak = static_cast<int32_t>(peak);
+#endif
     uv_cand->cost_sum = 0.0;
     uv_cand->local_cost = 0.0;
     uv_cand->best_prev_cand = -1;
@@ -835,18 +1008,34 @@ void EpochTracker::CreatePeriodLattice(void) {
     for (size_t npeak = peak + 1; npeak < resid_peaks_.size(); ++npeak) {
       int32_t iperiod = resid_peaks_[npeak].resid_index - resid_index;
       if (resid_peaks_[npeak].resid_index >= min_period) {
+#if 0
         float fperiod = iperiod;
+#else
+        float fperiod = static_cast<float>(iperiod);
+#endif
         // Find the NCCF period that most closely matches.
         int32_t cc_peak = 0;
+#if 0
         float min_period_diff = fabs(log(fperiod / best_nccf_period));
+#else
+        float min_period_diff = fabsf(logf(fperiod / best_nccf_period));
+#endif
         for (size_t cc_peak_ind = 1;
              cc_peak_ind < resid_peaks_[peak].nccf_periods.size();
              ++cc_peak_ind) {
           int32_t nccf_period =  resid_peaks_[peak].nccf_periods[cc_peak_ind];
+#if 0
           float test_diff = fabs(log(fperiod / nccf_period));
+#else
+          float test_diff = fabsf(logf(fperiod / nccf_period));
+#endif
           if (test_diff < min_period_diff) {
             min_period_diff = test_diff;
+#if 0
             cc_peak = cc_peak_ind;
+#else
+            cc_peak = static_cast<int32_t>(cc_peak_ind);
+#endif
           }
         }
         // Generate a forward-period candidate.  Grade the candidate
@@ -867,11 +1056,19 @@ void EpochTracker::CreatePeriodLattice(void) {
           cc_value =  resid_peaks_[peak].nccf[peak_cc_index];
         }
         float per_dev_cost = period_deviation_wt_ * min_period_diff;
+#if 0
         float level_cost = level_wt_ * (1.0 - prob_voiced_[frame_index]);
+#else
+        float level_cost = level_wt_ * (1.0f - prob_voiced_[frame_index]);
+#endif
         float period_cost = fperiod * period_wt_;
         float peak_qual_cost = peak_quality_wt_ /
             (resid_peaks_[npeak].peak_quality + resid_peaks_[peak].peak_quality);
+#if 0
         float local_cost =  (1.0 - cc_value) + per_dev_cost + peak_qual_cost +
+#else
+        float local_cost =  (1.0f - cc_value) + per_dev_cost + peak_qual_cost +
+#endif
             level_cost + period_cost + reward_;
         v_cand->local_cost = local_cost;
         if (local_cost < lowest_cost) {
@@ -883,12 +1080,21 @@ void EpochTracker::CreatePeriodLattice(void) {
           level_cost = level_wt_ * prob_voiced_[frame_index];
           uv_cand->local_cost = (nccf_uv_peak_wt_ * cc_value) +
               level_cost + unvoiced_cost_ + reward_;
+#if 0
           uv_cand->end_peak = npeak;
+#else
+          uv_cand->end_peak = static_cast<int32_t>(npeak);
+#endif
           uv_cand->closest_nccf_period =
               resid_peaks_[peak].nccf_periods[cc_peak];
         }
+#if 0
         v_cand->start_peak = peak;
         v_cand->end_peak = npeak;
+#else
+        v_cand->start_peak = static_cast<int32_t>(peak);
+        v_cand->end_peak = static_cast<int32_t>(npeak);
+#endif
         v_cand->closest_nccf_period = resid_peaks_[peak].nccf_periods[cc_peak];
         v_cand->cost_sum = 0.0;
         v_cand->best_prev_cand = -1;
@@ -949,8 +1155,13 @@ void EpochTracker::CreatePeriodLattice(void) {
         size_t start_peak = resid_peaks_[peak].past[lowest_index]->start_peak;
         EpochCand* uv_cand = new EpochCand;
         uv_cand->voiced = false;
+#if 0
         uv_cand->start_peak = start_peak;
         uv_cand->end_peak = peak;
+#else
+        uv_cand->start_peak = static_cast<int32_t>(start_peak);
+        uv_cand->end_peak = static_cast<int32_t>(peak);
+#endif
         uv_cand->period =  resid_peaks_[peak].past[lowest_index]->period;
         uv_cand->closest_nccf_period =
             resid_peaks_[peak].past[lowest_index]->closest_nccf_period;
@@ -996,9 +1207,17 @@ void EpochTracker::DoDynamicProgramming(void) {
     }
     // For each forward period hypothesis starting at this pulse...
     for (size_t fhyp = 0; fhyp < resid_peaks_[peak].future.size(); ++fhyp) {
+#if 0
       float min_cost = 1.0e30;  //  huge
+#else
+      float min_cost = 1.0e30f;  //  huge
+#endif
       size_t min_index = 0;
+#if 0
       float forward_period =  resid_peaks_[peak].future[fhyp]->period;
+#else
+      float forward_period = static_cast<float>(resid_peaks_[peak].future[fhyp]->period);
+#endif
       // For each of the previous period hyps ending on this pulse...
       for (size_t phyp = 0; phyp < resid_peaks_[peak].past.size(); ++phyp) {
         float sum_cost = 0.0;
@@ -1006,20 +1225,32 @@ void EpochTracker::DoDynamicProgramming(void) {
         if (resid_peaks_[peak].future[fhyp]->voiced &&
             resid_peaks_[peak].past[phyp]->voiced) {  // v->v
           float f_trans_cost = freq_trans_wt_ *
+#if 0
               fabs(log(forward_period / resid_peaks_[peak].past[phyp]->period));
+#else
+              fabsf(logf(forward_period / resid_peaks_[peak].past[phyp]->period));
+#endif
           sum_cost = f_trans_cost + resid_peaks_[peak].past[phyp]->cost_sum;
         } else {
           if (resid_peaks_[peak].future[fhyp]->voiced &&
               !resid_peaks_[peak].past[phyp]->voiced) {  // uv->v
             float v_transition_cost = voice_transition_factor_ *
+#if 0
                 (1.0 - voice_onset_prob_[resid_peaks_[peak].frame_index]);
+#else
+                (1.0f - voice_onset_prob_[resid_peaks_[peak].frame_index]);
+#endif
             sum_cost = resid_peaks_[peak].past[phyp]->cost_sum +
                 v_transition_cost;
           } else {
             if ((!resid_peaks_[peak].future[fhyp]->voiced) &&
                 resid_peaks_[peak].past[phyp]->voiced) {  // v->uv
               float v_transition_cost = voice_transition_factor_ *
+#if 0
                   (1.0 - voice_offset_prob_[resid_peaks_[peak].frame_index]);
+#else
+                  (1.0f - voice_offset_prob_[resid_peaks_[peak].frame_index]);
+#endif
               sum_cost = resid_peaks_[peak].past[phyp]->cost_sum +
                   v_transition_cost;
             } else {  //  UV->UV
@@ -1034,7 +1265,11 @@ void EpochTracker::DoDynamicProgramming(void) {
       }  // end for each previous period hyp
       resid_peaks_[peak].future[fhyp]->cost_sum =
           resid_peaks_[peak].future[fhyp]->local_cost + min_cost;
+#if 0
       resid_peaks_[peak].future[fhyp]->best_prev_cand = min_index;
+#else
+      resid_peaks_[peak].future[fhyp]->best_prev_cand = static_cast<int32_t>(min_index);
+#endif
     }  // end for each foreward period hyp
   }  // end for each pulse in the residual signal.
   // Here ends the dynamic programming.
@@ -1048,7 +1283,11 @@ bool EpochTracker::BacktrackAndSaveOutput(void) {
   }
   //  Now find the best period hypothesis at the end of the signal,
   //  and backtrack from there.
+#if 0
   float min_cost = 1.0e30;
+#else
+  float min_cost = 1.0e30f;
+#endif
   int32_t min_index = 0;
   // First, find a terminal peak which is the end of more than one
   // period candidate.
@@ -1062,7 +1301,11 @@ bool EpochTracker::BacktrackAndSaveOutput(void) {
       for (size_t ind = 0; ind < resid_peaks_[peak].past.size(); ++ind) {
         if (resid_peaks_[peak].past[ind]->cost_sum < min_cost) {
           min_cost = resid_peaks_[peak].past[ind]->cost_sum;
+#if 0
           min_index = ind;
+#else
+          min_index = static_cast<int32_t>(ind);
+#endif
         }
       }
       end = peak;
@@ -1084,8 +1327,13 @@ bool EpochTracker::BacktrackAndSaveOutput(void) {
     TrackerResults tr;
     tr.resid_index = resid_peaks_[start_peak].resid_index;
     if (resid_peaks_[end].past[min_index]->voiced) {
+#if 0
       float nccf_period =
           resid_peaks_[end].past[min_index]->closest_nccf_period;
+#else
+      float nccf_period = static_cast<float>(
+          resid_peaks_[end].past[min_index]->closest_nccf_period);
+#endif
       // TODO(dtalkin) If the closest NCCF period is more than epsilon
       // different from the inter-pulse interval, use the inter-pulse
       // interval instead.
@@ -1126,7 +1374,11 @@ void EpochTracker::GetFilledEpochs(float unvoiced_pm_interval,
   times->clear();
   voicing->clear();
   float final_time = norm_residual_.size() / sample_rate_;
+#if 0
   int32_t limit = output_.size() - 1;
+#else
+  int32_t limit = static_cast<int32_t>(output_.size()) - 1;
+#endif
   int32_t i = limit;
   // Produce the output in normal time order.
   while (i >= 0) {
@@ -1152,7 +1404,11 @@ void EpochTracker::GetFilledEpochs(float unvoiced_pm_interval,
       int32_t fill_ind = 1;
       if (i > 0) {
         next_time = (output_[i].resid_index / sample_rate_) -
+#if 0
             (1.0 / max_f0_search_);
+#else
+            (1.0f / max_f0_search_);
+#endif
       }
       float now = time + (fill_ind * unvoiced_pm_interval);
       while (now < next_time) {
@@ -1187,7 +1443,11 @@ bool EpochTracker::ResampleAndReturnResults(float resample_interval,
   correlations->resize(0);
   f0->insert(f0->begin(), n_frames, 0.0);
   correlations->insert(correlations->begin(), n_frames, 0.0);
+#if 0
   int32_t limit = output_.size() - 1;
+#else
+  int32_t limit = static_cast<int32_t>(output_.size()) - 1;
+#endif
   int32_t prev_frame = 0;
   float prev_f0 = output_[limit].f0;
   float prev_corr = output_[limit].nccf_value;
@@ -1267,7 +1527,11 @@ bool EpochTracker::WriteDiagnostics(const std::string& file_base) {
     FILE* pmfile = fopen(pm_name.c_str(), "w");
     fprintf(pmfile, "#\n");
     std::vector<float> f0;
+#if 0
     int32_t limit = output_.size() - 1;
+#else
+    int32_t limit = static_cast<int32_t>(output_.size()) - 1;
+#endif
     // Produce debug output in normal time order.
     for (int32_t i = limit; i >= 0; --i) {
       float time = output_[i].resid_index / sample_rate_;

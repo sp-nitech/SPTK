@@ -250,7 +250,7 @@ int main(int argc, char* argv[]) {
   }
 
   const int input_length(num_order + 1);
-  const int output_length(frequencies.size());
+  const int output_length(static_cast<int>(frequencies.size()));
   std::vector<double> input_x(input_length);
   std::vector<double> output_x(output_length);
   std::vector<double> output_y(output_length);

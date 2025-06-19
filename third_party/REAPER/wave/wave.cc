@@ -129,7 +129,11 @@ void Wave::ZeroFill() {
     data_ = new_wave_data;
     owner_ = true;
   }
+#if 0
   std::fill(data_->begin(), data_->end(), 0);
+#else
+  std::fill(data_->begin(), data_->end(), static_cast<int16_t>(0));
+#endif
 }
 
 bool Wave::Load(FileResource *fr) {
@@ -145,7 +149,11 @@ const int16_t Wave::kMaxShort = std::numeric_limits<int16_t>::max() - 1;
 const int16_t Wave::kMinShort = std::numeric_limits<int16_t>::min() + 1;
 
 bool Wave::Amplify(float gain) {
+#if 0
   return AmplifyBuffer(gain, &(*data_)[0], data_->size());
+#else
+  return AmplifyBuffer(gain, &(*data_)[0], static_cast<uint32_t>(data_->size()));
+#endif
 }
 
 bool Wave::AmplifyBuffer(float gain, int16_t *buf, uint32_t size) {

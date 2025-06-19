@@ -23,7 +23,7 @@ endif()
 
 set(CMAKE_CXX_STANDARD 11)
 if(MSVC)
-  set(CMAKE_CXX_FLAGS "/O2 /W4 /wd4100 /EHsc")
+  set(CMAKE_CXX_FLAGS "/O2 /W4 /wd4100 /wd4456 /EHsc /D_CRT_SECURE_NO_WARNINGS")
 else()
   set(CMAKE_CXX_FLAGS "-O2 -Wall -Wno-deprecated-register")
 endif()

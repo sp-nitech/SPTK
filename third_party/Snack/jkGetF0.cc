@@ -384,10 +384,18 @@ void get_fast_cands(float *fdata, float *fdsdata, int ind, int step, int size,
 #else
 	maxval, corp, dbsize, dbdata);
 #endif
+#if 0
   cp->maxloc = *maxloc;	/* location of maximum in correlation */
+#else
+  cp->maxloc = (short) *maxloc;	/* location of maximum in correlation */
+#endif
   cp->maxval = *maxval;	/* max. correlation value (found at maxloc) */
   cp->rms = (float) sqrt(*engref/size); /* rms in reference window */
+#if 0
   cp->firstlag = decstart;
+#else
+  cp->firstlag = (short) decstart;
+#endif
 
   get_cand(cp,peaks,locs,decnlags,ncand,par->cand_thresh); /* return high peaks in xcorr */
 
@@ -425,10 +433,18 @@ void get_fast_cands(float *fdata, float *fdsdata, int ind, int step, int size,
 	  maxval, corp, locs, *ncand, dbsize, dbdata);
 #endif
 
+#if 0
   cp->maxloc = *maxloc;	/* location of maximum in correlation */
+#else
+  cp->maxloc = (short) *maxloc;	/* location of maximum in correlation */
+#endif
   cp->maxval = *maxval;	/* max. correlation value (found at maxloc) */
   cp->rms = (float) sqrt(*engref/size); /* rms in reference window */
+#if 0
   cp->firstlag = start;
+#else
+  cp->firstlag = (short) start;
+#endif
   get_cand(cp,peaks,locs,nlags,ncand,par->cand_thresh); /* return high peaks in xcorr */
     if(*ncand >= par->n_cands) {	/* need to prune candidates again? */
     register int *loc, *locm, lt;
@@ -905,7 +921,7 @@ typedef struct buffer_rec {
   int size_cir_buffer, size_frame_hist, size_frame_out, num_active_frames, output_buf_size;
   float tcost, tfact_a, tfact_s, frame_int, vbias, fdouble, wdur, ln2, freqwt, lagwt;
   int step, size, nlags, start, stop, ncomp, *locs;
-  short maxpeaks;
+  int maxpeaks;
   int wReuse;
   Windstat *windstat;
   float *f0p, *vuvp, *rms_speech, *acpkp, *peaks;
@@ -1688,7 +1704,11 @@ dp_f0(float *fdata, int buff_size, int sdstep, double freq, F0_params *par,
       for(ftp1 = buffer->headF->dp->pvals, ftp2 = buffer->peaks,
 	  sp1 = buffer->headF->dp->locs, sp2 = buffer->locs, j=ncand; j--; ) {
 	*ftp1++ = *ftp2++;
+#if 0
 	*sp1++ = *sp2++;
+#else
+	*sp1++ = (short) *sp2++;
+#endif
       }
       *sp1 = -1;		/* distinguish the UNVOICED candidate */
       *ftp1 = maxval;
@@ -1703,7 +1723,11 @@ dp_f0(float *fdata, int buff_size, int sdstep, double freq, F0_params *par,
       buffer->headF->dp->mpvals[j] = 1.0f - (buffer->peaks[j] * ftemp);
     }
     ncand++;			/* include the unvoiced candidate */
+#if 0
     buffer->headF->dp->ncands = ncand;
+#else
+    buffer->headF->dp->ncands = (short) ncand;
+#endif
 
     /*********************************************************************/
     /*    COMPUTE THE DISTANCE MEASURES AND ACCUMULATE THE COSTS.       */
@@ -1760,7 +1784,11 @@ dp_f0(float *fdata, int buff_size, int sdstep, double freq, F0_params *par,
 	buffer->headF->dp->prept[k] = 0;
       } else {
 	buffer->headF->dp->dpvals[k] = errmin + buffer->headF->dp->mpvals[k];
+#if 0
 	buffer->headF->dp->prept[k] = minloc;
+#else
+	buffer->headF->dp->prept[k] = (short) minloc;
+#endif
       }
     } /*    END OF THIS DP FRAME */
 
@@ -2488,7 +2516,7 @@ cGet_f0(const std::vector<double> &waveform, int frame_shift,
   Tcl_Obj *list;
   float *tmp = (float *)ckalloc(sizeof(float) * (5 + sound->length / 80));
 #else
-  long sound_length = static_cast<long>(waveform.size());
+  long sound_length = (long) waveform.size();
   int tmp_length = 5 + sound_length / frame_shift;
   float *tmp = (float *)ckalloc(sizeof(float) * tmp_length);
   float *buf;
@@ -2514,8 +2542,13 @@ cGet_f0(const std::vector<double> &waveform, int frame_shift,
   /* Pad input with zeros to work properly. */
   /* (The padded length is calculated from magic numbers.) */
   fsp = sample_freq * 10.0 / frame_shift;
+#if 0
   alpha = 0.00275 * fsp + 0.5;
   beta = (9600.0 / min_f0 - 168.0) * fsp / 96000.0 + 0.5;
+#else
+  alpha = (int) (0.00275 * fsp + 0.5);
+  beta = (int) ((9600.0 / min_f0 - 168.0) * fsp / 96000.0 + 0.5);
+#endif
   if (beta < 0) beta = 0;
   pad_length = (alpha + beta + 3) * frame_shift;
   total_length = sound_length + pad_length;
@@ -2525,11 +2558,11 @@ cGet_f0(const std::vector<double> &waveform, int frame_shift,
   sptk::NormalDistributedRandomValueGeneration generator(1);
   for (i = 0; i < sound_length; i++) {
     if (!generator.Get(&noise)) return 1;
-    buf[i] = waveform[i] + noise * noise_sdev;
+    buf[i] = (float) (waveform[i] + noise * noise_sdev);
   }
   for (i = sound_length; i < total_length; i++) {
     if (!generator.Get(&noise)) return 1;
-    buf[i] = noise * noise_sdev;
+    buf[i] = (float) (noise * noise_sdev);
   }
 #endif
 
@@ -2547,9 +2580,9 @@ cGet_f0(const std::vector<double> &waveform, int frame_shift,
   par->max_f0 = 550;
   par->frame_step = 0.01f;
 #else
-  par->min_f0 = min_f0;
-  par->max_f0 = max_f0;
-  par->frame_step = (double) frame_shift / sample_freq;
+  par->min_f0 = (float) min_f0;
+  par->max_f0 = (float) max_f0;
+  par->frame_step = (float) (frame_shift / sample_freq);
 #endif
   par->wind_dur = 0.0075f;
   par->n_cands = 20;
@@ -2557,7 +2590,7 @@ cGet_f0(const std::vector<double> &waveform, int frame_shift,
   par->mean_f0_weight = 0.0f;  /* unused */
   par->conditioning = 0;       /* unused */
 #if 1
-  par->voice_bias = voice_bias;
+  par->voice_bias = (float) voice_bias;
 #endif
 
   if (startpos < 0) startpos = 0;

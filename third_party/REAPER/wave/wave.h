@@ -54,7 +54,11 @@ class Wave {
 
   // Returns the number of samples contained in the wave.
   int num_samples() const {
+#if 0
     return data_->size();
+#else
+    return static_cast<int>(data_->size());
+#endif
   }
 
   // Returns the sample rate of the wave.

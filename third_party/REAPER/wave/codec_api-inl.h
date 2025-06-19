@@ -57,7 +57,11 @@ bool CodecApi<CodecImplementation>::ReadAudioData(
   bool status = codec_.ReadAudioData(wave_start, num_samples, samples, fr);
   // Reset the file resource pointer back to the beginning of the
   // audio container.
+#if 0
   if (fseek(fr->fp(), offset_audio_container, SEEK_SET) != 0) {
+ #else
+  if (fseek(fr->fp(), static_cast<long>(offset_audio_container), SEEK_SET) != 0) {
+#endif
     fprintf(stderr, "CodecApi::ReadAudioData: error seeking the beginning of the "
             "audio container");
     return false;
@@ -73,7 +77,11 @@ bool CodecApi<CodecImplementation>::ReadAudioContainer(
   int64_t offset_audio_container = ftell(fr->fp());
   bool status = codec_.ReadAudioContainer(container_size_in_bytes, samples, fr);
   // Reset the FileResource pointer back to the beginning of the audio container
+#if 0
   if (fseek(fr->fp(), offset_audio_container, SEEK_SET) != 0) {
+#else
+  if (fseek(fr->fp(), static_cast<long>(offset_audio_container), SEEK_SET) != 0) {
+#endif
     fprintf(stderr, "CodecApi::ReadAudioData: error seeking the beginning of the "
             "audio container");
     return false;

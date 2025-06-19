@@ -43,7 +43,11 @@ void LpcAnalyzer::HannWindow(const float* din, float* dout, int n,
     double arg, half = 0.5;
     window_.resize(n);
     for (i = 0, arg = M_PI * 2.0 / n; i < n; ++i)
+#if 0
       window_[i] = (half - half * cos((half + i) * arg));
+#else
+      window_[i] = static_cast<float>(half - half * cos((half + i) * arg));
+#endif
   }
   /* If preemphasis is to be performed,  this assumes that there are n+1 valid
      samples in the input buffer (din). */
@@ -65,7 +69,11 @@ void LpcAnalyzer::GetWindow(int n) {
     double arg = M_PI * 2.0 / n, half = 0.5;
     energywind_.resize(n);
     for (int i = 0; i < n; ++i)
+#if 0
       energywind_[i] = (half - half * cos((half + i) * arg));
+#else
+      energywind_[i] = static_cast<float>(half - half * cos((half + i) * arg));
+#endif
   }
 }
 
@@ -91,8 +99,13 @@ void LpcAnalyzer::Autoc(int windowsize, float* s, int p, float* r, float* e) {
     }
     return;
   }
+#if 0
   *e = sqrt(sum0 / windowsize);
   sum0 = 1.0 / sum0;
+#else
+  *e = sqrtf(sum0 / windowsize);
+  sum0 = 1.0f / sum0;
+#endif
   for (i = 1; i <= p; i++) {
     for (sum = 0.0, j = windowsize - i, q = s, t = s + i; j--;)
       sum += (*q++) * (*t++);
@@ -115,7 +128,11 @@ void LpcAnalyzer::Durbin(float* r, float* k, float* a, int p, float* ex) {
   e = *r;
   *k = -r[1] / e;
   *a = *k;
+#if 0
   e *= (1.0 - (*k) * (*k));
+#else
+  e *= (1.0f - (*k) * (*k));
+#endif
   for (i = 1; i < p; i++) {
     s = 0;
     for (j = 0; j < i; j++) {
@@ -129,7 +146,11 @@ void LpcAnalyzer::Durbin(float* r, float* k, float* a, int p, float* ex) {
     for (j = 0; j < i; j++) {
       a[j] += k[i] * b[i - j - 1];
     }
+#if 0
     e *= (1.0 - (k[i] * k[i]));
+#else
+    e *= (1.0f - (k[i] * k[i]));
+#endif
   }
   *ex = e;
 }
@@ -152,7 +173,11 @@ void LpcAnalyzer::PcToAutocorPc(float* a, float* b, float* c, int p) {
     s = a[i - 1];
     for (a0 = a, ap = a + i, j = p - i; j--;)
       s += (*a0++ * *ap++);
+#if 0
     *b++ = 2.0 * s;
+#else
+    *b++ = 2.0f * s;
+#endif
   }
 }
 
@@ -187,7 +212,11 @@ float LpcAnalyzer::WindowedRms(float* data, int size) {
     f = energywind_[i] * (*data++);
     sum += f * f;
   }
+#if 0
   return sqrt(sum / size);
+#else
+  return sqrtf(sum / size);
+#endif
 }
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
@@ -224,7 +253,11 @@ int LpcAnalyzer::ComputeLpc(int lpc_ord, float noise_floor, int wsize,
   if (noise_floor > 1.0) {  // Add some to the diagonal to simulate white noise.
     int i;
     float ffact;
+#if 0
     ffact = 1.0 / (1.0 + exp((-noise_floor / 20.0) * log(10.0)));
+#else
+    ffact = static_cast<float>(1.0 / (1.0 + exp((-noise_floor / 20.0) * log(10.0))));
+#endif
     for (i = 1; i <= lpc_ord; i++)
       rho[i] = ffact * r[i];
     *rho = *r;
@@ -235,7 +268,11 @@ int LpcAnalyzer::ComputeLpc(int lpc_ord, float noise_floor, int wsize,
     }
   }
   Durbin(r, kp, ap + 1, lpc_ord, &er);
+#if 0
   float wfact = .612372;  // ratio of Hanning RMS to rectangular RMS
+#else
+  float wfact = .612372f;  // ratio of Hanning RMS to rectangular RMS
+#endif
   ap[0] = 1.0;
   if (rms)
     *rms = en / wfact;

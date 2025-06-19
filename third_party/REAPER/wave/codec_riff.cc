@@ -49,7 +49,11 @@ uint8_t UlawCodec::Int16ToUlaw(int16_t pcm_val) const {
     return (uint8_t)(0x7f ^ mask);
   } else {
     uval = (uint8_t) (seg << 4) | ((pcm_val >> (seg + 1)) & 0xF);
+#if 0
     return uval ^ mask;
+#else
+    return (uint8_t)(uval ^ mask);
+#endif
   }
 }
 
@@ -57,10 +61,18 @@ int16_t UlawCodec::SegmentSearch(int16_t val, const int16_t *table,
                                  int size) const {
   for (int i = 0; i < size; ++i) {
     if (val <= *table++) {
+#if 0
       return i;
+#else
+      return static_cast<int16_t>(i);
+#endif
     }
   }
+#if 0
   return size;
+#else
+  return static_cast<int16_t>(size);
+#endif
 }
 
 int16_t UlawCodec::UlawToInt16(uint8_t ulaw) const {
@@ -219,12 +231,12 @@ bool WavRiffCodec::ReadAudioData(int32_t wave_start,
   case PCM16: {
     status &= (fseek(fr->fp(),
                      wave_start * sizeof((*samples)[0]), SEEK_CUR) == 0);
-    uint32_t read = fread(&(*samples)[0], sizeof(int16_t), num_samples, fr->fp());
 #if 0
-    if (read != num_samples) {
+    uint32_t read = fread(&(*samples)[0], sizeof(int16_t), num_samples, fr->fp());
 #else
-    if (read != static_cast<uint32_t>(num_samples)) {
+    int32_t read = static_cast<int32_t>(fread(&(*samples)[0], sizeof(int16_t), num_samples, fr->fp()));
 #endif
+    if (read != num_samples) {
       fprintf(stderr, "WaveIO::ReadSamples: only %d out of %d values read",
           read, num_samples);
       status = false;
@@ -235,12 +247,12 @@ bool WavRiffCodec::ReadAudioData(int32_t wave_start,
     UlawCodec sample_codec;
     uint8_t *buffer = new uint8_t[num_samples];
     status &= (fseek(fr->fp(), wave_start * sizeof(*buffer), SEEK_CUR) == 0);
-    uint32_t read = fread(buffer, sizeof(uint8_t), num_samples, fr->fp());
 #if 0
-    if (read != num_samples) {
+    uint32_t read = fread(buffer, sizeof(uint8_t), num_samples, fr->fp());
 #else
-    if (read != static_cast<uint32_t>(num_samples)) {
+    int32_t read = static_cast<int32_t>(fread(buffer, sizeof(uint8_t), num_samples, fr->fp()));
 #endif
+    if (read != num_samples) {
       fprintf(stderr, "WaveIO::ReadSamples: only %d out of %d values read",
               read, num_samples);
       status = false;
