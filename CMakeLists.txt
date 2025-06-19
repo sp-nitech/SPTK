@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.1...3.5)
 
-cmake_policy(SET CMP0077 NEW)
+if(POLICY CMP0077)
+  cmake_policy(SET CMP0077 NEW)
+endif()
 
 project(SPTK VERSION 4.3)
 
@@ -23,7 +25,7 @@ endif()
 
 set(CMAKE_CXX_STANDARD 11)
 if(MSVC)
-  set(CMAKE_CXX_FLAGS "/O2 /W4 /wd4100 /EHsc")
+  set(CMAKE_CXX_FLAGS "/O2 /W4 /wd4100 /wd4456 /EHsc /D_CRT_SECURE_NO_WARNINGS")
 else()
   set(CMAKE_CXX_FLAGS "-O2 -Wall -Wno-deprecated-register")
 endif()

@@ -42,7 +42,11 @@ bool FFT::flog_mag(float *x, float *y, float *z, int n) {
       t1 = *--xp;
       t2 = *--yp;
       ssq = (t1 * t1) + (t2 * t2);
+#if 0
       *--zp = (ssq > 0.0)? 10.0 * log10(ssq) : -200.0;
+#else
+      *--zp = (ssq > 0.0f)? 10.0f * log10f(ssq) : -200.0f;
+#endif
     }
     return true;
   } else {
@@ -56,7 +60,11 @@ float FFT::get_band_rms(float *x, float*y, int first_bin, int last_bin) {
   for (int i = first_bin; i <= last_bin; ++i) {
     sum += (x[i] * x[i]) + (y[i] * y[i]);
   }
+#if 0
   return sqrt(sum / (last_bin - first_bin + 1));
+#else
+  return static_cast<float>(sqrt(sum / (last_bin - first_bin + 1)));
+#endif
 }
 
 /*-----------------------------------------------------------------------*/
@@ -72,8 +80,13 @@ int FFT::makefttable(int pow2) {
   scl = (M_PI * 2.0) / fftSize;
   for (s = fsine, c = fcosine, lm = 0; lm < lmx; ++lm) {
     arg = scl * lm;
+#if 0
     *s++ = sin(arg);
     *c++ = cos(arg);
+#else
+    *s++ = static_cast<float>(sin(arg));
+    *c++ = static_cast<float>(cos(arg));
+#endif
   }
   kbase = (fft_ftablesize * 2) / fftSize;
   power2 = pow2;

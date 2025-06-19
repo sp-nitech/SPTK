@@ -168,7 +168,11 @@ matrix loudness(vector x, vector fERBs, double nyquist, int w, int w2) {
     for (i = 0; i < w2; i++) 
         f.v[i] = i * td;
     hi = bisectv(f, fERBs.v[0]); // all calls to La() will begin here
+#if 0
     matrix L = makem(ceil((double) x.x / w2) + 1, fERBs.x); 
+#else
+    matrix L = makem((int) ceil((double) x.x / w2) + 1, fERBs.x); 
+#endif
     for (j = 0; j < w2; j++) // left boundary case
         fi[j] = 0.; // more explicitly, 0. * hann.v[j]
     for (/* j = w2 */; j < w; j++) 
@@ -439,11 +443,19 @@ vector swipe(const std::vector<double>& waveform, double samplerate, double min,
         dt = nyquist2;
         fprintf(stderr, "Timestep > SR...timestep set to %f.\n", nyquist2);
     }
+#if 0
     intvector ws = makeiv(round(log2((nyquist16) / min) -  
                                 log2((nyquist16) / max)) + 1); 
     for (i = 0; i < ws.x; i++)
         ws.v[i] = pow(2, round(log2(nyquist16 / min))) / pow(2, i);
     vector pc = makev(ceil((log2(max) - log2(min)) / DLOG2P));
+#else
+    intvector ws = makeiv((int) round(log2((nyquist16) / min) -  
+                                      log2((nyquist16) / max)) + 1); 
+    for (i = 0; i < ws.x; i++)
+        ws.v[i] = (int) (pow(2, round(log2(nyquist16 / min))) / pow(2, i));
+    vector pc = makev((int) ceil((log2(max) - log2(min)) / DLOG2P));
+#endif
     vector d = makev(pc.x);
     for (i = pc.x - 1; i >= 0; i--) { 
         td = log2(min) + (i * DLOG2P);
@@ -454,22 +466,32 @@ vector swipe(const std::vector<double>& waveform, double samplerate, double min,
     vector x = makev((int) info.frames); // read in the signal
     sf_read_double(source, x.v, x.x);
     sf_close(source); // takes wavf with it, too
+    vector fERBs = makev(ceil((hz2erb(nyquist) - 
+                               hz2erb(pow(2, td) / 4)) / DERBS));
 #else
     double n = 1. / 32768.;
-    int frames = static_cast<int>(waveform.size());
+    int frames = (int) waveform.size();
     vector x = makev(frames);
     for (i = 0; i < frames; i++)
         x.v[i] = waveform[i] * n;
+    vector fERBs = makev((int) ceil((hz2erb(nyquist) - 
+                                     hz2erb(pow(2, td) / 4)) / DERBS));
 #endif
-    vector fERBs = makev(ceil((hz2erb(nyquist) - 
-                               hz2erb(pow(2, td) / 4)) / DERBS));
     td = hz2erb(min / 4.);
     for (i = 0; i < fERBs.x; i++) 
         fERBs.v[i] = erb2hz(td + (i * DERBS));
+#if 0
     intvector ps = onesiv(floor(fERBs.v[fERBs.x - 1] / pc.v[0] - .75));
+#else
+    intvector ps = onesiv((int) floor(fERBs.v[fERBs.x - 1] / pc.v[0] - .75));
+#endif
     sieve(ps);
     ps.v[0] = PR; // hack to make 1 "act" prime...don't ask
+#if 0
     matrix S = zerom(pc.x, ceil(((double) x.x / nyquist2) / dt));
+#else
+    matrix S = zerom(pc.x, (int) ceil(((double) x.x / nyquist2) / dt));
+#endif
     Sfirst(S, x, pc, fERBs, d, ws, ps, nyquist, nyquist2, dt, 0); 
     for (i = 1; i < ws.x - 1; i++) // S is updated inline here
         Snth(S, x, pc, fERBs, d, ws, ps, nyquist, nyquist2, dt, i);

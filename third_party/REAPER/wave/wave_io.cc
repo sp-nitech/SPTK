@@ -58,11 +58,15 @@ bool WaveIO::ReadAudioContainer(int container_size_in_bytes,
     case ULAW8:
       return codec_riff_.ReadAudioContainer(container_size_in_bytes,
                                             samples, fr);
+#if 0
       fprintf(stderr, "WaveIO:ReadAudioData: unknown coding type %d",
               coding_type_);
+#endif
     default:
       fprintf(stderr, "WaveIO: coding type not supported %d", coding_type_);
+#if 0
       return false;
+#endif
   }
   return false;
 }

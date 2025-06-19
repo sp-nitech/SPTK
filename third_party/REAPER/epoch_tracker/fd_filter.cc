@@ -115,8 +115,13 @@ FdFilter::FdFilter(float input_freq, float corner_freq, bool do_highpass,
 // if the input signal is too energetic at those frequencies.
 /* ******************************************************************** */
 FdFilter::FdFilter(float input_freq, char *spectrum_shape) {
+#if 0
   FdFilterInitialize(input_freq, input_freq, 0, 0.01, 0, spectrum_shape,
                      NULL, 0);
+#else
+  FdFilterInitialize(input_freq, input_freq, 0, 0.01f, 0, spectrum_shape,
+                     NULL, 0);
+#endif
 }
 
 // Constructor when FdFilter will be used to implement a filter whose
@@ -126,8 +131,13 @@ FdFilter::FdFilter(float input_freq, char *spectrum_shape) {
 // above for the 'val' column in the 'spectrum_shape' file.
 /* ******************************************************************** */
 FdFilter::FdFilter(float input_freq, float *spectrum_array, int n_magnitudes) {
+#if 0
   FdFilterInitialize(input_freq, input_freq, 0, 0.01, 0, NULL,
                      spectrum_array, n_magnitudes);
+#else
+  FdFilterInitialize(input_freq, input_freq, 0, 0.01f, 0, NULL,
+                     spectrum_array, n_magnitudes);
+#endif
 }
 
 // This is the private method that configures FdFilter to satisfy the
@@ -238,9 +248,17 @@ void FdFilter::FdFilterInitialize(float input_freq, float corner_freq,
         corner_freq = true_output_rate_;
         n_filter_coeffs_ = static_cast<int>(freq1 * insert_ * filter_dur) | 1;
         if (corner_freq < freq1)
+#if 0
           beta = (.5 * corner_freq)/(insert_ * freq1);
+#else
+          beta = (.5f * corner_freq)/(insert_ * freq1);
+#endif
         else
+#if 0
           beta = .5/insert_;
+#else
+          beta = .5f/insert_;
+#endif
       } else {
         beta = corner_freq/freq1;
         n_filter_coeffs_ = static_cast<int>(freq1 * filter_dur) | 1;
@@ -252,8 +270,12 @@ void FdFilter::FdFilterInitialize(float input_freq, float corner_freq,
 
       if (insert_ > 1) {  // Scale up filter coeffs. to maintain
                         // precision in output.
+#if 0
         float fact = insert_;
         for (i = n_filter_coeffs_ / 2; i >= 0; i--) b[i] *= fact;
+#else
+        for (i = n_filter_coeffs_ / 2; i >= 0; i--) b[i] *= insert_;
+#endif
       }
     }  // end else it is not an eq filter.
   }  // end else (a spectrum shape was not specified).
@@ -287,7 +309,11 @@ void FdFilter::FdFilterInitialize(float input_freq, float corner_freq,
   max_input_ = kIoBufferSize / insert_;
   output_delayed_ = new float[(2 * kIoBufferSize)+n_filter_coeffs_+fft_size_];
 
+#if 0
   float ftscale = 1.0 / fft_size_;
+#else
+  float ftscale = 1.0f / fft_size_;
+#endif
   fft_ = new FFT(pow2);
   if (!do_eq_filtering) {
     // position the filter kernel to be symmetric about time=0
@@ -508,8 +534,13 @@ int FdFilter::FilterStream(FILE *input_stream, FILE *output_stream) {
   toread = max_input_;
   filter_state_ = 1;  // indicate start of new signal
   /* process data from a stream */
+#if 0
   while ((nread = fread(input_buffer_, sizeof(*input_buffer_), toread,
                         input_stream))) {
+#else
+  while ((nread = static_cast<int>(fread(input_buffer_, sizeof(*input_buffer_), toread,
+                                         input_stream)))) {
+#endif
     testc = getc(input_stream);
     if (feof(input_stream))
       filter_state_ |= 2;
@@ -524,8 +555,13 @@ int FdFilter::FilterStream(FILE *input_stream, FILE *output_stream) {
       }
     }
     FilterBuffer(nread*insert_, &towrite);
+#if 0
     if ((i = fwrite(output_buffer_, sizeof(*output_buffer_), towrite,
                     output_stream)) < towrite) {
+#else
+    if (static_cast<int>(fwrite(output_buffer_, sizeof(*output_buffer_), towrite,
+                                output_stream)) < towrite) {
+#endif
       fprintf(stderr, "Problems writing output in FilterStream\n");
       rVal = 0;
     }
@@ -625,7 +661,11 @@ void FdFilter::FilterBuffer(int n_input, int *n_output) {
       *dp2++ = y_[j];
   }    /* end of main processing loop */
 
+#if 0
   left_over_ = n_input - (p-input_buffer_);
+#else
+  left_over_ = static_cast<int>(n_input - (p-input_buffer_));
+#endif
   for (i = left_over_, r = leftovers_; i--;)  // Save unused input
                                               // samples for next call.
     *r++ = *p++;
@@ -721,10 +761,19 @@ float FdFilter::GetActualOutputFreq() {
 // by 'qlim'.
 /*      ----------------------------------------------------------      */
 void FdFilter::RationalApproximation(float a, int *k, int *l, int qlim) {
+#if 0
   float aa, af, q, em, qq = 1.0, pp = 1.0, ps, e;
   int ai, ip, i;
+ #else
+  float aa, af, em, ps, e;
+  int ai, ip, i, q, qq = 1, pp = 1;
+#endif
 
+#if 0
   aa = fabs(a);
+#else
+  aa = fabsf(a);
+#endif
   ai = static_cast<int>(aa);
   i = ai;
   af = aa - i;
@@ -733,7 +782,11 @@ void FdFilter::RationalApproximation(float a, int *k, int *l, int qlim) {
   while (++q <= qlim) {
     ps = q * af;
     ip = static_cast<int>(ps + 0.5);
+#if 0
     e = fabs((ps - static_cast<float>(ip)) / q);
+#else
+    e = fabsf((ps - static_cast<float>(ip)) / q);
+#endif
     if (e < em) {
       em = e;
       pp = ip;
@@ -762,17 +815,29 @@ void FdFilter::MakeLinearFir(float fc, int *nf, float *coef) {
 
   /*  Compute part of the ideal impulse response (the sin(x)/x kernel). */
   twopi = M_PI * 2.0;
+#if 0
   coef[0] = 2.0 * fc;
+#else
+  coef[0] = 2.0f * fc;
+#endif
   c = M_PI;
   fn = twopi * fc;
   for (i = 1; i < n; i++)
+#if 0
     coef[i] = sin(i * fn) / (c * i);
+#else
+    coef[i] = static_cast<float>(sin(i * fn) / (c * i));
+#endif
 
   /* Now apply a Hanning window to the (infinite) impulse response. */
   /* (Could use other windows, like Kaiser, Gaussian...) */
   fn = twopi / *nf;
   for (i = 0; i < n; i++)
+#if 0
     coef[n - i - 1] *= (.5 - (.5 * cos(fn * (i + 0.5))));
+#else
+    coef[n - i - 1] *= static_cast<float>(.5 - (.5 * cos(fn * (i + 0.5))));
+#endif
 }
 
 #if 1

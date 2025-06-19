@@ -447,7 +447,11 @@ void printim(intmatrix yr_matrix) {
 // a naive Sieve of Erasthones for prime numbers
 int sieve(intvector ones) {
     int k = 0;
+#if 0
     int sp = floor(sqrt(ones.x));
+#else
+    int sp = (int) floor(sqrt(ones.x));
+#endif
     int i, j;
     ones.v[0] = NP; // 1 is not prime, though sometimes I wish it was
     for (i = 1; i < sp; i++) {

@@ -352,7 +352,11 @@ void Track::FrameIn(const std::vector<float> &fv, int n) {
 
 void Track::FrameIn(const std::vector<double> &fv, int n) {
   for (int i = 0; i < num_channels_; i++) {
+#if 0
     a(n, i) = fv[i];
+#else
+    a(n, i) = static_cast<float>(fv[i]);
+#endif
   }
 }
 
@@ -580,7 +584,11 @@ void ConvertToLogarithmic(Track *t) {
       if (t->a(i, j) <= 0.0F) {
         t->a(i, j) = INVALID_LOG;
       } else {
+#if 0
         t->a(i, j) = log(t->a(i, j));
+#else
+        t->a(i, j) = logf(t->a(i, j));
+#endif
       }
     }
   }
