@@ -108,7 +108,7 @@ void PrintUsage(std::ostream* stream) {
  * @c infile (or standard input), and sends the result to standard output.
  * When the pitch period is nonzero, the excitation is to be a pulse train.
  * When the pitch period is zero (i.e., unvoiced), the excitation is to be
- * a Gaussian or M-sequence noise.
+ * a Gaussian, uniform, or M-sequence noise.
  *
  * In the example below, the excitation is generated from the @c data.p and
  * passed through an LPC synthesis filter. The speech signal is written to

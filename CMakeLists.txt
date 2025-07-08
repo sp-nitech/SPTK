@@ -370,6 +370,7 @@ set(MAIN_SOURCES
     ${SOURCE_DIR}/main/pqmf.cc
     ${SOURCE_DIR}/main/quantize.cc
     ${SOURCE_DIR}/main/ramp.cc
+    ${SOURCE_DIR}/main/rand.cc
     ${SOURCE_DIR}/main/reverse.cc
     ${SOURCE_DIR}/main/rlevdur.cc
     ${SOURCE_DIR}/main/rmse.cc
