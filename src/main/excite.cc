@@ -14,6 +14,7 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
+#include <cmath>      // std::sqrt
 #include <exception>  // std::exception
 #include <fstream>    // std::ifstream
 #include <iomanip>    // std::setw
@@ -24,13 +25,14 @@
 #include "SPTK/generation/excitation_generation.h"
 #include "SPTK/generation/m_sequence_generation.h"
 #include "SPTK/generation/normal_distributed_random_value_generation.h"
+#include "SPTK/generation/uniform_distributed_random_value_generation.h"
 #include "SPTK/input/input_source_from_stream.h"
 #include "SPTK/input/input_source_interpolation_with_magic_number.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace {
 
-enum NoiseType { kZero = 0, kGaussian, kMSequence, kNumNoiseTypes };
+enum NoiseType { kZero = 0, kGaussian, kMSequence, kUniform, kNumNoiseTypes };
 
 const int kDefaultFramePeriod(100);
 const int kDefaultInterpolationPeriod(1);
@@ -58,6 +60,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "                 0 (none)" << std::endl;
   *stream << "                 1 (Gaussian)" << std::endl;
   *stream << "                 2 (M-sequence)" << std::endl;
+  *stream << "                 3 (uniform)" << std::endl;
   *stream << "       -s s  : seed for random generation (   int)[" << std::setw(5) << std::right << kDefaultSeed                << "][   <= s <=     ]" << std::endl;  // NOLINT
   *stream << "       -h    : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
@@ -66,7 +69,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       excitation                         (double)" << std::endl;
   *stream << "  notice:" << std::endl;
   *stream << "       if i = 0, don't interpolate pitch" << std::endl;
-  *stream << "       -s option is valid only if n = 1" << std::endl;
+  *stream << "       -s option is valid only if n = 1 or 3" << std::endl;
   *stream << "       magic number for unvoiced frame is " << kMagicNumberForUnvoicedFrame << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
@@ -93,6 +96,7 @@ void PrintUsage(std::ostream* stream) {
  *     \arg @c 0 none
  *     \arg @c 1 Gaussian
  *     \arg @c 2 M-sequence
+ *     \arg @c 3 uniform
  * - @b -s @e int
  *   - seed for random number generation
  * - @b infile @e str
@@ -268,6 +272,11 @@ int main(int argc, char* argv[]) {
       }
       case kMSequence: {
         random_generation = new sptk::MSequenceGeneration();
+        break;
+      }
+      case kUniform: {
+        random_generation = new sptk::UniformDistributedRandomValueGeneration(
+            seed, -std::sqrt(3.0), std::sqrt(3.0));
         break;
       }
       default: {

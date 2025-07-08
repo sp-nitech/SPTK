@@ -14,27 +14,32 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#ifndef SPTK_GENERATION_NORMAL_DISTRIBUTED_RANDOM_VALUE_GENERATION_H_
-#define SPTK_GENERATION_NORMAL_DISTRIBUTED_RANDOM_VALUE_GENERATION_H_
+#ifndef SPTK_GENERATION_UNIFORM_DISTRIBUTED_RANDOM_VALUE_GENERATION_H_
+#define SPTK_GENERATION_UNIFORM_DISTRIBUTED_RANDOM_VALUE_GENERATION_H_
+
+#include <cstdint>  // std::uint64_t
 
 #include "SPTK/generation/random_generation_interface.h"
-#include "SPTK/generation/uniform_distributed_random_value_generation.h"
 #include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
 /**
- * Generate random number based on normal distribution.
+ * Generate random number based on uniform distribution.
  */
-class NormalDistributedRandomValueGeneration
+class UniformDistributedRandomValueGeneration
     : public RandomGenerationInterface {
  public:
   /**
    * @param[in] seed Random seed.
+   * @param[in] lower_bound Lower bound of random number.
+   * @param[in] upper_bound Upper bound of random number.
    */
-  explicit NormalDistributedRandomValueGeneration(int seed);
+  explicit UniformDistributedRandomValueGeneration(int seed,
+                                                   double lower_bound = 0.0,
+                                                   double upper_bound = 1.0);
 
-  ~NormalDistributedRandomValueGeneration() override {
+  ~UniformDistributedRandomValueGeneration() override {
   }
 
   /**
@@ -54,19 +59,27 @@ class NormalDistributedRandomValueGeneration
    * @return Random seed.
    */
   int GetSeed() const {
-    return uniform_random_generator_.GetSeed();
+    return seed_;
+  }
+
+  /**
+   * @return True if this object is valid.
+   */
+  bool IsValid() const {
+    return is_valid_;
   }
 
  private:
-  UniformDistributedRandomValueGeneration uniform_random_generator_;
-  bool switch_;
-  double r1_;
-  double r2_;
-  double s_;
+  const std::uint64_t seed_;
+  const double lower_bound_;
+  const double upper_bound_;
 
-  DISALLOW_COPY_AND_ASSIGN(NormalDistributedRandomValueGeneration);
+  std::uint64_t next_;
+  bool is_valid_;
+
+  DISALLOW_COPY_AND_ASSIGN(UniformDistributedRandomValueGeneration);
 };
 
 }  // namespace sptk
 
-#endif  // SPTK_GENERATION_NORMAL_DISTRIBUTED_RANDOM_VALUE_GENERATION_H_
+#endif  // SPTK_GENERATION_UNIFORM_DISTRIBUTED_RANDOM_VALUE_GENERATION_H_
