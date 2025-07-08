@@ -7,7 +7,7 @@ nrand
 
 .. seealso::
 
-    :ref:`mseq`
+    :ref:`mseq` :ref:`rand`
 
 .. doxygenclass:: sptk::NormalDistributedRandomValueGeneration
     :members:
