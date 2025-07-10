@@ -59,7 +59,7 @@ class UniformDistributedRandomValueGeneration
    * @return Random seed.
    */
   int GetSeed() const {
-    return seed_;
+    return static_cast<int>(seed_);
   }
 
   /**
