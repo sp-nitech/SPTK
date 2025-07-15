@@ -45,6 +45,7 @@ class ExcitationGeneration {
   /**
    * @param[in] input_source Input source.
    * @param[in] random_generation Random value generator.
+   * @param[in] normalization_type Normalization type.
    */
   ExcitationGeneration(InputSourceInterpolationWithMagicNumber* input_source,
                        RandomGenerationInterface* random_generation,
