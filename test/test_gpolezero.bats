@@ -30,6 +30,7 @@ teardown() {
 @test "gpolezero: running" {
     . ./tools/venv/bin/activate
     echo 3 2 1 | $sptk3/x2x +ad | $sptk3/root_pol -m 2 > $tmp/1
-    $sptk4/gpolezero -z $tmp/1 $tmp/2.png
+    echo 1 2 1 | $sptk3/x2x +ad | $sptk3/root_pol -m 2 > $tmp/2
+    $sptk4/gpolezero -z $tmp/1 -p $tmp/2 $tmp/3.png
     deactivate
 }
