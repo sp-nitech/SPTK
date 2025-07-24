@@ -1,4 +1,4 @@
-kaleido>=0.1.0,<=0.2.1
+kaleido>=1.0.0
 numpy
-plotly>=4.9.0,<=4.14.3
+plotly>=6.1.0
 scipy

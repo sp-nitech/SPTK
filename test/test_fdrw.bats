@@ -31,5 +31,6 @@ teardown() {
     . ./tools/venv/bin/activate
     $sptk3/nrand -l 128 > $tmp/1
     $sptk4/fdrw $tmp/1 $tmp/2.png
+    $sptk4/fdrw -b $tmp/1 $tmp/3.png
     deactivate
 }

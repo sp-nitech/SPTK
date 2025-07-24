@@ -29,7 +29,7 @@ teardown() {
 
 @test "grlogsp: running" {
     . ./tools/venv/bin/activate
-    $sptk3/nrand -l 129 > $tmp/1
-    $sptk4/grlogsp -l 256 $tmp/1 $tmp/2.jpeg
+    $sptk3/nrand -l 2560 | $sptk3/spec -l 256 > $tmp/1
+    $sptk4/grlogsp -l 256 $tmp/1 $tmp/2.svg
     deactivate
 }

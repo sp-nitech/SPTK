@@ -30,6 +30,6 @@ teardown() {
 @test "glogsp: running" {
     . ./tools/venv/bin/activate
     $sptk3/nrand -l 129 > $tmp/1
-    $sptk4/glogsp -l 256 $tmp/1 $tmp/2.pdf
+    $sptk4/glogsp -l 256 -x 0 $tmp/1 $tmp/2.pdf
     deactivate
 }

@@ -31,13 +31,18 @@ venv:
 	test -d venv || python$(PYTHON_VERSION) -m venv venv
 	. ./venv/bin/activate && python -m pip install pip --upgrade
 	. ./venv/bin/activate && python -m pip install -r requirements.txt --upgrade
-	touch venv/bin/activate
+	./venv/bin/plotly_get_chrome -y
 
 venv_dev:
 	test -d venv || python$(PYTHON_VERSION) -m venv venv
 	. ./venv/bin/activate && python -m pip install pip --upgrade
 	. ./venv/bin/activate && python -m pip install -r requirements.txt -r test_requirements.txt --upgrade
-	touch venv/bin/activate
+	./venv/bin/plotly_get_chrome -y
+
+venv_old:
+	test -d venv || python$(PYTHON_VERSION) -m venv venv
+	. ./venv/bin/activate && python -m pip install pip --upgrade
+	. ./venv/bin/activate && python -m pip install -r requirements_legacy.txt --upgrade
 
 bats.done:
 	rm -rf bats
