@@ -514,6 +514,7 @@ vector spline(vector x, vector y) {
 
 // query the cubic spline
 double splinv(vector x, vector y, vector y2, double val, int hi) {
+    if (hi >= x.x) return 0.0;
     int lo = hi - 1; // find hi linearly, or using bisectv()
     double h = x.v[hi] - x.v[lo];
     double a = (x.v[hi] - val) / h;
