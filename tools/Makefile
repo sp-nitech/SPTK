@@ -15,11 +15,11 @@
 # ------------------------------------------------------------------------ #
 
 PYTHON_VERSION     := 3.10
-BATS_VERSION       := 1.11.1
-CPPCHECK_VERSION   := 2.17.1
-DOXYGEN_VERSION    := 1.13.2
-SHELLCHECK_VERSION := 0.10.0
-SHFMT_VERSION      := 3.11.0
+BATS_VERSION       := 1.12.0
+CPPCHECK_VERSION   := 2.18.0
+DOXYGEN_VERSION    := 1.14.0
+SHELLCHECK_VERSION := 0.11.0
+SHFMT_VERSION      := 3.12.0
 JOBS               := 4
 
 
@@ -78,7 +78,7 @@ shfmt.done:
 
 sptk.done:
 	rm -rf sptk
-	export GIT_SSL_NO_VERIFY=1 && git clone https://git.code.sf.net/p/sp-tk/SPTK sptk
+	GIT_SSL_NO_VERIFY=1 git clone https://git.code.sf.net/p/sp-tk/SPTK sptk
 	cd sptk/src && aclocal && automake -a -c && autoconf
 	cd sptk/src && ./configure --enable-double --prefix=$(CURDIR)/sptk && make -j $(JOBS) && make install
 	touch sptk.done

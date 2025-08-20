@@ -93,7 +93,7 @@ MelFilterBankAnalysis::MelFilterBankAnalysis(int fft_length, int num_channel,
   {
     for (int k(lower_bin_index_), m(0); k < upper_bin_index_; ++k) {
       const double mel_k(SampleMel(k, fft_length_, sampling_rate));
-      while (cf[m] < mel_k && m <= num_channel_) ++m;
+      while (m <= num_channel_ && cf[m] < mel_k) ++m;
       map[k] = m;
     }
   }
