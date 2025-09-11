@@ -83,8 +83,7 @@ Then the SPTK functions can be used by linking the static library `lib/sptk.lib`
 ## Demonstration
 
 - [Twitter](https://twitter.com/SPTK_DSP)
-- [Analysis-synthesis](https://colab.research.google.com/drive/1spX1v9mk6Itxa63R4wYwekzduvLeaUmE?usp=sharing) via mel-cepstrum
-- [Parametric coding](https://colab.research.google.com/drive/1NeZxrWiNeixAWaux_HIBLbtaSeokUNiG?usp=sharing) via line spectral pairs
+- [Tutorial](https://colab.research.google.com/drive/1vmbIJQDhT5F26eCE5iYKQuEEGxYUv-uJ?usp=drive_link) on Google Colab
 
 ## Examples
 
