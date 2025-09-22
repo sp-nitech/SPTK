@@ -32,7 +32,8 @@ The Speech Signal Processing Toolkit (SPTK) is a software for speech signal proc
 
 ## Documentation
 
-- See [this page](https://sp-nitech.github.io/sptk/latest/) for a reference manual.
+- Refer to the reference [manual](https://sp-nitech.github.io/sptk/latest/).
+- Refer to the tutorial [slides](https://speakerdeck.com/takenori/introduction-to-sptk-a-toolkit-for-speech-signal-processing).
 - Our [paper](https://www.isca-archive.org/ssw_2023/yoshimura23_ssw.html) is available on the ISCA Archive.
 
 ## Requirements
