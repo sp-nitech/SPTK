@@ -32,7 +32,7 @@ teardown() {
     for fmt in wav flac mp3 ogg; do
         ffmpeg -y -f s16le -ar 16000 -ac 1 -i $data $tmp/input.$fmt
         ffmpeg -y -i $tmp/input.$fmt -f s16le $tmp/input.raw
-        x2x +sd $tmp/input.raw > $tmp/target.raw
+        $sptk4/x2x +sd $tmp/input.raw > $tmp/target.raw
         $sptk4/wav2raw +s $tmp/input.$fmt | $sptk4/x2x +sd > $tmp/output.raw
         if [ $fmt = "wav" ] || [ $fmt = "flac" ]; then
             run $sptk4/aeq $tmp/target.raw $tmp/output.raw

@@ -105,7 +105,7 @@ class AudioReader : public AudioReaderInterface {
     if (!Read(raw_data.data())) {
       return false;
     }
-    if (!sptk::WriteStream(0, num_samples, raw_data, &std::cout, NULL)) {
+    if (!sptk::WriteStream(0, static_cast<int>(num_samples), raw_data, &std::cout, NULL)) {
       return false;
     }
     return true;
@@ -317,7 +317,7 @@ class OggReader final : public AudioReader<T> {
   bool Initialize(const std::vector<char>& buffer) override {
     Finalize();
     vorbis_ = stb_vorbis_open_memory(
-        reinterpret_cast<const unsigned char*>(buffer.data()), buffer.size(),
+        reinterpret_cast<const unsigned char*>(buffer.data()), static_cast<int>(buffer.size()),
         NULL, NULL);
     return NULL != vorbis_;
   }
@@ -341,7 +341,7 @@ class OggReader final : public AudioReader<T> {
     if (NULL == data || NULL == vorbis_) {
       return false;
     }
-    const int num_shorts(GetTotalSamples());
+    const int num_shorts(static_cast<int>(GetTotalSamples()));
     return num_shorts / vorbis_->channels ==
            stb_vorbis_get_samples_short_interleaved(vorbis_, vorbis_->channels,
                                                     data, num_shorts);
@@ -351,7 +351,7 @@ class OggReader final : public AudioReader<T> {
     if (NULL == data || NULL == vorbis_) {
       return false;
     }
-    const int num_floats(GetTotalSamples());
+    const int num_floats(static_cast<int>(GetTotalSamples()));
     return num_floats / vorbis_->channels ==
            stb_vorbis_get_samples_float_interleaved(vorbis_, vorbis_->channels,
                                                     data, num_floats);
@@ -501,8 +501,9 @@ int main(int argc, char* argv[]) {
       const char* dot_ext(std::strrchr(input_file, '.'));
       if (NULL != dot_ext && 1 < std::strlen(dot_ext)) {
         std::string ext(dot_ext + 1);
-        std::transform(ext.begin(), ext.end(), ext.begin(),
-                       [](char c) { return std::tolower(c); });
+        std::transform(ext.begin(), ext.end(), ext.begin(), [](char c) {
+          return static_cast<char>(std::tolower(c));
+        });
         if (ext == "wav") {
           input_format = kWav;
         } else if (ext == "mp3") {

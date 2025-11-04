@@ -1,3 +1,8 @@
+#if 1
+#ifdef _MSC_VER
+#pragma warning(push, 0)
+#endif
+#endif
 // Ogg Vorbis audio decoder - v1.22 - public domain
 // http://nothings.org/stb_vorbis/
 //
@@ -5582,3 +5587,8 @@ ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ------------------------------------------------------------------------------
 */
+#if 1
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+#endif
