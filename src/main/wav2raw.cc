@@ -105,7 +105,8 @@ class AudioReader : public AudioReaderInterface {
     if (!Read(raw_data.data())) {
       return false;
     }
-    if (!sptk::WriteStream(0, static_cast<int>(num_samples), raw_data, &std::cout, NULL)) {
+    if (!sptk::WriteStream(0, static_cast<int>(num_samples), raw_data,
+                           &std::cout, NULL)) {
       return false;
     }
     return true;
@@ -317,8 +318,8 @@ class OggReader final : public AudioReader<T> {
   bool Initialize(const std::vector<char>& buffer) override {
     Finalize();
     vorbis_ = stb_vorbis_open_memory(
-        reinterpret_cast<const unsigned char*>(buffer.data()), static_cast<int>(buffer.size()),
-        NULL, NULL);
+        reinterpret_cast<const unsigned char*>(buffer.data()),
+        static_cast<int>(buffer.size()), NULL, NULL);
     return NULL != vorbis_;
   }
 
