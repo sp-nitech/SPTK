@@ -371,6 +371,7 @@ set(MAIN_SOURCES
     ${SOURCE_DIR}/main/quantize.cc
     ${SOURCE_DIR}/main/ramp.cc
     ${SOURCE_DIR}/main/rand.cc
+    ${SOURCE_DIR}/main/raw2wav.cc
     ${SOURCE_DIR}/main/reverse.cc
     ${SOURCE_DIR}/main/rlevdur.cc
     ${SOURCE_DIR}/main/rmse.cc
@@ -391,6 +392,7 @@ set(MAIN_SOURCES
     ${SOURCE_DIR}/main/vprod.cc
     ${SOURCE_DIR}/main/vstat.cc
     ${SOURCE_DIR}/main/vsum.cc
+    ${SOURCE_DIR}/main/wav2raw.cc
     ${SOURCE_DIR}/main/window.cc
     ${SOURCE_DIR}/main/world_synth.cc
     ${SOURCE_DIR}/main/x2x.cc
