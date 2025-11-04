@@ -14,13 +14,15 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
+#include <cstddef>      // std::size_t
+#include <cstdint>      // std::int16_t, std::uint8_t
 #include <cstring>      // std::strncmp
 #include <fstream>      // std::ifstream
 #include <iomanip>      // std::setw
 #include <iostream>     // std::cerr, std::cin, std::cout, std::endl, etc.
 #include <sstream>      // std::ostringstream
 #include <string>       // std::string
-#include <type_traits>  // std::enable_if, std::is_same
+#include <type_traits>  // std::is_same
 #include <vector>       // std::vector
 
 #include "GETOPT/ya_getopt.h"
