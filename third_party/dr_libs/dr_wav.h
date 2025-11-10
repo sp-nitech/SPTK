@@ -5576,7 +5576,11 @@ DRWAV_PRIVATE drwav_bool32 drwav__on_seek_memory_write(void* pUserData, int offs
         newCursor = (drwav_int64)pWav->memoryStreamWrite.dataSize;
     } else {
         DRWAV_ASSERT(!"Invalid seek origin");
+#if 0
         return DRWAV_INVALID_ARGS;
+#else
+        return DRWAV_FALSE;
+#endif
     }
 
     newCursor += offset;

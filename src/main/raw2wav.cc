@@ -71,8 +71,6 @@ void PrintUsage(std::ostream* stream) {
   // clang-format on
 }
 
-}  // namespace
-
 class AudioWriterInterface {
  public:
   virtual ~AudioWriterInterface() = default;
@@ -167,6 +165,8 @@ class AudioWriterWrapper {
 
   DISALLOW_COPY_AND_ASSIGN(AudioWriterWrapper);
 };
+
+}  // namespace
 
 /**
  * @a raw2wav [ @e option ] [ @e infile ]
