@@ -319,7 +319,7 @@ bool GaussianMixtureModeling::Run(
             if (0.0 != mask_[l][m]) {
               const double mu_l(buffer1[k][l] / buffer0[k]);
               const double mu_m(buffer1[k][m] / buffer0[k]);
-              const double a(buffer2[k][l][m] -
+              const double a(0.0 == buffer0[k] ? 0.0 : buffer2[k][l][m] -
                              buffer0[k] *
                                  (mu_l * mu[m] + mu[l] * mu_m - mu[l] * mu[m]));
               const double b(xi_[k] * ubm_covariance_matrices_[k][l][m]);
