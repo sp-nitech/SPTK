@@ -412,7 +412,7 @@ int main(int argc, char* argv[]) {
                   << "a) increase training data; "
                   << "b) decrease number of mixtures; "
                   << "c) use (block) diagonal covariance; "
-                  << "d) use UBM with MAP adaptation"
+                  << "d) use UBM with MAP adaptation";
     sptk::PrintErrorMessage("gmm", error_message);
     return 1;
   }
