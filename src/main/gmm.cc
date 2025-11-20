@@ -408,10 +408,11 @@ int main(int argc, char* argv[]) {
                                      &covariance_matrices, &log_likelihood)) {
     std::ostringstream error_message;
     error_message << "Failed to train Gaussian mixture models. "
-                  << "Please consider the following attemps: "
+                  << "Please consider the following attempts: "
                   << "a) increase training data; "
                   << "b) decrease number of mixtures; "
-                  << "c) use (block) diagonal covariance";
+                  << "c) use (block) diagonal covariance; "
+                  << "d) use UBM with MAP adaptation";
     sptk::PrintErrorMessage("gmm", error_message);
     return 1;
   }
