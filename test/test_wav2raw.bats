@@ -59,7 +59,16 @@ teardown() {
     for fmt in wav flac mp3 ogg; do
         ffmpeg -y -i $tmp/input.$fmt -ac 2 $tmp/stereo_input.$fmt
         ffmpeg -y -i $tmp/stereo_input.$fmt -f f64le $tmp/target.raw
-        $sptk4/wav2raw +f $tmp/stereo_input.$fmt | $sptk4/x2x +fd > $tmp/output.raw
+        $sptk4/wav2raw -c -1 +f $tmp/stereo_input.$fmt | $sptk4/x2x +fd > $tmp/output.raw
+        run $sptk4/aeq $tmp/target.raw $tmp/output.raw
+        [ "$status" -eq 0 ]
+    done
+
+    # channel
+    ffmpeg -y -i $tmp/input.wav -ac 2 $tmp/stereo_input.wav
+    ffmpeg -y -i $tmp/stereo_input.wav -map_channel 0.0.0 -f f64le $tmp/target.raw
+    for c in 0 1 2; do
+        $sptk4/wav2raw -c $c +s $tmp/stereo_input.wav | $sptk4/x2x +sd | $sptk4/sopr -d 32768 > $tmp/output.raw
         run $sptk4/aeq $tmp/target.raw $tmp/output.raw
         [ "$status" -eq 0 ]
     done
