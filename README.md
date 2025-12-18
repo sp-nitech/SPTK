@@ -201,6 +201,23 @@ deactivate
 
 This software is released under the Apache License 2.0.
 
+## Third-party software licenses
+
+This project incorporates the following third-party libraries.
+
+- Pitch extraction
+  - [Snack](https://github.com/scottypitcher/tcl-snack) - Tcl/Tk License
+  - [SWIPE'](https://github.com/kylebgorman/swipe) - MIT License
+  - [REAPER](https://github.com/google/REAPER) - Apache License 2.0
+  - [WORLD](https://github.com/mmorise/World) - 3-Clause BSD License
+- Pitch-adaptive spectral estimation / Aperiodicity estimation
+  - [WORLD](https://github.com/mmorise/World) - 3-Clause BSD License
+- Audio format conversion
+  - [dr_libs](https://github.com/mackron/dr_libs) - Public Domain / MIT
+  - [stb](https://github.com/nothings/stb) - Public Domain / MIT
+- Command-line parser
+  - [ya_getopt](https://github.com/kubo/ya_getopt) - 2-Clause BSD License
+
 ## Citation
 
 ```bibtex
