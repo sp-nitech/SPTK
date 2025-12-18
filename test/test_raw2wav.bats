@@ -41,5 +41,6 @@ teardown() {
 }
 
 @test "raw2wav: valgrind" {
-    run valgrind $sptk4/raw2wav +s $data > data.wav
+    run valgrind $sptk4/raw2wav +s $data
+    [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }

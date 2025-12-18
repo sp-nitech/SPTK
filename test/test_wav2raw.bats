@@ -77,7 +77,7 @@ teardown() {
 @test "wav2raw: valgrind" {
     for fmt in wav flac mp3 ogg; do
         ffmpeg -y -f s16le -ar 16000 -ac 1 -i $data $tmp/input.$fmt
-        run valgrind $sptk4/wav2raw +s $tmp/input.$fmt > /dev/null
+        run valgrind $sptk4/wav2raw +s $tmp/input.$fmt
         [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
     done
 }

@@ -519,6 +519,13 @@ class AudioReaderWrapper {
  * - @b stdout
  *   - waveform
  *
+ * The below example converts WAV file to raw short-type waveform by selecting the
+ * first channel.
+ *
+ * @code{.sh}
+ *   wav2raw -c 1 input.wav > output.raw
+ * @endcode
+ *
  * @param[in] argc Number of arguments.
  * @param[in] argv Argument vector.
  * @return 0 on success, 1 on failure.

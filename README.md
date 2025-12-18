@@ -148,7 +148,7 @@ deactivate
   - `lsp2sp` -> `mglsp2sp`
   - `mgc2mgclsp` and `mgclsp2mgc`
   - `psgr` and `xgr`
-  - `wavjoin` and `wavsplit` -> `sox` or `ffmpeg`
+  - `wavjoin` and `wavsplit`
 - Separated commands:
   - `c2ir` -> `c2mpir` and `mpir2c`
   - `dtw` -> `dtw` and `dtw_merge`

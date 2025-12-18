@@ -175,7 +175,7 @@ class AudioWriterWrapper {
  *   - sampling rate [kHz]
  * - @b -c @e int
  *   - number of channels
- * - @b -q @e int
+ * - @b -o @e int
  *   - output audio format
  *     \arg @c 0 WAV
  * - @b +type @e char
@@ -186,6 +186,13 @@ class AudioWriterWrapper {
  *   - waveform
  * - @b stdout
  *   - audio file
+ *
+ * The below example converts raw short-type waveform to WAV file with 16 kHz
+ * sampling rate and one channel.
+ *
+ * @code{.sh}
+ *   raw2wav -s 16 -c 1 +s input.raw > output.wav
+ * @endcode
  *
  * @param[in] argc Number of arguments.
  * @param[in] argv Argument vector.

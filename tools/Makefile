@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------ #
 
 PYTHON_VERSION     := 3.11
-BATS_VERSION       := 1.12.0
+BATS_VERSION       := 1.13.0
 CPPCHECK_VERSION   := 2.18.0
 DOXYGEN_VERSION    := 1.15.0
 SHELLCHECK_VERSION := 0.11.0
