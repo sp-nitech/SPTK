@@ -97,12 +97,9 @@ cd egs/analysis_synthesis/mgc
 ```
 
 The below is a simple example that decreases the volume of input audio in `input.wav`.
-You may need to install `sox` command on your system.
 
 ```sh
-sox -t wav input.wav -c 1 -t s16 -r 16000 - |
-    x2x +sd | sopr -m 0.5 | x2x +ds -r |
-    sox -c 1 -t s16 -r 16000 - -t wav output.wav
+wav2raw +s input.wav | x2x +sd | sopr -m 0.5 | x2x +ds -r | raw2wav +s -s 16 > output.wav
 ```
 
 If you would like to draw figures, please prepare a python environment.
@@ -142,7 +139,7 @@ deactivate
   - `c2sp` -> `mgc2sp`
   - `cat2` and `echo2`
   - `da`
-  - `ds`, `us`, `us16`, and `uscd` -> `sox`
+  - `ds`, `us`, `us16`, and `uscd` -> `sox` or `ffmpeg`
   - `fig`
   - `gc2gc` -> `mgc2mgc`
   - `gcep`, `mcep`, and `uels` -> `mgcep`
@@ -151,7 +148,7 @@ deactivate
   - `lsp2sp` -> `mglsp2sp`
   - `mgc2mgclsp` and `mgclsp2mgc`
   - `psgr` and `xgr`
-  - `raw2wav`, `wav2raw`, `wavjoin`, and `wavsplit` -> `sox`
+  - `wavjoin` and `wavsplit`
 - Separated commands:
   - `c2ir` -> `c2mpir` and `mpir2c`
   - `dtw` -> `dtw` and `dtw_merge`

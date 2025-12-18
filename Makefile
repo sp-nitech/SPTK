@@ -126,7 +126,7 @@ format-cc:
 	./tools/cppcheck/cppcheck -j $(JOBS) --enable=all --check-level=exhaustive --std=c++11 \
 		--suppress=checkersReport --suppress=constParameterPointer --suppress=missingIncludeSystem \
 		--suppress=unmatchedSuppression --suppress=unusedFunction --suppress=useStlAlgorithm \
-		--suppress=variableScope --inline-suppr --error-exitcode=1 \
+		--suppress=variableScope --inline-suppr --error-exitcode=1 -DCPPCHECK \
 		--cppcheck-build-dir=$(BUILDDIR)/cppcheck --checkers-report=$(BUILDDIR)/cppcheck/report.txt \
 		-Iinclude -Ithird_party src
 
@@ -140,7 +140,7 @@ format-misc:
 	fi
 	./tools/venv/bin/cmake-format -i CMakeLists.txt
 	./tools/venv/bin/mdformat *.md
-	cd $(DOCDIR) && ../tools/venv/bin/docstrfmt .
+	./tools/venv/bin/docstrfmt docs
 
 test:
 	@if [ ! -x ./tools/bats/bin/bats ]; then \

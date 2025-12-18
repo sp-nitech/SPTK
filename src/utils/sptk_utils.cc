@@ -19,7 +19,7 @@
 #ifdef _WIN32
 #include <fcntl.h>
 #include <io.h>
-#endif
+#endif  // _WIN32
 
 #include <algorithm>  // std::fill_n, std::transform
 #include <cctype>     // std::tolower
@@ -525,7 +525,7 @@ bool SetBinaryMode() {
       -1 == _setmode(_fileno(stdout), _O_BINARY)) {
     return false;
   }
-#endif
+#endif  // _WIN32
   return true;
 }
 

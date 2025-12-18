@@ -25,7 +25,8 @@ endif()
 
 set(CMAKE_CXX_STANDARD 11)
 if(MSVC)
-  set(CMAKE_CXX_FLAGS "/O2 /W4 /wd4100 /wd4456 /EHsc /D_CRT_SECURE_NO_WARNINGS")
+  set(CMAKE_CXX_FLAGS
+      "/O2 /W4 /wd4100 /wd4456 /wd4706 /EHsc /D_CRT_SECURE_NO_WARNINGS")
 else()
   set(CMAKE_CXX_FLAGS "-O2 -Wall -Wno-deprecated-register")
 endif()
@@ -371,6 +372,7 @@ set(MAIN_SOURCES
     ${SOURCE_DIR}/main/quantize.cc
     ${SOURCE_DIR}/main/ramp.cc
     ${SOURCE_DIR}/main/rand.cc
+    ${SOURCE_DIR}/main/raw2wav.cc
     ${SOURCE_DIR}/main/reverse.cc
     ${SOURCE_DIR}/main/rlevdur.cc
     ${SOURCE_DIR}/main/rmse.cc
@@ -391,6 +393,7 @@ set(MAIN_SOURCES
     ${SOURCE_DIR}/main/vprod.cc
     ${SOURCE_DIR}/main/vstat.cc
     ${SOURCE_DIR}/main/vsum.cc
+    ${SOURCE_DIR}/main/wav2raw.cc
     ${SOURCE_DIR}/main/window.cc
     ${SOURCE_DIR}/main/world_synth.cc
     ${SOURCE_DIR}/main/x2x.cc
