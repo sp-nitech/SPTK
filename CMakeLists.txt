@@ -4,7 +4,7 @@ if(POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW)
 endif()
 
-project(SPTK VERSION 4.3)
+project(SPTK VERSION 4.4)
 
 option(SPTK_INSTALL "Install SPTK library" ON)
 option(SPTK_BUILD_COMMANDS "Build SPTK commands" ON)
