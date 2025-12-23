@@ -60,6 +60,7 @@ set(CC_SOURCES
     ${THIRD_PARTY_DIR}/WORLD/matlabfunctions.cc
     ${THIRD_PARTY_DIR}/WORLD/stonemask.cc
     ${THIRD_PARTY_DIR}/WORLD/synthesis.cc
+    ${THIRD_PARTY_DIR}/r8brain/fft/pffft_double.c
     ${SOURCE_DIR}/analysis/adaptive_generalized_cepstral_analysis.cc
     ${SOURCE_DIR}/analysis/adaptive_mel_cepstral_analysis.cc
     ${SOURCE_DIR}/analysis/adaptive_mel_generalized_cepstral_analysis.cc
@@ -202,6 +203,8 @@ set(CC_SOURCES
     ${SOURCE_DIR}/math/two_dimensional_real_valued_fast_fourier_transform.cc
     ${SOURCE_DIR}/math/vandermonde_system_solver.cc
     ${SOURCE_DIR}/postfilter/mel_cepstrum_postfilter.cc
+    ${SOURCE_DIR}/resampler/r8brain_resampler.cc
+    ${SOURCE_DIR}/resampler/scalar_resampler.cc
     ${SOURCE_DIR}/utils/data_symmetrizing.cc
     ${SOURCE_DIR}/utils/misc_utils.cc
     ${SOURCE_DIR}/utils/sptk_utils.cc
@@ -373,6 +376,7 @@ set(MAIN_SOURCES
     ${SOURCE_DIR}/main/ramp.cc
     ${SOURCE_DIR}/main/rand.cc
     ${SOURCE_DIR}/main/raw2wav.cc
+    ${SOURCE_DIR}/main/resamp.cc
     ${SOURCE_DIR}/main/reverse.cc
     ${SOURCE_DIR}/main/rlevdur.cc
     ${SOURCE_DIR}/main/rmse.cc

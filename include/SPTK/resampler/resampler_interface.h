@@ -29,6 +29,16 @@ class ResamplerInterface {
   virtual ~ResamplerInterface() = default;
 
   /**
+   * @return Latency introduced by resampling.
+   */
+  virtual int GetLatency() const = 0;
+
+  /**
+   * Clears internal state.
+   */
+  virtual void Clear() = 0;
+
+  /**
    * @return True if this object is valid.
    */
   virtual bool IsValid() const = 0;
@@ -40,7 +50,7 @@ class ResamplerInterface {
    */
   virtual bool Get(
       const std::vector<double>& inputs,
-      std::vector<double>* outputs) const = 0;
+      std::vector<double>* outputs) = 0;
 };
 
 }  // namespace sptk

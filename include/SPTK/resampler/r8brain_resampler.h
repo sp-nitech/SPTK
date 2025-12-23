@@ -20,6 +20,10 @@
 #include <vector>  // std::vector
 
 #include "SPTK/resampler/resampler_interface.h"
+#include "SPTK/utils/sptk_utils.h"
+
+#define R8B_PFFFT_DOUBLE 1
+#include "r8brain/CDSPResampler.h"
 
 namespace sptk {
 
@@ -31,11 +35,31 @@ class R8brainResampler : public ResamplerInterface {
   /**
    * @param[in] input_sampling_rate Input sampling rate in Hz.
    * @param[in] output_sampling_rate Output sampling rate in Hz.
+   * @param[in] buffer_length Length of buffer used in resampling.
+   * @param[in] quality Quality of resampling.
    */
   R8brainResampler(double input_sampling_rate,
-                   double output_sampling_rate);
+                   double output_sampling_rate,
+                   int buffer_length,
+                   int quality);
 
   ~R8brainResampler() override {
+  }
+
+  static int GetMinimumQuality() {
+    return 0;
+  }
+
+  static int GetMaximumQuality() {
+    return 0;
+  }
+
+  int GetLatency() const override {
+    return resampler_.getLatency();
+  }
+
+  void Clear() {
+    resampler_.clear();
   }
 
   /**
@@ -51,7 +75,7 @@ class R8brainResampler : public ResamplerInterface {
    * @return True on success, false on failure.
    */
   bool Get(const std::vector<double>& inputs,
-           std::vector<double>* outputs) const override;
+           std::vector<double>* outputs) override;
 
  private:
   r8b::CDSPResampler24 resampler_;

@@ -20,6 +20,7 @@
 #include <vector>  // std::vector
 
 #include "SPTK/resampler/scalar_resampler.h"
+#include "SPTK/utils/sptk_utils.h"
 
 namespace sptk {
 
@@ -32,23 +33,24 @@ namespace sptk {
 class VectorResampler {
  public:
   /**
+   * @param[in] vector_length Length of vector.
    * @param[in] input_sampling_rate Input sampling rate in Hz.
    * @param[in] output_sampling_rate Output sampling rate in Hz.
+   * @param[in] buffer_length Length of buffer used in resampling.
    * @param[in] algorithm Resampling algorithm.
+   * @param[in] quality Quality of resampling.
    */
-  VectorResampler(double input_sampling_rate, double output_sampling_rate,
-                  ScalarResampler::Algorithms algorithm);
+  VectorResampler(int vector_length,
+                  double input_sampling_rate, double output_sampling_rate,
+                  int buffer_length,
+                  ScalarResampler::Algorithms algorithm, int quality);
 
-  virtual ~VectorResampler() {
-    delete resampler_;
-  }
+  virtual ~VectorResampler();
 
   /**
    * @return True if this object is valid.
    */
-  bool IsValid() const {
-    return (NULL != resampler_ && resampler_->IsValid());
-  }
+  bool IsValid() const;
 
   /**
    * @param[in] input_vectors Input vectors.
@@ -56,11 +58,10 @@ class VectorResampler {
    * @return True on success, false on failure.
    */
   bool Get(const std::vector<std::vector<double> >& input_vectors,
-           std::vector<std::vector<double> >* output_vector) const;
-  };
+           std::vector<std::vector<double> >* output_vectors);
 
  private:
-  ScalarResampler* resampler_;
+  std::vector<ScalarResampler*> resamplers_;
 
   DISALLOW_COPY_AND_ASSIGN(VectorResampler);
 };

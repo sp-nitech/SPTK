@@ -17,6 +17,8 @@
 #ifndef SPTK_RESAMPLER_SCALAR_RESAMPLER_H_
 #define SPTK_RESAMPLER_SCALAR_RESAMPLER_H_
 
+#include <vector>  // std::vector
+
 #include "SPTK/resampler/resampler_interface.h"
 #include "SPTK/utils/sptk_utils.h"
 
@@ -34,20 +36,51 @@ class ScalarResampler {
    * Resampling algorithms.
    */
   enum Algorithms {
-    kR8brain = 0,
+    kLibsamplerate = 0,
+    kSpeex,
+    kR8brain,
     kNumAlgorithms
   };
 
   /**
+   * @param[in] algorithm Resampling algorithm.
+   * @return Minimum quality of resampling.
+   */
+  static int GetMinimumQuality(Algorithms algorithm);
+
+  /**
+   * @param[in] algorithm Resampling algorithm.
+   * @return Maximum quality of resampling.
+   */
+  static int GetMaximumQuality(Algorithms algorithm);
+
+  /**
    * @param[in] input_sampling_rate Input sampling rate in Hz.
    * @param[in] output_sampling_rate Output sampling rate in Hz.
+   * @param[in] buffer_length Length of buffer used in resampling.
    * @param[in] algorithm Resampling algorithm.
+   * @param[in] quality Quality of resampling.
    */
   ScalarResampler(double input_sampling_rate, double output_sampling_rate,
-                  Algorithms algorithm);
+                  int buffer_length,
+                  Algorithms algorithm, int quality);
 
   virtual ~ScalarResampler() {
     delete resampler_;
+  }
+
+  /**
+   * @return Latency introduced by resampling.
+   */
+  int GetLatency() const {
+    return IsValid() ? resampler_->GetLatency() : 0;
+  }
+
+  /**
+   * Clear internal state.
+   */
+  void Clear() const {
+    if (IsValid()) resampler_->Clear();
   }
 
   /**
@@ -62,8 +95,10 @@ class ScalarResampler {
    * @param[out] outputs Output samples.
    * @return True on success, false on failure.
    */
-  virtual bool Run(const std::vector<double>& inputs,
-                   std::vector<double>* outputs) const;
+  virtual bool Get(const std::vector<double>& inputs,
+                   std::vector<double>* outputs) {
+    return IsValid() ? resampler_->Get(inputs, outputs) : false;
+  }
 
  private:
   ResamplerInterface* resampler_;
