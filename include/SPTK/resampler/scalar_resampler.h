@@ -35,12 +35,7 @@ class ScalarResampler {
   /**
    * Resampling algorithms.
    */
-  enum Algorithms {
-    kLibsamplerate = 0,
-    kSpeex,
-    kR8brain,
-    kNumAlgorithms
-  };
+  enum Algorithms { kLibsamplerate = 0, kSpeex, kR8brain, kNumAlgorithms };
 
   /**
    * @param[in] algorithm Resampling algorithm.
@@ -62,8 +57,7 @@ class ScalarResampler {
    * @param[in] quality Quality of resampling.
    */
   ScalarResampler(double input_sampling_rate, double output_sampling_rate,
-                  int buffer_length,
-                  Algorithms algorithm, int quality);
+                  int buffer_length, Algorithms algorithm, int quality);
 
   virtual ~ScalarResampler() {
     delete resampler_;

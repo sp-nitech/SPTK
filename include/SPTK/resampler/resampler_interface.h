@@ -48,9 +48,8 @@ class ResamplerInterface {
    * @param[out] outputs Output samples.
    * @return True on success, false on failure.
    */
-  virtual bool Get(
-      const std::vector<double>& inputs,
-      std::vector<double>* outputs) = 0;
+  virtual bool Get(const std::vector<double>& inputs,
+                   std::vector<double>* outputs) = 0;
 };
 
 }  // namespace sptk

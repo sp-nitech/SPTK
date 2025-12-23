@@ -22,8 +22,10 @@
 #include "SPTK/resampler/resampler_interface.h"
 #include "SPTK/utils/sptk_utils.h"
 
+#ifndef CPPCHECK
 #define R8B_PFFFT_DOUBLE 1
 #include "r8brain/CDSPResampler.h"
+#endif  // CPPCHECK
 
 namespace sptk {
 
@@ -38,10 +40,8 @@ class R8brainResampler : public ResamplerInterface {
    * @param[in] buffer_length Length of buffer used in resampling.
    * @param[in] quality Quality of resampling.
    */
-  R8brainResampler(double input_sampling_rate,
-                   double output_sampling_rate,
-                   int buffer_length,
-                   int quality);
+  R8brainResampler(double input_sampling_rate, double output_sampling_rate,
+                   int buffer_length, int quality);
 
   ~R8brainResampler() override {
   }
@@ -55,10 +55,10 @@ class R8brainResampler : public ResamplerInterface {
   }
 
   int GetLatency() const override {
-    return resampler_.getLatency();
+    return resampler_.getInLenBeforeOutPos(0);
   }
 
-  void Clear() {
+  void Clear() override {
     resampler_.clear();
   }
 
@@ -78,6 +78,8 @@ class R8brainResampler : public ResamplerInterface {
            std::vector<double>* outputs) override;
 
  private:
+  const int buffer_length_;
+
   r8b::CDSPResampler24 resampler_;
 
   bool is_valid_;

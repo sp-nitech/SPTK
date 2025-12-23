@@ -40,9 +40,8 @@ class VectorResampler {
    * @param[in] algorithm Resampling algorithm.
    * @param[in] quality Quality of resampling.
    */
-  VectorResampler(int vector_length,
-                  double input_sampling_rate, double output_sampling_rate,
-                  int buffer_length,
+  VectorResampler(int vector_length, double input_sampling_rate,
+                  double output_sampling_rate, int buffer_length,
                   ScalarResampler::Algorithms algorithm, int quality);
 
   virtual ~VectorResampler();

@@ -14,11 +14,12 @@
 // limitations under the License.                                           //
 // ------------------------------------------------------------------------ //
 
-#include <fstream>   // std::ifstream
-#include <iomanip>   // std::setw
-#include <iostream>  // std::cerr, std::cin, std::cout, std::endl, etc.
-#include <sstream>   // std::ostringstream
-#include <vector>    // std::vector
+#include <algorithm>  // std::fill
+#include <fstream>    // std::ifstream
+#include <iomanip>    // std::setw
+#include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
+#include <sstream>    // std::ostringstream
+#include <vector>     // std::vector
 
 #include "GETOPT/ya_getopt.h"
 #include "SPTK/resampler/scalar_resampler.h"
@@ -133,8 +134,7 @@ int main(int argc, char* argv[]) {
         break;
       }
       case 'q': {
-        if (!sptk::ConvertStringToInteger(optarg, &quality) ||
-            quality < 0) {
+        if (!sptk::ConvertStringToInteger(optarg, &quality) || quality < 0) {
           std::ostringstream error_message;
           error_message << "The argument for the -q option must be a "
                         << "non-negative integer";
@@ -201,15 +201,14 @@ int main(int argc, char* argv[]) {
   }
 
   {
-    const int min_quality(
-        sptk::ScalarResampler::GetMinimumQuality(algorithm));
-    const int max_quality(
-        sptk::ScalarResampler::GetMaximumQuality(algorithm));
+    const int min_quality(sptk::ScalarResampler::GetMinimumQuality(algorithm));
+    const int max_quality(sptk::ScalarResampler::GetMaximumQuality(algorithm));
     if (is_quality_specified) {
       if (!sptk::IsInRange(quality, min_quality, max_quality)) {
         std::ostringstream error_message;
-        error_message << "The argument for the -q option must be in the range of "
-                      << min_quality << " to " << max_quality;
+        error_message
+            << "The argument for the -q option must be in the range of "
+            << min_quality << " to " << max_quality;
         sptk::PrintErrorMessage("resamp", error_message);
         return 1;
       }
@@ -247,22 +246,26 @@ int main(int argc, char* argv[]) {
   std::istream& input_stream(ifs.is_open() ? ifs : std::cin);
 
   if (1 == vector_length) {
-    sptk::ScalarResampler resampler(input_sampling_rate, output_sampling_rate, buffer_length, algorithm, quality);
+    sptk::ScalarResampler resampler(input_sampling_rate, output_sampling_rate,
+                                    buffer_length, algorithm, quality);
     if (!resampler.IsValid()) {
       std::ostringstream error_message;
       error_message << "Failed to initialize ScalarResampler";
       sptk::PrintErrorMessage("resamp", error_message);
       return 1;
     }
+    int remaining(resampler.GetLatency());
 
     std::vector<double> inputs(buffer_length);
     std::vector<double> outputs;
-    outputs.reserve(buffer_length * output_sampling_rate / input_sampling_rate + 1);
-    int read_size;
+    outputs.reserve(buffer_length * output_sampling_rate / input_sampling_rate +
+                    1);
+    int actual_read_size;
+    bool empty_input(true);
     while (sptk::ReadStream(true, 0, 0, buffer_length, &inputs, &input_stream,
-                            &read_size)) {
-      if (buffer_length != read_size) {
-        inputs.resize(read_size);
+                            &actual_read_size)) {
+      if (buffer_length != actual_read_size) {
+        inputs.resize(actual_read_size);
       }
       if (!resampler.Get(inputs, &outputs)) {
         std::ostringstream error_message;
@@ -270,12 +273,41 @@ int main(int argc, char* argv[]) {
         sptk::PrintErrorMessage("resamp", error_message);
         return 1;
       }
-      if (!outputs.empty() && !sptk::WriteStream(0, static_cast<int>(outputs.size()), outputs, &std::cout, NULL)) {
+      if (!outputs.empty() &&
+          !sptk::WriteStream(0, static_cast<int>(outputs.size()), outputs,
+                             &std::cout, NULL)) {
         std::ostringstream error_message;
         error_message << "Failed to write resampled data";
         sptk::PrintErrorMessage("resamp", error_message);
         return 1;
       }
+      empty_input = false;
+    }
+
+    if (empty_input) return 0;
+
+    const double last_value(inputs.back());
+    inputs.resize(buffer_length);
+    std::fill(inputs.begin(), inputs.end(), last_value);
+    while (0 < remaining) {
+      if (remaining < buffer_length) {
+        inputs.resize(remaining);
+      }
+      if (!resampler.Get(inputs, &outputs)) {
+        std::ostringstream error_message;
+        error_message << "Failed to perform resampling";
+        sptk::PrintErrorMessage("resamp", error_message);
+        return 1;
+      }
+      if (!outputs.empty() &&
+          !sptk::WriteStream(0, static_cast<int>(outputs.size()), outputs,
+                             &std::cout, NULL)) {
+        std::ostringstream error_message;
+        error_message << "Failed to write resampled data";
+        sptk::PrintErrorMessage("resamp", error_message);
+        return 1;
+      }
+      remaining -= buffer_length;
     }
   } else {
     /*
@@ -289,12 +321,12 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    std::vector<std::vector<double> > inputs(1, std::vector<double>(vector_length));
-    std::vector<std::vector<double> > outputs;
+    std::vector<std::vector<double> > inputs(1,
+    std::vector<double>(vector_length)); std::vector<std::vector<double> >
+    outputs;
 
-    while (sptk::ReadStream(false, 0, 0, vector_length, &inputs[0], &input_stream,
-                            NULL)) {
-      if (!resampler.Run(inputs, &outputs, &buffer)) {
+    while (sptk::ReadStream(false, 0, 0, vector_length, &inputs[0],
+    &input_stream, NULL)) { if (!resampler.Run(inputs, &outputs, &buffer)) {
         std::ostringstream error_message;
         error_message << "Failed to perform resampling";
         sptk::PrintErrorMessage("resamp", error_message);

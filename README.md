@@ -212,9 +212,13 @@ This project incorporates the following third-party libraries.
   - [WORLD](https://github.com/mmorise/World) - 3-Clause BSD License
 - Pitch-adaptive spectral estimation / Aperiodicity estimation
   - [WORLD](https://github.com/mmorise/World) - 3-Clause BSD License
+- Resampling
+  - [libsamplerate](https://github.com/libsndfile/libsamplerate) - 2-Clause BSD License
+  - [Speex](https://github.com/xiph/speexdsp) - 3-Clause BSD License
+  - [r8brain](https://github.com/avaneev/r8brain-free-src) - MIT License
 - Audio format conversion
-  - [dr_libs](https://github.com/mackron/dr_libs) - Public Domain / MIT
-  - [stb](https://github.com/nothings/stb) - Public Domain / MIT
+  - [dr_libs](https://github.com/mackron/dr_libs) - Public Domain / MIT License
+  - [stb](https://github.com/nothings/stb) - Public Domain / MIT License
 - Command-line parser
   - [ya_getopt](https://github.com/kubo/ya_getopt) - 2-Clause BSD License
 
