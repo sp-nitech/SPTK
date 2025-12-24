@@ -4704,7 +4704,11 @@ static int go_to_page_before(stb_vorbis *f, unsigned int limit_offset)
 // better).
 static int seek_to_sample_coarse(stb_vorbis *f, uint32 sample_number)
 {
+#if 0
    ProbedPage left, right, mid;
+#else
+   ProbedPage left, right, mid = {0};
+#endif
    int i, start_seg_with_known_loc, end_pos, page_start;
    uint32 delta, stream_length, padding, last_sample_limit;
    double offset = 0.0, bytes_per_sample = 0.0;
