@@ -1,6 +1,6 @@
 # SPTK
 
-The Speech Signal Processing Toolkit (SPTK) is a software for speech signal processing tools.
+The Speech Signal Processing Toolkit (SPTK) is a comprehensive suite of software tools for speech signal processing.
 
 - Older version: [SPTK3](https://sourceforge.net/projects/sp-tk/)
 - PyTorch version: [diffsptk](https://github.com/sp-nitech/diffsptk)
@@ -10,163 +10,178 @@ The Speech Signal Processing Toolkit (SPTK) is a software for speech signal proc
 [![](https://img.shields.io/badge/license-Apache%202.0-green.svg)](https://github.com/sp-nitech/SPTK/blob/master/LICENSE)
 [![](https://github.com/sp-nitech/SPTK/workflows/build/badge.svg)](https://github.com/sp-nitech/SPTK/actions)
 
-## What is SPTK?
+## Overview
 
-- SPTK consists of over 100 commands for speech signal processing.
-- The data format used in SPTK is raw header-less, i.e., there is no specific structure.
-  Thanks to the data format, we can check file contents immediately on CUI.
-  ```sh
-  dmp +s data.raw
-  ```
-- The data used in the commands is passed through standard input/output.
-  We can chain multiple processes using pipes.
-  ```sh
-  x2x +sd < data.raw | clip | x2x +da | less
-  ```
-- The data type is basically little-endian double 8 bytes.
-- The commands do not require interactive user inputs.
-  Parameters are set via command line options beforehand.
-  ```sh
-  impulse -l 4 | sopr -m 10 | x2x +da
-  ```
+SPTK consists of over 100 independent commands for diverse speech signal processing tasks.
+A key feature is that all commands communicate through standard input and output, enabling the creation of complex processing chains using pipes.
+
+Below is a simple example of using SPTK commands in the terminal:
+
+```
+$ x2x +sd < data.raw | clip -l 32768 -u 32767 | x2x +da | less
+```
+
+As shown above, SPTK follows the Unix philosophy.
+All data is handled in a raw, header-less format (typically 64-bit double-precision), allowing for seamless integration between tools.
+Furthermore, all parameters are configured via command-line options, making the toolkit ideal for automation and scripting.
 
 ## Documentation
 
-- Refer to the reference [manual](https://sp-nitech.github.io/sptk/latest/).
-- Refer to the tutorial [slides](https://speakerdeck.com/takenori/introduction-to-sptk-a-toolkit-for-speech-signal-processing).
-- Our [paper](https://www.isca-archive.org/ssw_2023/yoshimura23_ssw.html) is available on the ISCA Archive.
+For more information, please refer to the following resources:
+
+- [**Reference Manual**](https://sp-nitech.github.io/sptk/latest/) - Detailed command specifications and usage.
+- [**Tutorial Slides**](https://speakerdeck.com/takenori/introduction-to-sptk-a-toolkit-for-speech-signal-processing) - A great starting point for beginners to understand the basics of SPTK.
+- [**Interactive Tutorial**](https://colab.research.google.com/drive/1vmbIJQDhT5F26eCE5iYKQuEEGxYUv-uJ?usp=drive_link) (Google Colab) — The easiest way to try SPTK in your browser.
+- [**Conference Paper**](https://www.isca-archive.org/ssw_2023/yoshimura23_ssw.html) - For technical details and background, please refer to our publication in the ISCA Archive.
+
+Follow us on [**X (Twitter)**](https://twitter.com/SPTK_DSP) for the latest updates and demonstrations.
 
 ## Requirements
 
-- GCC 4.8.5+ / Clang 3.5.0+ / Visual Studio 2015+
-- CMake 3.1+
+To build SPTK, you need a C++ compiler that supports **C++11** (or later) and CMake.
+
+- **C++ Compiler**: GCC 4.8.5+ / Clang 3.5.0+ / Visual Studio 2015+
+- **CMake**: 3.1+
 
 ## Installation
 
-### Linux / macOS
+<details>
+<summary>Linux / macOS</summary>
 
-<details><summary>expand</summary><div>
-
-The latest release can be downloaded through Git.
-The install procedure is as follows.
+You can download and build the latest version of SPTK from source:
 
 ```sh
-git clone https://github.com/sp-nitech/SPTK.git
-cd SPTK
-make
+# Clone the repository
+$ git clone https://github.com/sp-nitech/SPTK.git
+$ cd SPTK
+
+# Build the toolkit
+$ make
 ```
 
-Then the SPTK commands can be used by adding `bin/` directory to the `PATH` environment variable.
-If you would like to use a part of the SPTK functions, please link the static library `lib/libsptk.a`.
+To use SPTK commands from any directory, add the `SPTK/bin/` directory to your `PATH`.
+For example, in your `.bashrc` or `.zshrc`:
 
-</div></details>
-
-### Windows
-
-<details><summary>expand</summary><div>
-
-You may need to add `cmake` and `MSBuild` to the `PATH` environment variable in advance.
-Please run `make.bat` or open Command Prompt and follow the below procedure:
-
-```sh
-cd /path/to/SPTK  # Please change here to your appropriate path.
-mkdir build
-cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=..  # Please change install directory.
-MSBuild /p:Configuration=Release INSTALL.vcxproj
+```
+export PATH="$PATH:/path/to/SPTK/bin"
 ```
 
-You can compile SPTK via GUI instead of running MSBuild by opening the generated project file.
-Then the SPTK functions can be used by linking the static library `lib/sptk.lib`.
+If you wish to integrate SPTK functions into your own C++ projects, link against the static library `lib/libsptk.a`.
 
-</div></details>
+</details>
 
-## Demonstration
+<details>
+<summary>Windows</summary>
 
-- [Twitter](https://twitter.com/SPTK_DSP)
-- [Tutorial](https://colab.research.google.com/drive/1vmbIJQDhT5F26eCE5iYKQuEEGxYUv-uJ?usp=drive_link) on Google Colab
+Before proceeding, ensure that `cmake` and `MSBuild` are added to your `PATH` environment variable.
+You can build SPTK by running `make.bat` or by following these steps in the Command Prompt:
+
+```bat
+# Navigate to the SPTK directory
+$ cd C:\path\to\SPTK
+
+# Create a build directory
+$ mkdir build
+$ cd build
+
+# Generate project files and build
+$ cmake .. -DCMAKE_INSTALL_PREFIX=..
+$ MSBuild /p:Configuration=Release INSTALL.vcxproj
+```
+
+Alternatively, you can open the generated `SPTK.sln` file in the build directory and compile using the Visual Studio GUI.
+
+To use SPTK functions in your Windows projects, link against the static library `lib/sptk.lib`.
+
+</details>
 
 ## Examples
 
-SPTK provides some examples.
-Go to an example directory and execute `run.sh`, e.g.,
+### Simple Audio Processing
+
+The following pipeline demonstrates how to decrease the volume of `input.wav` by half:
 
 ```sh
-cd egs/analysis_synthesis/mgc
-./run.sh
+$ wav2raw +s input.wav | x2x +sd | sopr -m 0.5 | x2x +ds -r | raw2wav +s -s 16 > output.wav
 ```
 
-The below is a simple example that decreases the volume of input audio in `input.wav`.
+### Running Provided Examples
+
+SPTK includes various example scripts. To run them, navigate to an example directory and execute `run.sh`:
 
 ```sh
-wav2raw +s input.wav | x2x +sd | sopr -m 0.5 | x2x +ds -r | raw2wav +s -s 16 > output.wav
+$ cd egs/analysis_synthesis/mgc
+$ ./run.sh
 ```
 
-If you would like to draw figures, please prepare a python environment.
+### Drawing Figures
+
+To visualize data, you can use the built-in Python environment for plotting:
 
 ```sh
-cd tools; make venv PYTHON_VERSION=3.8; cd ..
-. ./tools/venv/bin/activate
-impulse -l 32 | gseries impulse.png
-deactivate
+# Set up a virtual environment (one-time)
+$ cd tools; make venv PYTHON_VERSION=3.8; cd ..
+
+# Generate a figure
+$ . ./tools/venv/bin/activate
+$ impulse -l 32 | gseries impulse.png
+$ deactivate
 ```
 
 ## Changes from SPTK3
 
-- **Input and output types are changed to double from float**
-- Signal processing classes are written in C++ instead of C
-- Drawing commands are implemented in Python
-- Some option names
-- No memory leaks
-- Thread-safe
-- New main features:
-  - Aperiodicity extraction (`ap`)
-  - Dynamic range compression (`drc`)
-  - Magic number interpolation (`magic_intpl`)
-  - Median filter (`medfilt`)
-  - Mel-filter-bank extraction (`fbank`)
-  - Nonrecursive MLPG (`mlpg -R 1`)
-  - Pitch adaptive spectrum estimation (`pitch_spec`)
-  - Pitch extraction used in WORLD (`pitch -a 3` and `pitch -a 4`)
-  - PLP extraction (`plp`)
-  - Sinusoidal generation from pitch (`pitch2sin`)
-  - Subband decomposition (`pqmf` and `ipqmf`)
-  - WORLD synthesis (`world_synth`)
-  - Windows build support
-- Obsoleted commands:
-  - `acep`, `agcep`, and `amcep` -> `amgcep`
-  - `bell`
-  - `c2sp` -> `mgc2sp`
-  - `cat2` and `echo2`
-  - `da`
-  - `ds`, `us`, `us16`, and `uscd` -> `sox` or `ffmpeg`
-  - `fig`
-  - `gc2gc` -> `mgc2mgc`
-  - `gcep`, `mcep`, and `uels` -> `mgcep`
-  - `glsadf`, `lmadf`, and `mlsadf` -> `mglsadf`
-  - `ivq` and `vq` -> `imsvq` and `msvq`
-  - `lsp2sp` -> `mglsp2sp`
-  - `mgc2mgclsp` and `mgclsp2mgc`
-  - `psgr` and `xgr`
-  - `wavjoin` and `wavsplit`
-- Separated commands:
-  - `c2ir` -> `c2mpir` and `mpir2c`
-  - `dtw` -> `dtw` and `dtw_merge`
-  - `mglsadf` -> `mglsadf` and `imglsadf`
-  - `train` -> `train` and `mseq`
-  - `ulaw` -> `ulaw` and `iulaw`
-  - `vstat` -> `vstat` and `median`
-- Renamed commands:
-  - `mgclsp2sp` -> `mglsp2sp`
+### Core Improvements
 
-## Who we are
+- **Enhanced Precision**: The default data type has been upgraded from 4-byte `float` to 8-byte **`double`** (64-bit).
+- **C++ Engine**: The core signal processing logic is now implemented in **C++** (formerly C), ensuring better maintainability.
+- **Modern Plotting**: Drawing commands have been migrated to **Python**, offering greater flexibility and modern visualization options.
+- **Thread-Safety**: The library is now **thread-safe**, making it compatible with multi-threaded applications and parallel processing.
+- **Cross-Platform Support**: Added official support for **Windows** (in addition to Linux and macOS).
 
-- **Keiichi Tokuda** - *Produce and Design* - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~tokuda/)
+### Command Updates
+
+<details><summary>Obsoleted & Integrated</summary>
+
+- `acep`, `agcep`, `amcep` → `amgcep`
+- `bell`
+- `c2sp` → `mgc2sp`
+- `cat2`, `echo2`
+- `da`
+- `ds`, `us`, `us16`, `uscd` → `sox` or `ffmpeg`
+- `fig`
+- `gc2gc` → `mgc2mgc`
+- `gcep`, `mcep`, `uels` → `mgcep`
+- `glsadf`, `lmadf`, `mlsadf` → `mglsadf`
+- `ivq`, `vq` → `imsvq`, `msvq`
+- `lsp2sp` → `mglsp2sp`
+- `mgc2mgclsp`, `mgclsp2mgc`
+- `psgr`, `xgr`
+- `wavjoin`, `wavsplit`
+
+</details>
+
+<details><summary>Separated & Renamed</summary>
+
+- `c2ir` → `c2mpir` & `mpir2c`
+- `dtw` → `dtw` & `dtw_merge`
+- `mgclsp2sp` → `mglsp2sp`
+- `mglsadf` → `mglsadf` & `imglsadf`
+- `train` → `train` & `mseq`
+- `ulaw` → `ulaw` & `iulaw`
+- `vstat` → `vstat` & `median`
+
+</details>
+
+## Contributors
+
+- **Keiichi Tokuda** (*Project Design*) - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~tokuda/)
 - **Keiichiro Oura** - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~uratec/)
-- **Takenori Yoshimura** - *Main Maintainer* - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~takenori/)
+- **Takenori Yoshimura** (*Lead Maintainer*) - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~takenori/)
 - **Takato Fujimoto** - [Nagoya Institute of Technology](http://www.sp.nitech.ac.jp/~taka19/)
 
-## Contributors to former versions of SPTK
+## Contributors to Former Versions
+
+We would like to express our gratitude to all the contributors who have supported SPTK's development over the years:
 
 - Akira Tamamori
 - Cassia Valentini
@@ -201,22 +216,19 @@ deactivate
 
 This software is released under the Apache License 2.0.
 
-## Third-party software licenses
+## Third-party Software Licenses
 
-This project incorporates the following third-party libraries.
+SPTK incorporates the following third-party libraries:
 
-- Pitch extraction
-  - [Snack](https://github.com/scottypitcher/tcl-snack) - Tcl/Tk License
-  - [SWIPE'](https://github.com/kylebgorman/swipe) - MIT License
-  - [REAPER](https://github.com/google/REAPER) - Apache License 2.0
-  - [WORLD](https://github.com/mmorise/World) - 3-Clause BSD License
-- Pitch-adaptive spectral estimation / Aperiodicity estimation
-  - [WORLD](https://github.com/mmorise/World) - 3-Clause BSD License
-- Audio format conversion
-  - [dr_libs](https://github.com/mackron/dr_libs) - Public Domain / MIT License
-  - [stb](https://github.com/nothings/stb) - Public Domain / MIT License
-- Command-line parser
-  - [ya_getopt](https://github.com/kubo/ya_getopt) - 2-Clause BSD License
+| Category | Library | License |
+| :--- | :--- | :--- |
+| **Pitch Extraction** | [Snack](https://github.com/scottypitcher/tcl-snack) | Tcl/Tk License |
+| | [SWIPE'](https://github.com/kylebgorman/swipe) | MIT License |
+| | [REAPER](https://github.com/google/REAPER) | Apache License 2.0 |
+| **WORLD Analysis-Synthesis** | [WORLD](https://github.com/mmorise/World) | 3-Clause BSD License |
+| **Audio Format Conversion** | [dr_libs](https://github.com/mackron/dr_libs) | Public Domain / MIT License |
+| | [stb](https://github.com/nothings/stb) | Public Domain / MIT License |
+| **Command-line Parser** | [ya_getopt](https://github.com/kubo/ya_getopt) | 2-Clause BSD License |
 
 ## Citation
 
