@@ -7,4 +7,4 @@ raw2wav
 
 .. seealso::
 
-    :ref:`wav2raw` :ref:`x2x`
+    :ref:`wav2raw` :ref:`x2x` :ref:`resamp`

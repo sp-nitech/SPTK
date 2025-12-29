@@ -31,16 +31,9 @@
 #include "SPTK/utils/sptk_utils.h"
 
 #ifndef CPPCHECK
-#define DR_FLAC_IMPLEMENTATION
-#define DR_FLAC_NO_WCHAR
 #include "dr_libs/dr_flac.h"
-#define DR_MP3_IMPLEMENTATION
-#define DR_MP3_FLOAT_OUTPUT
 #include "dr_libs/dr_mp3.h"
-#define DR_WAV_IMPLEMENTATION
-#define DR_WAV_NO_WCHAR
 #include "dr_libs/dr_wav.h"
-#define STB_VORBIS_NO_PUSHDATA_API
 #include "stb/stb_vorbis.h"
 #endif  // CPPCHECK
 
@@ -519,8 +512,8 @@ class AudioReaderWrapper {
  * - @b stdout
  *   - waveform
  *
- * The below example converts WAV file to raw short-type waveform by selecting the
- * first channel.
+ * The below example converts WAV file to raw short-type waveform by selecting
+ * the first channel.
  *
  * @code{.sh}
  *   wav2raw -c 1 input.wav > output.raw

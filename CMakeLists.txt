@@ -31,6 +31,22 @@ else()
   set(CMAKE_CXX_FLAGS "-O2 -Wall -Wno-deprecated-register")
 endif()
 
+add_definitions(-DDR_WAV_IMPLEMENTATION)
+add_definitions(-DDR_WAV_NO_WCHAR)
+add_definitions(-DDR_FLAC_IMPLEMENTATION)
+add_definitions(-DDR_FLAC_NO_WCHAR)
+add_definitions(-DDR_MP3_IMPLEMENTATION)
+add_definitions(-DDR_MP3_NO_WCHAR)
+add_definitions(-DSTB_VORBIS_NO_PUSHDATA_API)
+
+add_definitions(-DOUTSIDE_SPEEX)
+add_definitions(-DRANDOM_PREFIX=sptk_speex)
+add_definitions(-DFLOATING_POINT)
+
+add_definitions(-DENABLE_SINC_BEST_CONVERTER)
+add_definitions(-DENABLE_SINC_MEDIUM_CONVERTER)
+add_definitions(-DENABLE_SINC_FAST_CONVERTER)
+
 set(SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
 set(THIRD_PARTY_DIR ${PROJECT_SOURCE_DIR}/third_party)
 
@@ -46,6 +62,7 @@ set(CC_SOURCES
     ${THIRD_PARTY_DIR}/REAPER/wave/codec_riff.cc
     ${THIRD_PARTY_DIR}/REAPER/wave/wave.cc
     ${THIRD_PARTY_DIR}/REAPER/wave/wave_io.cc
+    ${THIRD_PARTY_DIR}/SpeexDSP/resample.cc
     ${THIRD_PARTY_DIR}/SWIPE/swipe.cc
     ${THIRD_PARTY_DIR}/SWIPE/vector.cc
     ${THIRD_PARTY_DIR}/Snack/jkGetF0.cc
@@ -60,7 +77,10 @@ set(CC_SOURCES
     ${THIRD_PARTY_DIR}/WORLD/matlabfunctions.cc
     ${THIRD_PARTY_DIR}/WORLD/stonemask.cc
     ${THIRD_PARTY_DIR}/WORLD/synthesis.cc
-    ${THIRD_PARTY_DIR}/r8brain/fft/pffft_double.c
+    ${THIRD_PARTY_DIR}/libsamplerate/samplerate.cc
+    ${THIRD_PARTY_DIR}/libsamplerate/src_linear.cc
+    ${THIRD_PARTY_DIR}/libsamplerate/src_sinc.cc
+    ${THIRD_PARTY_DIR}/libsamplerate/src_zoh.cc
     ${SOURCE_DIR}/analysis/adaptive_generalized_cepstral_analysis.cc
     ${SOURCE_DIR}/analysis/adaptive_mel_cepstral_analysis.cc
     ${SOURCE_DIR}/analysis/adaptive_mel_generalized_cepstral_analysis.cc
@@ -203,8 +223,10 @@ set(CC_SOURCES
     ${SOURCE_DIR}/math/two_dimensional_real_valued_fast_fourier_transform.cc
     ${SOURCE_DIR}/math/vandermonde_system_solver.cc
     ${SOURCE_DIR}/postfilter/mel_cepstrum_postfilter.cc
+    ${SOURCE_DIR}/resampler/libsamplerate_resampler.cc
     ${SOURCE_DIR}/resampler/r8brain_resampler.cc
-    ${SOURCE_DIR}/resampler/scalar_resampler.cc
+    ${SOURCE_DIR}/resampler/resampler.cc
+    ${SOURCE_DIR}/resampler/speex_resampler.cc
     ${SOURCE_DIR}/utils/data_symmetrizing.cc
     ${SOURCE_DIR}/utils/misc_utils.cc
     ${SOURCE_DIR}/utils/sptk_utils.cc

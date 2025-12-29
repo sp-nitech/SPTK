@@ -29,14 +29,14 @@ class ResamplerInterface {
   virtual ~ResamplerInterface() = default;
 
   /**
-   * @return Latency introduced by resampling.
-   */
-  virtual int GetLatency() const = 0;
-
-  /**
-   * Clears internal state.
+   * Clear internal state.
    */
   virtual void Clear() = 0;
+
+  /**
+   * @return Latency introduced by resampling.
+   */
+  virtual int GetLatency() = 0;
 
   /**
    * @return True if this object is valid.
@@ -44,8 +44,8 @@ class ResamplerInterface {
   virtual bool IsValid() const = 0;
 
   /**
-   * @param[in] inputs Input samples.
-   * @param[out] outputs Output samples.
+   * @param[in] inputs Input samples (interleaved if multiple channels).
+   * @param[out] outputs Output samples (interleaved if multiple channels).
    * @return True on success, false on failure.
    */
   virtual bool Get(const std::vector<double>& inputs,

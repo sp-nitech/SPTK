@@ -17,13 +17,13 @@
 #ifndef SPTK_RESAMPLER_R8BRAIN_RESAMPLER_H_
 #define SPTK_RESAMPLER_R8BRAIN_RESAMPLER_H_
 
+#include <memory>  // std::unique_ptr
 #include <vector>  // std::vector
 
 #include "SPTK/resampler/resampler_interface.h"
 #include "SPTK/utils/sptk_utils.h"
 
 #ifndef CPPCHECK
-#define R8B_PFFFT_DOUBLE 1
 #include "r8brain/CDSPResampler.h"
 #endif  // CPPCHECK
 
@@ -35,31 +35,46 @@ namespace sptk {
 class R8brainResampler : public ResamplerInterface {
  public:
   /**
-   * @param[in] input_sampling_rate Input sampling rate in Hz.
-   * @param[in] output_sampling_rate Output sampling rate in Hz.
-   * @param[in] buffer_length Length of buffer used in resampling.
-   * @param[in] quality Quality of resampling.
+   * @return Minimum quality of resampling.
    */
-  R8brainResampler(double input_sampling_rate, double output_sampling_rate,
-                   int buffer_length, int quality);
-
-  ~R8brainResampler() override {
-  }
-
   static int GetMinimumQuality() {
     return 0;
   }
 
+  /**
+   * @return Maximum quality of resampling.
+   */
   static int GetMaximumQuality() {
     return 0;
   }
 
-  int GetLatency() const override {
-    return resampler_.getInLenBeforeOutPos(0);
+  /**
+   * @param[in] input_sampling_rate Input sampling rate in Hz.
+   * @param[in] output_sampling_rate Output sampling rate in Hz.
+   * @param[in] vector_length Length of input vector (number of channels).
+   * @param[in] buffer_length Length of buffer used in resampling.
+   * @param[in] quality Quality of resampling.
+   */
+  R8brainResampler(double input_sampling_rate, double output_sampling_rate,
+                   int vector_length, int buffer_length, int quality);
+
+  ~R8brainResampler() override {
   }
 
+  /**
+   * Clear internal state.
+   */
   void Clear() override {
-    resampler_.clear();
+    for (const std::unique_ptr<r8b::CDSPResampler24>& resampler : resamplers_) {
+      resampler->clear();
+    }
+  }
+
+  /**
+   * @return Latency of this resampler in samples.
+   */
+  int GetLatency() override {
+    return IsValid() ? resamplers_[0]->getInLenBeforeOutPos(0) : 0;
   }
 
   /**
@@ -70,17 +85,18 @@ class R8brainResampler : public ResamplerInterface {
   }
 
   /**
-   * @param[in] inputs Input samples.
-   * @param[out] outputs Output samples.
+   * @param[in] inputs Input samples (interleaved if multi-channel).
+   * @param[out] outputs Output samples (interleaved if multi-channel).
    * @return True on success, false on failure.
    */
   bool Get(const std::vector<double>& inputs,
            std::vector<double>* outputs) override;
 
  private:
+  const int vector_length_;
   const int buffer_length_;
 
-  r8b::CDSPResampler24 resampler_;
+  std::vector<std::unique_ptr<r8b::CDSPResampler24> > resamplers_;
 
   bool is_valid_;
 
