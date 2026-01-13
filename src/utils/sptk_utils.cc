@@ -520,15 +520,17 @@ void PrintErrorMessage(const std::string& program_name,
   std::cerr << stream.str();
 }
 
-bool SetBinaryMode() {
+bool SetBinaryMode(bool fast_io) {
 #ifdef _WIN32
   if (-1 == _setmode(_fileno(stdin), _O_BINARY) ||
       -1 == _setmode(_fileno(stdout), _O_BINARY)) {
     return false;
   }
 #endif  // _WIN32
-  std::ios_base::sync_with_stdio(false);
-  std::cin.tie(NULL);
+  if (fast_io) {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(NULL);
+  }
   return true;
 }
 
