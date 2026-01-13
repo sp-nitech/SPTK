@@ -29,7 +29,8 @@
 #include <cstdio>     // std::snprintf
 #include <cstdlib>    // std::strtod, std::strtol
 #include <iomanip>    // std::setw
-#include <iostream>   // std::cerr, std::endl, std::left
+#include <ios>        // std::ios_base
+#include <iostream>   // std::cerr, std::cin, std::endl, std::left
 #include <string>     // std::string
 
 #include "SPTK/utils/int24_t.h"
@@ -526,6 +527,8 @@ bool SetBinaryMode() {
     return false;
   }
 #endif  // _WIN32
+  std::ios_base::sync_with_stdio(false);
+  std::cin.tie(NULL);
   return true;
 }
 
