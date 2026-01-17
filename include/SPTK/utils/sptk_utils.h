@@ -281,8 +281,10 @@ void PrintErrorMessage(const std::string& program_name,
 
 /**
  * Set standard input/output to binary mode.
+ *
+ * @param[in] fast_io If true, use fast I/O setting.
  */
-bool SetBinaryMode();
+bool SetBinaryMode(bool fast_io = true);
 
 }  // namespace sptk
 
