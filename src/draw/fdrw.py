@@ -21,7 +21,10 @@ import sys
 import numpy as np
 import plotly.graph_objs as go
 
-import sptk.draw_utils as utils
+script_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(script_dir, "..", "lib"))
+
+import sptk.draw_utils as utils  # noqa: E402
 
 
 def get_arguments():
