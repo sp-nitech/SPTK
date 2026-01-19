@@ -232,7 +232,6 @@ SPTK incorporates the following third-party libraries:
 | | [SpeexDSP](https://github.com/xiph/speexdsp) | 3-Clause BSD License |
 | | [r8brain](https://github.com/avaneev/r8brain-free-src) | MIT License |
 | **Command-line Parser** | [ya_getopt](https://github.com/kubo/ya_getopt) | 2-Clause BSD License |
->>>>>>> master
 
 ## Citation
 
