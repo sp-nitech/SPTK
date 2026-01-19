@@ -37,7 +37,7 @@ add_definitions(-DDR_WAV_NO_WCHAR)
 add_definitions(-DDR_FLAC_IMPLEMENTATION)
 add_definitions(-DDR_FLAC_NO_WCHAR)
 add_definitions(-DDR_MP3_IMPLEMENTATION)
-add_definitions(-DDR_MP3_NO_WCHAR)
+add_definitions(-DDR_MP3_FLOAT_OUTPUT)
 add_definitions(-DSTB_VORBIS_NO_PUSHDATA_API)
 
 add_definitions(-DOUTSIDE_SPEEX)
