@@ -87,9 +87,10 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  stdout:" << std::endl;
   *stream << "       pitch                                 (double)" << std::endl;  // NOLINT
   *stream << "  notice:" << std::endl;
-  *stream << "       if t is raised, the number of voiced frames increase in RAPT, REAPER, DIO, and Harvest" << std::endl;  // NOLINT
-  *stream << "       if t is dropped, the number of voiced frames increase in SWIPE'" << std::endl;  // NOLINT
-  *stream << "       the value of t should be in the recommended range but values outside the range can be given" << std::endl;  // NOLINT
+  *stream << "       input waveform should be in the range [-32768, 32767], not [-1.0, 1.0]" << std::endl;  // NOLINT
+  *stream << "       increasing t will increase the number of voiced frames for RAPT, REAPER, DIO, and Harvest" << std::endl;  // NOLINT
+  *stream << "       decreasing t will increase the number of voiced frames for SWIPE'" << std::endl;  // NOLINT
+  *stream << "       t is recommended to be within the specified range, but values outside are also accepted" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;

@@ -589,7 +589,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  if (!sptk::SetBinaryMode()) {
+  if (!sptk::SetBinaryMode(false)) {
     std::ostringstream error_message;
     error_message << "Cannot set translation mode";
     sptk::PrintErrorMessage("wav2raw", error_message);

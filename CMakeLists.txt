@@ -7,6 +7,7 @@ endif()
 project(SPTK VERSION 4.4)
 
 option(SPTK_INSTALL "Install SPTK library" ON)
+option(SPTK_INSTALL_DRAW_COMMANDS "Install Python-based drawing commands" ON)
 option(SPTK_BUILD_COMMANDS "Build SPTK commands" ON)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -446,12 +447,15 @@ set(PYTHON_SOURCES
     ${SOURCE_DIR}/draw/gspecgram.py
     ${SOURCE_DIR}/draw/gwave.py)
 
-if(NOT WIN32 AND SPTK_INSTALL)
+if(NOT WIN32 AND SPTK_INSTALL_DRAW_COMMANDS)
+  install(FILES ${SOURCE_DIR}/draw/sptk/draw_utils.py
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}/sptk)
+
   foreach(SOURCE ${PYTHON_SOURCES})
     get_filename_component(BIN ${SOURCE} NAME_WE)
-    execute_process(COMMAND ln -snf ${SOURCE}
-                            ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${BIN}
-            DESTINATION ${CMAKE_INSTALL_BINDIR})
+    install(
+      PROGRAMS ${SOURCE}
+      DESTINATION ${CMAKE_INSTALL_BINDIR}
+      RENAME ${BIN})
   endforeach()
 endif()
