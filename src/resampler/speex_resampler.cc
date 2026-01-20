@@ -42,7 +42,7 @@ SpeexResampler::SpeexResampler(double input_sampling_rate,
       buffer_length_(buffer_length),
       state_(NULL),
       is_valid_(true) {
-  if (input_sampling_rate_ <= 0.0 || output_sampling_rate <= 0.0 ||
+  if (input_sampling_rate_ <= 0.0 || output_sampling_rate_ <= 0.0 ||
       vector_length_ <= 0 || buffer_length_ <= 0 ||
       quality < GetMinimumQuality() || GetMaximumQuality() < quality) {
     is_valid_ = false;
@@ -50,8 +50,8 @@ SpeexResampler::SpeexResampler(double input_sampling_rate,
   }
 
   int error;
-  state_ = sptk_speex_resampler_init(vector_length, input_sampling_rate,
-                                     output_sampling_rate, quality, &error);
+  state_ = sptk_speex_resampler_init(vector_length_, input_sampling_rate_,
+                                     output_sampling_rate_, quality, &error);
 
   if (NULL == state_ || RESAMPLER_ERR_SUCCESS != error) {
     is_valid_ = false;

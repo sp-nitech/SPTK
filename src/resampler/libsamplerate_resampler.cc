@@ -42,7 +42,8 @@ LibsamplerateResampler::LibsamplerateResampler(double input_sampling_rate,
       buffer_length_(buffer_length),
       state_(NULL),
       is_valid_(true) {
-  if (input_sampling_rate_ <= 0.0 || output_sampling_rate <= 0.0 ||
+  if (input_sampling_rate_ <= 0.0 || output_sampling_rate_ <= 0.0 ||
+      SRC_MAX_RATIO < output_sampling_rate_ / input_sampling_rate_ ||
       vector_length_ <= 0 || buffer_length_ <= 0 ||
       quality < GetMinimumQuality() || GetMaximumQuality() < quality) {
     is_valid_ = false;
@@ -51,7 +52,7 @@ LibsamplerateResampler::LibsamplerateResampler(double input_sampling_rate,
 
   int error;
   state_ =
-      libsamplerate::src_new(InvertQuality(quality), vector_length, &error);
+      libsamplerate::src_new(InvertQuality(quality), vector_length_, &error);
 
   if (NULL == state_ || libsamplerate::SRC_ERR_NO_ERROR != error) {
     is_valid_ = false;

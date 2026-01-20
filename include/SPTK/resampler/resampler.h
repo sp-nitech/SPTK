@@ -63,6 +63,16 @@ class Resampler {
   static int GetMaximumQuality(Algorithms algorithm);
 
   /**
+   * @return Minimum resampling ratio.
+   */
+  static double GetMinimumRatio();
+
+  /**
+   * @return Maximum resampling ratio.
+   */
+  static double GetMaximumRatio();
+
+  /**
    * @param[in] input_sampling_rate Input sampling rate in Hz.
    * @param[in] output_sampling_rate Output sampling rate in Hz.
    * @param[in] vector_length Length of vector (number of channels).

@@ -38,12 +38,10 @@ teardown() {
     len16=$($sptk3/x2x +sa $data | wc -l)
     for S in 8 44.1 48; do
         for a in 0 1 2; do
-            lower=$(echo "$len16" | $sptk3/x2x +ad | $sptk4/sopr -m $S -d 16 -ROUND -s 1 | $sptk3/x2x +da)
-            upper=$(echo "$len16" | $sptk3/x2x +ad | $sptk4/sopr -m $S -d 16 -ROUND -a 1 | $sptk3/x2x +da)
+            expected=$(echo "$len16" | $sptk3/x2x +ad | $sptk4/sopr -m $S -d 16 -CEIL | $sptk3/x2x +da)
             $sptk4/resamp -s 16 -S $S $tmp/1 > $tmp/2
             len=$($sptk3/x2x +da $tmp/2 | wc -l)
-            [ "$len" -ge "$lower" ]
-            [ "$len" -le "$upper" ]
+            [ "$len" -eq "$expected" ]
         done
     done
 }

@@ -20,11 +20,23 @@
 #include "SPTK/resampler/r8brain_resampler.h"
 #include "SPTK/resampler/speex_resampler.h"
 
+namespace {
+
+const double kMaxRatio(256.0);
+
+}  // namespace
+
 namespace sptk {
 
 Resampler::Resampler(double input_sampling_rate, double output_sampling_rate,
                      int vector_length, int buffer_length, int quality,
-                     Algorithms algorithm) {
+                     Algorithms algorithm)
+    : resampler_(NULL), latency_(0) {
+  const double ratio(output_sampling_rate / input_sampling_rate);
+  if (ratio < GetMinimumRatio() || GetMaximumRatio() < ratio) {
+    return;
+  }
+
   switch (algorithm) {
     case kLibsamplerate: {
       resampler_ =
@@ -44,14 +56,13 @@ Resampler::Resampler(double input_sampling_rate, double output_sampling_rate,
       break;
     }
     default: {
-      resampler_ = NULL;
-      break;
+      return;
     }
   }
 
   // This is because calculation of latency may change internal state so
   // we need to call it only once right after construction.
-  latency_ = resampler_ ? resampler_->GetLatency() : 0;
+  latency_ = resampler_->GetLatency();
 }
 
 int Resampler::GetMinimumQuality(Algorithms algorithm) {
@@ -86,6 +97,14 @@ int Resampler::GetMaximumQuality(Algorithms algorithm) {
       return 0;
     }
   }
+}
+
+double Resampler::GetMinimumRatio() {
+  return 1.0 / GetMaximumRatio();
+}
+
+double Resampler::GetMaximumRatio() {
+  return kMaxRatio;
 }
 
 }  // namespace sptk
