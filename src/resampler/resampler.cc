@@ -22,7 +22,7 @@
 
 namespace {
 
-const double kMaxRatio(256.0);
+const double kMaximumRatio(256.0);
 
 }  // namespace
 
@@ -104,7 +104,7 @@ double Resampler::GetMinimumRatio() {
 }
 
 double Resampler::GetMaximumRatio() {
-  return kMaxRatio;
+  return kMaximumRatio;
 }
 
 }  // namespace sptk
