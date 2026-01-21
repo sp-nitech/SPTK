@@ -228,6 +228,9 @@ SPTK incorporates the following third-party libraries:
 | **WORLD Analysis-Synthesis** | [WORLD](https://github.com/mmorise/World) | 3-Clause BSD License |
 | **Audio Format Conversion** | [dr_libs](https://github.com/mackron/dr_libs) | Public Domain / MIT License |
 | | [stb](https://github.com/nothings/stb) | Public Domain / MIT License |
+| **Sample Rate Conversion** | [libsamplerate](https://github.com/libsndfile/libsamplerate) | 2-Clause BSD License |
+| | [SpeexDSP](https://github.com/xiph/speexdsp) | 3-Clause BSD License |
+| | [r8brain](https://github.com/avaneev/r8brain-free-src) | MIT License |
 | **Command-line Parser** | [ya_getopt](https://github.com/kubo/ya_getopt) | 2-Clause BSD License |
 
 ## Citation

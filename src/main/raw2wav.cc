@@ -29,8 +29,6 @@
 #include "SPTK/utils/sptk_utils.h"
 
 #ifndef CPPCHECK
-#define DR_WAV_IMPLEMENTATION
-#define DR_WAV_NO_WCHAR
 #include "dr_libs/dr_wav.h"
 #endif  // CPPCHECK
 
