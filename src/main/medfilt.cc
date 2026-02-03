@@ -49,20 +49,19 @@ void PrintUsage(std::ostream* stream) {
   *stream << "  usage:" << std::endl;
   *stream << "       medfilt [ options ] [ infile ] > stdout" << std::endl;
   *stream << "  options:" << std::endl;
-  *stream << "       -l l          : length of vector        (   int)[" << std::setw(5) << std::right << kDefaultNumInputOrder + 1 << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
-  *stream << "       -m m          : order of vector         (   int)[" << std::setw(5) << std::right << "l-1"                     << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
-  *stream << "       -k k          : order of filter         (   int)[" << std::setw(5) << std::right << kDefaultNumFilterOrder    << "][ 0 <= k <=   ]" << std::endl;  // NOLINT
-  *stream << "       -w w          : way to apply filter     (   int)[" << std::setw(5) << std::right << kDefaultWayToApplyFilter  << "][ 0 <= w <= 1 ]" << std::endl;  // NOLINT
+  *stream << "       -l l          : length of vector       (   int)[" << std::setw(5) << std::right << kDefaultNumInputOrder + 1  << "][ 1 <= l <=   ]" << std::endl;  // NOLINT
+  *stream << "       -m m          : order of vector        (   int)[" << std::setw(5) << std::right << "l-1"                      << "][ 0 <= m <=   ]" << std::endl;  // NOLINT
+  *stream << "       -K K          : length of filter       (   int)[" << std::setw(5) << std::right << kDefaultNumFilterOrder + 1 << "][ 1 <= K <=   ]" << std::endl;  // NOLINT
+  *stream << "       -k k          : order of filter        (   int)[" << std::setw(5) << std::right << "k-1"                      << "][ 0 <= k <=   ]" << std::endl;  // NOLINT
+  *stream << "       -w w          : way to apply filter    (   int)[" << std::setw(5) << std::right << kDefaultWayToApplyFilter   << "][ 0 <= w <= 1 ]" << std::endl;  // NOLINT
   *stream << "                         0 (each dimension)" << std::endl;
   *stream << "                         1 (across dimension)" << std::endl;
-  *stream << "       -magic magic  : magic number            (double)[" << std::setw(5) << std::right << "N/A"                     << "]" << std::endl;  // NOLINT
+  *stream << "       -magic magic  : magic number           (double)[" << std::setw(5) << std::right << "N/A"                      << "]" << std::endl;  // NOLINT
   *stream << "       -h            : print this message" << std::endl;
   *stream << "  infile:" << std::endl;
-  *stream << "       data sequence                           (double)[stdin]" << std::endl;  // NOLINT
+  *stream << "       data sequence                          (double)[stdin]" << std::endl;  // NOLINT
   *stream << "  stdout:" << std::endl;
-  *stream << "       filtered data sequence                  (double)" << std::endl;  // NOLINT
-  *stream << "  notice:" << std::endl;
-  *stream << "       if w = 0, output size is m+1, otherwise 1" << std::endl;
+  *stream << "       filtered data sequence                 (double)" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -78,6 +77,8 @@ void PrintUsage(std::ostream* stream) {
  *   - length of vector @f$(1 \le M + 1)@f$
  * - @b -m @e int
  *   - order of vector @f$(0 \le M)@f$
+ * - @b -K @e int
+ *   - length of filter @f$(1 \le K + 1)@f$
  * - @b -k @e int
  *   - order of filter @f$(0 \le K)@f$
  * - @b -w @e int
@@ -92,7 +93,7 @@ void PrintUsage(std::ostream* stream) {
  *   - double-type filtered data sequence
  *
  * @code{.sh}
- *   echo 1 3 5 7 | x2x +ad | medfilt -w 0 -l 1 -k 2 | x2x +da
+ *   echo 1 3 5 7 | x2x +ad | medfilt -w 0 -l 1 | x2x +da
  *   # 2 3 5 6
  * @endcode
  *
@@ -124,7 +125,7 @@ int main(int argc, char* argv[]) {
 
   for (;;) {
     const int option_char(
-        getopt_long_only(argc, argv, "l:m:k:w:h", long_options, NULL));
+        getopt_long_only(argc, argv, "l:m:K:k:w:h", long_options, NULL));
     if (-1 == option_char) break;
 
     switch (option_char) {
@@ -149,6 +150,18 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("medfilt", error_message);
           return 1;
         }
+        break;
+      }
+      case 'K': {
+        if (!sptk::ConvertStringToInteger(optarg, &num_filter_order) ||
+            num_filter_order <= 0) {
+          std::ostringstream error_message;
+          error_message
+              << "The argument for the -K option must be a positive integer";
+          sptk::PrintErrorMessage("medfilt", error_message);
+          return 1;
+        }
+        --num_filter_order;
         break;
       }
       case 'k': {

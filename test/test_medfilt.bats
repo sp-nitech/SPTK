@@ -33,13 +33,13 @@ teardown() {
     cmd+="print(' '.join(map(str, y[1:-1])))"
     tools/venv/bin/python -c "${cmd}" | $sptk3/x2x +ad > $tmp/1
     echo "0 1 -2 7 4 8 -5 -6 3" | $sptk3/x2x +ad |
-        $sptk4/medfilt -m 0 -k 2 | $sptk3/bcut +d -s 1 -e 7 > $tmp/2
+        $sptk4/medfilt -m 0 -K 3 | $sptk3/bcut +d -s 1 -e 7 > $tmp/2
     run $sptk4/aeq $tmp/1 $tmp/2
     [ "$status" -eq 0 ]
 }
 
 @test "medfilt: valgrind" {
     $sptk3/nrand -l 20 > $tmp/1
-    run valgrind $sptk4/histogram -l 2 -k 2 $tmp/1
+    run valgrind $sptk4/medfilt -l 2 -k 2 $tmp/1
     [ "$(echo "${lines[-1]}" | sed -r 's/.*SUMMARY: ([0-9]*) .*/\1/')" -eq 0 ]
 }
