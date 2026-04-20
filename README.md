@@ -17,7 +17,7 @@ A key feature is that all commands communicate through standard input and output
 
 Below is a simple example of using SPTK commands in the terminal:
 
-```
+```sh
 $ x2x +sd < data.raw | clip -l 32768 -u 32767 | x2x +da | less
 ```
 
