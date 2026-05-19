@@ -141,6 +141,14 @@ format-misc:
 	./tools/venv/bin/cmake-format -i CMakeLists.txt
 	./tools/venv/bin/mdformat *.md
 	./tools/venv/bin/docstrfmt docs
+	@if [ ! -x ./tools/pinact/pinact ]; then \
+		echo "Please install pinact via:"; \
+		echo ""; \
+		echo "  cd tools; make pinact.done"; \
+		echo ""; \
+		exit 1; \
+	fi
+	./tools/pinact/pinact run -u --min-age 14 .github/workflows/*.yml
 
 test:
 	@if [ ! -x ./tools/bats/bin/bats ]; then \
@@ -158,7 +166,10 @@ test-clean:
 tool:
 	cd tools && make
 
-clean: doc-clean test-clean
+tool-clean:
+	cd tools && make clean
+
+clean: doc-clean test-clean tool-clean
 	rm -rf $(BUILDDIR) $(LIBDIR) $(BINDIR)
 
-.PHONY: all build doc doc-clean example format test test-clean tool clean
+.PHONY: all build doc doc-clean example format test test-clean tool tool-clean clean

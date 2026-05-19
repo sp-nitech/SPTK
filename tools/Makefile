@@ -18,31 +18,34 @@ PYTHON_VERSION     := 3.11
 BATS_VERSION       := 1.13.0
 CPPCHECK_VERSION   := 2.18.0
 DOXYGEN_VERSION    := 1.15.0
+PINACT_VERSION     := 3.10.1
 SHELLCHECK_VERSION := 0.11.0
 SHFMT_VERSION      := 3.12.0
 JOBS               := 4
 
+PIP_TIME_LIMIT := --uploaded-prior-to=$(shell date -u -d '14 days ago' '+%Y-%m-%dT%H:%M:%SZ')
+
 
 all: check doxygen.done
 
-check: venv_dev bats.done cppcheck.done shellcheck.done shfmt.done sptk.done
+check: venv_dev bats.done cppcheck.done pinact.done shellcheck.done shfmt.done sptk.done
 
 venv:
 	test -d venv || python$(PYTHON_VERSION) -m venv venv
 	. ./venv/bin/activate && python -m pip install pip --upgrade
-	. ./venv/bin/activate && python -m pip install -r requirements.txt --upgrade
+	. ./venv/bin/activate && python -m pip install -r requirements.txt --upgrade $(PIP_TIME_LIMIT)
 	./venv/bin/plotly_get_chrome -y
 
 venv_dev:
 	test -d venv || python$(PYTHON_VERSION) -m venv venv
 	. ./venv/bin/activate && python -m pip install pip --upgrade
-	. ./venv/bin/activate && python -m pip install -r requirements.txt -r test_requirements.txt --upgrade
+	. ./venv/bin/activate && python -m pip install -r requirements.txt -r test_requirements.txt --upgrade $(PIP_TIME_LIMIT)
 	./venv/bin/plotly_get_chrome -y
 
 venv_old:
 	test -d venv || python$(PYTHON_VERSION) -m venv venv
 	. ./venv/bin/activate && python -m pip install pip --upgrade
-	. ./venv/bin/activate && python -m pip install -r requirements_legacy.txt --upgrade
+	. ./venv/bin/activate && python -m pip install -r requirements_legacy.txt --upgrade $(PIP_TIME_LIMIT)
 
 bats.done:
 	rm -rf bats
@@ -60,6 +63,14 @@ doxygen.done:
 	git clone https://github.com/doxygen/doxygen.git -b Release_$(subst .,_,$(DOXYGEN_VERSION)) --single-branch --depth 1
 	cd doxygen && mkdir -p build && cd build && cmake -G "Unix Makefiles" .. && make -j $(JOBS)
 	touch doxygen.done
+
+pinact.done:
+	rm -rf pinact
+	mkdir -p pinact
+	wget https://github.com/suzuki-shunsuke/pinact/releases/download/v$(PINACT_VERSION)/pinact_linux_amd64.tar.gz -O pinact.tar.gz
+	tar xzf pinact.tar.gz -C pinact
+	rm -f pinact.tar.gz
+	touch pinact.done
 
 shellcheck.done:
 	rm -rf shellcheck
@@ -84,6 +95,6 @@ sptk.done:
 	touch sptk.done
 
 clean:
-	rm -rf venv bats cppcheck doxygen shellcheck shfmt sptk *.done
+	rm -rf venv bats cppcheck doxygen pinact shellcheck shfmt sptk *.done
 
 .PHONY: all check venv venv_dev clean
