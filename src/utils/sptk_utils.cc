@@ -31,6 +31,7 @@
 #include <iomanip>    // std::setw
 #include <ios>        // std::ios_base
 #include <iostream>   // std::cerr, std::cin, std::endl, std::left
+#include <limits>     // std::numeric_limits
 #include <string>     // std::string
 
 #include "SPTK/utils/int24_t.h"
@@ -337,47 +338,57 @@ bool ConvertSpecialStringToDouble(const std::string& input, double* output) {
     return false;
   }
 
-  std::string lowercase_input(input);
-  std::transform(input.begin(), input.end(), lowercase_input.begin(),
-                 [](unsigned char c) {
-                   return static_cast<unsigned char>(std::tolower(c));
-                 });
-  if ("pi" == lowercase_input) {
-    *output = sptk::kPi;
-    return true;
-  } else if ("db" == lowercase_input) {
-    *output = sptk::kNeper;
-    return true;
-  } else if ("cent" == lowercase_input) {
-    *output = 1200.0 * sptk::kOctave;
-    return true;
-  } else if ("semitone" == lowercase_input) {
-    *output = 12.0 * sptk::kOctave;
-    return true;
-  } else if ("octave" == lowercase_input) {
-    *output = sptk::kOctave;
-    return true;
-  } else if (lowercase_input.find("sqrt") == 0) {
-    double tmp;
-    if (ConvertStringToDouble(lowercase_input.substr(4), &tmp) && 0.0 <= tmp) {
-      *output = std::sqrt(tmp);
-      return true;
-    }
-  } else if (lowercase_input.find("ln") == 0) {
-    double tmp;
-    if (ConvertStringToDouble(lowercase_input.substr(2), &tmp) && 0.0 < tmp) {
-      *output = std::log(tmp);
-      return true;
-    }
-  } else if (lowercase_input.find("exp") == 0) {
-    double tmp;
-    if (ConvertStringToDouble(lowercase_input.substr(3), &tmp)) {
-      *output = std::exp(tmp);
-      return true;
-    }
+  bool is_negative;
+  std::string no_sign_input;
+  if ('+' == input[0]) {
+    is_negative = false;
+    no_sign_input = input.substr(1);
+  } else if ('-' == input[0]) {
+    is_negative = true;
+    no_sign_input = input.substr(1);
+  } else {
+    is_negative = false;
+    no_sign_input = input;
   }
 
-  return false;
+  std::string lowercase_input(no_sign_input);
+  std::transform(no_sign_input.begin(), no_sign_input.end(),
+                 lowercase_input.begin(), [](unsigned char c) {
+                   return static_cast<unsigned char>(std::tolower(c));
+                 });
+
+  double value;
+  if ("pi" == lowercase_input) {
+    value = sptk::kPi;
+  } else if ("db" == lowercase_input) {
+    value = sptk::kNeper;
+  } else if ("cent" == lowercase_input) {
+    value = 1200.0 * sptk::kOctave;
+  } else if ("semitone" == lowercase_input) {
+    value = 12.0 * sptk::kOctave;
+  } else if ("octave" == lowercase_input) {
+    value = sptk::kOctave;
+  } else if (lowercase_input.find("sqrt") == 0 &&
+             ConvertStringToDouble(lowercase_input.substr(4), &value) &&
+             0.0 <= value) {
+    value = std::sqrt(value);
+  } else if (lowercase_input.find("ln") == 0 &&
+             ConvertStringToDouble(lowercase_input.substr(2), &value) &&
+             0.0 < value) {
+    value = std::log(value);
+  } else if (lowercase_input.find("exp") == 0 &&
+             ConvertStringToDouble(lowercase_input.substr(3), &value)) {
+    value = std::exp(value);
+  } else if ("inf" == lowercase_input) {
+    value = std::numeric_limits<double>::infinity();
+  } else if ("nan" == lowercase_input) {
+    value = std::numeric_limits<double>::quiet_NaN();
+  } else {
+    return false;
+  }
+
+  *output = is_negative ? -value : value;
+  return true;
 }
 
 bool IsEven(int num) {
