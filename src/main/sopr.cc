@@ -116,6 +116,8 @@ void PrintUsage(std::ostream* stream) {
   *stream << "           sqrtX    :      sqrt(X)  [ 0.0 <= X <=   ]" << std::endl;  // NOLINT
   *stream << "           lnX      :        ln(X)  [ 0.0 <  X <=   ]" << std::endl;  // NOLINT
   *stream << "           expX     :       exp(X)  [     <= X <=   ]" << std::endl;  // NOLINT
+  *stream << "           inf      : infinity" << std::endl;
+  *stream << "           nan      : not a number" << std::endl;
   *stream << "" << std::endl;
   *stream << "       they are case-insensitive" << std::endl;
   *stream << "" << std::endl;

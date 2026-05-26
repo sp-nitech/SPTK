@@ -203,6 +203,7 @@ set(CC_SOURCES
     ${SOURCE_DIR}/math/inverse_fast_fourier_transform.cc
     ${SOURCE_DIR}/math/inverse_fourier_transform.cc
     ${SOURCE_DIR}/math/levinson_durbin_recursion.cc
+    ${SOURCE_DIR}/math/lp_norm_calculation.cc
     ${SOURCE_DIR}/math/matrix.cc
     ${SOURCE_DIR}/math/matrix2d.cc
     ${SOURCE_DIR}/math/minmax_accumulation.cc
@@ -354,6 +355,7 @@ set(MAIN_SOURCES
     ${SOURCE_DIR}/main/lpc2lsp.cc
     ${SOURCE_DIR}/main/lpc2par.cc
     ${SOURCE_DIR}/main/lpccheck.cc
+    ${SOURCE_DIR}/main/lpnorm.cc
     ${SOURCE_DIR}/main/lsp2lpc.cc
     ${SOURCE_DIR}/main/lspcheck.cc
     ${SOURCE_DIR}/main/lspdf.cc
