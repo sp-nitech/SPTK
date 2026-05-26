@@ -17,7 +17,7 @@
 #include "SPTK/math/lp_norm_calculation.h"
 
 #include <algorithm>  // std::max_element
-#include <cmath>      // std::abs, std::pow
+#include <cmath>      // std::abs, std::pow, std::sqrt
 #include <cstddef>    // std::size_t
 #include <limits>     // std::numeric_limits
 #include <numeric>    // std::inner_product

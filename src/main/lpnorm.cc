@@ -70,7 +70,7 @@ void PrintUsage(std::ostream* stream) {
  * - @b stdout
  *   - double-type normalized vector sequence
  *
- * The below example calculates l2-normalized vector sequence:
+ * The below example calculates L2-normalized vector sequence:
  *
  * @code{.sh}
  *   echo 3 4 | x2x +ad | lpnorm -l 2 -p 2 | x2x +da
