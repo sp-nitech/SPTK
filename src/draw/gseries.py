@@ -33,12 +33,6 @@ def get_arguments():
         "draw a dicrete series", input_name="discrete series"
     )
     parser.add_argument(
-        "-g",
-        dest="grid",
-        action="store_true",
-        help="draw grid",
-    )
-    parser.add_argument(
         "-s",
         metavar="s",
         dest="start_point",
@@ -171,6 +165,10 @@ def get_arguments():
 #   - margin around image in pixels
 # - @b -g
 #   - draw grid
+# - @b -hline @e float
+#   - y-coordinates of horizontal lines
+# - @b -vline @e float
+#   - x-coordinates of vertical lines
 # - @b -s @e int
 #   - start point
 # - @b -e @e int
@@ -191,6 +189,18 @@ def get_arguments():
 #   - line color
 # - @b -lw @e float
 #   - line width
+# - @b -hls @e str
+#   - horizontal line style
+# - @b -hlc @e str
+#   - horizontal line color
+# - @b -hlw @e float
+#   - horizontal line width
+# - @b -vls @e str
+#   - vertical line style
+# - @b -vlc @e str
+#   - vertical line color
+# - @b -vlw @e float
+#   - vertical line width
 # - @b -ms @e int
 #   - marker symbol
 # - @b -mc @e str
@@ -304,6 +314,26 @@ def main():
             **row_col,
         )
         s = e
+
+    for line in args.horizontal_lines:
+        fig.add_hline(
+            y=line,
+            line=dict(
+                color=args.horizontal_line_color,
+                width=args.horizontal_line_width,
+                dash=args.horizontal_line_style,
+            ),
+        )
+
+    for line in args.vertical_lines:
+        fig.add_vline(
+            x=line,
+            line=dict(
+                color=args.vertical_line_color,
+                width=args.vertical_line_width,
+                dash=args.vertical_line_style,
+            ),
+        )
 
     fig.update_layout(
         font=dict(
