@@ -32,12 +32,6 @@ def get_arguments():
         "draw a log spectrum", input_name="log spectrum", allow_dtype=False
     )
     parser.add_argument(
-        "-g",
-        dest="grid",
-        action="store_true",
-        help="draw grid",
-    )
-    parser.add_argument(
         "-s",
         metavar="s",
         dest="frame_number",
@@ -110,6 +104,10 @@ def get_arguments():
 #   - margin around image in pixels
 # - @b -g
 #   - draw grid
+# - @b -hline @e float
+#   - y-coordinates of horizontal lines
+# - @b -vline @e float
+#   - x-coordinates of vertical lines
 # - @b -s @e int
 #   - frame number
 # - @b -l @e int
@@ -124,6 +122,18 @@ def get_arguments():
 #   - line color
 # - @b -lw @e float
 #   - line width
+# - @b -hls @e str
+#   - horizontal line style
+# - @b -hlc @e str
+#   - horizontal line color
+# - @b -hlw @e float
+#   - horizontal line width
+# - @b -vls @e str
+#   - vertical line style
+# - @b -vlc @e str
+#   - vertical line color
+# - @b -vlw @e float
+#   - vertical line width
 # - @b -ff @e str
 #   - font family
 # - @b -fs @e int
@@ -168,6 +178,27 @@ def main():
             ),
         )
     )
+
+    for line in args.horizontal_lines:
+        fig.add_hline(
+            y=line,
+            line=dict(
+                color=args.horizontal_line_color,
+                width=args.horizontal_line_width,
+                dash=args.horizontal_line_style,
+            ),
+        )
+
+    for line in args.vertical_lines:
+        fig.add_vline(
+            x=line,
+            line=dict(
+                color=args.vertical_line_color,
+                width=args.vertical_line_width,
+                dash=args.vertical_line_style,
+            ),
+        )
+
     if args.sr <= 0:
         fig.update_xaxes(
             title_text="Frequency [rad]",
@@ -179,6 +210,7 @@ def main():
         fig.update_xaxes(title_text="Normalized frequency [cyc]")
     else:
         fig.update_xaxes(title_text="Frequency [kHz]")
+
     fig.update_layout(
         xaxis=dict(
             range=(x[0], x[-1]),

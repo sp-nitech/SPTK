@@ -122,7 +122,7 @@ def print_error_message(name, message):
     print(f"{name}: {message}!", file=sys.stderr)
 
 
-def get_default_parser(description, input_name=None, allow_dtype=True):
+def get_default_parser(description, input_name=None, allow_dtype=True, allow_grid=True):
     class MarginAction(argparse.Action):
         def __init__(self, option_strings, dest, nargs=None, **kwargs):
             if nargs is not None:
@@ -207,6 +207,77 @@ def get_default_parser(description, input_name=None, allow_dtype=True):
         type=int,
         help="font size",
     )
+    if allow_grid:
+        parser.add_argument(
+            "-g",
+            dest="grid",
+            action="store_true",
+            help="draw grid",
+        )
+        parser.add_argument(
+            "-hline",
+            dest="horizontal_lines",
+            nargs="+",
+            default=[],
+            type=float,
+            help="y-coordinates of horizontal lines",
+        )
+        parser.add_argument(
+            "-vline",
+            dest="vertical_lines",
+            nargs="+",
+            default=[],
+            type=float,
+            help="x-coordinates of vertical lines",
+        )
+        parser.add_argument(
+            "-hls",
+            dest="horizontal_line_style",
+            choices=line_styles,
+            default="solid",
+            type=str,
+            help="horizontal line style",
+        )
+        parser.add_argument(
+            "-hlc",
+            metavar="hlc",
+            dest="horizontal_line_color",
+            default="red",
+            type=str,
+            help="horizontal line color",
+        )
+        parser.add_argument(
+            "-hlw",
+            metavar="hlw",
+            dest="horizontal_line_width",
+            default=None,
+            type=float,
+            help="horizontal line width",
+        )
+        parser.add_argument(
+            "-vls",
+            dest="vertical_line_style",
+            choices=line_styles,
+            default="solid",
+            type=str,
+            help="vertical line style",
+        )
+        parser.add_argument(
+            "-vlc",
+            metavar="vlc",
+            dest="vertical_line_color",
+            default="red",
+            type=str,
+            help="vertical line color",
+        )
+        parser.add_argument(
+            "-vlw",
+            metavar="vlw",
+            dest="vertical_line_width",
+            default=None,
+            type=float,
+            help="vertical line width",
+        )
     if allow_dtype:
         parser.add_argument(
             "+c",

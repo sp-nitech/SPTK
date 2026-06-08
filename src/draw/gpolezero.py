@@ -30,12 +30,6 @@ import sptk.draw_utils as utils  # noqa: E402
 def get_arguments():
     parser = utils.get_default_parser("draw poles and zeros", allow_dtype=False)
     parser.add_argument(
-        "-g",
-        dest="grid",
-        action="store_true",
-        help="draw grid",
-    )
-    parser.add_argument(
         "-q",
         metavar="q",
         dest="input_format",
@@ -109,6 +103,10 @@ def get_arguments():
 #   - margin around image in pixels
 # - @b -g
 #   - draw grid
+# - @b -hline @e float
+#   - y-coordinates of horizontal lines
+# - @b -vline @e float
+#   - x-coordinates of vertical lines
 # - @b -q @e int
 #   - input format
 # - @b -p @e str
@@ -119,6 +117,18 @@ def get_arguments():
 #   - x-axis limits
 # - @b -y @e float @e float
 #   - y-axis limits
+# - @b -hls @e str
+#   - horizontal line style
+# - @b -hlc @e str
+#   - horizontal line color
+# - @b -hlw @e float
+#   - horizontal line width
+# - @b -vls @e str
+#   - vertical line style
+# - @b -vlc @e str
+#   - vertical line color
+# - @b -vlw @e float
+#   - vertical line width
 # - @b -mc @e str
 #   - marker color
 # - @b -mw @e float
@@ -211,6 +221,26 @@ def main():
                 mode="markers",
                 marker=marker,
             )
+        )
+
+    for line in args.horizontal_lines:
+        fig.add_hline(
+            y=line,
+            line=dict(
+                color=args.horizontal_line_color,
+                width=args.horizontal_line_width,
+                dash=args.horizontal_line_style,
+            ),
+        )
+
+    for line in args.vertical_lines:
+        fig.add_vline(
+            x=line,
+            line=dict(
+                color=args.vertical_line_color,
+                width=args.vertical_line_width,
+                dash=args.vertical_line_style,
+            ),
         )
 
     fig.update_layout(

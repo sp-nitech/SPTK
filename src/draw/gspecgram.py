@@ -30,7 +30,9 @@ import sptk.draw_utils as utils  # noqa: E402
 
 
 def get_arguments():
-    parser = utils.get_default_parser("draw spectrogram", input_name="waveform")
+    parser = utils.get_default_parser(
+        "draw spectrogram", input_name="waveform", allow_grid=False
+    )
     parser.add_argument(
         "-s",
         metavar="s",
