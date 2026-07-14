@@ -243,15 +243,26 @@ def main():
         range=(x[0], x[-1]),
         showgrid=args.grid,
     )
-    yaxis = dict(
-        range=(
-            y_min - args.margin_factor * args.bias,
-            y_max + args.margin_factor * args.bias,
-        ),
-        showticklabels=False,
-        showgrid=False,
-        zeroline=False,
-    )
+    if len(ys) == 0:
+        yaxis = None
+    else:
+        frame_offset = float(ys[:, -1 if args.transpose else 0].mean())
+        frame_tickvals, frame_ticktext = utils.index_ticks(
+            len(ys), args.start_frame_number, args.bias, offset=frame_offset
+        )
+        range_min = y_min - args.margin_factor * args.bias
+        range_max = y_max + args.margin_factor * args.bias
+        range_min = min(range_min, min(frame_tickvals))
+        range_max = max(range_max, max(frame_tickvals))
+        yaxis = dict(
+            range=(range_min, range_max),
+            tickmode="array",
+            tickvals=frame_tickvals,
+            ticktext=frame_ticktext,
+            title_text="Time [frames]",
+            showgrid=False,
+            zeroline=False,
+        )
     if args.sr <= 0:
         xaxis["title_text"] = "Normalized frequency [rad]"
         xaxis["tickmode"] = "array"

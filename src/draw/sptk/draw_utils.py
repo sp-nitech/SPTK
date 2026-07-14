@@ -15,6 +15,7 @@
 # ------------------------------------------------------------------------ #
 
 import argparse
+import math
 import struct
 import sys
 import warnings
@@ -74,6 +75,24 @@ def asarray(data, dim=None, dtype="d"):
     if dim is None or dim <= 1:
         return data.reshape(-1)
     return data.reshape(-1, dim)
+
+
+def index_ticks(count, start, spacing, offset=0.0, target=6):
+    end = start + count - 1
+    span = count - 1
+    if span <= 0:
+        step = 1
+    else:
+        raw = span / target
+        exp = math.floor(math.log10(raw))
+        base = raw / 10**exp
+        nice = 1 if base <= 1 else 2 if base <= 2 else 5 if base <= 5 else 10
+        step = max(1, int(nice * 10**exp))
+    first = -(-start // step) * step
+    indices = list(range(first, end + 1, step))
+    tickvals = [spacing * (i - start) + offset for i in indices]
+    ticktext = [str(i) for i in indices]
+    return tickvals, ticktext
 
 
 def read_binary(filename, dim=1, dtype="d"):
