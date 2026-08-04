@@ -15,7 +15,7 @@
 // ------------------------------------------------------------------------ //
 
 #include <algorithm>  // std::max, std::min, std::transform
-#include <cmath>      // std::exp
+#include <cmath>      // std::exp, std::sqrt
 #include <fstream>    // std::ifstream
 #include <iomanip>    // std::setw
 #include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -398,17 +398,17 @@ int main(int argc, char* argv[]) {
       }
       case kPeriodicity: {
         std::transform(output.begin(), output.end(), output.begin(),
-                       [](double a) { return 1.0 - a; });
+                       [](double a) { return std::sqrt(1.0 - a * a); });
         break;
       }
       case kAperiodicityOverPeriodicity: {
         std::transform(output.begin(), output.end(), output.begin(),
-                       [](double a) { return a / (1.0 - a); });
+                       [](double a) { return a / std::sqrt(1.0 - a * a); });
         break;
       }
       case kPeriodicityOverAperiodicity: {
         std::transform(output.begin(), output.end(), output.begin(),
-                       [](double a) { return (1.0 - a) / a; });
+                       [](double a) { return std::sqrt(1.0 - a * a) / a; });
         break;
       }
       default: {
