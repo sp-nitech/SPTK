@@ -44,7 +44,6 @@ const int kDefaultFftLength(256);
 const int kDefaultFrameShift(80);
 const double kDefaultSamplingRate(16.0);
 const double kDefaultLowerBound(1e-3);
-const double kDefaultUpperBound(1.0 - kDefaultLowerBound);
 const InputFormats kDefaultInputFormat(kPitch);
 const OutputFormats kDefaultOutputFormat(kAperiodicity);
 const double kDefaultF0(150.0);
@@ -65,7 +64,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -p p  : frame shift [point]     (   int)[" << std::setw(5) << std::right << kDefaultFrameShift   << "][   1 <= p <=      ]" << std::endl;  // NOLINT
   *stream << "       -s s  : sampling rate [kHz]     (double)[" << std::setw(5) << std::right << kDefaultSamplingRate << "][ 8.0 <= s <= 98.0 ]" << std::endl;  // NOLINT
   *stream << "       -L L  : lower bound of Ha       (double)[" << std::setw(5) << std::right << kDefaultLowerBound   << "][ 0.0 <= L <  H    ]" << std::endl;  // NOLINT
-  *stream << "       -H H  : upper bound of Ha       (double)[" << std::setw(5) << std::right << kDefaultUpperBound   << "][   L <  H <= 1.0  ]" << std::endl;  // NOLINT
+  *stream << "       -H H  : upper bound of Ha       (double)[" << std::setw(5) << std::right << "N/A"                << "][   L <  H <= 1.0  ]" << std::endl;  // NOLINT
   *stream << "       -q q  : f0 input format         (   int)[" << std::setw(5) << std::right << kDefaultInputFormat  << "][   0 <= q <= 2    ]" << std::endl;  // NOLINT
   *stream << "                 0 (Fs/F0)" << std::endl;
   *stream << "                 1 (F0)" << std::endl;
@@ -84,6 +83,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       aperiodicity                    (double)" << std::endl;
   *stream << "  notice:" << std::endl;
   *stream << "       magic number representing unvoiced symbol is 0 (q = 0, 1) or -1e+10 (q = 2)" << std::endl;  // NOLINT
+  *stream << "       if -H is not specified, upper bound is computed automatically from lower bound" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -144,7 +144,8 @@ int main(int argc, char* argv[]) {
   int frame_shift(kDefaultFrameShift);
   double sampling_rate(kDefaultSamplingRate);
   double lower_bound(kDefaultLowerBound);
-  double upper_bound(kDefaultUpperBound);
+  double upper_bound(1.0);
+  bool is_upper_bound_specified(false);
   InputFormats input_format(kDefaultInputFormat);
   OutputFormats output_format(kDefaultOutputFormat);
 
@@ -227,6 +228,7 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("ap", error_message);
           return 1;
         }
+        is_upper_bound_specified = true;
         break;
       }
       case 'q': {
@@ -270,11 +272,15 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  if (upper_bound <= lower_bound) {
-    std::ostringstream error_message;
-    error_message << "Lower bound must be less than upper one";
-    sptk::PrintErrorMessage("ap", error_message);
-    return 1;
+  if (is_upper_bound_specified) {
+    if (upper_bound <= lower_bound) {
+      std::ostringstream error_message;
+      error_message << "Lower bound must be less than upper one";
+      sptk::PrintErrorMessage("ap", error_message);
+      return 1;
+    }
+  } else {
+    upper_bound = std::sqrt(1.0 - lower_bound * lower_bound);
   }
 
   const char* f0_file;
