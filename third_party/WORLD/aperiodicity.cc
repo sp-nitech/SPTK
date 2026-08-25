@@ -611,7 +611,7 @@ void CalculateAperiodicity(double *coarse_aperiodicity, int number_of_bands,
 #if 1
   coarse_aperiodicity_expand[number_of_bands + 1] =
     coarse_aperiodicity_expand[number_of_bands];
-  coarse_axis[number_of_bands + 1] = fs;
+  coarse_axis[number_of_bands + 1] = fs * stretching_factor;
 #endif
 
   for (int i = 0; i <= fft_size / 2; ++i)
