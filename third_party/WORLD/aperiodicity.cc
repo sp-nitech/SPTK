@@ -582,28 +582,46 @@ void CalculateAperiodicity(double *coarse_aperiodicity, int number_of_bands,
     return;
   }
   // 0 Hz and fs / 2 Hz are added for interporation
+#if 0
   double *coarse_aperiodicity_expand = new double[number_of_bands + 1];
   double *coarse_axis = new double[number_of_bands + 1];
+#else
+  double *coarse_aperiodicity_expand = new double[number_of_bands + 2];
+  double *coarse_axis = new double[number_of_bands + 2];
+#endif
   double *frequency_axis = new double[fft_size / 2 + 1];
 
 #if 0
   const double kMySafeGuardLogMinimum = -21.416413017506358;
-#else
-  const double kMySafeGuardLogMinimum = log(coarse_aperiodicity[0]);
-#endif
 
   coarse_aperiodicity_expand[0] = kMySafeGuardLogMinimum;
+#else
+  coarse_aperiodicity_expand[0] = log(coarse_aperiodicity[0]);
+#endif
   coarse_axis[0] = 0.0;
   for (int i = 0; i < number_of_bands; ++i) {
     coarse_aperiodicity_expand[i + 1] = log(coarse_aperiodicity[i]);
     coarse_axis[i + 1] = fs / pow(2.0, number_of_bands - i) *
+#if 0
       stretching_factor;
+#else
+      sqrt(0.5) * stretching_factor;
+#endif
   }
+#if 1
+  coarse_aperiodicity_expand[number_of_bands + 1] =
+    coarse_aperiodicity_expand[number_of_bands];
+  coarse_axis[number_of_bands + 1] = fs;
+#endif
 
   for (int i = 0; i <= fft_size / 2; ++i)
     frequency_axis[i] = static_cast<double>(i * fs) / fft_size;
 
+#if 0
   interp1(coarse_axis, coarse_aperiodicity_expand, number_of_bands + 1,
+#else
+  interp1(coarse_axis, coarse_aperiodicity_expand, number_of_bands + 2,
+#endif
       frequency_axis, fft_size / 2 + 1, aperiodicity);
 
   for (int i = 0; i <= fft_size / 2; ++i)

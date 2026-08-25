@@ -46,7 +46,6 @@ const double kDefaultSamplingRate(16.0);
 const double kDefaultLowerBound(1e-3);
 const InputFormats kDefaultInputFormat(kPitch);
 const OutputFormats kDefaultOutputFormat(kAperiodicity);
-const double kDefaultF0(150.0);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -326,21 +325,21 @@ int main(int argc, char* argv[]) {
 
     switch (input_format) {
       case kPitch: {
-        std::transform(
-            f0.begin(), f0.end(), f0.begin(), [sampling_rate_in_hz](double x) {
-              return (0.0 == x) ? kDefaultF0 : sampling_rate_in_hz / x;
-            });
+        std::transform(f0.begin(), f0.end(), f0.begin(),
+                       [sampling_rate_in_hz, default_f0](double x) {
+                         return (0.0 == x) ? 0.0 : sampling_rate_in_hz / x;
+                       });
         break;
       }
       case kF0: {
-        std::transform(f0.begin(), f0.end(), f0.begin(),
-                       [](double x) { return (0.0 == x) ? kDefaultF0 : x; });
+        // nothing to do
         break;
       }
       case kLogF0: {
-        std::transform(f0.begin(), f0.end(), f0.begin(), [](double x) {
-          return (sptk::kLogZero == x) ? kDefaultF0 : std::exp(x);
-        });
+        std::transform(f0.begin(), f0.end(), f0.begin(),
+                       [default_f0](double x) {
+                         return (sptk::kLogZero == x) ? 0.0 : std::exp(x);
+                       });
         break;
       }
       default: {
