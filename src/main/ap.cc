@@ -15,7 +15,7 @@
 // ------------------------------------------------------------------------ //
 
 #include <algorithm>  // std::max, std::min, std::transform
-#include <cmath>      // std::exp
+#include <cmath>      // std::exp, std::sqrt
 #include <fstream>    // std::ifstream
 #include <iomanip>    // std::setw
 #include <iostream>   // std::cerr, std::cin, std::cout, std::endl, etc.
@@ -44,10 +44,8 @@ const int kDefaultFftLength(256);
 const int kDefaultFrameShift(80);
 const double kDefaultSamplingRate(16.0);
 const double kDefaultLowerBound(1e-3);
-const double kDefaultUpperBound(1.0 - kDefaultLowerBound);
 const InputFormats kDefaultInputFormat(kPitch);
 const OutputFormats kDefaultOutputFormat(kAperiodicity);
-const double kDefaultF0(150.0);
 
 void PrintUsage(std::ostream* stream) {
   // clang-format off
@@ -65,7 +63,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       -p p  : frame shift [point]     (   int)[" << std::setw(5) << std::right << kDefaultFrameShift   << "][   1 <= p <=      ]" << std::endl;  // NOLINT
   *stream << "       -s s  : sampling rate [kHz]     (double)[" << std::setw(5) << std::right << kDefaultSamplingRate << "][ 8.0 <= s <= 98.0 ]" << std::endl;  // NOLINT
   *stream << "       -L L  : lower bound of Ha       (double)[" << std::setw(5) << std::right << kDefaultLowerBound   << "][ 0.0 <= L <  H    ]" << std::endl;  // NOLINT
-  *stream << "       -H H  : upper bound of Ha       (double)[" << std::setw(5) << std::right << kDefaultUpperBound   << "][   L <  H <= 1.0  ]" << std::endl;  // NOLINT
+  *stream << "       -H H  : upper bound of Ha       (double)[" << std::setw(5) << std::right << "N/A"                << "][   L <  H <= 1.0  ]" << std::endl;  // NOLINT
   *stream << "       -q q  : f0 input format         (   int)[" << std::setw(5) << std::right << kDefaultInputFormat  << "][   0 <= q <= 2    ]" << std::endl;  // NOLINT
   *stream << "                 0 (Fs/F0)" << std::endl;
   *stream << "                 1 (F0)" << std::endl;
@@ -84,6 +82,7 @@ void PrintUsage(std::ostream* stream) {
   *stream << "       aperiodicity                    (double)" << std::endl;
   *stream << "  notice:" << std::endl;
   *stream << "       magic number representing unvoiced symbol is 0 (q = 0, 1) or -1e+10 (q = 2)" << std::endl;  // NOLINT
+  *stream << "       if -H is not specified, upper bound is computed automatically from lower bound" << std::endl;  // NOLINT
   *stream << std::endl;
   *stream << " SPTK: version " << sptk::kVersion << std::endl;
   *stream << std::endl;
@@ -144,7 +143,8 @@ int main(int argc, char* argv[]) {
   int frame_shift(kDefaultFrameShift);
   double sampling_rate(kDefaultSamplingRate);
   double lower_bound(kDefaultLowerBound);
-  double upper_bound(kDefaultUpperBound);
+  double upper_bound(1.0);
+  bool is_upper_bound_specified(false);
   InputFormats input_format(kDefaultInputFormat);
   OutputFormats output_format(kDefaultOutputFormat);
 
@@ -227,6 +227,7 @@ int main(int argc, char* argv[]) {
           sptk::PrintErrorMessage("ap", error_message);
           return 1;
         }
+        is_upper_bound_specified = true;
         break;
       }
       case 'q': {
@@ -268,6 +269,10 @@ int main(int argc, char* argv[]) {
         return 1;
       }
     }
+  }
+
+  if (!is_upper_bound_specified) {
+    upper_bound = std::sqrt(1.0 - lower_bound * lower_bound);
   }
 
   if (upper_bound <= lower_bound) {
@@ -320,20 +325,19 @@ int main(int argc, char* argv[]) {
 
     switch (input_format) {
       case kPitch: {
-        std::transform(
-            f0.begin(), f0.end(), f0.begin(), [sampling_rate_in_hz](double x) {
-              return (0.0 == x) ? kDefaultF0 : sampling_rate_in_hz / x;
-            });
+        std::transform(f0.begin(), f0.end(), f0.begin(),
+                       [sampling_rate_in_hz](double x) {
+                         return (0.0 == x) ? 0.0 : sampling_rate_in_hz / x;
+                       });
         break;
       }
       case kF0: {
-        std::transform(f0.begin(), f0.end(), f0.begin(),
-                       [](double x) { return (0.0 == x) ? kDefaultF0 : x; });
+        // nothing to do
         break;
       }
       case kLogF0: {
         std::transform(f0.begin(), f0.end(), f0.begin(), [](double x) {
-          return (sptk::kLogZero == x) ? kDefaultF0 : std::exp(x);
+          return (sptk::kLogZero == x) ? 0.0 : std::exp(x);
         });
         break;
       }
@@ -398,17 +402,17 @@ int main(int argc, char* argv[]) {
       }
       case kPeriodicity: {
         std::transform(output.begin(), output.end(), output.begin(),
-                       [](double a) { return 1.0 - a; });
+                       [](double a) { return std::sqrt(1.0 - a * a); });
         break;
       }
       case kAperiodicityOverPeriodicity: {
         std::transform(output.begin(), output.end(), output.begin(),
-                       [](double a) { return a / (1.0 - a); });
+                       [](double a) { return a / std::sqrt(1.0 - a * a); });
         break;
       }
       case kPeriodicityOverAperiodicity: {
         std::transform(output.begin(), output.end(), output.begin(),
-                       [](double a) { return (1.0 - a) / a; });
+                       [](double a) { return std::sqrt(1.0 - a * a) / a; });
         break;
       }
       default: {
