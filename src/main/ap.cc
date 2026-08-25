@@ -271,15 +271,15 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  if (is_upper_bound_specified) {
-    if (upper_bound <= lower_bound) {
-      std::ostringstream error_message;
-      error_message << "Lower bound must be less than upper one";
-      sptk::PrintErrorMessage("ap", error_message);
-      return 1;
-    }
-  } else {
+  if (!is_upper_bound_specified) {
     upper_bound = std::sqrt(1.0 - lower_bound * lower_bound);
+  }
+
+  if (upper_bound <= lower_bound) {
+    std::ostringstream error_message;
+    error_message << "Lower bound must be less than upper one";
+    sptk::PrintErrorMessage("ap", error_message);
+    return 1;
   }
 
   const char* f0_file;
@@ -326,7 +326,7 @@ int main(int argc, char* argv[]) {
     switch (input_format) {
       case kPitch: {
         std::transform(f0.begin(), f0.end(), f0.begin(),
-                       [sampling_rate_in_hz, default_f0](double x) {
+                       [sampling_rate_in_hz](double x) {
                          return (0.0 == x) ? 0.0 : sampling_rate_in_hz / x;
                        });
         break;
@@ -336,10 +336,9 @@ int main(int argc, char* argv[]) {
         break;
       }
       case kLogF0: {
-        std::transform(f0.begin(), f0.end(), f0.begin(),
-                       [default_f0](double x) {
-                         return (sptk::kLogZero == x) ? 0.0 : std::exp(x);
-                       });
+        std::transform(f0.begin(), f0.end(), f0.begin(), [](double x) {
+          return (sptk::kLogZero == x) ? 0.0 : std::exp(x);
+        });
         break;
       }
       default: {
