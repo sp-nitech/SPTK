@@ -1619,6 +1619,10 @@ dp_f0(float *fdata, int buff_size, int sdstep, double freq, F0_params *par,
   Stat *stat = NULL;
 
   nframes = get_Nframes((long) buff_size, buffer->pad, buffer->step); /* # of whole frames */
+#if 1
+  if (buffer->first_time && nframes <= 0)
+    return 1;
+#endif
 
   if(debug_level)
     Fprintf(stderr,
@@ -1627,7 +1631,11 @@ dp_f0(float *fdata, int buff_size, int sdstep, double freq, F0_params *par,
   /* Now downsample the signal for coarse peak estimates. */
 
   decimate = (int)(freq/2000.0);    /* downsample to about 2kHz */
+#if 0
   if (decimate <= 1)
+#else
+  if (decimate <= 1 || nframes <= 0)
+#endif
     dsdata = fdata;
   else {
     samsds = ((nframes-1) * buffer->step + buffer->ncomp) / decimate;
