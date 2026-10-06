@@ -360,15 +360,29 @@ void Slast(matrix S, vector x, vector pc, vector fERBs, vector d,
 vector pitch(matrix S, vector pc, double st) {
     int i, j;
     int maxi = -1;
+#if 0
     int search = (int) round((log2(pc.v[2]) - log2(pc.v[0])) / POLYV + 1.);
     double nftc, maxv, log2pc;
     double tc2 = 1. / pc.v[1];
+#else
+    int search = 0;
+    double nftc, maxv, log2pc;
+    double tc2;
+#endif
     vector coefs;
     vector s = makev(3);
     vector ntc = makev(3);
+#if 1
+    if (3 <= pc.x) {
+#endif
+    search = (int) round((log2(pc.v[2]) - log2(pc.v[0])) / POLYV + 1.);
+    tc2 = 1. / pc.v[1];
     ntc.v[0] = ((1. / pc.v[0]) / tc2 - 1.) * 2. * M_PI; 
     ntc.v[1] = (tc2 / tc2 - 1.) * 2. * M_PI; 
     ntc.v[2] = ((1. / pc.v[2]) / tc2 - 1.) * 2. * M_PI;
+#if 1
+    }
+#endif
     vector p = makev(S.y);  
     for (j = 0; j < S.y; j++) {
         maxv = SHRT_MIN;  
@@ -495,8 +509,12 @@ vector swipe(const std::vector<double>& waveform, double samplerate, double min,
     Sfirst(S, x, pc, fERBs, d, ws, ps, nyquist, nyquist2, dt, 0); 
     for (i = 1; i < ws.x - 1; i++) // S is updated inline here
         Snth(S, x, pc, fERBs, d, ws, ps, nyquist, nyquist2, dt, i);
+#if 0
     // i is now (ws.x - 1)
     Slast(S, x, pc, fERBs, d, ws, ps, nyquist, nyquist2, dt, i);
+#else
+    if (1 < ws.x) Slast(S, x, pc, fERBs, d, ws, ps, nyquist, nyquist2, dt, ws.x - 1);
+#endif
     freev(fERBs); 
     freeiv(ws);
     freeiv(ps);
